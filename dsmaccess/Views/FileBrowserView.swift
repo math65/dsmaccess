@@ -15,7 +15,8 @@ struct FileBrowserView: View {
     @AccessibilityFocusState private var focusHeader: Bool
     @State private var activeSheet: WriteSheet?
     @State private var pendingDelete: FileStationItem?
-    @State private var share: SharePresentation?
+    @State private var shareItem: FileStationItem?
+    @State private var showingShareLinks = false
 
     /// Feuille de saisie active (créer un dossier ou renommer un élément).
     private enum WriteSheet: Identifiable {
@@ -27,12 +28,6 @@ struct FileBrowserView: View {
             case .rename(let item): return "rename-\(item.id)"
             }
         }
-    }
-
-    /// Présentation de la feuille de lien de partage (l'URL sert d'identité).
-    private struct SharePresentation: Identifiable {
-        let url: String
-        var id: String { url }
     }
 
     init(session: SessionStore) {
@@ -84,8 +79,13 @@ struct FileBrowserView: View {
         } message: { item in
             Text("« \(item.name) » sera supprimé définitivement. Cette action est irréversible.")
         }
-        .sheet(item: $share) { presentation in
-            ShareLinkSheet(url: presentation.url)
+        .sheet(item: $shareItem) { item in
+            ShareSheet(item: item) { password, dateExpired in
+                await vm.createShareLink(for: item, password: password, dateExpired: dateExpired)
+            }
+        }
+        .sheet(isPresented: $showingShareLinks) {
+            ShareLinksView(vm: vm)
         }
     }
 
@@ -136,6 +136,13 @@ struct FileBrowserView: View {
             .disabled(!vm.canPaste)
             .keyboardShortcut("v", modifiers: .command)
             .accessibilityHint("Colle l'élément copié ou coupé dans ce dossier")
+
+            Button {
+                showingShareLinks = true
+            } label: {
+                Label("Liens de partage", systemImage: "link")
+            }
+            .accessibilityHint("Gère les liens de partage existants")
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
@@ -180,14 +187,7 @@ struct FileBrowserView: View {
                 onDelete: { item in pendingDelete = item },
                 onCopy: { item in VoiceOver.announce(vm.copy(item)) },
                 onCut: { item in VoiceOver.announce(vm.cut(item)) },
-                onShare: { item in
-                    Task {
-                        switch await vm.createShareLink(for: item) {
-                        case .link(let url): share = SharePresentation(url: url)
-                        case .failure(let msg): VoiceOver.announce(msg, priority: .high)
-                        }
-                    }
-                },
+                onShare: { item in shareItem = item },
                 onGoUp: { Task { await vm.goUp(); announce() } }
             )
         }

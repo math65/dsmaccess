@@ -32,8 +32,12 @@ protocol DSMClientProtocol: AnyObject {
     func upload(fileURL: URL, to folderPath: String, sid: String) async throws
     /// Copie (`remove == false`) ou déplace (`remove == true`) `path` vers `destFolder` ; attend la fin.
     func copyMove(path: String, to destFolder: String, remove: Bool, sid: String) async throws
-    /// Crée un lien de partage public vers `path` et renvoie son URL.
-    func createShareLink(path: String, sid: String) async throws -> String
+    /// Crée un lien de partage public vers `path` (mot de passe / expiration optionnels) ; renvoie l'URL.
+    func createShareLink(path: String, password: String?, dateExpired: String?, sid: String) async throws -> String
+    /// Liste les liens de partage existants.
+    func listShareLinks(sid: String) async throws -> [SharingLink]
+    /// Supprime (révoque) le lien de partage `id`.
+    func deleteShareLink(id: String, sid: String) async throws
     func logout(sid: String) async throws
 }
 
@@ -365,20 +369,51 @@ final class DSMClient: DSMClientProtocol {
         throw DSMError.network(String(localized: "Délai dépassé."))
     }
 
-    func createShareLink(path: String, sid: String) async throws -> String {
+    func createShareLink(path: String, password: String?, dateExpired: String?, sid: String) async throws -> String {
         try await ensurePaths(for: [Self.fileStationSharingAPI])
-        let resp = try await get(cgi: self.path(for: Self.fileStationSharingAPI), query: [
+        var query = [
             "api": "SYNO.FileStation.Sharing",
             "version": "3",
             "method": "create",
             // DSM attend le chemin dans un tableau JSON.
             "path": "[\"\(path)\"]",
             "_sid": sid,
-        ], as: SharingLinks.self)
+        ]
+        if let password, !password.isEmpty { query["password"] = password }
+        if let dateExpired, !dateExpired.isEmpty { query["date_expired"] = dateExpired }
+        let resp = try await get(cgi: self.path(for: Self.fileStationSharingAPI), query: query, as: SharingLinks.self)
         guard resp.success, let url = resp.data?.links.first?.url else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
         return url
+    }
+
+    func listShareLinks(sid: String) async throws -> [SharingLink] {
+        try await ensurePaths(for: [Self.fileStationSharingAPI])
+        let resp = try await get(cgi: self.path(for: Self.fileStationSharingAPI), query: [
+            "api": "SYNO.FileStation.Sharing",
+            "version": "3",
+            "method": "list",
+            "_sid": sid,
+        ], as: SharingLinks.self)
+        guard resp.success, let data = resp.data else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+        return data.links
+    }
+
+    func deleteShareLink(id: String, sid: String) async throws {
+        try await ensurePaths(for: [Self.fileStationSharingAPI])
+        let resp = try await get(cgi: self.path(for: Self.fileStationSharingAPI), query: [
+            "api": "SYNO.FileStation.Sharing",
+            "version": "3",
+            "method": "delete",
+            "id": id,
+            "_sid": sid,
+        ], as: EmptyData.self)
+        guard resp.success else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
     }
 
     func logout(sid: String) async throws {

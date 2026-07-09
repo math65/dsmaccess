@@ -94,8 +94,10 @@ struct SharingLinks: Decodable {
     let links: [SharingLink]
 }
 
-/// Un lien de partage : son identifiant et l'URL publique.
-struct SharingLink: Decodable {
+/// Un lien de partage : identifiant, URL publique, et chemin de l'élément partagé
+/// (`path` n'est renvoyé qu'au listing, pas à la création).
+struct SharingLink: Decodable, Identifiable {
     let id: String
     let url: String
+    let path: String?
 }

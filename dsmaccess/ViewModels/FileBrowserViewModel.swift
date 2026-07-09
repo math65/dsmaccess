@@ -223,17 +223,54 @@ final class FileBrowserViewModel {
         case failure(String)
     }
 
-    /// Crée un lien de partage public vers `item` et renvoie l'URL (ou l'échec).
-    func createShareLink(for item: FileStationItem) async -> ShareOutcome {
+    /// Crée un lien de partage public vers `item` (mot de passe / expiration optionnels).
+    func createShareLink(for item: FileStationItem, password: String?, dateExpired: String?) async -> ShareOutcome {
         guard let client = session.client, let sid = session.sid else {
             return .failure(String(localized: "Session expirée."))
         }
         do {
-            let url = try await client.createShareLink(path: item.path, sid: sid)
+            let url = try await client.createShareLink(path: item.path, password: password, dateExpired: dateExpired, sid: sid)
             return .link(url)
         } catch {
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
             return .failure(String(localized: "Échec de la création du lien : \(reason)"))
+        }
+    }
+
+    // MARK: - Gestion des liens de partage existants
+
+    private(set) var shareLinks: [SharingLink] = []
+    private(set) var isLoadingShareLinks = false
+    var shareLinksError: String?
+
+    /// Charge la liste des liens de partage actifs.
+    func loadShareLinks() async {
+        guard let client = session.client, let sid = session.sid else {
+            session.clear()
+            return
+        }
+        isLoadingShareLinks = true
+        shareLinksError = nil
+        do {
+            shareLinks = try await client.listShareLinks(sid: sid)
+        } catch {
+            shareLinksError = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+        }
+        isLoadingShareLinks = false
+    }
+
+    /// Supprime (révoque) un lien de partage puis recharge la liste. Renvoie le message VoiceOver.
+    func deleteShareLink(_ link: SharingLink) async -> String {
+        guard let client = session.client, let sid = session.sid else {
+            return String(localized: "Session expirée.")
+        }
+        do {
+            try await client.deleteShareLink(id: link.id, sid: sid)
+            await loadShareLinks()
+            return String(localized: "Lien supprimé")
+        } catch {
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return String(localized: "Échec de la suppression du lien : \(reason)")
         }
     }
 
