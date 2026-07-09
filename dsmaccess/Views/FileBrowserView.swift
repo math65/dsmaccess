@@ -94,7 +94,7 @@ struct FileBrowserView: View {
     }
 
     private func announce() {
-        AccessibilityNotification.Announcement(vm.summary).post()
+        VoiceOver.announce(vm.summary)
     }
 
     /// Choisit une destination via un panneau d'enregistrement, puis lance le téléchargement.
@@ -103,10 +103,10 @@ struct FileBrowserView: View {
         panel.nameFieldStringValue = vm.suggestedFilename(for: item)
         panel.canCreateDirectories = true
         guard panel.runModal() == .OK, let url = panel.url else { return }
-        AccessibilityNotification.Announcement(String(localized: "Téléchargement en cours…")).post()
+        VoiceOver.announce(String(localized: "Téléchargement en cours…"), priority: .low)
         Task {
             let message = await vm.downloadItem(item, to: url)
-            AccessibilityNotification.Announcement(message).post()
+            VoiceOver.announce(message, priority: .high)
         }
     }
 }

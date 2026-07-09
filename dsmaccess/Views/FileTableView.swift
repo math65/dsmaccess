@@ -108,6 +108,28 @@ struct FileTableView: NSViewRepresentable {
     }
 }
 
+/// NSMenuItem qui exécute une closure (NSMenuItem ne connaît nativement que target/action).
+private final class ClosureMenuItem: NSMenuItem {
+    private let handler: () -> Void
+    init(title: String, handler: @escaping () -> Void) {
+        self.handler = handler
+        super.init(title: title, action: #selector(fire), keyEquivalent: "")
+        target = self
+    }
+    @available(*, unavailable)
+    required init(coder: NSCoder) { fatalError("init(coder:) non supporté") }
+    @objc private func fire() { handler() }
+}
+
+/// Menu contextuel d'un élément, PARTAGÉ entre le clic droit (souris → `menu(for:)`) et
+/// VO-Maj-M (VoiceOver → `accessibilityPerformShowMenu()`). Point unique où ajouter les
+/// futures actions (Renommer, Supprimer, Créer dossier…).
+private func makeFileContextMenu(download: @escaping () -> Void) -> NSMenu {
+    let menu = NSMenu()
+    menu.addItem(ClosureMenuItem(title: String(localized: "Télécharger"), handler: download))
+    return menu
+}
+
 /// NSTableView qui mappe les touches façon Finder et fournit un menu contextuel « Télécharger ».
 final class KeyboardTableView: NSTableView {
     var onActivate: (() -> Void)?
@@ -133,17 +155,7 @@ final class KeyboardTableView: NSTableView {
         let row = self.row(at: point)
         guard row >= 0 else { return nil }
         selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
-        let menu = NSMenu()
-        let download = NSMenuItem(title: String(localized: "Télécharger"),
-                                  action: #selector(contextDownloadClicked(_:)), keyEquivalent: "")
-        download.target = self
-        download.representedObject = row
-        menu.addItem(download)
-        return menu
-    }
-
-    @objc private func contextDownloadClicked(_ sender: NSMenuItem) {
-        if let row = sender.representedObject as? Int { onContextDownload?(row) }
+        return makeFileContextMenu { [weak self] in self?.onContextDownload?(row) }
     }
 }
 
@@ -224,16 +236,8 @@ final class FileCellView: NSTableCellView {
     /// de la souris), il faut donc présenter le menu nous-mêmes pour qu'il soit atteignable.
     override func accessibilityPerformShowMenu() -> Bool {
         guard onDownload != nil else { return false }
-        let menu = NSMenu()
-        let download = NSMenuItem(title: String(localized: "Télécharger"),
-                                  action: #selector(performDownloadFromMenu), keyEquivalent: "")
-        download.target = self
-        menu.addItem(download)
+        let menu = makeFileContextMenu { [weak self] in self?.onDownload?() }
         menu.popUp(positioning: nil, at: NSPoint(x: bounds.minX, y: bounds.maxY), in: self)
         return true
-    }
-
-    @objc private func performDownloadFromMenu() {
-        onDownload?()
     }
 }

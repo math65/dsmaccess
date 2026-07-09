@@ -63,7 +63,7 @@ struct MainView: View {
             }
         }
         .task {
-            AccessibilityNotification.Announcement(String(localized: "Connecté")).post()
+            VoiceOver.announce(String(localized: "Connecté"))
         }
     }
 
