@@ -148,6 +148,35 @@ final class FileBrowserViewModel {
         }
     }
 
+    /// Envoie les fichiers `fileURLs` dans le dossier courant. Renvoie le message VoiceOver.
+    func upload(fileURLs: [URL]) async -> String {
+        guard let client = session.client, let sid = session.sid, let parent = currentLevel.path else {
+            return String(localized: "Impossible d'envoyer ici.")
+        }
+        var sent = 0
+        var firstFailure: String?
+        for url in fileURLs {
+            do {
+                try await client.upload(fileURL: url, to: parent, sid: sid)
+                sent += 1
+            } catch {
+                if firstFailure == nil {
+                    firstFailure = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+                }
+            }
+        }
+        await loadCurrent()
+        let failed = fileURLs.count - sent
+        if failed > 0, let firstFailure {
+            return String(localized: "\(sent) envoyés, \(failed) en échec : \(firstFailure)")
+        }
+        switch sent {
+        case 0: return String(localized: "Impossible d'envoyer ici.")
+        case 1: return String(localized: "Fichier envoyé : \(fileURLs.first?.lastPathComponent ?? "")")
+        default: return String(localized: "\(sent) fichiers envoyés")
+        }
+    }
+
     /// Résumé annoncé à VoiceOver après un chargement / une navigation.
     var summary: String {
         if let errorMessage { return errorMessage }

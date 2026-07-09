@@ -28,6 +28,8 @@ protocol DSMClientProtocol: AnyObject {
     func rename(path: String, to name: String, sid: String) async throws
     /// Supprime l'élément situé à `path` (récursif pour un dossier).
     func delete(path: String, sid: String) async throws
+    /// Envoie (upload) un fichier local vers le dossier `folderPath` (POST multipart).
+    func upload(fileURL: URL, to folderPath: String, sid: String) async throws
     func logout(sid: String) async throws
 }
 
@@ -40,6 +42,7 @@ final class DSMClient: DSMClientProtocol {
     private static let fileStationCreateFolderAPI = "SYNO.FileStation.CreateFolder"
     private static let fileStationRenameAPI = "SYNO.FileStation.Rename"
     private static let fileStationDeleteAPI = "SYNO.FileStation.Delete"
+    private static let fileStationUploadAPI = "SYNO.FileStation.Upload"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -254,6 +257,68 @@ final class DSMClient: DSMClientProtocol {
         let resp = try await get(cgi: self.path(for: Self.fileStationDeleteAPI), query: query, as: EmptyData.self)
         guard resp.success else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+    }
+
+    func upload(fileURL: URL, to folderPath: String, sid: String) async throws {
+        try await ensurePaths(for: [Self.fileStationUploadAPI])
+        let url = try makeURL(cgi: self.path(for: Self.fileStationUploadAPI), query: [
+            "api": "SYNO.FileStation.Upload",
+            "version": "2",
+            "method": "upload",
+            "_sid": sid,
+        ])
+
+        let fileData = try Data(contentsOf: fileURL)
+        let filename = fileURL.lastPathComponent
+        let boundary = "Boundary-\(UUID().uuidString)"
+
+        // Corps multipart : les champs texte d'abord, la partie fichier EN DERNIER (exigence DSM).
+        var body = Data()
+        func appendField(_ name: String, _ value: String) {
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"\(name)\"\r\n\r\n".data(using: .utf8)!)
+            body.append("\(value)\r\n".data(using: .utf8)!)
+        }
+        // DSM (erreur 119 sinon) exige les paramètres de routage AUSSI dans le corps multipart,
+        // pas seulement dans l'URL — on les redonne donc ici.
+        appendField("api", "SYNO.FileStation.Upload")
+        appendField("version", "2")
+        appendField("method", "upload")
+        appendField("_sid", sid)
+        // NB : un NAS avec protection CSRF activée exigerait en plus un SynoToken (récupéré au
+        // login via enable_syno_token=yes, à joindre à TOUTES les requêtes) — non nécessaire ici.
+        appendField("path", folderPath)
+        appendField("create_parents", "true")
+        appendField("overwrite", "false")
+        body.append("--\(boundary)\r\n".data(using: .utf8)!)
+        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
+        body.append("Content-Type: application/octet-stream\r\n\r\n".data(using: .utf8)!)
+        body.append(fileData)
+        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+        let data: Data
+        let response: URLResponse
+        do {
+            (data, response) = try await session.upload(for: request, from: body)
+        } catch let error as URLError {
+            throw DSMError.network(error.localizedDescription)
+        }
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw DSMError.invalidResponse
+        }
+        let decoded: DSMResponse<EmptyData>
+        do {
+            decoded = try JSONDecoder().decode(DSMResponse<EmptyData>.self, from: data)
+        } catch {
+            throw DSMError.decoding
+        }
+        guard decoded.success else {
+            throw DSMError.apiError(code: decoded.error?.code ?? -1)
         }
     }
 

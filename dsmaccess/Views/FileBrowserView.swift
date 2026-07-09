@@ -107,6 +107,15 @@ struct FileBrowserView: View {
             .disabled(!vm.canWrite)
             .keyboardShortcut("n", modifiers: [.command, .shift])
             .accessibilityHint("Crée un dossier dans le dossier courant")
+
+            Button {
+                startUpload()
+            } label: {
+                Label("Envoyer", systemImage: "square.and.arrow.up")
+            }
+            .disabled(!vm.canWrite)
+            .keyboardShortcut("u", modifiers: .command)
+            .accessibilityHint("Envoie des fichiers depuis votre Mac vers ce dossier")
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
@@ -167,6 +176,21 @@ struct FileBrowserView: View {
         VoiceOver.announce(String(localized: "Téléchargement en cours…"), priority: .low)
         Task {
             let message = await vm.downloadItem(item, to: url)
+            VoiceOver.announce(message, priority: .high)
+        }
+    }
+
+    /// Choisit un ou plusieurs fichiers via un panneau d'ouverture, puis lance l'envoi.
+    private func startUpload() {
+        let panel = NSOpenPanel()
+        panel.canChooseFiles = true
+        panel.canChooseDirectories = false
+        panel.allowsMultipleSelection = true
+        guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
+        let urls = panel.urls
+        VoiceOver.announce(String(localized: "Envoi en cours…"), priority: .low)
+        Task {
+            let message = await vm.upload(fileURLs: urls)
             VoiceOver.announce(message, priority: .high)
         }
     }
