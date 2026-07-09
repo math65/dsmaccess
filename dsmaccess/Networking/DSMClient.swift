@@ -38,6 +38,8 @@ protocol DSMClientProtocol: AnyObject {
     func listShareLinks(sid: String) async throws -> [SharingLink]
     /// Supprime (révoque) le lien de partage `id`.
     func deleteShareLink(id: String, sid: String) async throws
+    /// État du stockage (volumes + disques), via le Gestionnaire de stockage DSM.
+    func storageInfo(sid: String) async throws -> StorageInfo
     func logout(sid: String) async throws
 }
 
@@ -53,6 +55,7 @@ final class DSMClient: DSMClientProtocol {
     private static let fileStationUploadAPI = "SYNO.FileStation.Upload"
     private static let fileStationCopyMoveAPI = "SYNO.FileStation.CopyMove"
     private static let fileStationSharingAPI = "SYNO.FileStation.Sharing"
+    private static let storageAPI = "SYNO.Storage.CGI.Storage"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -414,6 +417,23 @@ final class DSMClient: DSMClientProtocol {
         guard resp.success else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
+    }
+
+    func storageInfo(sid: String) async throws -> StorageInfo {
+        try await ensurePaths(for: [Self.storageAPI])
+        // API non documentée : on utilise la version maximale découverte via SYNO.API.Info.
+        let version = apiPaths[Self.storageAPI]?.maxVersion ?? 1
+        let query = [
+            "api": "SYNO.Storage.CGI.Storage",
+            "version": String(version),
+            "method": "load_info",
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.storageAPI), query: query, as: StorageInfo.self)
+        guard resp.success, let data = resp.data else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+        return data
     }
 
     func logout(sid: String) async throws {

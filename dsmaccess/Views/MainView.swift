@@ -17,6 +17,7 @@ struct MainView: View {
     enum Module: Hashable, CaseIterable, Identifiable {
         case systemInfo
         case files
+        case storage
 
         var id: Self { self }
 
@@ -24,6 +25,7 @@ struct MainView: View {
             switch self {
             case .systemInfo: return "Votre NAS"
             case .files: return "Fichiers"
+            case .storage: return "Stockage"
             }
         }
 
@@ -31,6 +33,7 @@ struct MainView: View {
             switch self {
             case .systemInfo: return "server.rack"
             case .files: return "folder"
+            case .storage: return "internaldrive"
             }
         }
     }
@@ -57,6 +60,8 @@ struct MainView: View {
                 SystemInfoView(session: session)
             case .files:
                 FileBrowserView(session: session)
+            case .storage:
+                StorageView(session: session)
             case nil:
                 Text("Sélectionnez un module")
                     .foregroundStyle(.secondary)
