@@ -13,6 +13,20 @@ import SwiftUI
 struct FileBrowserView: View {
     @State private var vm: FileBrowserViewModel
     @AccessibilityFocusState private var focusHeader: Bool
+    @State private var activeSheet: WriteSheet?
+    @State private var pendingDelete: FileStationItem?
+
+    /// Feuille de saisie active (créer un dossier ou renommer un élément).
+    private enum WriteSheet: Identifiable {
+        case createFolder
+        case rename(FileStationItem)
+        var id: String {
+            switch self {
+            case .createFolder: return "createFolder"
+            case .rename(let item): return "rename-\(item.id)"
+            }
+        }
+    }
 
     init(session: SessionStore) {
         _vm = State(initialValue: FileBrowserViewModel(session: session))
@@ -29,6 +43,40 @@ struct FileBrowserView: View {
             await vm.loadCurrent()
             announce()
         }
+        .sheet(item: $activeSheet) { sheet in
+            switch sheet {
+            case .createFolder:
+                NameEntrySheet(
+                    title: "Créer un dossier",
+                    fieldLabel: "Nom du dossier",
+                    confirmLabel: "Créer",
+                    announcement: String(localized: "Créer un dossier")
+                ) { name in
+                    Task { let msg = await vm.createFolder(named: name); VoiceOver.announce(msg, priority: .high) }
+                }
+            case .rename(let item):
+                NameEntrySheet(
+                    title: "Renommer",
+                    fieldLabel: "Nouveau nom",
+                    confirmLabel: "Renommer",
+                    announcement: String(localized: "Renommer « \(item.name) »"),
+                    initialName: item.name
+                ) { name in
+                    Task { let msg = await vm.rename(item, to: name); VoiceOver.announce(msg, priority: .high) }
+                }
+            }
+        }
+        .alert("Supprimer cet élément ?",
+               isPresented: Binding(get: { pendingDelete != nil },
+                                    set: { if !$0 { pendingDelete = nil } }),
+               presenting: pendingDelete) { item in
+            Button("Supprimer", role: .destructive) {
+                Task { let msg = await vm.delete(item); VoiceOver.announce(msg, priority: .high) }
+            }
+            Button("Annuler", role: .cancel) { }
+        } message: { item in
+            Text("« \(item.name) » sera supprimé définitivement. Cette action est irréversible.")
+        }
     }
 
     private var header: some View {
@@ -39,6 +87,7 @@ struct FileBrowserView: View {
                 Label("Dossier parent", systemImage: "chevron.up")
             }
             .disabled(!vm.canGoUp)
+            .keyboardShortcut(.upArrow, modifiers: .command)
             .accessibilityHint("Remonte au dossier parent")
 
             Text(vm.breadcrumb)
@@ -49,6 +98,15 @@ struct FileBrowserView: View {
                 .accessibilityFocused($focusHeader)
 
             Spacer()
+
+            Button {
+                activeSheet = .createFolder
+            } label: {
+                Label("Créer un dossier", systemImage: "folder.badge.plus")
+            }
+            .disabled(!vm.canWrite)
+            .keyboardShortcut("n", modifiers: [.command, .shift])
+            .accessibilityHint("Crée un dossier dans le dossier courant")
         }
         .padding(.horizontal, 16)
         .padding(.top, 12)
@@ -80,6 +138,7 @@ struct FileBrowserView: View {
         } else {
             FileTableView(
                 items: vm.items,
+                canWrite: vm.canWrite,
                 onActivate: { item in
                     if item.isdir {
                         Task { await vm.open(item); announce() }
@@ -88,6 +147,8 @@ struct FileBrowserView: View {
                     }
                 },
                 onDownload: { item in startDownload(item) },
+                onRename: { item in activeSheet = .rename(item) },
+                onDelete: { item in pendingDelete = item },
                 onGoUp: { Task { await vm.goUp(); announce() } }
             )
         }

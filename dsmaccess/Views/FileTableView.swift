@@ -10,8 +10,8 @@
 //    · Cmd-↓ / Entrée  : activer (dossier → ouvrir, fichier → télécharger)
 //    · Cmd-↑           : remonter au dossier parent
 //    · VO-Espace       : activer la ligne (accessibilityPerformPress)
-//  Actions : menu contextuel (clic droit) et action VoiceOver personnalisée « Télécharger »
-//  sur chaque ligne — c'est ainsi qu'on télécharge un DOSSIER (qui arrive en ZIP) sans l'ouvrir.
+//  Actions par ligne (menu contextuel clic droit + VO-Maj-M + actions VoiceOver) : Télécharger,
+//  et — à l'intérieur d'un partage seulement (`canWrite`) — Renommer et Supprimer.
 //
 
 import AppKit
@@ -19,8 +19,12 @@ import SwiftUI
 
 struct FileTableView: NSViewRepresentable {
     var items: [FileStationItem]
+    /// Actions d'écriture disponibles (faux à la racine des partages).
+    var canWrite: Bool
     var onActivate: (FileStationItem) -> Void   // Entrée / VO-Espace / double-clic
     var onDownload: (FileStationItem) -> Void    // menu contextuel / action VoiceOver
+    var onRename: (FileStationItem) -> Void
+    var onDelete: (FileStationItem) -> Void
     var onGoUp: () -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -45,6 +49,9 @@ struct FileTableView: NSViewRepresentable {
         }
         table.onGoUp = { context.coordinator.parent.onGoUp() }
         table.onContextDownload = { row in context.coordinator.downloadRow(row) }
+        table.onContextRename = { row in context.coordinator.renameRow(row) }
+        table.onContextDelete = { row in context.coordinator.deleteRow(row) }
+        table.canWrite = canWrite
 
         table.target = context.coordinator
         table.doubleAction = #selector(Coordinator.tableDoubleClicked(_:))
@@ -60,7 +67,8 @@ struct FileTableView: NSViewRepresentable {
 
     func updateNSView(_ nsView: NSScrollView, context: Context) {
         context.coordinator.parent = self
-        guard let table = nsView.documentView as? NSTableView else { return }
+        guard let table = nsView.documentView as? KeyboardTableView else { return }
+        table.canWrite = canWrite
         table.reloadData()
         if !items.isEmpty && (table.selectedRow < 0 || table.selectedRow >= items.count) {
             table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
@@ -82,8 +90,11 @@ struct FileTableView: NSViewRepresentable {
             let id = NSUserInterfaceItemIdentifier("FileCell")
             let cell = (tableView.makeView(withIdentifier: id, owner: self) as? FileCellView) ?? FileCellView(identifier: id)
             cell.configure(with: item)
+            cell.canWrite = parent.canWrite
             cell.onPress = { [weak self] in self?.activate(item) }
             cell.onDownload = { [weak self] in self?.download(item) }
+            cell.onRename = { [weak self] in self?.rename(item) }
+            cell.onDelete = { [weak self] in self?.delete(item) }
             return cell
         }
 
@@ -95,11 +106,21 @@ struct FileTableView: NSViewRepresentable {
             guard parent.items.indices.contains(row) else { return }
             download(parent.items[row])
         }
+        func renameRow(_ row: Int) {
+            guard parent.items.indices.contains(row) else { return }
+            rename(parent.items[row])
+        }
+        func deleteRow(_ row: Int) {
+            guard parent.items.indices.contains(row) else { return }
+            delete(parent.items[row])
+        }
 
         /// Activation : dossier → ouvrir, fichier → télécharger (décidé par la coquille SwiftUI).
         private func activate(_ item: FileStationItem) { parent.onActivate(item) }
         /// Téléchargement explicite (marche aussi pour un dossier → ZIP).
         private func download(_ item: FileStationItem) { parent.onDownload(item) }
+        private func rename(_ item: FileStationItem) { parent.onRename(item) }
+        private func delete(_ item: FileStationItem) { parent.onDelete(item) }
 
         @objc func tableDoubleClicked(_ sender: NSTableView) {
             let row = sender.clickedRow
@@ -123,30 +144,43 @@ private final class ClosureMenuItem: NSMenuItem {
 
 /// Menu contextuel d'un élément, PARTAGÉ entre le clic droit (souris → `menu(for:)`) et
 /// VO-Maj-M (VoiceOver → `accessibilityPerformShowMenu()`). Point unique où ajouter les
-/// futures actions (Renommer, Supprimer, Créer dossier…).
-private func makeFileContextMenu(download: @escaping () -> Void) -> NSMenu {
+/// futures actions. Renommer / Supprimer n'apparaissent qu'à l'intérieur d'un partage.
+private func makeFileContextMenu(canWrite: Bool,
+                                 download: @escaping () -> Void,
+                                 rename: @escaping () -> Void,
+                                 delete: @escaping () -> Void) -> NSMenu {
     let menu = NSMenu()
     menu.addItem(ClosureMenuItem(title: String(localized: "Télécharger"), handler: download))
+    if canWrite {
+        menu.addItem(NSMenuItem.separator())
+        menu.addItem(ClosureMenuItem(title: String(localized: "Renommer"), handler: rename))
+        menu.addItem(ClosureMenuItem(title: String(localized: "Supprimer"), handler: delete))
+    }
     return menu
 }
 
-/// NSTableView qui mappe les touches façon Finder et fournit un menu contextuel « Télécharger ».
+/// NSTableView qui mappe les touches façon Finder et fournit le menu contextuel partagé.
 final class KeyboardTableView: NSTableView {
     var onActivate: (() -> Void)?
     var onGoUp: (() -> Void)?
     var onContextDownload: ((Int) -> Void)?
+    var onContextRename: ((Int) -> Void)?
+    var onContextDelete: ((Int) -> Void)?
+    var canWrite = false
 
     override func keyDown(with event: NSEvent) {
         let command = event.modifierFlags.contains(.command)
         switch event.keyCode {
-        case 125 where command:      // Cmd-↓ : activer (ouvrir / télécharger)
+        case 125 where command:      // Cmd-↓ : ouvrir / activer (façon Finder)
             onActivate?()
-        case 126 where command:      // Cmd-↑ : remonter
+        case 126 where command:      // Cmd-↑ : remonter (aussi géré par le bouton, pour les dossiers vides)
             onGoUp?()
-        case 36, 76:                 // Entrée / Entrée (pavé numérique)
-            onActivate?()
+        case 36, 76:                 // Entrée : renommer l'élément sélectionné (façon Finder)
+            if canWrite, selectedRow >= 0 { onContextRename?(selectedRow) } else { super.keyDown(with: event) }
+        case 51 where command:       // Cmd-Suppr : supprimer l'élément sélectionné (façon Finder)
+            if canWrite, selectedRow >= 0 { onContextDelete?(selectedRow) } else { super.keyDown(with: event) }
         default:
-            super.keyDown(with: event)   // ↑ ↓ et le reste : comportement natif
+            super.keyDown(with: event)   // ↑ ↓ (navigation) et le reste : comportement natif
         }
     }
 
@@ -155,18 +189,27 @@ final class KeyboardTableView: NSTableView {
         let row = self.row(at: point)
         guard row >= 0 else { return nil }
         selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
-        return makeFileContextMenu { [weak self] in self?.onContextDownload?(row) }
+        return makeFileContextMenu(
+            canWrite: canWrite,
+            download: { [weak self] in self?.onContextDownload?(row) },
+            rename: { [weak self] in self?.onContextRename?(row) },
+            delete: { [weak self] in self?.onContextDelete?(row) }
+        )
     }
 }
 
-/// Cellule : icône + nom + détail (taille · date), avec un libellé VoiceOver unifié, une
-/// action « presser » (VO-Espace → activer) et une action VoiceOver « Télécharger ».
+/// Cellule : icône + nom + détail (taille · date), avec un libellé VoiceOver unifié, l'action
+/// « presser » (VO-Espace → activer) et les actions VoiceOver (Télécharger, + Renommer/Supprimer
+/// quand `canWrite`).
 final class FileCellView: NSTableCellView {
     private let iconView = NSImageView()
     private let nameField = NSTextField(labelWithString: "")
     private let detailField = NSTextField(labelWithString: "")
     var onPress: (() -> Void)?
     var onDownload: (() -> Void)?
+    var onRename: (() -> Void)?
+    var onDelete: (() -> Void)?
+    var canWrite = false
 
     init(identifier: NSUserInterfaceItemIdentifier) {
         super.init(frame: .zero)
@@ -225,18 +268,37 @@ final class FileCellView: NSTableCellView {
     }
 
     override func accessibilityCustomActions() -> [NSAccessibilityCustomAction]? {
-        guard let onDownload else { return nil }
-        return [NSAccessibilityCustomAction(name: String(localized: "Télécharger")) {
-            onDownload()
-            return true
-        }]
+        var actions: [NSAccessibilityCustomAction] = []
+        if let onDownload {
+            actions.append(NSAccessibilityCustomAction(name: String(localized: "Télécharger")) {
+                onDownload(); return true
+            })
+        }
+        if canWrite {
+            if let onRename {
+                actions.append(NSAccessibilityCustomAction(name: String(localized: "Renommer")) {
+                    onRename(); return true
+                })
+            }
+            if let onDelete {
+                actions.append(NSAccessibilityCustomAction(name: String(localized: "Supprimer")) {
+                    onDelete(); return true
+                })
+            }
+        }
+        return actions.isEmpty ? nil : actions
     }
 
     /// Menu contextuel VoiceOver : VO-Maj-M appelle CETTE méthode (et non le `menu(for:)`
     /// de la souris), il faut donc présenter le menu nous-mêmes pour qu'il soit atteignable.
     override func accessibilityPerformShowMenu() -> Bool {
         guard onDownload != nil else { return false }
-        let menu = makeFileContextMenu { [weak self] in self?.onDownload?() }
+        let menu = makeFileContextMenu(
+            canWrite: canWrite,
+            download: { [weak self] in self?.onDownload?() },
+            rename: { [weak self] in self?.onRename?() },
+            delete: { [weak self] in self?.onDelete?() }
+        )
         menu.popUp(positioning: nil, at: NSPoint(x: bounds.minX, y: bounds.maxY), in: self)
         return true
     }

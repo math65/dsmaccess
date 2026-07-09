@@ -35,6 +35,9 @@ final class FileBrowserViewModel {
     var currentLevel: Level { stack.last ?? Level(name: String(localized: "Fichiers"), path: nil) }
     var title: String { currentLevel.name }
     var canGoUp: Bool { stack.count > 1 }
+    /// Vrai à l'intérieur d'un partage (actions d'écriture permises) ; faux à la racine des
+    /// dossiers partagés, où l'on ne peut ni créer ni renommer/supprimer.
+    var canWrite: Bool { currentLevel.path != nil }
 
     /// Fil d'Ariane lu par VoiceOver : « Fichiers ▸ photo ▸ 2024 ».
     var breadcrumb: String { stack.map(\.name).joined(separator: " ▸ ") }
@@ -96,6 +99,53 @@ final class FileBrowserViewModel {
     /// Nom de fichier proposé dans le panneau d'enregistrement (dossier → `nom.zip`).
     func suggestedFilename(for item: FileStationItem) -> String {
         item.isdir ? "\(item.name).zip" : item.name
+    }
+
+    // MARK: - Actions d'écriture (renvoient le message à annoncer à VoiceOver)
+
+    /// Crée un dossier `name` dans le dossier courant.
+    func createFolder(named name: String) async -> String {
+        guard let client = session.client, let sid = session.sid, let parent = currentLevel.path else {
+            return String(localized: "Impossible de créer le dossier ici.")
+        }
+        do {
+            try await client.createFolder(in: parent, name: name, sid: sid)
+            await loadCurrent()
+            return String(localized: "Dossier créé : \(name)")
+        } catch {
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return String(localized: "Échec de la création : \(reason)")
+        }
+    }
+
+    /// Renomme `item` en `name`.
+    func rename(_ item: FileStationItem, to name: String) async -> String {
+        guard let client = session.client, let sid = session.sid else {
+            return String(localized: "Session expirée.")
+        }
+        do {
+            try await client.rename(path: item.path, to: name, sid: sid)
+            await loadCurrent()
+            return String(localized: "Renommé en : \(name)")
+        } catch {
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return String(localized: "Échec du renommage : \(reason)")
+        }
+    }
+
+    /// Supprime `item`.
+    func delete(_ item: FileStationItem) async -> String {
+        guard let client = session.client, let sid = session.sid else {
+            return String(localized: "Session expirée.")
+        }
+        do {
+            try await client.delete(path: item.path, sid: sid)
+            await loadCurrent()
+            return String(localized: "Supprimé : \(item.name)")
+        } catch {
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return String(localized: "Échec de la suppression : \(reason)")
+        }
     }
 
     /// Résumé annoncé à VoiceOver après un chargement / une navigation.

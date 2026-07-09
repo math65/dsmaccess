@@ -22,6 +22,12 @@ protocol DSMClientProtocol: AnyObject {
     func list(folderPath: String, sid: String) async throws -> [FileStationItem]
     /// Télécharge un fichier (ou un dossier, renvoyé en ZIP par DSM) vers `destination`.
     func downloadFile(path: String, sid: String, to destination: URL) async throws
+    /// Crée un dossier `name` dans `folderPath`.
+    func createFolder(in folderPath: String, name: String, sid: String) async throws
+    /// Renomme l'élément situé à `path` en `name`.
+    func rename(path: String, to name: String, sid: String) async throws
+    /// Supprime l'élément situé à `path` (récursif pour un dossier).
+    func delete(path: String, sid: String) async throws
     func logout(sid: String) async throws
 }
 
@@ -31,6 +37,9 @@ final class DSMClient: DSMClientProtocol {
     private static let systemInfoAPI = "SYNO.DSM.Info"
     private static let fileStationListAPI = "SYNO.FileStation.List"
     private static let fileStationDownloadAPI = "SYNO.FileStation.Download"
+    private static let fileStationCreateFolderAPI = "SYNO.FileStation.CreateFolder"
+    private static let fileStationRenameAPI = "SYNO.FileStation.Rename"
+    private static let fileStationDeleteAPI = "SYNO.FileStation.Delete"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -198,6 +207,54 @@ final class DSMClient: DSMClientProtocol {
             try fm.removeItem(at: destination)
         }
         try fm.moveItem(at: tempURL, to: destination)
+    }
+
+    func createFolder(in folderPath: String, name: String, sid: String) async throws {
+        try await ensurePaths(for: [Self.fileStationCreateFolderAPI])
+        let query = [
+            "api": "SYNO.FileStation.CreateFolder",
+            "version": "2",
+            "method": "create",
+            "folder_path": folderPath,
+            "name": name,
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: self.path(for: Self.fileStationCreateFolderAPI), query: query, as: EmptyData.self)
+        guard resp.success else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+    }
+
+    func rename(path: String, to name: String, sid: String) async throws {
+        try await ensurePaths(for: [Self.fileStationRenameAPI])
+        let query = [
+            "api": "SYNO.FileStation.Rename",
+            "version": "2",
+            "method": "rename",
+            "path": path,
+            "name": name,
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: self.path(for: Self.fileStationRenameAPI), query: query, as: EmptyData.self)
+        guard resp.success else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+    }
+
+    func delete(path: String, sid: String) async throws {
+        try await ensurePaths(for: [Self.fileStationDeleteAPI])
+        let query = [
+            "api": "SYNO.FileStation.Delete",
+            "version": "2",
+            "method": "delete",
+            "path": path,
+            "recursive": "true",
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: self.path(for: Self.fileStationDeleteAPI), query: query, as: EmptyData.self)
+        guard resp.success else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
     }
 
     func logout(sid: String) async throws {
