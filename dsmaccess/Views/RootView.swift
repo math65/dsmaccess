@@ -14,11 +14,11 @@ struct RootView: View {
     var body: some View {
         Group {
             if session.isLoggedIn {
-                SystemInfoView(session: session)
+                MainView(session: session)
             } else {
                 LoginView(session: session)
             }
         }
-        .frame(minWidth: 480, minHeight: 440)
+        .frame(minWidth: 640, minHeight: 460)
     }
 }

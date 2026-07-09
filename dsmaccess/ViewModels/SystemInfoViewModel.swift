@@ -36,13 +36,6 @@ final class SystemInfoViewModel {
         isLoading = false
     }
 
-    func logout() async {
-        if let client = session.client, let sid = session.sid {
-            try? await client.logout(sid: sid)
-        }
-        session.clear()
-    }
-
     // MARK: - Affichage formaté
 
     var ramText: String {

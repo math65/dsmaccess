@@ -16,6 +16,10 @@ protocol DSMClientProtocol: AnyObject {
                otpCode: String?, deviceID: String?,
                rememberDevice: Bool) async throws -> LoginResult
     func systemInfo(sid: String) async throws -> SystemInfo
+    /// Dossiers partagés racine (File Station).
+    func listShares(sid: String) async throws -> [FileStationItem]
+    /// Contenu d'un dossier (File Station), `folderPath` étant un chemin absolu NAS.
+    func list(folderPath: String, sid: String) async throws -> [FileStationItem]
     func logout(sid: String) async throws
 }
 
@@ -23,6 +27,7 @@ protocol DSMClientProtocol: AnyObject {
 final class DSMClient: DSMClientProtocol {
     private static let authAPI = "SYNO.API.Auth"
     private static let systemInfoAPI = "SYNO.DSM.Info"
+    private static let fileStationListAPI = "SYNO.FileStation.List"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -116,6 +121,39 @@ final class DSMClient: DSMClientProtocol {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
         return data
+    }
+
+    func listShares(sid: String) async throws -> [FileStationItem] {
+        try await ensurePaths(for: [Self.fileStationListAPI])
+        let query = [
+            "api": "SYNO.FileStation.List",
+            "version": "2",
+            "method": "list_share",
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.fileStationListAPI), query: query, as: FileStationShares.self)
+        guard resp.success, let data = resp.data else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+        return data.shares
+    }
+
+    func list(folderPath: String, sid: String) async throws -> [FileStationItem] {
+        try await ensurePaths(for: [Self.fileStationListAPI])
+        let query = [
+            "api": "SYNO.FileStation.List",
+            "version": "2",
+            "method": "list",
+            "folder_path": folderPath,
+            // Tableau JSON attendu par DSM : réclame taille, dates et type pour chaque entrée.
+            "additional": "[\"size\",\"time\",\"type\"]",
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.fileStationListAPI), query: query, as: FileStationFiles.self)
+        guard resp.success, let data = resp.data else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+        return data.files
     }
 
     func logout(sid: String) async throws {

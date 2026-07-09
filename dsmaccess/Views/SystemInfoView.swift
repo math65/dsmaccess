@@ -18,17 +18,10 @@ struct SystemInfoView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            HStack {
-                Text("Votre NAS")
-                    .font(.largeTitle.bold())
-                    .accessibilityAddTraits(.isHeader)
-                    .accessibilityFocused($focusTitle)
-                Spacer()
-                Button("Déconnexion") {
-                    Task { await vm.logout() }
-                }
-                .accessibilityHint("Ferme la session sur le NAS")
-            }
+            Text("Votre NAS")
+                .font(.largeTitle.bold())
+                .accessibilityAddTraits(.isHeader)
+                .accessibilityFocused($focusTitle)
 
             content
 
@@ -38,7 +31,6 @@ struct SystemInfoView: View {
         .frame(maxWidth: 460, alignment: .leading)
         .task {
             focusTitle = true
-            AccessibilityNotification.Announcement(String(localized: "Connecté")).post()
             await vm.load()
         }
     }

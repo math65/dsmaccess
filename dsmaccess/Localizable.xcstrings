@@ -1,6 +1,119 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "%lld éléments" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items"
+          }
+        }
+      }
+    },
+    "1 élément" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 item"
+          }
+        }
+      }
+    },
+    "Aucun dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No shared folders"
+          }
+        }
+      }
+    },
+    "Dossier parent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parent folder"
+          }
+        }
+      }
+    },
+    "Remonte au dossier parent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Go up to the parent folder"
+          }
+        }
+      }
+    },
+    "Chargement…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading…"
+          }
+        }
+      }
+    },
+    "DSM Access" : {
+      "shouldTranslate" : false
+    },
+    "Dossier vide" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Empty folder"
+          }
+        }
+      }
+    },
+    "Fichiers" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Files"
+          }
+        }
+      }
+    },
+    "Sélectionnez un module" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a module"
+          }
+        }
+      }
+    },
+    "dossier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "folder"
+          }
+        }
+      }
+    },
+    "fichier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "file"
+          }
+        }
+      }
+    },
     " (alerte)" : {
       "localizations" : {
         "en" : {
