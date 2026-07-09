@@ -7,6 +7,7 @@
 //  (voir FileTableView) pour une navigation clavier et VoiceOver dignes du Finder.
 //
 
+import AppKit
 import SwiftUI
 
 struct FileBrowserView: View {
@@ -79,7 +80,14 @@ struct FileBrowserView: View {
         } else {
             FileTableView(
                 items: vm.items,
-                onOpen: { item in Task { await vm.open(item); announce() } },
+                onActivate: { item in
+                    if item.isdir {
+                        Task { await vm.open(item); announce() }
+                    } else {
+                        startDownload(item)
+                    }
+                },
+                onDownload: { item in startDownload(item) },
                 onGoUp: { Task { await vm.goUp(); announce() } }
             )
         }
@@ -87,5 +95,18 @@ struct FileBrowserView: View {
 
     private func announce() {
         AccessibilityNotification.Announcement(vm.summary).post()
+    }
+
+    /// Choisit une destination via un panneau d'enregistrement, puis lance le téléchargement.
+    private func startDownload(_ item: FileStationItem) {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = vm.suggestedFilename(for: item)
+        panel.canCreateDirectories = true
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        AccessibilityNotification.Announcement(String(localized: "Téléchargement en cours…")).post()
+        Task {
+            let message = await vm.downloadItem(item, to: url)
+            AccessibilityNotification.Announcement(message).post()
+        }
     }
 }

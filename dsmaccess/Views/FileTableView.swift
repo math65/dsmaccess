@@ -6,10 +6,12 @@
 //  On descend en AppKit UNIQUEMENT pour cette liste : NSTableView donne la navigation
 //  clavier native (flèches) et l'accessibilité VoiceOver de première classe que la List
 //  SwiftUI ne fournit pas correctement sur macOS. Clavier façon Finder :
-//    · ↑ / ↓        : parcourir (natif)
-//    · Cmd-↓ / Entrée : entrer dans le dossier sélectionné
-//    · Cmd-↑         : remonter au dossier parent
-//    · VO-Espace     : activer la ligne (ouvre le dossier) via accessibilityPerformPress
+//    · ↑ / ↓          : parcourir (natif)
+//    · Cmd-↓ / Entrée  : activer (dossier → ouvrir, fichier → télécharger)
+//    · Cmd-↑           : remonter au dossier parent
+//    · VO-Espace       : activer la ligne (accessibilityPerformPress)
+//  Actions : menu contextuel (clic droit) et action VoiceOver personnalisée « Télécharger »
+//  sur chaque ligne — c'est ainsi qu'on télécharge un DOSSIER (qui arrive en ZIP) sans l'ouvrir.
 //
 
 import AppKit
@@ -17,7 +19,8 @@ import SwiftUI
 
 struct FileTableView: NSViewRepresentable {
     var items: [FileStationItem]
-    var onOpen: (FileStationItem) -> Void
+    var onActivate: (FileStationItem) -> Void   // Entrée / VO-Espace / double-clic
+    var onDownload: (FileStationItem) -> Void    // menu contextuel / action VoiceOver
     var onGoUp: () -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -36,14 +39,13 @@ struct FileTableView: NSViewRepresentable {
         column.resizingMask = .autoresizingMask
         table.addTableColumn(column)
 
-        // Clavier : ouvrir la ligne sélectionnée / remonter.
         table.onActivate = { [weak table] in
             guard let table, table.selectedRow >= 0 else { return }
             context.coordinator.activateRow(table.selectedRow)
         }
         table.onGoUp = { context.coordinator.parent.onGoUp() }
+        table.onContextDownload = { row in context.coordinator.downloadRow(row) }
 
-        // Souris : double-clic pour ouvrir.
         table.target = context.coordinator
         table.doubleAction = #selector(Coordinator.tableDoubleClicked(_:))
         context.coordinator.tableView = table
@@ -60,8 +62,6 @@ struct FileTableView: NSViewRepresentable {
         context.coordinator.parent = self
         guard let table = nsView.documentView as? NSTableView else { return }
         table.reloadData()
-        // Point de départ clavier/VoiceOver : sélectionne la 1re ligne si la sélection
-        // courante est vide ou hors bornes (typiquement après une navigation).
         if !items.isEmpty && (table.selectedRow < 0 || table.selectedRow >= items.count) {
             table.selectRowIndexes(IndexSet(integer: 0), byExtendingSelection: false)
             table.scrollRowToVisible(0)
@@ -83,6 +83,7 @@ struct FileTableView: NSViewRepresentable {
             let cell = (tableView.makeView(withIdentifier: id, owner: self) as? FileCellView) ?? FileCellView(identifier: id)
             cell.configure(with: item)
             cell.onPress = { [weak self] in self?.activate(item) }
+            cell.onDownload = { [weak self] in self?.download(item) }
             return cell
         }
 
@@ -90,11 +91,15 @@ struct FileTableView: NSViewRepresentable {
             guard parent.items.indices.contains(row) else { return }
             activate(parent.items[row])
         }
-
-        /// Ouvre un dossier ; les fichiers sont ignorés (navigation seule) par le ViewModel.
-        private func activate(_ item: FileStationItem) {
-            parent.onOpen(item)
+        func downloadRow(_ row: Int) {
+            guard parent.items.indices.contains(row) else { return }
+            download(parent.items[row])
         }
+
+        /// Activation : dossier → ouvrir, fichier → télécharger (décidé par la coquille SwiftUI).
+        private func activate(_ item: FileStationItem) { parent.onActivate(item) }
+        /// Téléchargement explicite (marche aussi pour un dossier → ZIP).
+        private func download(_ item: FileStationItem) { parent.onDownload(item) }
 
         @objc func tableDoubleClicked(_ sender: NSTableView) {
             let row = sender.clickedRow
@@ -103,15 +108,16 @@ struct FileTableView: NSViewRepresentable {
     }
 }
 
-/// NSTableView qui mappe les touches façon Finder ; les flèches simples restent natives.
+/// NSTableView qui mappe les touches façon Finder et fournit un menu contextuel « Télécharger ».
 final class KeyboardTableView: NSTableView {
     var onActivate: (() -> Void)?
     var onGoUp: (() -> Void)?
+    var onContextDownload: ((Int) -> Void)?
 
     override func keyDown(with event: NSEvent) {
         let command = event.modifierFlags.contains(.command)
         switch event.keyCode {
-        case 125 where command:      // Cmd-↓ : entrer dans le dossier
+        case 125 where command:      // Cmd-↓ : activer (ouvrir / télécharger)
             onActivate?()
         case 126 where command:      // Cmd-↑ : remonter
             onGoUp?()
@@ -121,15 +127,34 @@ final class KeyboardTableView: NSTableView {
             super.keyDown(with: event)   // ↑ ↓ et le reste : comportement natif
         }
     }
+
+    override func menu(for event: NSEvent) -> NSMenu? {
+        let point = convert(event.locationInWindow, from: nil)
+        let row = self.row(at: point)
+        guard row >= 0 else { return nil }
+        selectRowIndexes(IndexSet(integer: row), byExtendingSelection: false)
+        let menu = NSMenu()
+        let download = NSMenuItem(title: String(localized: "Télécharger"),
+                                  action: #selector(contextDownloadClicked(_:)), keyEquivalent: "")
+        download.target = self
+        download.representedObject = row
+        menu.addItem(download)
+        return menu
+    }
+
+    @objc private func contextDownloadClicked(_ sender: NSMenuItem) {
+        if let row = sender.representedObject as? Int { onContextDownload?(row) }
+    }
 }
 
-/// Cellule : icône + nom + détail (taille · date), avec un libellé VoiceOver unifié et
-/// une action « presser » (VO-Espace) qui ouvre le dossier.
+/// Cellule : icône + nom + détail (taille · date), avec un libellé VoiceOver unifié, une
+/// action « presser » (VO-Espace → activer) et une action VoiceOver « Télécharger ».
 final class FileCellView: NSTableCellView {
     private let iconView = NSImageView()
     private let nameField = NSTextField(labelWithString: "")
     private let detailField = NSTextField(labelWithString: "")
     var onPress: (() -> Void)?
+    var onDownload: (() -> Void)?
 
     init(identifier: NSUserInterfaceItemIdentifier) {
         super.init(frame: .zero)
@@ -185,5 +210,30 @@ final class FileCellView: NSTableCellView {
     override func accessibilityPerformPress() -> Bool {
         onPress?()
         return true
+    }
+
+    override func accessibilityCustomActions() -> [NSAccessibilityCustomAction]? {
+        guard let onDownload else { return nil }
+        return [NSAccessibilityCustomAction(name: String(localized: "Télécharger")) {
+            onDownload()
+            return true
+        }]
+    }
+
+    /// Menu contextuel VoiceOver : VO-Maj-M appelle CETTE méthode (et non le `menu(for:)`
+    /// de la souris), il faut donc présenter le menu nous-mêmes pour qu'il soit atteignable.
+    override func accessibilityPerformShowMenu() -> Bool {
+        guard onDownload != nil else { return false }
+        let menu = NSMenu()
+        let download = NSMenuItem(title: String(localized: "Télécharger"),
+                                  action: #selector(performDownloadFromMenu), keyEquivalent: "")
+        download.target = self
+        menu.addItem(download)
+        menu.popUp(positioning: nil, at: NSPoint(x: bounds.minX, y: bounds.maxY), in: self)
+        return true
+    }
+
+    @objc private func performDownloadFromMenu() {
+        onDownload?()
     }
 }

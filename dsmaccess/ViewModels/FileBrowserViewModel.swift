@@ -22,6 +22,7 @@ final class FileBrowserViewModel {
     private(set) var stack: [Level]
     private(set) var items: [FileStationItem] = []
     private(set) var isLoading = false
+    private(set) var isDownloading = false
     var errorMessage: String?
 
     private let session: SessionStore
@@ -72,6 +73,29 @@ final class FileBrowserViewModel {
         guard canGoUp else { return }
         stack.removeLast()
         await loadCurrent()
+    }
+
+    /// Télécharge `item` vers `destination` (un dossier arrive en ZIP). Renvoie le message
+    /// à annoncer à VoiceOver (succès ou échec).
+    func downloadItem(_ item: FileStationItem, to destination: URL) async -> String {
+        guard let client = session.client, let sid = session.sid else {
+            session.clear()
+            return String(localized: "Session expirée.")
+        }
+        isDownloading = true
+        defer { isDownloading = false }
+        do {
+            try await client.downloadFile(path: item.path, sid: sid, to: destination)
+            return String(localized: "Téléchargement terminé : \(item.name)")
+        } catch {
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return String(localized: "Échec du téléchargement : \(reason)")
+        }
+    }
+
+    /// Nom de fichier proposé dans le panneau d'enregistrement (dossier → `nom.zip`).
+    func suggestedFilename(for item: FileStationItem) -> String {
+        item.isdir ? "\(item.name).zip" : item.name
     }
 
     /// Résumé annoncé à VoiceOver après un chargement / une navigation.

@@ -20,6 +20,8 @@ protocol DSMClientProtocol: AnyObject {
     func listShares(sid: String) async throws -> [FileStationItem]
     /// Contenu d'un dossier (File Station), `folderPath` étant un chemin absolu NAS.
     func list(folderPath: String, sid: String) async throws -> [FileStationItem]
+    /// Télécharge un fichier (ou un dossier, renvoyé en ZIP par DSM) vers `destination`.
+    func downloadFile(path: String, sid: String, to destination: URL) async throws
     func logout(sid: String) async throws
 }
 
@@ -28,6 +30,7 @@ final class DSMClient: DSMClientProtocol {
     private static let authAPI = "SYNO.API.Auth"
     private static let systemInfoAPI = "SYNO.DSM.Info"
     private static let fileStationListAPI = "SYNO.FileStation.List"
+    private static let fileStationDownloadAPI = "SYNO.FileStation.Download"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -154,6 +157,47 @@ final class DSMClient: DSMClientProtocol {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
         return data.files
+    }
+
+    func downloadFile(path: String, sid: String, to destination: URL) async throws {
+        try await ensurePaths(for: [Self.fileStationDownloadAPI])
+        let query = [
+            "api": "SYNO.FileStation.Download",
+            "version": "2",
+            "method": "download",
+            "path": path,
+            "mode": "download",
+            "_sid": sid,
+        ]
+        let url = try makeURL(cgi: self.path(for: Self.fileStationDownloadAPI), query: query)
+
+        let tempURL: URL
+        let response: URLResponse
+        do {
+            (tempURL, response) = try await session.download(from: url)
+        } catch let error as URLError {
+            throw DSMError.network(error.localizedDescription)
+        }
+
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw DSMError.invalidResponse
+        }
+        // DSM peut répondre par une erreur JSON (statut 200) au lieu du binaire attendu
+        // (chemin invalide, droits insuffisants…). On la détecte via le type MIME.
+        if let mime = response.mimeType, mime.contains("json") {
+            let data = (try? Data(contentsOf: tempURL)) ?? Data()
+            if let resp = try? JSONDecoder().decode(DSMResponse<EmptyData>.self, from: data), !resp.success {
+                throw DSMError.apiError(code: resp.error?.code ?? -1)
+            }
+            throw DSMError.invalidResponse
+        }
+
+        // Déplace le fichier temporaire vers l'emplacement choisi (écrase s'il existe déjà).
+        let fm = FileManager.default
+        if fm.fileExists(atPath: destination.path) {
+            try fm.removeItem(at: destination)
+        }
+        try fm.moveItem(at: tempURL, to: destination)
     }
 
     func logout(sid: String) async throws {

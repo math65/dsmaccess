@@ -21,6 +21,56 @@
         }
       }
     },
+    "Échec du téléchargement : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download failed: %@"
+          }
+        }
+      }
+    },
+    "Session expirée." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session expired."
+          }
+        }
+      }
+    },
+    "Télécharger" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download"
+          }
+        }
+      }
+    },
+    "Téléchargement en cours…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloading…"
+          }
+        }
+      }
+    },
+    "Téléchargement terminé : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download complete: %@"
+          }
+        }
+      }
+    },
     "Aucun dossier partagé" : {
       "localizations" : {
         "en" : {
