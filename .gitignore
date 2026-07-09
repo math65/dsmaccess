@@ -28,5 +28,8 @@ Package.resolved
 Pods/
 Carthage/Build/
 
+# Instructions personnelles Claude Code (privées)
+CLAUDE.local.md
+
 # Divers
 *.log
