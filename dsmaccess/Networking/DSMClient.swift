@@ -52,6 +52,8 @@ protocol DSMClientProtocol: AnyObject {
     func fileServiceEnabled(_ service: FileService, sid: String) async throws -> Bool?
     /// Active ou désactive un service de fichiers.
     func setFileService(_ service: FileService, enabled: Bool, sid: String) async throws
+    /// Liste les paquets installés (SYNO.Core.Package).
+    func listPackages(sid: String) async throws -> [PackageInfo]
     func logout(sid: String) async throws
 }
 
@@ -70,6 +72,7 @@ final class DSMClient: DSMClientProtocol {
     private static let storageAPI = "SYNO.Storage.CGI.Storage"
     private static let utilizationAPI = "SYNO.Core.System.Utilization"
     private static let shareAPI = "SYNO.Core.Share"
+    private static let packageAPI = "SYNO.Core.Package"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -555,6 +558,25 @@ final class DSMClient: DSMClientProtocol {
         guard resp.success else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
+    }
+
+    func listPackages(sid: String) async throws -> [PackageInfo] {
+        try await ensurePaths(for: [Self.packageAPI])
+        // API non documentée : on utilise la version maximale découverte via SYNO.API.Info.
+        let version = apiPaths[Self.packageAPI]?.maxVersion ?? 2
+        let query = [
+            "api": "SYNO.Core.Package",
+            "version": String(version),
+            "method": "list",
+            // Champs supplémentaires (tableau JSON) : état et version des paquets.
+            "additional": "[\"status\",\"installed_info\"]",
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.packageAPI), query: query, as: PackageList.self)
+        guard resp.success, let data = resp.data else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+        return data.packages ?? []
     }
 
     func logout(sid: String) async throws {
