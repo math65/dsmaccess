@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## Projet
-DSM Access — client macOS SwiftUI natif et **accessible VoiceOver** pour administrer un NAS Synology, en remplacement de l'admin web DSM inutilisable au lecteur d'écran. Cible macOS 26.5, Swift 5 (isolation MainActor par défaut, approachable concurrency), aucune dépendance externe.
+DSM Access — client macOS SwiftUI natif et **accessible VoiceOver** pour administrer un NAS Synology, en remplacement de l'admin web DSM inutilisable au lecteur d'écran. Cible macOS 14 (Sonoma), Swift 5 (isolation MainActor par défaut, approachable concurrency), aucune dépendance externe.
 
 ## Build & lancement
 - Build : `xcodebuild -project dsmaccess.xcodeproj -scheme dsmaccess -destination 'platform=macOS' build`

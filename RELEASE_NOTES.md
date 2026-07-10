@@ -26,7 +26,7 @@ and spoken announcements when something loads or fails.
 
 ### Requirements
 
-- macOS 26.5 or later.
+- macOS 14 (Sonoma) or later.
 - A Synology NAS running DSM 7 on your local network.
 
 ### Download

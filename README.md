@@ -20,19 +20,27 @@ DSM Access vise une expérience 100 % accessible : navigation clavier logique, l
 explicites, annonces des chargements et des erreurs, gestion du focus à chaque écran.
 
 ### État actuel
-- ✅ **Connexion au NAS** en adresse locale (HTTP/HTTPS, certificat auto-signé géré)
+- ✅ **Connexion au NAS** en adresse locale (HTTP/HTTPS, certificat auto-signé géré), avec option **« Rester connecté »** (reconnexion automatique au lancement)
 - ✅ Prise en charge de la **double authentification** (code de vérification si DSM le demande)
-- ✅ Écran **d'informations système** (modèle, version DSM, mémoire, uptime, température)
+- ✅ **File Station complet** : navigation, téléchargement (un dossier arrive en ZIP), créer/renommer/supprimer, envoi de fichiers, copier/déplacer, liens de partage (mot de passe + expiration)
+- ✅ **Informations système** (modèle, version DSM, mémoire, uptime, température)
+- ✅ **Stockage** : volumes et disques (santé, température, capacité), groupes de stockage/RAID
+- ✅ **Moniteur de ressources** en temps réel (CPU, mémoire, réseau)
+- ✅ **Mises à jour automatiques** via **Sparkle**
 - ✅ **Multilingue** : français et anglais
 
+### Télécharger
+Dernière version, **notariée par Apple** (s'ouvre sans avertissement Gatekeeper) :
+**[Télécharger DSM Access](https://github.com/math65/dsmaccess/releases/latest)** — macOS 14 (Sonoma) ou ultérieur.
+Une fois installée, l'app se met à jour toute seule via Sparkle.
+
 ### Feuille de route
-- 📁 File Station (navigation, transfert de fichiers)
 - 👥 Utilisateurs & dossiers partagés
 - 📦 Paquets / Docker (Container Manager)
-- 🔄 Mises à jour automatiques via **Sparkle**
+- 💽 Actions de stockage (test SMART, etc.)
 
 ### Prérequis
-- macOS 26.5 ou ultérieur
+- macOS 14 (Sonoma) ou ultérieur
 - Un NAS Synology sous DSM 7
 - Xcode 26 pour compiler
 
@@ -61,19 +69,27 @@ fully accessible experience: logical keyboard navigation, explicit labels, loadi
 announcements, and focus management on every screen.
 
 ### Current status
-- ✅ **NAS login** over local address (HTTP/HTTPS, self-signed certificate handled)
+- ✅ **NAS login** over local address (HTTP/HTTPS, self-signed certificate handled), with a **"stay signed in"** option (automatic reconnection at launch)
 - ✅ **Two-factor authentication** support (verification code when DSM requires it)
-- ✅ **System information** screen (model, DSM version, memory, uptime, temperature)
+- ✅ **Full File Station**: browsing, downloads (a folder comes down as a ZIP), create/rename/delete, uploads, copy/move, share links (password + expiry)
+- ✅ **System information** (model, DSM version, memory, uptime, temperature)
+- ✅ **Storage**: volumes and disks (health, temperature, capacity), storage pools/RAID
+- ✅ **Resource monitor** in real time (CPU, memory, network)
+- ✅ **Automatic updates** via **Sparkle**
 - ✅ **Localized** in French and English
 
+### Download
+Latest build, **notarized by Apple** (opens with no Gatekeeper warning):
+**[Download DSM Access](https://github.com/math65/dsmaccess/releases/latest)** — macOS 14 (Sonoma) or later.
+Once installed, the app updates itself via Sparkle.
+
 ### Roadmap
-- 📁 File Station (browsing, file transfers)
 - 👥 Users & shared folders
 - 📦 Packages / Docker (Container Manager)
-- 🔄 Automatic updates via **Sparkle**
+- 💽 Storage actions (SMART test, etc.)
 
 ### Requirements
-- macOS 26.5 or later
+- macOS 14 (Sonoma) or later
 - A Synology NAS running DSM 7
 - Xcode 26 to build
 
