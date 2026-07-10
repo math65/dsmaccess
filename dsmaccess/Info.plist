@@ -13,7 +13,9 @@
 	<!-- URL de l'appcast. PROVISOIRE : à confirmer/ajuster à l'étape distribution. -->
 	<key>SUFeedURL</key>
 	<string>https://math65.github.io/dsmaccess/appcast.xml</string>
-	<!-- SUPublicEDKey : ajouté après « generate_keys » (étape distribution). En son
-	     absence, Sparkle valide les mises à jour via la signature Developer ID. -->
+	<!-- Clé publique EdDSA de vérification des mises à jour. La clé privée
+	     correspondante est dans le trousseau de Mathieu (outils Sparkle). -->
+	<key>SUPublicEDKey</key>
+	<string>DSDUNhrNE0tBI9oT++xFgxQW4Hs6/8SyiNNDTXfj/to=</string>
 </dict>
 </plist>
