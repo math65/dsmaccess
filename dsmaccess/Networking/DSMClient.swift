@@ -42,6 +42,12 @@ protocol DSMClientProtocol: AnyObject {
     func storageInfo(sid: String) async throws -> StorageInfo
     /// Mesures instantanées de ressources (processeur, mémoire, réseau).
     func resourceUsage(sid: String) async throws -> ResourceUsage
+    /// Liste les dossiers partagés du NAS (SYNO.Core.Share).
+    func listSharedFolders(sid: String) async throws -> [SharedFolder]
+    /// Crée un dossier partagé `name` sur `volumePath` (ex. « /volume1 »).
+    func createSharedFolder(name: String, volumePath: String, description: String, sid: String) async throws
+    /// Supprime le dossier partagé `name` — et TOUT son contenu.
+    func deleteSharedFolder(name: String, sid: String) async throws
     func logout(sid: String) async throws
 }
 
@@ -59,6 +65,7 @@ final class DSMClient: DSMClientProtocol {
     private static let fileStationSharingAPI = "SYNO.FileStation.Sharing"
     private static let storageAPI = "SYNO.Storage.CGI.Storage"
     private static let utilizationAPI = "SYNO.Core.System.Utilization"
+    private static let shareAPI = "SYNO.Core.Share"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -454,6 +461,63 @@ final class DSMClient: DSMClientProtocol {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
         return data
+    }
+
+    func listSharedFolders(sid: String) async throws -> [SharedFolder] {
+        try await ensurePaths(for: [Self.shareAPI])
+        // API non documentée : on utilise la version maximale découverte via SYNO.API.Info.
+        let version = apiPaths[Self.shareAPI]?.maxVersion ?? 1
+        let query = [
+            "api": "SYNO.Core.Share",
+            "version": String(version),
+            "method": "list",
+            // Champs supplémentaires (tableau JSON) ; valeurs tirées du client officiel Synology.
+            "additional": "[\"recyclebin\",\"share_quota\"]",
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.shareAPI), query: query, as: ShareList.self)
+        guard resp.success, let data = resp.data else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+        return data.shares ?? []
+    }
+
+    func createSharedFolder(name: String, volumePath: String, description: String, sid: String) async throws {
+        try await ensurePaths(for: [Self.shareAPI])
+        let version = apiPaths[Self.shareAPI]?.maxVersion ?? 1
+        // `shareinfo` = objet JSON décrivant le partage (forme du client officiel synology-csi).
+        let info = ShareCreateInfo(name: name, volPath: volumePath, desc: description)
+        let shareInfoJSON = String(decoding: try JSONEncoder().encode(info), as: UTF8.self)
+        let query = [
+            "api": "SYNO.Core.Share",
+            "version": String(version),
+            "method": "create",
+            // Le client officiel Synology quote le nom en JSON (à recaler si le NAS refuse).
+            "name": "\"\(name)\"",
+            "shareinfo": shareInfoJSON,
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.shareAPI), query: query, as: EmptyData.self)
+        guard resp.success else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+    }
+
+    func deleteSharedFolder(name: String, sid: String) async throws {
+        try await ensurePaths(for: [Self.shareAPI])
+        let version = apiPaths[Self.shareAPI]?.maxVersion ?? 1
+        let query = [
+            "api": "SYNO.Core.Share",
+            "version": String(version),
+            "method": "delete",
+            // DSM attend un tableau JSON de noms (client officiel : name=["x"]).
+            "name": "[\"\(name)\"]",
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.shareAPI), query: query, as: EmptyData.self)
+        guard resp.success else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
     }
 
     func logout(sid: String) async throws {

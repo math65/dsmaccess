@@ -18,6 +18,7 @@ struct MainView: View {
         case systemInfo
         case files
         case storage
+        case shares
 
         var id: Self { self }
 
@@ -26,6 +27,7 @@ struct MainView: View {
             case .systemInfo: return "Votre NAS"
             case .files: return "Fichiers"
             case .storage: return "Stockage"
+            case .shares: return "Partages"
             }
         }
 
@@ -34,6 +36,7 @@ struct MainView: View {
             case .systemInfo: return "server.rack"
             case .files: return "folder"
             case .storage: return "internaldrive"
+            case .shares: return "externaldrive.badge.person.crop"
             }
         }
     }
@@ -62,6 +65,8 @@ struct MainView: View {
                 FileBrowserView(session: session)
             case .storage:
                 StorageView(session: session)
+            case .shares:
+                SharesView(session: session)
             case nil:
                 Text("Sélectionnez un module")
                     .foregroundStyle(.secondary)
