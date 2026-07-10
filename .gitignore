@@ -22,7 +22,7 @@ xcuserdata/
 # Swift Package Manager
 .swiftpm/
 .build/
-Package.resolved
+# Package.resolved est volontairement VERSIONNÉ (épingle Sparkle à une version précise).
 
 # Dépendances tierces (au cas où)
 Pods/
