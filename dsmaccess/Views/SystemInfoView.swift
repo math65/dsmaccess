@@ -9,26 +9,32 @@
 import SwiftUI
 
 struct SystemInfoView: View {
+    let session: SessionStore
     @State private var vm: SystemInfoViewModel
     @AccessibilityFocusState private var focusTitle: Bool
 
     init(session: SessionStore) {
+        self.session = session
         _vm = State(initialValue: SystemInfoViewModel(session: session))
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Votre NAS")
-                .font(.largeTitle.bold())
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($focusTitle)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                Text("Votre NAS")
+                    .font(.largeTitle.bold())
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityFocused($focusTitle)
 
-            content
+                content
 
-            Spacer()
+                Divider()
+
+                ResourceMonitorView(session: session)
+            }
+            .padding(28)
+            .frame(maxWidth: 500, alignment: .leading)
         }
-        .padding(28)
-        .frame(maxWidth: 460, alignment: .leading)
         .task {
             focusTitle = true
             await vm.load()
