@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dsmaccess-1.1-beta.2.fr</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #6e6e73;
+  --code-bg: #f5f5f7;
+  --link: #0066cc;
+  --link-hover: #0040a0;
+  --rule: #e5e5ea;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #ececec;
+    --muted: #a0a0a0;
+    --code-bg: #2d2d2d;
+    --link: #4eaaff;
+    --link-hover: #82c4ff;
+    --rule: #3a3a3a;
+  }
+}
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+  padding: 1rem 1.25rem 1.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.4em 0 0.5em;
+}
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.15rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 1.02rem; }
+h4 { font-size: 0.95rem; color: var(--muted); }
+p { margin: 0.6em 0; }
+ul, ol { padding-left: 1.4em; margin: 0.6em 0; }
+li { margin: 0.25em 0; }
+li > p { margin: 0.3em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover, a:focus { color: var(--link-hover); text-decoration: underline; }
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; border-radius: 0; }
+blockquote {
+  border-left: 3px solid var(--rule);
+  margin: 0.8em 0;
+  padding: 0.1em 0 0.1em 1em;
+  color: var(--muted);
+}
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<h2 id="v11-beta2-build-3--13-juillet-2026">v1.1-beta.2 (build 3) — 13
+juillet 2026</h2>
+<p>Cette bêta peaufine la 1.1 avec trois corrections issues directement
+de vos retours de bêta — merci, et continuez à les partager.</p>
+<h3 id="corrections">Corrections</h3>
+<ul>
+<li>Fichiers : entrer dans un dossier vide ne vous piège plus. Le focus
+VoiceOver se place désormais sur l'en-tête du dossier, avec le bouton «
+Dossier parent » à portée pour remonter.</li>
+<li>Stockage : ouvrir l'écran Stockage n'annonce plus une fausse erreur
+« impossible de joindre le NAS » alors que vos informations de stockage
+se chargent normalement.</li>
+<li>Fichiers : déplacer un élément est plus facile à trouver. L'action
+s'appelle maintenant « Déplacer (couper) », et une fois l'élément coupé,
+l'app vous rappelle de le coller à destination pour terminer le
+déplacement.</li>
+</ul>
+<p>Chaque écran conserve l'approche VoiceOver : libellés clairs, ordre
+de focus logique, et annonces vocales au chargement, en cas d'erreur et
+après chaque action.</p>
+<h3 id="configuration-requise">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.2/dsmaccess-1.1-beta.2.zip">dsmaccess-1.1-beta.2.zip</a></p>
+</body>
+</html>
