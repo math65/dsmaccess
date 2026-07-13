@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dsmaccess-1.1-beta.1</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #6e6e73;
+  --code-bg: #f5f5f7;
+  --link: #0066cc;
+  --link-hover: #0040a0;
+  --rule: #e5e5ea;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #ececec;
+    --muted: #a0a0a0;
+    --code-bg: #2d2d2d;
+    --link: #4eaaff;
+    --link-hover: #82c4ff;
+    --rule: #3a3a3a;
+  }
+}
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+  padding: 1rem 1.25rem 1.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.4em 0 0.5em;
+}
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.15rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 1.02rem; }
+h4 { font-size: 0.95rem; color: var(--muted); }
+p { margin: 0.6em 0; }
+ul, ol { padding-left: 1.4em; margin: 0.6em 0; }
+li { margin: 0.25em 0; }
+li > p { margin: 0.3em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover, a:focus { color: var(--link-hover); text-decoration: underline; }
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; border-radius: 0; }
+blockquote {
+  border-left: 3px solid var(--rule);
+  margin: 0.8em 0;
+  padding: 0.1em 0 0.1em 1em;
+  color: var(--muted);
+}
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<h2 id="v11-beta1-build-2--2026-07-13">v1.1-beta.1 (build 2) —
+2026-07-13</h2>
+<p>This is a <strong>beta</strong> release — a preview of what's coming
+in 1.1. It builds on 1.0 with three new areas for managing your NAS.
+Feedback is welcome.</p>
+<h3 id="new-shared-folders">New: Shared Folders</h3>
+<ul>
+<li>See all your shared folders, with the volume each one lives on.</li>
+<li>Create a new shared folder, choosing its volume.</li>
+<li>Delete a shared folder — behind a deliberate confirmation, since
+this erases its contents.</li>
+</ul>
+<h3 id="new-file-services">New: File Services</h3>
+<ul>
+<li>Turn the file-sharing protocols on or off: SMB, NFS, FTP and
+rsync.</li>
+<li>Disabling a service asks you to confirm first, and explains what it
+will interrupt.</li>
+</ul>
+<h3 id="new-package-center">New: Package Center</h3>
+<ul>
+<li>See every installed package, its version, and whether it is
+running.</li>
+<li>Spot which packages have an update available.</li>
+<li>Start or stop a package.</li>
+<li>Uninstall a package, with an honest heads-up about what is — and
+isn't — removed.</li>
+<li>Settings: choose the automatic-update policy, show or hide beta
+packages, and turn update notifications on or off.</li>
+</ul>
+<p>Every screen keeps the VoiceOver-first approach of 1.0: clear labels,
+a logical focus order, and spoken announcements on load, on error, and
+after each action.</p>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.1/dsmaccess-1.1-beta.1.zip">dsmaccess-1.1-beta.1.zip</a></p>
+</body>
+</html>
