@@ -35,10 +35,13 @@ struct PackageInfo: Decodable, Identifiable {
     struct Additional: Decodable {
         let status: String?
         let installType: String?
+        /// Le paquet peut-il être démarré/arrêté ? (absent pour les paquets non pilotables).
+        let startable: Bool?
 
         enum CodingKeys: String, CodingKey {
             case status
             case installType = "install_type"
+            case startable
         }
     }
 
@@ -64,4 +67,15 @@ struct PackageInfo: Decodable, Identifiable {
         default: return "—"
         }
     }
+
+    /// Vrai si le paquet tourne actuellement (même logique d'état que `statusText`).
+    var isRunning: Bool {
+        switch additional?.status?.lowercased() {
+        case "running", "start", "started": return true
+        default: return false
+        }
+    }
+
+    /// Vrai si le paquet peut être démarré/arrêté (certains paquets système ne le sont pas).
+    var canStartStop: Bool { additional?.startable == true }
 }

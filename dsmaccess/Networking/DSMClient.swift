@@ -57,6 +57,8 @@ protocol DSMClientProtocol: AnyObject {
     /// Versions disponibles au catalogue (SYNO.Core.Package.Server), indexées par identifiant
     /// minuscule — pour détecter les mises à jour en comparant avec l'installé.
     func availablePackageVersions(sid: String) async throws -> [String: String]
+    /// Démarre (start) ou arrête (stop) un paquet installé (SYNO.Core.Package.Control).
+    func setPackageRunning(id: String, running: Bool, sid: String) async throws
     func logout(sid: String) async throws
 }
 
@@ -77,6 +79,7 @@ final class DSMClient: DSMClientProtocol {
     private static let shareAPI = "SYNO.Core.Share"
     private static let packageAPI = "SYNO.Core.Package"
     private static let packageServerAPI = "SYNO.Core.Package.Server"
+    private static let packageControlAPI = "SYNO.Core.Package.Control"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -572,8 +575,8 @@ final class DSMClient: DSMClientProtocol {
             "api": "SYNO.Core.Package",
             "version": String(version),
             "method": "list",
-            // Champs supplémentaires (tableau JSON) : état et version des paquets.
-            "additional": "[\"status\",\"installed_info\"]",
+            // Champs supplémentaires (tableau JSON) : état, version et pilotabilité des paquets.
+            "additional": "[\"status\",\"installed_info\",\"startable\"]",
             "_sid": sid,
         ]
         let resp = try await get(cgi: path(for: Self.packageAPI), query: query, as: PackageList.self)
@@ -607,6 +610,23 @@ final class DSMClient: DSMClientProtocol {
             }
         }
         return versions
+    }
+
+    func setPackageRunning(id: String, running: Bool, sid: String) async throws {
+        try await ensurePaths(for: [Self.packageControlAPI])
+        // API non documentée : on utilise la version maximale découverte via SYNO.API.Info.
+        let version = apiPaths[Self.packageControlAPI]?.maxVersion ?? 1
+        let query = [
+            "api": Self.packageControlAPI,
+            "version": String(version),
+            "method": running ? "start" : "stop",
+            "id": id,
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.packageControlAPI), query: query, as: EmptyData.self)
+        guard resp.success else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
     }
 
     func logout(sid: String) async throws {

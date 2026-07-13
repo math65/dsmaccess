@@ -18,6 +18,8 @@ final class PackagesViewModel {
     private(set) var availableVersions: [String: String] = [:]
     private(set) var isLoading = false
     var errorMessage: String?
+    /// Paquets dont une bascule démarrer/arrêter est en cours (bouton désactivé le temps de l'appel).
+    private(set) var busy: Set<String> = []
 
     private let session: SessionStore
 
@@ -42,6 +44,29 @@ final class PackagesViewModel {
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }
         isLoading = false
+    }
+
+    /// Démarre ou arrête un paquet. Renvoie le message à annoncer à VoiceOver.
+    func setRunning(_ package: PackageInfo, running: Bool) async -> String {
+        guard let client = session.client, let sid = session.sid else {
+            return String(localized: "Session expirée.")
+        }
+        guard let id = package.pkgId else {
+            return String(localized: "Identifiant de paquet introuvable.")
+        }
+        busy.insert(id)
+        defer { busy.remove(id) }
+        do {
+            try await client.setPackageRunning(id: id, running: running, sid: sid)
+            await load()   // relit l'état réel du paquet
+            return running
+                ? String(localized: "\(package.displayName) démarré")
+                : String(localized: "\(package.displayName) arrêté")
+        } catch {
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            await load()
+            return String(localized: "Échec pour \(package.displayName) : \(reason)")
+        }
     }
 
     /// Version disponible au catalogue si elle est *strictement plus récente* que

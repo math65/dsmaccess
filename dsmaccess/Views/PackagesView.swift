@@ -83,11 +83,37 @@ struct PackagesView: View {
                         .font(.caption)
                         .foregroundStyle(.orange)
                 }
+                Text(package.statusText)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
             Spacer()
-            Text(package.statusText)
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            control(for: package)
+        }
+    }
+
+    /// Bouton Démarrer/Arrêter, seulement pour les paquets pilotables.
+    @ViewBuilder
+    private func control(for package: PackageInfo) -> some View {
+        let isBusy = vm.busy.contains(package.id)
+        if package.canStartStop {
+            if package.isRunning {
+                Button("Arrêter") { setRunning(package, running: false) }
+                    .disabled(isBusy)
+                    .accessibilityLabel("Arrêter \(package.displayName)")
+            } else {
+                Button("Démarrer") { setRunning(package, running: true) }
+                    .disabled(isBusy)
+                    .accessibilityLabel("Démarrer \(package.displayName)")
+            }
+        }
+        // Sinon : pas de bouton (l'état reste lisible dans le bloc de gauche).
+    }
+
+    private func setRunning(_ package: PackageInfo, running: Bool) {
+        Task {
+            let msg = await vm.setRunning(package, running: running)
+            VoiceOver.announce(msg, priority: .high)
         }
     }
 }
