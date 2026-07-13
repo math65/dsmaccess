@@ -1,30 +1,21 @@
-## v1.1-beta.1 (build 2) — 2026-07-13
+## v1.1-beta.2 (build 3) — 2026-07-13
 
-This is a **beta** release — a preview of what's coming in 1.1. It builds on 1.0
-with three new areas for managing your NAS. Feedback is welcome.
+This beta polishes 1.1 with three fixes that came straight from your beta
+feedback — thank you, and keep it coming.
 
-### New: Shared Folders
+### Fixes
 
-- See all your shared folders, with the volume each one lives on.
-- Create a new shared folder, choosing its volume.
-- Delete a shared folder — behind a deliberate confirmation, since this erases its contents.
+- Files: entering an empty folder no longer leaves you stuck. VoiceOver focus
+  now lands on the folder header, so the "Parent folder" button is right there
+  to go back up.
+- Storage: opening the Storage screen no longer announces a false "can't reach
+  the NAS" error while your storage details load normally.
+- Files: moving items is easier to find. The action is now called
+  "Move (cut)", and once you have cut an item, the app reminds you to paste it
+  at the destination to complete the move.
 
-### New: File Services
-
-- Turn the file-sharing protocols on or off: SMB, NFS, FTP and rsync.
-- Disabling a service asks you to confirm first, and explains what it will interrupt.
-
-### New: Package Center
-
-- See every installed package, its version, and whether it is running.
-- Spot which packages have an update available.
-- Start or stop a package.
-- Uninstall a package, with an honest heads-up about what is — and isn't — removed.
-- Settings: choose the automatic-update policy, show or hide beta packages, and
-  turn update notifications on or off.
-
-Every screen keeps the VoiceOver-first approach of 1.0: clear labels, a logical
-focus order, and spoken announcements on load, on error, and after each action.
+Every screen keeps the VoiceOver-first approach: clear labels, a logical focus
+order, and spoken announcements on load, on error, and after each action.
 
 ### Requirements
 
@@ -33,4 +24,4 @@ focus order, and spoken announcements on load, on error, and after each action.
 
 ### Download
 
-[dsmaccess-1.1-beta.1.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.1/dsmaccess-1.1-beta.1.zip)
+[dsmaccess-1.1-beta.2.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.2/dsmaccess-1.1-beta.2.zip)

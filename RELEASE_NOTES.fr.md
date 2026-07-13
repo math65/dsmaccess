@@ -1,30 +1,23 @@
-## v1.1-beta.1 (build 2) — 13 juillet 2026
+## v1.1-beta.2 (build 3) — 13 juillet 2026
 
-Version **bêta** — un aperçu de ce qui arrive dans la 1.1. Elle enrichit la 1.0 de
-trois nouveaux espaces pour administrer votre NAS. Vos retours sont les bienvenus.
+Cette bêta peaufine la 1.1 avec trois corrections issues directement de vos
+retours de bêta — merci, et continuez à les partager.
 
-### Nouveau : Partages
+### Corrections
 
-- Consultez tous vos dossiers partagés, avec le volume qui héberge chacun.
-- Créez un dossier partagé en choisissant son volume.
-- Supprimez un dossier partagé — derrière une confirmation explicite, car cela efface tout son contenu.
+- Fichiers : entrer dans un dossier vide ne vous piège plus. Le focus VoiceOver
+  se place désormais sur l'en-tête du dossier, avec le bouton « Dossier
+  parent » à portée pour remonter.
+- Stockage : ouvrir l'écran Stockage n'annonce plus une fausse erreur
+  « impossible de joindre le NAS » alors que vos informations de stockage se
+  chargent normalement.
+- Fichiers : déplacer un élément est plus facile à trouver. L'action s'appelle
+  maintenant « Déplacer (couper) », et une fois l'élément coupé, l'app vous
+  rappelle de le coller à destination pour terminer le déplacement.
 
-### Nouveau : Services de fichiers
-
-- Activez ou désactivez les protocoles de partage : SMB, NFS, FTP et rsync.
-- Désactiver un service demande d'abord confirmation, en expliquant ce que cela va interrompre.
-
-### Nouveau : Centre de paquets
-
-- Voyez chaque paquet installé, sa version, et s'il est en cours d'exécution.
-- Repérez les paquets pour lesquels une mise à jour est disponible.
-- Démarrez ou arrêtez un paquet.
-- Désinstallez un paquet, avec un avertissement honnête sur ce qui est — ou non — supprimé.
-- Réglages : choisissez la stratégie de mise à jour automatique, affichez ou masquez
-  les paquets bêta, et activez ou non les notifications de mise à jour.
-
-Chaque écran conserve l'approche VoiceOver de la 1.0 : libellés clairs, ordre de
-focus logique, et annonces vocales au chargement, en cas d'erreur et après chaque action.
+Chaque écran conserve l'approche VoiceOver : libellés clairs, ordre de focus
+logique, et annonces vocales au chargement, en cas d'erreur et après chaque
+action.
 
 ### Configuration requise
 
@@ -33,4 +26,4 @@ focus logique, et annonces vocales au chargement, en cas d'erreur et après chaq
 
 ### Téléchargement
 
-[dsmaccess-1.1-beta.1.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.1/dsmaccess-1.1-beta.1.zip)
+[dsmaccess-1.1-beta.2.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.2/dsmaccess-1.1-beta.2.zip)
