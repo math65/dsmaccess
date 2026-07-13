@@ -95,6 +95,7 @@ fi
 
 mkdir -p "$OUTPUT_DIR"
 ZIP_NAME="${APP_NAME}-${VERSION}.zip"
+ZIP_BASENAME="${ZIP_NAME%.zip}"
 ZIP_PATH="$OUTPUT_DIR/$ZIP_NAME"
 
 echo "==> Zip $ZIP_NAME (version $VERSION build $BUILD)..."
@@ -127,6 +128,22 @@ if [[ $NOTARIZE -eq 1 ]]; then
     # Préserver les entrées existantes (versions précédentes) dans le feed.
     [[ -f "$DOCS_DIR/appcast.xml" ]] && cp "$DOCS_DIR/appcast.xml" "$STAGING/appcast.xml"
     mkdir -p "$DOCS_DIR"
+
+    # Notes de version localisées → HTML (thème clair/sombre) pour la popup Sparkle.
+    # generate_appcast détecte les sidecars <base>.html / <base>.fr.html et émet les
+    # <sparkle:releaseNotesLink> (Sparkle montre à chacun sa langue, repli sur l'anglais).
+    # Le .md racine sert aussi de corps à la release GitHub (--notes-file) plus bas.
+    if [[ -f "$SCRIPT_DIR/RELEASE_NOTES.md" ]]; then
+        "$SCRIPT_DIR/scripts/render-release-notes.sh" \
+            "$SCRIPT_DIR/RELEASE_NOTES.md" "$DOCS_DIR/${ZIP_BASENAME}.html" "en"
+        cp "$DOCS_DIR/${ZIP_BASENAME}.html" "$STAGING/${ZIP_BASENAME}.html"
+    fi
+    if [[ -f "$SCRIPT_DIR/RELEASE_NOTES.fr.md" ]]; then
+        "$SCRIPT_DIR/scripts/render-release-notes.sh" \
+            "$SCRIPT_DIR/RELEASE_NOTES.fr.md" "$DOCS_DIR/${ZIP_BASENAME}.fr.html" "fr"
+        cp "$DOCS_DIR/${ZIP_BASENAME}.fr.html" "$STAGING/${ZIP_BASENAME}.fr.html"
+    fi
+
     "$SPARKLE_BIN/generate_appcast" \
         "$STAGING" \
         ${CHANNEL_ARGS[@]+"${CHANNEL_ARGS[@]}"} \
@@ -161,11 +178,11 @@ if [[ $RELEASE -eq 1 ]]; then
 
     # Pousser l'appcast (servi par Pages) — uniquement depuis main.
     CURRENT_BRANCH=$(git -C "$SCRIPT_DIR" rev-parse --abbrev-ref HEAD)
-    if [[ "$CURRENT_BRANCH" == "main" && -n "$(git -C "$SCRIPT_DIR" status --porcelain -- docs/appcast.xml)" ]]; then
-        git -C "$SCRIPT_DIR" add docs/appcast.xml
-        git -C "$SCRIPT_DIR" commit -m "Update appcast for v${VERSION}"
+    if [[ "$CURRENT_BRANCH" == "main" && -n "$(git -C "$SCRIPT_DIR" status --porcelain -- docs/)" ]]; then
+        git -C "$SCRIPT_DIR" add docs/appcast.xml "docs/${ZIP_BASENAME}.html" "docs/${ZIP_BASENAME}.fr.html" 2>/dev/null
+        git -C "$SCRIPT_DIR" commit -m "Update appcast and release notes for v${VERSION}"
         git -C "$SCRIPT_DIR" push origin main
-        echo "✓ appcast poussé sur main"
+        echo "✓ appcast + notes poussés sur main"
     else
         echo "⚠ Appcast non poussé (branche != main ou aucun changement) — pousse-le à la main si besoin."
     fi
