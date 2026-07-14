@@ -97,6 +97,7 @@ final class DSMClient: DSMClientProtocol {
     let transport: DSMTransport
     let authentication: DSMAuthenticationService
     let system: DSMSystemService
+    let fileStation: DSMFileStationService
 
     /// Cache des chemins/versions d'API découverts via SYNO.API.Info.
     private var apiPaths: [String: APIInfoEntry] = [:]
@@ -107,6 +108,7 @@ final class DSMClient: DSMClientProtocol {
         self.transport = transport
         self.authentication = DSMAuthenticationService(transport: transport)
         self.system = DSMSystemService(transport: transport)
+        self.fileStation = DSMFileStationService(transport: transport)
         let delegate = ServerTrustDelegate(trustedHost: endpoint.host)
         self.trustDelegate = delegate
         let config = URLSessionConfiguration.ephemeral
@@ -150,271 +152,47 @@ final class DSMClient: DSMClientProtocol {
     }
 
     func listShares(sid: String) async throws -> [FileStationItem] {
-        try await ensurePaths(for: [Self.fileStationListAPI])
-        let query = [
-            "api": "SYNO.FileStation.List",
-            "version": "2",
-            "method": "list_share",
-            "_sid": sid,
-        ]
-        let resp = try await get(cgi: path(for: Self.fileStationListAPI), query: query, as: FileStationShares.self)
-        guard resp.success, let data = resp.data else {
-            throw DSMError.apiError(code: resp.error?.code ?? -1)
-        }
-        return data.shares
+        try await fileStation.shares()
     }
 
     func list(folderPath: String, sid: String) async throws -> [FileStationItem] {
-        try await ensurePaths(for: [Self.fileStationListAPI])
-        let query = [
-            "api": "SYNO.FileStation.List",
-            "version": "2",
-            "method": "list",
-            "folder_path": folderPath,
-            // Tableau JSON attendu par DSM : réclame taille, dates et type pour chaque entrée.
-            "additional": "[\"size\",\"time\",\"type\"]",
-            "_sid": sid,
-        ]
-        let resp = try await get(cgi: path(for: Self.fileStationListAPI), query: query, as: FileStationFiles.self)
-        guard resp.success, let data = resp.data else {
-            throw DSMError.apiError(code: resp.error?.code ?? -1)
-        }
-        return data.files
+        try await fileStation.items(in: folderPath)
     }
 
     func downloadFile(path: String, sid: String, to destination: URL) async throws {
-        try await ensurePaths(for: [Self.fileStationDownloadAPI])
-        let query = [
-            "api": "SYNO.FileStation.Download",
-            "version": "2",
-            "method": "download",
-            "path": path,
-            "mode": "download",
-            "_sid": sid,
-        ]
-        let url = try makeURL(cgi: self.path(for: Self.fileStationDownloadAPI), query: query)
-
-        let tempURL: URL
-        let response: URLResponse
-        do {
-            (tempURL, response) = try await session.download(from: url)
-        } catch let error as URLError {
-            throw error.code == .cancelled ? DSMError.cancelled : DSMError.network(error.localizedDescription)
-        }
-
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            throw DSMError.invalidResponse
-        }
-        // DSM peut répondre par une erreur JSON (statut 200) au lieu du binaire attendu
-        // (chemin invalide, droits insuffisants…). On la détecte via le type MIME.
-        if let mime = response.mimeType, mime.contains("json") {
-            let data = (try? Data(contentsOf: tempURL)) ?? Data()
-            if let resp = try? JSONDecoder().decode(DSMResponse<EmptyData>.self, from: data), !resp.success {
-                throw DSMError.apiError(code: resp.error?.code ?? -1)
-            }
-            throw DSMError.invalidResponse
-        }
-
-        // Déplace le fichier temporaire vers l'emplacement choisi (écrase s'il existe déjà).
-        let fm = FileManager.default
-        if fm.fileExists(atPath: destination.path) {
-            try fm.removeItem(at: destination)
-        }
-        try fm.moveItem(at: tempURL, to: destination)
+        try await fileStation.download(path: path, to: destination)
     }
 
     func createFolder(in folderPath: String, name: String, sid: String) async throws {
-        try await ensurePaths(for: [Self.fileStationCreateFolderAPI])
-        let query = [
-            "api": "SYNO.FileStation.CreateFolder",
-            "version": "2",
-            "method": "create",
-            "folder_path": folderPath,
-            "name": name,
-            "_sid": sid,
-        ]
-        let resp = try await get(cgi: self.path(for: Self.fileStationCreateFolderAPI), query: query, as: EmptyData.self)
-        guard resp.success else {
-            throw DSMError.apiError(code: resp.error?.code ?? -1)
-        }
+        try await fileStation.createFolder(in: folderPath, name: name)
     }
 
     func rename(path: String, to name: String, sid: String) async throws {
-        try await ensurePaths(for: [Self.fileStationRenameAPI])
-        let query = [
-            "api": "SYNO.FileStation.Rename",
-            "version": "2",
-            "method": "rename",
-            "path": path,
-            "name": name,
-            "_sid": sid,
-        ]
-        let resp = try await get(cgi: self.path(for: Self.fileStationRenameAPI), query: query, as: EmptyData.self)
-        guard resp.success else {
-            throw DSMError.apiError(code: resp.error?.code ?? -1)
-        }
+        try await fileStation.rename(path: path, to: name)
     }
 
     func delete(path: String, sid: String) async throws {
-        try await ensurePaths(for: [Self.fileStationDeleteAPI])
-        let query = [
-            "api": "SYNO.FileStation.Delete",
-            "version": "2",
-            "method": "delete",
-            "path": path,
-            "recursive": "true",
-            "_sid": sid,
-        ]
-        let resp = try await get(cgi: self.path(for: Self.fileStationDeleteAPI), query: query, as: EmptyData.self)
-        guard resp.success else {
-            throw DSMError.apiError(code: resp.error?.code ?? -1)
-        }
+        try await fileStation.delete(path: path)
     }
 
     func upload(fileURL: URL, to folderPath: String, sid: String) async throws {
-        try await ensurePaths(for: [Self.fileStationUploadAPI])
-        let url = try makeURL(cgi: self.path(for: Self.fileStationUploadAPI), query: [
-            "api": "SYNO.FileStation.Upload",
-            "version": "2",
-            "method": "upload",
-            "_sid": sid,
-        ])
-
-        let fileData = try Data(contentsOf: fileURL)
-        let filename = fileURL.lastPathComponent
-        let boundary = "Boundary-\(UUID().uuidString)"
-
-        // Corps multipart : les champs texte d'abord, la partie fichier EN DERNIER (exigence DSM).
-        var body = Data()
-        func appendField(_ name: String, _ value: String) {
-            body.append("--\(boundary)\r\n".data(using: .utf8)!)
-            body.append("Content-Disposition: form-data; name=\"\(name)\"\r\n\r\n".data(using: .utf8)!)
-            body.append("\(value)\r\n".data(using: .utf8)!)
-        }
-        // DSM (erreur 119 sinon) exige les paramètres de routage AUSSI dans le corps multipart,
-        // pas seulement dans l'URL — on les redonne donc ici.
-        appendField("api", "SYNO.FileStation.Upload")
-        appendField("version", "2")
-        appendField("method", "upload")
-        appendField("_sid", sid)
-        // NB : un NAS avec protection CSRF activée exigerait en plus un SynoToken (récupéré au
-        // login via enable_syno_token=yes, à joindre à TOUTES les requêtes) — non nécessaire ici.
-        appendField("path", folderPath)
-        appendField("create_parents", "true")
-        appendField("overwrite", "false")
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"\(filename)\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: application/octet-stream\r\n\r\n".data(using: .utf8)!)
-        body.append(fileData)
-        body.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-
-        let data: Data
-        let response: URLResponse
-        do {
-            (data, response) = try await session.upload(for: request, from: body)
-        } catch let error as URLError {
-            throw error.code == .cancelled ? DSMError.cancelled : DSMError.network(error.localizedDescription)
-        }
-        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-            throw DSMError.invalidResponse
-        }
-        let decoded: DSMResponse<EmptyData>
-        do {
-            decoded = try JSONDecoder().decode(DSMResponse<EmptyData>.self, from: data)
-        } catch {
-            throw DSMError.decoding
-        }
-        guard decoded.success else {
-            throw DSMError.apiError(code: decoded.error?.code ?? -1)
-        }
+        try await fileStation.upload(fileURL: fileURL, to: folderPath)
     }
 
     func copyMove(path: String, to destFolder: String, remove: Bool, sid: String) async throws {
-        try await ensurePaths(for: [Self.fileStationCopyMoveAPI])
-        let cgi = self.path(for: Self.fileStationCopyMoveAPI)
-
-        // Lance la tâche (asynchrone côté DSM) et récupère son identifiant.
-        let startResp = try await get(cgi: cgi, query: [
-            "api": "SYNO.FileStation.CopyMove",
-            "version": "3",
-            "method": "start",
-            "path": path,
-            "dest_folder_path": destFolder,
-            "overwrite": "false",
-            "remove_src": remove ? "true" : "false",
-            "_sid": sid,
-        ], as: CopyMoveTask.self)
-        guard startResp.success, let task = startResp.data else {
-            throw DSMError.apiError(code: startResp.error?.code ?? -1)
-        }
-
-        // Poll le statut jusqu'à la fin (garde-fou ≈ 5 min).
-        for _ in 0..<600 {
-            let statusResp = try await get(cgi: cgi, query: [
-                "api": "SYNO.FileStation.CopyMove",
-                "version": "3",
-                "method": "status",
-                "taskid": task.taskid,
-                "_sid": sid,
-            ], as: CopyMoveStatus.self)
-            guard statusResp.success, let status = statusResp.data else {
-                throw DSMError.apiError(code: statusResp.error?.code ?? -1)
-            }
-            if status.finished { return }
-            try await Task.sleep(for: .milliseconds(500))
-        }
-        throw DSMError.network(String(localized: "Délai dépassé."))
+        try await fileStation.copyMove(path: path, to: destFolder, removeSource: remove)
     }
 
     func createShareLink(path: String, password: String?, dateExpired: String?, sid: String) async throws -> String {
-        try await ensurePaths(for: [Self.fileStationSharingAPI])
-        var query = [
-            "api": "SYNO.FileStation.Sharing",
-            "version": "3",
-            "method": "create",
-            // DSM attend le chemin dans un tableau JSON.
-            "path": "[\"\(path)\"]",
-            "_sid": sid,
-        ]
-        if let password, !password.isEmpty { query["password"] = password }
-        if let dateExpired, !dateExpired.isEmpty { query["date_expired"] = dateExpired }
-        let resp = try await get(cgi: self.path(for: Self.fileStationSharingAPI), query: query, as: SharingLinks.self)
-        guard resp.success, let url = resp.data?.links.first?.url else {
-            throw DSMError.apiError(code: resp.error?.code ?? -1)
-        }
-        return url
+        try await fileStation.createShareLink(path: path, password: password, expirationDate: dateExpired)
     }
 
     func listShareLinks(sid: String) async throws -> [SharingLink] {
-        try await ensurePaths(for: [Self.fileStationSharingAPI])
-        let resp = try await get(cgi: self.path(for: Self.fileStationSharingAPI), query: [
-            "api": "SYNO.FileStation.Sharing",
-            "version": "3",
-            "method": "list",
-            "_sid": sid,
-        ], as: SharingLinks.self)
-        guard resp.success, let data = resp.data else {
-            throw DSMError.apiError(code: resp.error?.code ?? -1)
-        }
-        return data.links
+        try await fileStation.shareLinks()
     }
 
     func deleteShareLink(id: String, sid: String) async throws {
-        try await ensurePaths(for: [Self.fileStationSharingAPI])
-        let resp = try await get(cgi: self.path(for: Self.fileStationSharingAPI), query: [
-            "api": "SYNO.FileStation.Sharing",
-            "version": "3",
-            "method": "delete",
-            "id": id,
-            "_sid": sid,
-        ], as: EmptyData.self)
-        guard resp.success else {
-            throw DSMError.apiError(code: resp.error?.code ?? -1)
-        }
+        try await fileStation.deleteShareLink(id: id)
     }
 
     func storageInfo(sid: String) async throws -> StorageInfo {
