@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import dsmaccess
 
+@MainActor
 struct FileStationModelsTests {
     @Test func safelyEncodesPathArrays() throws {
         let encoded = try DSMParameter.json([

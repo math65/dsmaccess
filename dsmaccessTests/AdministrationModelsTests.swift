@@ -2,6 +2,7 @@ import Foundation
 import Testing
 @testable import dsmaccess
 
+@MainActor
 struct AdministrationModelsTests {
     @Test func decodesAccountValuesAcrossDSMTypes() throws {
         let data = Data(
