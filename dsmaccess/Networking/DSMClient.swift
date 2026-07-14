@@ -120,7 +120,7 @@ final class DSMClient: DSMClientProtocol {
             "method": "query",
             "query": apis.joined(separator: ","),
         ]
-        let resp = try await get(cgi: "query.cgi", query: query, as: [String: APIInfoEntry].self)
+        let resp = try await get(cgi: "query.cgi", query: query, as: [String: APIInfoEntry].self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -154,7 +154,7 @@ final class DSMClient: DSMClientProtocol {
             query["device_name"] = "DSM Access (Mac)"
         }
 
-        let resp = try await get(cgi: path(for: Self.authAPI), query: query, as: LoginResult.self)
+        let resp = try await get(cgi: path(for: Self.authAPI), query: query, as: LoginResult.self, retryOnTimeout: true)
         if resp.success, let data = resp.data {
             return data
         }
@@ -178,7 +178,7 @@ final class DSMClient: DSMClientProtocol {
             "method": "getinfo",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.systemInfoAPI), query: query, as: SystemInfo.self)
+        let resp = try await get(cgi: path(for: Self.systemInfoAPI), query: query, as: SystemInfo.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -193,7 +193,7 @@ final class DSMClient: DSMClientProtocol {
             "method": "list_share",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.fileStationListAPI), query: query, as: FileStationShares.self)
+        let resp = try await get(cgi: path(for: Self.fileStationListAPI), query: query, as: FileStationShares.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -211,7 +211,7 @@ final class DSMClient: DSMClientProtocol {
             "additional": "[\"size\",\"time\",\"type\"]",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.fileStationListAPI), query: query, as: FileStationFiles.self)
+        let resp = try await get(cgi: path(for: Self.fileStationListAPI), query: query, as: FileStationFiles.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -432,7 +432,7 @@ final class DSMClient: DSMClientProtocol {
             "version": "3",
             "method": "list",
             "_sid": sid,
-        ], as: SharingLinks.self)
+        ], as: SharingLinks.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -463,7 +463,7 @@ final class DSMClient: DSMClientProtocol {
             "method": "load_info",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.storageAPI), query: query, as: StorageInfo.self)
+        let resp = try await get(cgi: path(for: Self.storageAPI), query: query, as: StorageInfo.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -480,7 +480,7 @@ final class DSMClient: DSMClientProtocol {
             "method": "get",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.utilizationAPI), query: query, as: ResourceUsage.self)
+        let resp = try await get(cgi: path(for: Self.utilizationAPI), query: query, as: ResourceUsage.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -499,7 +499,7 @@ final class DSMClient: DSMClientProtocol {
             "additional": "[\"recyclebin\",\"share_quota\"]",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.shareAPI), query: query, as: ShareList.self)
+        let resp = try await get(cgi: path(for: Self.shareAPI), query: query, as: ShareList.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -554,7 +554,7 @@ final class DSMClient: DSMClientProtocol {
             "method": "get",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: service.api), query: query, as: FileServiceStatus.self)
+        let resp = try await get(cgi: path(for: service.api), query: query, as: FileServiceStatus.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -589,7 +589,7 @@ final class DSMClient: DSMClientProtocol {
             "additional": "[\"status\",\"installed_info\",\"startable\",\"ctl_uninstall\",\"is_uninstall_pages\"]",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.packageAPI), query: query, as: PackageList.self)
+        let resp = try await get(cgi: path(for: Self.packageAPI), query: query, as: PackageList.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -611,7 +611,7 @@ final class DSMClient: DSMClientProtocol {
                 "blloadothers": loadOthers,
                 "_sid": sid,
             ]
-            guard let resp = try? await get(cgi: path(for: Self.packageServerAPI), query: query, as: ServerPackageList.self),
+            guard let resp = try? await get(cgi: path(for: Self.packageServerAPI), query: query, as: ServerPackageList.self, retryOnTimeout: true),
                   resp.success, let list = resp.data?.packages else { continue }
             for package in list {
                 if let id = package.id?.lowercased(), let ver = package.version {
@@ -667,7 +667,7 @@ final class DSMClient: DSMClientProtocol {
             "method": "get",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.packageSettingAPI), query: query, as: PackageSettings.self)
+        let resp = try await get(cgi: path(for: Self.packageSettingAPI), query: query, as: PackageSettings.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -709,7 +709,7 @@ final class DSMClient: DSMClientProtocol {
             "method": "get",
             "_sid": sid,
         ]
-        let resp = try await get(cgi: path(for: Self.networkAPI), query: query, as: NetworkInfo.self)
+        let resp = try await get(cgi: path(for: Self.networkAPI), query: query, as: NetworkInfo.self, retryOnTimeout: true)
         guard resp.success, let data = resp.data else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
@@ -742,22 +742,40 @@ final class DSMClient: DSMClientProtocol {
     }
 
     /// Exécute un GET sur /webapi/<cgi> et décode l'enveloppe DSMResponse<T>.
-    private func get<T: Decodable>(cgi: String, query: [String: String], as type: T.Type) async throws -> DSMResponse<T> {
+    ///
+    /// `retryOnTimeout` autorise UN nouvel essai silencieux si la requête expire : la toute
+    /// première requête d'une session paie la résolution du nom (mDNS/.local) et l'établissement
+    /// TCP/TLS « à froid » et peut dépasser le délai ; le nouvel essai profite du cache DNS système.
+    /// À n'activer que sur des requêtes idempotentes (lectures, login) — jamais sur une mutation,
+    /// où un timeout survenu APRÈS l'action côté NAS ferait exécuter l'opération deux fois.
+    private func get<T: Decodable>(cgi: String, query: [String: String], as type: T.Type,
+                                   retryOnTimeout: Bool = false) async throws -> DSMResponse<T> {
         let url = try makeURL(cgi: cgi, query: query)
         do {
-            let (data, response) = try await session.data(from: url)
-            guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
-                throw DSMError.invalidResponse
-            }
             do {
-                return try JSONDecoder().decode(DSMResponse<T>.self, from: data)
-            } catch {
-                throw DSMError.decoding
+                return try await send(url: url, as: type)
+            } catch let error as URLError where retryOnTimeout && error.code == .timedOut {
+                try? await Task.sleep(for: .milliseconds(500))
+                return try await send(url: url, as: type)
             }
         } catch let error as DSMError {
             throw error
         } catch let error as URLError {
             throw error.code == .cancelled ? DSMError.cancelled : DSMError.network(error.localizedDescription)
+        }
+    }
+
+    /// Un aller-retour HTTP + décodage, sans logique de retry. Laisse remonter l'`URLError` brute
+    /// (pour que `get` puisse détecter un timeout) ; convertit seulement les échecs de décodage.
+    private func send<T: Decodable>(url: URL, as type: T.Type) async throws -> DSMResponse<T> {
+        let (data, response) = try await session.data(from: url)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw DSMError.invalidResponse
+        }
+        do {
+            return try JSONDecoder().decode(DSMResponse<T>.self, from: data)
+        } catch {
+            throw DSMError.decoding
         }
     }
 
