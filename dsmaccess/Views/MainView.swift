@@ -21,6 +21,7 @@ struct MainView: View {
         case shares
         case fileServices
         case packages
+        case controlPanel
 
         var id: Self { self }
 
@@ -32,6 +33,7 @@ struct MainView: View {
             case .shares: return "Partages"
             case .fileServices: return "Services de fichiers"
             case .packages: return "Centre de paquets"
+            case .controlPanel: return "Panneau de configuration"
             }
         }
 
@@ -43,6 +45,7 @@ struct MainView: View {
             case .shares: return "externaldrive.badge.person.crop"
             case .fileServices: return "network"
             case .packages: return "shippingbox"
+            case .controlPanel: return "gearshape"
             }
         }
     }
@@ -77,6 +80,8 @@ struct MainView: View {
                 FileServicesView(session: session)
             case .packages:
                 PackagesView(session: session)
+            case .controlPanel:
+                ControlPanelView(session: session)
             case nil:
                 Text("Sélectionnez un module")
                     .foregroundStyle(.secondary)

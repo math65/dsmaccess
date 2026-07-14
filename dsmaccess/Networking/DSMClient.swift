@@ -64,6 +64,8 @@ protocol DSMClientProtocol: AnyObject {
     /// Réglages globaux du Centre de paquets (SYNO.Core.Package.Setting).
     func packageSettings(sid: String) async throws -> PackageSettings
     func setPackageSettings(_ settings: PackageSettings, sid: String) async throws
+    /// Configuration réseau du NAS (identité, passerelle, DNS) via SYNO.Core.Network.
+    func networkInfo(sid: String) async throws -> NetworkInfo
     func logout(sid: String) async throws
 }
 
@@ -87,6 +89,7 @@ final class DSMClient: DSMClientProtocol {
     private static let packageControlAPI = "SYNO.Core.Package.Control"
     private static let packageUninstallAPI = "SYNO.Core.Package.Uninstallation"
     private static let packageSettingAPI = "SYNO.Core.Package.Setting"
+    private static let networkAPI = "SYNO.Core.Network"
 
     /// Nom de session applicatif ; réutilisé au logout.
     private static let sessionName = "DSMAccess"
@@ -694,6 +697,23 @@ final class DSMClient: DSMClientProtocol {
         guard resp.success else {
             throw DSMError.apiError(code: resp.error?.code ?? -1)
         }
+    }
+
+    func networkInfo(sid: String) async throws -> NetworkInfo {
+        try await ensurePaths(for: [Self.networkAPI])
+        // API non documentée : on utilise la version maximale découverte via SYNO.API.Info.
+        let version = apiPaths[Self.networkAPI]?.maxVersion ?? 1
+        let query = [
+            "api": "SYNO.Core.Network",
+            "version": String(version),
+            "method": "get",
+            "_sid": sid,
+        ]
+        let resp = try await get(cgi: path(for: Self.networkAPI), query: query, as: NetworkInfo.self)
+        guard resp.success, let data = resp.data else {
+            throw DSMError.apiError(code: resp.error?.code ?? -1)
+        }
+        return data
     }
 
     func logout(sid: String) async throws {
