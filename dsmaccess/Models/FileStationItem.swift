@@ -9,7 +9,7 @@
 import Foundation
 
 /// Dossier ou fichier tel que décrit par File Station.
-struct FileStationItem: Decodable, Identifiable {
+struct FileStationItem: Decodable, Identifiable, Sendable {
     /// Nom affiché (ex. « photo », « vacances.jpg »).
     let name: String
     /// Chemin absolu côté NAS (ex. « /photo/vacances.jpg ») — sert de clé de navigation.
@@ -21,15 +21,49 @@ struct FileStationItem: Decodable, Identifiable {
 
     var id: String { path }
 
-    struct Additional: Decodable {
+    struct Additional: Decodable, Sendable {
         /// Taille en octets (fichiers uniquement).
         let size: Int64?
         let time: TimeInfo?
+        let owner: OwnerInfo?
+        let permission: PermissionInfo?
+        let type: String?
+        let realPath: String?
+
+        enum CodingKeys: String, CodingKey {
+            case size, time, owner, type
+            case permission = "perm"
+            case realPath = "real_path"
+        }
     }
 
-    struct TimeInfo: Decodable {
+    struct TimeInfo: Decodable, Sendable {
         /// Date de dernière modification, en secondes depuis l'époque Unix.
         let mtime: Int?
+        let atime: Int?
+        let ctime: Int?
+        let crtime: Int?
+    }
+
+    struct OwnerInfo: Decodable, Sendable {
+        let user: String?
+        let group: String?
+    }
+
+    struct PermissionInfo: Decodable, Sendable {
+        let posix: Int?
+        let acl: ACLInfo?
+    }
+
+    struct ACLInfo: Decodable, Sendable {
+        let read: Bool?
+        let write: Bool?
+        let delete: Bool?
+
+        enum CodingKeys: String, CodingKey {
+            case read, write
+            case delete = "del"
+        }
     }
 }
 
@@ -79,13 +113,38 @@ struct FileStationFiles: Decodable {
     let files: [FileStationItem]
 }
 
+struct FileStationSearchTask: Decodable {
+    let taskid: String
+}
+
+struct FileStationSearchResults: Decodable {
+    let files: [FileStationItem]
+    let finished: Bool
+}
+
+struct FileStationFavorites: Decodable {
+    let favorites: [FileStationFavorite]
+}
+
+struct FileStationFavorite: Decodable, Identifiable, Sendable {
+    let path: String
+    let name: String
+    let status: String?
+
+    var id: String { path }
+    var isAvailable: Bool { status != "broken" }
+}
+
 /// Réponse de `SYNO.FileStation.CopyMove` `method=start` : l'identifiant de tâche à suivre.
 struct CopyMoveTask: Decodable {
     let taskid: String
 }
 
-/// Réponse de `SYNO.FileStation.CopyMove` `method=status` : l'avancement de la tâche.
-struct CopyMoveStatus: Decodable {
+struct FileOperationTask: Decodable {
+    let taskid: String
+}
+
+struct FileOperationStatus: Decodable {
     let finished: Bool
 }
 

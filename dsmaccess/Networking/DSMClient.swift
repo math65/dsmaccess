@@ -25,8 +25,16 @@ protocol DSMClientProtocol: AnyObject {
     func createFolder(in folderPath: String, name: String, sid: String) async throws
     func rename(path: String, to name: String, sid: String) async throws
     func delete(path: String, sid: String) async throws
+    func delete(paths: [String], sid: String) async throws
     func upload(fileURL: URL, to folderPath: String, sid: String) async throws
     func copyMove(path: String, to destFolder: String, remove: Bool, sid: String) async throws
+    func copyMove(paths: [String], to destFolder: String, remove: Bool, sid: String) async throws
+    func searchFiles(in folderPath: String, matching pattern: String, sid: String) async throws -> [FileStationItem]
+    func fileStationFavorites(sid: String) async throws -> [FileStationFavorite]
+    func addFileStationFavorite(path: String, name: String, sid: String) async throws
+    func removeFileStationFavorite(path: String, sid: String) async throws
+    func compress(paths: [String], to destinationPath: String, sid: String) async throws
+    func extract(archivePath: String, to destinationFolder: String, sid: String) async throws
     func createShareLink(
         path: String,
         password: String?,
@@ -127,12 +135,44 @@ final class DSMClient: DSMClientProtocol {
         try await fileStation.delete(path: path)
     }
 
+    func delete(paths: [String], sid: String) async throws {
+        try await fileStation.delete(paths: paths)
+    }
+
     func upload(fileURL: URL, to folderPath: String, sid: String) async throws {
         try await fileStation.upload(fileURL: fileURL, to: folderPath)
     }
 
     func copyMove(path: String, to destFolder: String, remove: Bool, sid: String) async throws {
         try await fileStation.copyMove(path: path, to: destFolder, removeSource: remove)
+    }
+
+    func copyMove(paths: [String], to destFolder: String, remove: Bool, sid: String) async throws {
+        try await fileStation.copyMove(paths: paths, to: destFolder, removeSource: remove)
+    }
+
+    func searchFiles(in folderPath: String, matching pattern: String, sid: String) async throws -> [FileStationItem] {
+        try await fileStation.search(in: folderPath, matching: pattern)
+    }
+
+    func fileStationFavorites(sid: String) async throws -> [FileStationFavorite] {
+        try await fileStation.favorites()
+    }
+
+    func addFileStationFavorite(path: String, name: String, sid: String) async throws {
+        try await fileStation.addFavorite(path: path, name: name)
+    }
+
+    func removeFileStationFavorite(path: String, sid: String) async throws {
+        try await fileStation.removeFavorite(path: path)
+    }
+
+    func compress(paths: [String], to destinationPath: String, sid: String) async throws {
+        try await fileStation.compress(paths: paths, to: destinationPath)
+    }
+
+    func extract(archivePath: String, to destinationFolder: String, sid: String) async throws {
+        try await fileStation.extract(archivePath: archivePath, to: destinationFolder)
     }
 
     func createShareLink(
