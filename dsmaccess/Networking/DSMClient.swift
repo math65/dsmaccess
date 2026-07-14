@@ -54,9 +54,12 @@ protocol DSMClientProtocol: AnyObject {
     func setFileService(_ service: FileService, enabled: Bool, sid: String) async throws
     /// Liste les paquets installés (SYNO.Core.Package).
     func listPackages(sid: String) async throws -> [PackageInfo]
-    /// Versions disponibles au catalogue (SYNO.Core.Package.Server), indexées par identifiant
-    /// minuscule — pour détecter les mises à jour en comparant avec l'installé.
-    func availablePackageVersions(sid: String) async throws -> [String: String]
+    /// Mises à jour disponibles au catalogue (SYNO.Core.Package.Server), indexées par identifiant
+    /// minuscule — version cible + métadonnées de téléchargement pour les appliquer.
+    func availablePackageUpdates(sid: String) async throws -> [String: PackageUpdate]
+    /// Applique la mise à jour d'un paquet déjà installé (SYNO.Core.Package.Installation) :
+    /// télécharge le .spk puis lance l'upgrade. Opération mutante, non idempotente.
+    func upgradePackage(_ update: PackageUpdate, sid: String) async throws
     /// Démarre (start) ou arrête (stop) un paquet installé (SYNO.Core.Package.Control).
     func setPackageRunning(id: String, running: Bool, sid: String) async throws
     /// Désinstalle un paquet installé (SYNO.Core.Package.Uninstallation).
@@ -89,6 +92,7 @@ final class DSMClient: DSMClientProtocol {
     private static let packageControlAPI = "SYNO.Core.Package.Control"
     private static let packageUninstallAPI = "SYNO.Core.Package.Uninstallation"
     private static let packageSettingAPI = "SYNO.Core.Package.Setting"
+    private static let packageInstallationAPI = "SYNO.Core.Package.Installation"
     private static let networkAPI = "SYNO.Core.Network"
 
     /// Nom de session applicatif ; réutilisé au logout.
@@ -596,30 +600,83 @@ final class DSMClient: DSMClientProtocol {
         return data.packages ?? []
     }
 
-    func availablePackageVersions(sid: String) async throws -> [String: String] {
+    func availablePackageUpdates(sid: String) async throws -> [String: PackageUpdate] {
         try await ensurePaths(for: [Self.packageServerAPI])
         let version = apiPaths[Self.packageServerAPI]?.maxVersion ?? 2
-        var versions: [String: String] = [:]
-        // Deux sources : catalogue officiel Synology (blloadothers=false) puis tiers-parti (true).
+        // Périmètre « officiels d'abord » : on ne charge que le catalogue officiel Synology
+        // (blloadothers=false), c.-à-d. les paquets signés (source == "syno").
         // On lit le cache du NAS (blforcerefresh=false) pour rester rapide.
-        for loadOthers in ["false", "true"] {
-            let query = [
-                "api": "SYNO.Core.Package.Server",
-                "version": String(version),
-                "method": "list",
-                "blforcerefresh": "false",
-                "blloadothers": loadOthers,
-                "_sid": sid,
-            ]
-            guard let resp = try? await get(cgi: path(for: Self.packageServerAPI), query: query, as: ServerPackageList.self, retryOnTimeout: true),
-                  resp.success, let list = resp.data?.packages else { continue }
-            for package in list {
-                if let id = package.id?.lowercased(), let ver = package.version {
-                    versions[id] = ver
-                }
-            }
+        let query = [
+            "api": "SYNO.Core.Package.Server",
+            "version": String(version),
+            "method": "list",
+            "blforcerefresh": "false",
+            "blloadothers": "false",
+            "_sid": sid,
+        ]
+        guard let resp = try? await get(cgi: path(for: Self.packageServerAPI), query: query, as: ServerPackageList.self, retryOnTimeout: true),
+              resp.success, let list = resp.data?.packages else { return [:] }
+        var updates: [String: PackageUpdate] = [:]
+        for package in list {
+            // On ne retient que les entrées complètes (lien + checksum + taille) : ce sont
+            // les seules qu'on pourra réellement télécharger puis mettre à jour.
+            guard let rawID = package.id,
+                  let ver = package.version,
+                  let link = package.link,
+                  let md5 = package.md5,
+                  let size = package.size else { continue }
+            updates[rawID.lowercased()] = PackageUpdate(
+                id: rawID, version: ver, link: link, md5: md5, size: size,
+                isSyno: package.source == "syno", beta: package.beta ?? false, type: package.type ?? 0)
         }
-        return versions
+        return updates
+    }
+
+    func upgradePackage(_ update: PackageUpdate, sid: String) async throws {
+        try await ensurePaths(for: [Self.packageInstallationAPI])
+        // Flux calqué sur le Package Center web (source de vérité, code JS observé) : l'upgrade se
+        // fait en UN SEUL appel « upgrade » qui reçoit directement l'URL du .spk, le checksum, la
+        // taille et les drapeaux du paquet. DSM télécharge puis installe côté serveur ; on suit
+        // l'avancement via « status ». (version 1, comme le web.)
+        let version = String(apiPaths[Self.packageInstallationAPI]?.minVersion ?? 1)
+        let cgi = path(for: Self.packageInstallationAPI)
+
+        let startResp = try await get(cgi: cgi, query: [
+            "api": Self.packageInstallationAPI,
+            "version": version,
+            "method": "upgrade",
+            "name": update.id,
+            "is_syno": update.isSyno ? "true" : "false",
+            "beta": update.beta ? "true" : "false",
+            "url": update.link,
+            "checksum": update.md5,
+            "filesize": String(update.size),
+            "type": String(update.type),
+            "blqinst": "false",
+            "operation": "upgrade",
+            "_sid": sid,
+        ], as: PackageInstallTask.self)
+        guard startResp.success, let task = startResp.data else {
+            throw DSMError.apiError(code: startResp.error?.code ?? -1)
+        }
+
+        // Suit le téléchargement + l'installation (côté NAS) jusqu'à la fin. Le web sonde toutes
+        // les 1,2 s ; garde-fou large car un gros paquet peut prendre plusieurs minutes.
+        for _ in 0..<900 {
+            try await Task.sleep(for: .milliseconds(1200))
+            let statusResp = try await get(cgi: cgi, query: [
+                "api": Self.packageInstallationAPI,
+                "version": version,
+                "method": "status",
+                "task_id": task.taskid,
+                "_sid": sid,
+            ], as: PackageInstallStatus.self)
+            guard statusResp.success, let status = statusResp.data else {
+                throw DSMError.apiError(code: statusResp.error?.code ?? -1)
+            }
+            if status.finished == true { return }
+        }
+        throw DSMError.network(String(localized: "La mise à jour a expiré."))
     }
 
     func setPackageRunning(id: String, running: Bool, sid: String) async throws {

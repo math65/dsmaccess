@@ -11,6 +11,7 @@ import SwiftUI
 struct PackagesView: View {
     @State private var vm: PackagesViewModel
     @State private var pendingUninstall: PackageInfo?
+    @State private var pendingUpdate: PackageInfo?
     @State private var showSettings = false
     @AccessibilityFocusState private var focusTitle: Bool
 
@@ -47,6 +48,21 @@ struct PackagesView: View {
             Button("Annuler", role: .cancel) { }
         } message: { package in
             Text(uninstallWarning(for: package))
+        }
+        .confirmationDialog(
+            "Mettre à jour ce paquet ?",
+            isPresented: Binding(
+                get: { pendingUpdate != nil },
+                set: { if !$0 { pendingUpdate = nil } }
+            ),
+            presenting: pendingUpdate
+        ) { package in
+            Button("Mettre à jour \(package.displayName)") {
+                requestUpdate(package)
+            }
+            Button("Annuler", role: .cancel) { }
+        } message: { package in
+            Text(updateWarning(for: package))
         }
         .sheet(isPresented: $showSettings) {
             PackageSettingsSheet(session: session)
@@ -132,6 +148,11 @@ struct PackagesView: View {
     private func control(for package: PackageInfo) -> some View {
         let isBusy = vm.busy.contains(package.id)
         HStack(spacing: 8) {
+            if let newVersion = vm.updateVersion(for: package) {
+                Button("Mettre à jour") { pendingUpdate = package }
+                    .disabled(isBusy)
+                    .accessibilityLabel("Mettre à jour \(package.displayName) vers la version \(newVersion)")
+            }
             if package.canStartStop {
                 if package.isRunning {
                     Button("Arrêter") { setRunning(package, running: false) }
@@ -167,6 +188,21 @@ struct PackagesView: View {
             let msg = await vm.uninstall(package)
             VoiceOver.announce(msg, priority: .high)
         }
+    }
+
+    private func requestUpdate(_ package: PackageInfo) {
+        Task {
+            // Étapes simples : on annonce le début (l'opération dure ~1-2 min), puis le résultat.
+            VoiceOver.announce(String(localized: "Mise à jour de \(package.displayName) en cours…"), priority: .high)
+            let msg = await vm.applyUpdate(package)
+            VoiceOver.announce(msg, priority: .high)
+        }
+    }
+
+    /// Avertissement honnête affiché avant la mise à jour.
+    private func updateWarning(for package: PackageInfo) -> String {
+        let version = vm.updateVersion(for: package) ?? ""
+        return String(localized: "« \(package.displayName) » va être mis à jour vers la version \(version). Le paquet est téléchargé puis installé, ce qui peut prendre une à deux minutes, et il sera redémarré. Si la mise à jour nécessite un redémarrage du NAS, effectuez-le depuis DSM.")
     }
 
     /// Avertissement honnête affiché avant la désinstallation.

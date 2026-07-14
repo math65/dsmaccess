@@ -14,15 +14,71 @@ struct PackageList: Decodable {
 }
 
 /// Réponse de SYNO.Core.Package.Server (method=list) : le catalogue des paquets disponibles
-/// (officiels et tiers-parti). On n'en retient que l'identifiant et la version pour comparer
-/// avec l'installé et détecter les mises à jour.
+/// (officiels et tiers-parti). On en retient l'identifiant, la version ET les métadonnées de
+/// téléchargement (lien du .spk, checksum, taille) nécessaires pour appliquer une mise à jour.
 struct ServerPackageList: Decodable {
     let packages: [ServerPackage]?
 }
 
+/// Une entrée du catalogue. Champs confirmés sur DSM 7.4 (cf. mémoire reference-flux-upgrade-paquet).
 struct ServerPackage: Decodable {
     let id: String?
     let version: String?
+    /// URL complète du fichier .spk à télécharger.
+    let link: String?
+    /// Somme de contrôle MD5 du .spk (passée à l'API d'installation).
+    let md5: String?
+    /// Taille du .spk en octets.
+    let size: Int?
+    /// Vrai si cette entrée du catalogue est une version bêta.
+    let beta: Bool?
+    /// Origine du paquet ("syno" pour le catalogue officiel Synology).
+    let source: String?
+    /// Type de paquet (0 = standard).
+    let type: Int?
+}
+
+/// Métadonnées d'une mise à jour disponible, réunies depuis le catalogue : tout ce qu'il faut
+/// pour la déclencher via l'appel « upgrade » (les paramètres exacts qu'envoie le Package Center web).
+struct PackageUpdate {
+    let id: String
+    let version: String
+    let link: String
+    let md5: String
+    let size: Int
+    /// Paquet officiel Synology (source == "syno").
+    let isSyno: Bool
+    /// Version bêta au catalogue.
+    let beta: Bool
+    /// Type de paquet (0 = standard).
+    let type: Int
+}
+
+/// Retour de SYNO.Core.Package.Installation `method=install` : le téléchargement est lancé,
+/// identifié par un `taskid` (à re-passer aux étapes status/upgrade). API non documentée ;
+/// on tolère `taskid` comme `task_id` selon les variantes DSM.
+struct PackageInstallTask: Decodable {
+    let taskid: String
+
+    private enum CodingKeys: String, CodingKey {
+        case taskid
+        case taskIdSnake = "task_id"
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        if let value = try container.decodeIfPresent(String.self, forKey: .taskid) {
+            taskid = value
+        } else {
+            taskid = try container.decode(String.self, forKey: .taskIdSnake)
+        }
+    }
+}
+
+/// Retour de SYNO.Core.Package.Installation `method=status` : avancement du téléchargement.
+struct PackageInstallStatus: Decodable {
+    let finished: Bool?
+    let progress: Double?
 }
 
 struct PackageInfo: Decodable, Identifiable {

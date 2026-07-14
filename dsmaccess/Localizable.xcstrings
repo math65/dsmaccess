@@ -2552,6 +2552,106 @@
           }
         }
       }
+    },
+    "Mettre à jour ce paquet ?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update this package?"
+          }
+        }
+      }
+    },
+    "Mettre à jour %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update %@"
+          }
+        }
+      }
+    },
+    "Mettre à jour": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update"
+          }
+        }
+      }
+    },
+    "Mettre à jour %@ vers la version %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update %@ to version %@"
+          }
+        }
+      }
+    },
+    "Mise à jour de %@ en cours…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating %@…"
+          }
+        }
+      }
+    },
+    "« %@ » va être mis à jour vers la version %@. Le paquet est téléchargé puis installé, ce qui peut prendre une à deux minutes, et il sera redémarré. Si la mise à jour nécessite un redémarrage du NAS, effectuez-le depuis DSM.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” will be updated to version %@. The package is downloaded and then installed, which can take one to two minutes, and it will be restarted. If the update requires the NAS to reboot, do it from DSM."
+          }
+        }
+      }
+    },
+    "Aucune mise à jour disponible pour %@.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No update available for %@."
+          }
+        }
+      }
+    },
+    "%@ mis à jour": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ updated"
+          }
+        }
+      }
+    },
+    "Échec de la mise à jour de %@ : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to update %@: %@"
+          }
+        }
+      }
+    },
+    "Le téléchargement de la mise à jour a expiré.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The update download timed out."
+          }
+        }
+      }
     }
   },
   "version": "1.0"
