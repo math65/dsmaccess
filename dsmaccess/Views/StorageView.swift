@@ -2,136 +2,115 @@
 //  StorageView.swift
 //  dsmaccess
 //
-//  Module « Stockage » : volumes (espace, système de fichiers, statut) et disques (modèle,
-//  température, santé). Lecture seule. Chaque carte est un élément VoiceOver combiné.
+//  État des groupes de stockage, volumes et disques.
 //
 
 import SwiftUI
 
 struct StorageView: View {
     @State private var vm: StorageViewModel
-    @AccessibilityFocusState private var focusTitle: Bool
+    @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
         _vm = State(initialValue: StorageViewModel(session: session))
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Stockage")
-                    .font(.largeTitle.bold())
-                    .accessibilityAddTraits(.isHeader)
-                    .accessibilityFocused($focusTitle)
-
-                content
+        Group {
+            if vm.isLoading && vm.info == nil {
+                ModuleLoadingView()
+                    .accessibilityFocused($focusContent)
+            } else if let error = vm.errorMessage, vm.info == nil {
+                ModuleErrorView(message: error) {
+                    Task { await load() }
+                }
+                .accessibilityFocused($focusContent)
+            } else if vm.pools.isEmpty && vm.volumes.isEmpty && vm.disks.isEmpty {
+                EmptyModuleView(
+                    title: "Aucun stockage détecté",
+                    systemImage: "internaldrive",
+                    description: "DSM n’a renvoyé aucun volume ni disque."
+                )
+                .accessibilityFocused($focusContent)
+            } else {
+                List {
+                    ForEach(vm.pools) { poolSection($0) }
+                    ForEach(vm.volumes) { volumeSection($0) }
+                    ForEach(vm.disks) { diskSection($0) }
+                }
+                .accessibilityFocused($focusContent)
             }
-            .padding(28)
-            .frame(maxWidth: 540, alignment: .leading)
         }
-        .task {
-            focusTitle = true
-            await vm.load()
-            // Tâche annulée (vue quittée avant la fin) : ne rien annoncer, un rechargement suivra.
-            guard !Task.isCancelled else { return }
-            AccessibilityNotification.Announcement(vm.summary).post()
+        .navigationTitle("Stockage")
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    Task { await load() }
+                } label: {
+                    Label("Actualiser", systemImage: "arrow.clockwise")
+                }
+                .help("Actualiser l’état du stockage")
+            }
+        }
+        .task { await load() }
+    }
+
+    private func poolSection(_ pool: StoragePool) -> some View {
+        Section {
+            LabeledContent("État", value: pool.statusText)
+            LabeledContent("Type RAID", value: pool.raidTypeText)
+            LabeledContent("Disques", value: pool.diskCountText)
+            if let size = pool.sizeText {
+                LabeledContent("Capacité", value: size)
+            }
+        } header: {
+            Label(pool.displayName, systemImage: "externaldrive.connected.to.line.below")
         }
     }
 
-    @ViewBuilder
-    private var content: some View {
-        if vm.isLoading && vm.info == nil {
-            HStack(spacing: 12) {
-                ProgressView().controlSize(.small)
-                Text("Chargement…").foregroundStyle(.secondary)
+    private func volumeSection(_ volume: Volume) -> some View {
+        Section {
+            LabeledContent("État", value: volume.statusText)
+            LabeledContent("Système de fichiers", value: volume.filesystemText)
+            if let space = volume.spaceText {
+                LabeledContent("Espace", value: space)
             }
-        } else if let error = vm.errorMessage {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(error).foregroundStyle(.red)
-                Button("Réessayer") {
-                    Task { await vm.load(); AccessibilityNotification.Announcement(vm.summary).post() }
-                }
-            }
-        } else {
-            if !vm.pools.isEmpty {
-                section("Groupes de stockage") {
-                    ForEach(vm.pools) { poolCard($0) }
-                }
-            }
-            if !vm.volumes.isEmpty {
-                section("Volumes") {
-                    ForEach(vm.volumes) { volumeCard($0) }
-                }
-            }
-            if !vm.disks.isEmpty {
-                section("Disques") {
-                    ForEach(vm.disks) { diskCard($0) }
-                }
-            }
-        }
-    }
-
-    private func section<Content: View>(_ title: LocalizedStringKey,
-                                        @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text(title)
-                .font(.title2.bold())
-                .accessibilityAddTraits(.isHeader)
-            content()
-        }
-    }
-
-    private func volumeCard(_ volume: Volume) -> some View {
-        card {
-            Text(volume.displayName).fontWeight(.medium)
-            row("État", volume.statusText)
-            row("Système de fichiers", volume.filesystemText)
-            if let space = volume.spaceText { row("Espace", space) }
             if let percent = volume.usagePercentValue {
-                row("Utilisation", "\(percent) %")
+                LabeledContent("Utilisation", value: "\(percent) %")
             }
-            if let op = volume.operationText { row("Opération", op) }
-            if let inodes = volume.inodePercent { row("Inodes utilisés", "\(inodes) %") }
-        }
-    }
-
-    private func diskCard(_ disk: Disk) -> some View {
-        card {
-            Text(disk.displayName).fontWeight(.medium)
-            row("Santé", disk.healthText)
-            if let temp = disk.temperatureText { row("Température", temp) }
-            if let size = disk.sizeText { row("Capacité", size) }
-            if let unc = disk.uncText {
-                Text(unc).foregroundStyle(.orange)
+            if let operation = volume.operationText {
+                LabeledContent("Opération", value: operation)
             }
+            if let inodes = volume.inodePercent {
+                LabeledContent("Inodes utilisés", value: "\(inodes) %")
+            }
+        } header: {
+            Label(volume.displayName, systemImage: "internaldrive")
         }
     }
 
-    private func poolCard(_ pool: StoragePool) -> some View {
-        card {
-            Text(pool.displayName).fontWeight(.medium)
-            row("État", pool.statusText)
-            row("Type RAID", pool.raidTypeText)
-            Text(pool.diskCountText).foregroundStyle(.secondary)
-            if let size = pool.sizeText { row("Capacité", size) }
+    private func diskSection(_ disk: Disk) -> some View {
+        Section {
+            LabeledContent("Santé", value: disk.healthText)
+            if let temperature = disk.temperatureText {
+                LabeledContent("Température", value: temperature)
+            }
+            if let size = disk.sizeText {
+                LabeledContent("Capacité", value: size)
+            }
+            if let badSectors = disk.uncText {
+                LabeledContent("Avertissement", value: badSectors)
+            }
+        } header: {
+            Label(disk.displayName, systemImage: "internaldrive")
         }
     }
 
-    private func card<Content: View>(@ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            content()
-        }
-        .padding(12)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 8))
-        .accessibilityElement(children: .combine)
-    }
-
-    private func row(_ label: LocalizedStringKey, _ value: String) -> some View {
-        HStack {
-            Text(label).foregroundStyle(.secondary)
-            Spacer()
-            Text(value).multilineTextAlignment(.trailing)
-        }
+    private func load() async {
+        focusContent = true
+        await vm.load()
+        guard !Task.isCancelled else { return }
+        focusContent = true
+        VoiceOver.announce(vm.summary)
     }
 }

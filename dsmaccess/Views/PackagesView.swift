@@ -12,7 +12,7 @@ struct PackagesView: View {
     @State private var vm: PackagesViewModel
     @State private var pendingUninstall: PackageInfo?
     @State private var showSettings = false
-    @AccessibilityFocusState private var focusTitle: Bool
+    @AccessibilityFocusState private var focusContent: Bool
 
     private let session: SessionStore
 
@@ -22,16 +22,27 @@ struct PackagesView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            header
-            content
+        content
+        .navigationTitle("Centre de paquets")
+        .toolbar {
+            ToolbarItemGroup {
+                Button {
+                    showSettings = true
+                } label: {
+                    Label("Réglages du Centre de paquets", systemImage: "gearshape")
+                }
+                .help("Réglages du Centre de paquets")
+
+                Button {
+                    Task { await load() }
+                } label: {
+                    Label("Actualiser", systemImage: "arrow.clockwise")
+                }
+                .help("Actualiser les paquets")
+            }
         }
-        .padding(28)
-        .frame(maxWidth: 560, alignment: .leading)
         .task {
-            focusTitle = true
-            await vm.load()
-            AccessibilityNotification.Announcement(vm.summary).post()
+            await load()
         }
         .confirmationDialog(
             "Désinstaller ce paquet ?",
@@ -53,49 +64,28 @@ struct PackagesView: View {
         }
     }
 
-    private var header: some View {
-        HStack {
-            Text("Centre de paquets")
-                .font(.largeTitle.bold())
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($focusTitle)
-            Spacer()
-            Button {
-                showSettings = true
-            } label: {
-                Label("Réglages du Centre de paquets", systemImage: "gearshape")
-            }
-            .accessibilityLabel("Réglages du Centre de paquets")
-            .accessibilityHint("Ouvre les réglages du Centre de paquets")
-            Button {
-                Task { await vm.load(); AccessibilityNotification.Announcement(vm.summary).post() }
-            } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
-            }
-            .accessibilityHint("Recharge la liste des paquets")
-        }
-    }
-
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.packages.isEmpty {
-            HStack(spacing: 12) {
-                ProgressView().controlSize(.small)
-                Text("Chargement…").foregroundStyle(.secondary)
-            }
+            ModuleLoadingView()
+                .accessibilityFocused($focusContent)
         } else if let error = vm.errorMessage {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(error).foregroundStyle(.red)
-                Button("Réessayer") {
-                    Task { await vm.load(); AccessibilityNotification.Announcement(vm.summary).post() }
-                }
+            ModuleErrorView(message: error) {
+                Task { await load() }
             }
+            .accessibilityFocused($focusContent)
         } else if vm.packages.isEmpty {
-            Text("Aucun paquet installé").foregroundStyle(.secondary)
+            EmptyModuleView(
+                title: "Aucun paquet installé",
+                systemImage: "shippingbox",
+                description: "Installez des paquets depuis DSM pour les gérer ici."
+            )
+            .accessibilityFocused($focusContent)
         } else {
             List(vm.packages) { package in
                 row(for: package)
             }
+            .accessibilityFocused($focusContent)
         }
     }
 
@@ -167,6 +157,14 @@ struct PackagesView: View {
             let msg = await vm.uninstall(package)
             VoiceOver.announce(msg, priority: .high)
         }
+    }
+
+    private func load() async {
+        focusContent = true
+        await vm.load()
+        guard !Task.isCancelled else { return }
+        focusContent = true
+        VoiceOver.announce(vm.summary)
     }
 
     /// Avertissement honnête affiché avant la désinstallation.

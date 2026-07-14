@@ -13,27 +13,31 @@ import SwiftUI
 struct FileServicesView: View {
     @State private var vm: FileServicesViewModel
     @State private var pendingDisable: FileService?
-    @AccessibilityFocusState private var focusTitle: Bool
+    @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
         _vm = State(initialValue: FileServicesViewModel(session: session))
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            header
-            Text("Activez ou désactivez les protocoles de partage de fichiers du NAS.")
-                .font(.callout)
-                .foregroundStyle(.secondary)
-                .fixedSize(horizontal: false, vertical: true)
-            content
+        content
+        .navigationTitle("Services de fichiers")
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    reloadAll()
+                } label: {
+                    Label("Actualiser", systemImage: "arrow.clockwise")
+                }
+                .help("Actualiser l’état des services")
+            }
         }
-        .padding(28)
-        .frame(maxWidth: 560, alignment: .leading)
         .task {
-            focusTitle = true
+            focusContent = true
             await vm.load()
-            AccessibilityNotification.Announcement(vm.summary).post()
+            guard !Task.isCancelled else { return }
+            focusContent = true
+            VoiceOver.announce(vm.summary)
         }
         .confirmationDialog(
             "Désactiver ce service ?",
@@ -52,33 +56,24 @@ struct FileServicesView: View {
         }
     }
 
-    private var header: some View {
-        HStack {
-            Text("Services de fichiers")
-                .font(.largeTitle.bold())
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($focusTitle)
-            Spacer()
-            Button {
-                reloadAll()
-            } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
-            }
-            .accessibilityHint("Recharge l'état des services")
-        }
-    }
-
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.states.isEmpty {
-            HStack(spacing: 12) {
-                ProgressView().controlSize(.small)
-                Text("Chargement…").foregroundStyle(.secondary)
-            }
+            ModuleLoadingView()
+                .accessibilityFocused($focusContent)
         } else {
-            List(vm.services) { service in
-                row(for: service)
+            List {
+                Section {
+                    Text("Activez ou désactivez les protocoles de partage de fichiers du NAS.")
+                        .foregroundStyle(.secondary)
+                }
+                Section("Protocoles") {
+                    ForEach(vm.services) { service in
+                        row(for: service)
+                    }
+                }
             }
+            .accessibilityFocused($focusContent)
         }
     }
 
@@ -126,8 +121,10 @@ struct FileServicesView: View {
 
     private func reloadAll() {
         Task {
+            focusContent = true
             await vm.load()
-            AccessibilityNotification.Announcement(vm.summary).post()
+            guard !Task.isCancelled else { return }
+            VoiceOver.announce(vm.summary)
         }
     }
 

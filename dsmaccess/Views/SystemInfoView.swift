@@ -2,16 +2,16 @@
 //  SystemInfoView.swift
 //  dsmaccess
 //
-//  Écran de contenu du MVP : affiche les infos système du NAS pour prouver que la
-//  session fonctionne. Les paires libellé/valeur sont regroupées pour VoiceOver.
+//  Informations générales et ressources du NAS.
 //
 
 import SwiftUI
 
 struct SystemInfoView: View {
-    let session: SessionStore
     @State private var vm: SystemInfoViewModel
-    @AccessibilityFocusState private var focusTitle: Bool
+    @AccessibilityFocusState private var focusContent: Bool
+
+    private let session: SessionStore
 
     init(session: SessionStore) {
         self.session = session
@@ -19,67 +19,50 @@ struct SystemInfoView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 20) {
-                Text("Votre NAS")
-                    .font(.largeTitle.bold())
-                    .accessibilityAddTraits(.isHeader)
-                    .accessibilityFocused($focusTitle)
-
-                content
-
-                Divider()
-
-                ResourceMonitorView(session: session)
-            }
-            .padding(28)
-            .frame(maxWidth: 500, alignment: .leading)
-        }
-        .task {
-            focusTitle = true
-            await vm.load()
-        }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if vm.isLoading {
-            HStack(spacing: 12) {
-                ProgressView()
-                    .controlSize(.small)
-                Text("Chargement des informations…")
-                    .foregroundStyle(.secondary)
-            }
-        } else if let error = vm.errorMessage {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(error)
-                    .foregroundStyle(.red)
-                Button("Réessayer") {
-                    Task { await vm.load() }
+        Group {
+            if vm.isLoading && vm.info == nil {
+                ModuleLoadingView("Chargement des informations…")
+                    .accessibilityFocused($focusContent)
+            } else if let error = vm.errorMessage, vm.info == nil {
+                ModuleErrorView(message: error) {
+                    Task { await load() }
                 }
-            }
-        } else if let info = vm.info {
-            VStack(alignment: .leading, spacing: 10) {
-                row("Modèle", info.model)
-                row("Numéro de série", info.serial)
-                row("Version DSM", info.versionString)
-                row("Mémoire vive", vm.ramText)
-                row("Temps de fonctionnement", vm.uptimeText)
-                row("Température", vm.temperatureText)
+                .accessibilityFocused($focusContent)
+            } else if let info = vm.info {
+                Form {
+                    Section("Système") {
+                        LabeledContent("Modèle", value: info.model)
+                        LabeledContent("Numéro de série", value: info.serial)
+                        LabeledContent("Version DSM", value: info.versionString)
+                        LabeledContent("Mémoire vive", value: vm.ramText)
+                        LabeledContent("Temps de fonctionnement", value: vm.uptimeText)
+                        LabeledContent("Température", value: vm.temperatureText)
+                    }
+
+                    ResourceMonitorView(session: session)
+                }
+                .formStyle(.grouped)
+                .accessibilityFocused($focusContent)
             }
         }
+        .navigationTitle("Votre NAS")
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    Task { await load() }
+                } label: {
+                    Label("Actualiser", systemImage: "arrow.clockwise")
+                }
+                .help("Actualiser les informations du NAS")
+            }
+        }
+        .task { await load() }
     }
 
-    private func row(_ label: LocalizedStringKey, _ value: String) -> some View {
-        HStack {
-            Text(label)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text(value)
-                .fontWeight(.medium)
-                .multilineTextAlignment(.trailing)
-        }
-        // .combine fait lire à VoiceOver le libellé (localisé) puis la valeur en un seul geste.
-        .accessibilityElement(children: .combine)
+    private func load() async {
+        focusContent = true
+        await vm.load()
+        guard !Task.isCancelled else { return }
+        focusContent = true
     }
 }

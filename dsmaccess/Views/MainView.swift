@@ -2,88 +2,78 @@
 //  MainView.swift
 //  dsmaccess
 //
-//  Écran principal une fois connecté : barre latérale listant les modules (Votre NAS,
-//  Fichiers…) et zone de détail affichant le module choisi. Architecture extensible :
-//  chaque futur module (utilisateurs, Docker…) ajoute un cas à `Module`.
+//  Fenêtre d'administration principale.
 //
 
 import SwiftUI
 
 struct MainView: View {
     let session: SessionStore
-    @State private var selection: Module? = .systemInfo
 
-    /// Modules disponibles dans la barre latérale.
-    enum Module: Hashable, CaseIterable, Identifiable {
-        case systemInfo
-        case files
-        case storage
-        case shares
-        case fileServices
-        case packages
-
-        var id: Self { self }
-
-        var label: LocalizedStringKey {
-            switch self {
-            case .systemInfo: return "Votre NAS"
-            case .files: return "Fichiers"
-            case .storage: return "Stockage"
-            case .shares: return "Partages"
-            case .fileServices: return "Services de fichiers"
-            case .packages: return "Centre de paquets"
-            }
-        }
-
-        var systemImage: String {
-            switch self {
-            case .systemInfo: return "server.rack"
-            case .files: return "folder"
-            case .storage: return "internaldrive"
-            case .shares: return "externaldrive.badge.person.crop"
-            case .fileServices: return "network"
-            case .packages: return "shippingbox"
-            }
-        }
-    }
+    @State private var selection = AppModule.systemInfo
 
     var body: some View {
         NavigationSplitView {
-            List(Module.allCases, selection: $selection) { module in
-                Label(module.label, systemImage: module.systemImage)
-            }
-            .navigationTitle("DSM Access")
-            .safeAreaInset(edge: .bottom) {
-                Button(role: .destructive) {
-                    Task { await logout() }
-                } label: {
-                    Label("Déconnexion", systemImage: "rectangle.portrait.and.arrow.right")
-                        .frame(maxWidth: .infinity)
+            List(selection: $selection) {
+                ForEach(AppModuleSection.allCases) { section in
+                    Section(section.title) {
+                        ForEach(section.modules) { module in
+                            Label(module.title, systemImage: module.systemImage)
+                                .tag(module)
+                        }
+                    }
                 }
-                .accessibilityHint("Ferme la session sur le NAS")
-                .padding()
             }
+            .listStyle(.sidebar)
+            .navigationTitle("DSM Access")
+            .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 300)
         } detail: {
-            switch selection {
-            case .systemInfo:
-                SystemInfoView(session: session)
-            case .files:
-                FileBrowserView(session: session)
-            case .storage:
-                StorageView(session: session)
-            case .shares:
-                SharesView(session: session)
-            case .fileServices:
-                FileServicesView(session: session)
-            case .packages:
-                PackagesView(session: session)
-            case nil:
-                Text("Sélectionnez un module")
-                    .foregroundStyle(.secondary)
-            }
+            moduleView
+                .toolbar { accountToolbar }
         }
+        .focusedSceneValue(\.selectedModule, $selection)
+        .focusedSceneValue(
+            \.sessionCommandActions,
+            SessionCommandActions { Task { await logout() } }
+        )
         .task {
             VoiceOver.announce(String(localized: "Connecté"))
+        }
+    }
+
+    @ViewBuilder
+    private var moduleView: some View {
+        switch selection {
+        case .systemInfo:
+            SystemInfoView(session: session)
+        case .storage:
+            StorageView(session: session)
+        case .files:
+            FileBrowserView(session: session)
+        case .shares:
+            SharesView(session: session)
+        case .fileServices:
+            FileServicesView(session: session)
+        case .packages:
+            PackagesView(session: session)
+        }
+    }
+
+    @ToolbarContentBuilder
+    private var accountToolbar: some ToolbarContent {
+        ToolbarItem(placement: .primaryAction) {
+            Menu {
+                if let endpoint = session.endpoint {
+                    Text("\(endpoint.host):\(endpoint.port)")
+                }
+                Divider()
+                Button("Déconnexion", role: .destructive) {
+                    Task { await logout() }
+                }
+            } label: {
+                Label("Session", systemImage: "person.crop.circle")
+            }
+            .help("Gérer la session DSM")
         }
     }
 
@@ -92,7 +82,6 @@ struct MainView: View {
         if let client = session.client, let sid = session.sid {
             try? await client.logout(sid: sid)
         }
-        // Déconnexion volontaire : on oublie le mot de passe (pas de reconnexion auto ensuite).
         if let endpoint {
             CredentialStore.forget(account: Preferences.lastAccount, endpoint: endpoint)
         }

@@ -1,242 +1,162 @@
 {
   "sourceLanguage": "fr",
   "strings": {
-    "%lld éléments": {
+    "5000": {
+      "shouldTranslate": false
+    },
+    "123456": {
+      "shouldTranslate": false
+    },
+    "": {
+      "shouldTranslate": false
+    },
+    " (alerte)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld items"
+            "value": " (alert)"
           }
         }
       }
     },
-    "1 élément": {
+    "%@ activé": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "1 item"
+            "value": "%@ enabled"
           }
         }
       }
     },
-    "Échec du téléchargement : %@": {
+    "%@ arrêté": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download failed: %@"
+            "value": "%@ stopped"
           }
         }
       }
     },
-    "Session expirée.": {
+    "%@ démarré": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Session expired."
+            "value": "%@ started"
           }
         }
       }
     },
-    "Télécharger": {
+    "%@ désactivé": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download"
+            "value": "%@ disabled"
           }
         }
       }
     },
-    "Téléchargement en cours…": {
+    "%@ désinstallé": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Downloading…"
+            "value": "%@ uninstalled"
           }
         }
       }
     },
-    "Téléchargement terminé : %@": {
+    "%@ sur %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download complete: %@"
+            "value": "%@ of %@"
           }
         }
       }
     },
-    "« %@ » sera supprimé définitivement. Cette action est irréversible.": {
+    "%@ utilisés sur %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” will be permanently deleted. This action cannot be undone."
+            "value": "%@ used of %@"
           }
         }
       }
     },
-    "Créer": {
+    "%@/s": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Create"
+            "value": "%@/s"
           }
         }
       }
     },
-    "Créer un dossier": {
+    "%@:%lld": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "%1$@:%2$lld"
+          }
+        }
+      },
+      "shouldTranslate": false
+    },
+    "%lld %": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "New folder"
+            "value": "%lld %"
           }
         }
       }
     },
-    "Crée un dossier dans le dossier courant": {
+    "%lld %%": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Creates a folder in the current folder"
+            "value": "%lld%%"
           }
         }
       }
     },
-    "Dossier créé : %@": {
+    "%lld Mo": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Folder created: %@"
+            "value": "%lld MB"
           }
         }
       }
     },
-    "Impossible de créer le dossier ici.": {
+    "%lld disques": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cannot create a folder here."
+            "value": "%lld disks"
           }
         }
       }
     },
-    "Nom du dossier": {
+    "%lld dossiers partagés": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Folder name"
-          }
-        }
-      }
-    },
-    "Nouveau nom": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "New name"
-          }
-        }
-      }
-    },
-    "Renommé en : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Renamed to: %@"
-          }
-        }
-      }
-    },
-    "Renommer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rename"
-          }
-        }
-      }
-    },
-    "Renommer « %@ »": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rename “%@”"
-          }
-        }
-      }
-    },
-    "Supprimer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete"
-          }
-        }
-      }
-    },
-    "Supprimer cet élément ?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete this item?"
-          }
-        }
-      }
-    },
-    "Supprimé : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Deleted: %@"
-          }
-        }
-      }
-    },
-    "Échec de la création : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Failed to create the folder: %@"
-          }
-        }
-      }
-    },
-    "Échec de la suppression : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete failed: %@"
-          }
-        }
-      }
-    },
-    "Échec du renommage : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rename failed: %@"
+            "value": "%lld shared folders"
           }
         }
       }
@@ -257,829 +177,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld files uploaded"
-          }
-        }
-      }
-    },
-    "Envoi en cours…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uploading…"
-          }
-        }
-      }
-    },
-    "Envoie des fichiers depuis votre Mac vers ce dossier": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uploads files from your Mac to this folder"
-          }
-        }
-      }
-    },
-    "Envoyer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upload"
-          }
-        }
-      }
-    },
-    "Fichier envoyé : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "File uploaded: %@"
-          }
-        }
-      }
-    },
-    "Impossible d'envoyer ici.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cannot upload here."
-          }
-        }
-      }
-    },
-    "Coller": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Paste"
-          }
-        }
-      }
-    },
-    "Colle l'élément copié ou coupé dans ce dossier": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pastes the copied or cut item into this folder"
-          }
-        }
-      }
-    },
-    "Collage en cours…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pasting…"
-          }
-        }
-      }
-    },
-    "Copier": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy"
-          }
-        }
-      }
-    },
-    "Copié : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copied: %@"
-          }
-        }
-      }
-    },
-    "Copié ici : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copied here: %@"
-          }
-        }
-      }
-    },
-    "Déplacer (couper)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Move (cut)"
-          }
-        }
-      }
-    },
-    "Coupé : %@. Ouvrez la destination puis Coller pour déplacer.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cut: %@. Open the destination, then Paste to move it."
-          }
-        }
-      }
-    },
-    "Déplacé ici : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Moved here: %@"
-          }
-        }
-      }
-    },
-    "Délai dépassé.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Timed out."
-          }
-        }
-      }
-    },
-    "Impossible de coller ici.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cannot paste here."
-          }
-        }
-      }
-    },
-    "Rien à coller.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nothing to paste."
-          }
-        }
-      }
-    },
-    "Requête annulée.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Request cancelled."
-          }
-        }
-      }
-    },
-    "Échec du collage : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Paste failed: %@"
-          }
-        }
-      }
-    },
-    "Copier le lien": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy link"
-          }
-        }
-      }
-    },
-    "Créer un lien de partage": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create share link"
-          }
-        }
-      }
-    },
-    "Fermer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Close"
-          }
-        }
-      }
-    },
-    "Lien copié": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Link copied"
-          }
-        }
-      }
-    },
-    "Lien de partage": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Share link"
-          }
-        }
-      }
-    },
-    "Lien de partage créé et copié": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Share link created and copied"
-          }
-        }
-      }
-    },
-    "Échec de la création du lien : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Failed to create the link: %@"
-          }
-        }
-      }
-    },
-    "1 jour": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 day"
-          }
-        }
-      }
-    },
-    "30 jours": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "30 days"
-          }
-        }
-      }
-    },
-    "7 jours": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "7 days"
-          }
-        }
-      }
-    },
-    "Aucun lien de partage": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No share links"
-          }
-        }
-      }
-    },
-    "Créer le lien": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create link"
-          }
-        }
-      }
-    },
-    "Expiration": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expiration"
-          }
-        }
-      }
-    },
-    "Gère les liens de partage existants": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Manages existing share links"
-          }
-        }
-      }
-    },
-    "Jamais": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Never"
-          }
-        }
-      }
-    },
-    "Liens de partage": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Share links"
-          }
-        }
-      }
-    },
-    "Lien supprimé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Link deleted"
-          }
-        }
-      }
-    },
-    "Mot de passe (facultatif)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Password (optional)"
-          }
-        }
-      }
-    },
-    "Échec de la suppression du lien : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Failed to delete the link: %@"
-          }
-        }
-      }
-    },
-    "%lld volumes, %lld disques": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld volumes, %lld disks"
-          }
-        }
-      }
-    },
-    "%@ utilisés sur %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ used of %@"
-          }
-        }
-      }
-    },
-    "Capacité": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Capacity"
-          }
-        }
-      }
-    },
-    "Critique": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Critical"
-          }
-        }
-      }
-    },
-    "Disques": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disks"
-          }
-        }
-      }
-    },
-    "Dégradé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Degraded"
-          }
-        }
-      }
-    },
-    "Espace": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Space"
-          }
-        }
-      }
-    },
-    "Normal": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Normal"
-          }
-        }
-      }
-    },
-    "Santé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Health"
-          }
-        }
-      }
-    },
-    "Stockage": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Storage"
-          }
-        }
-      }
-    },
-    "Système de fichiers": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "File system"
-          }
-        }
-      }
-    },
-    "Utilisation": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usage"
-          }
-        }
-      }
-    },
-    "Volumes": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Volumes"
-          }
-        }
-      }
-    },
-    "État": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Status"
-          }
-        }
-      }
-    },
-    "%lld disques": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld disks"
-          }
-        }
-      }
-    },
-    "%lld secteurs non corrigibles": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld uncorrectable sectors"
-          }
-        }
-      }
-    },
-    "Basique": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Basic"
-          }
-        }
-      }
-    },
-    "Durée de vie restante": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remaining life"
-          }
-        }
-      }
-    },
-    "Extension": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expanding"
-          }
-        }
-      }
-    },
-    "Groupes de stockage": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Storage pools"
-          }
-        }
-      }
-    },
-    "Inodes utilisés": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inodes used"
-          }
-        }
-      }
-    },
-    "Opération": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Operation"
-          }
-        }
-      }
-    },
-    "Reconstruction": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rebuilding"
-          }
-        }
-      }
-    },
-    "Secteurs défectueux au-delà du seuil": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bad sectors above threshold"
-          }
-        }
-      }
-    },
-    "Type RAID": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "RAID type"
-          }
-        }
-      }
-    },
-    "Usure élevée": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "High wear"
-          }
-        }
-      }
-    },
-    "Mémorise le mot de passe pour la prochaine ouverture de l'app": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saves your password for the next time you open the app"
-          }
-        }
-      }
-    },
-    "Reconnexion à %@…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reconnecting to %@…"
-          }
-        }
-      }
-    },
-    "Reconnexion en cours": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reconnecting"
-          }
-        }
-      }
-    },
-    "Rester connecté": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stay signed in"
-          }
-        }
-      }
-    },
-    "Attention": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Attention"
-          }
-        }
-      }
-    },
-    "Groupe de stockage %lld": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Storage pool %lld"
-          }
-        }
-      }
-    },
-    "Volume %lld": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Volume %lld"
-          }
-        }
-      }
-    },
-    "Aucun dossier partagé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No shared folders"
-          }
-        }
-      }
-    },
-    "Dossier parent": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parent folder"
-          }
-        }
-      }
-    },
-    "Remonte au dossier parent": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Go up to the parent folder"
-          }
-        }
-      }
-    },
-    "Chargement…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading…"
-          }
-        }
-      }
-    },
-    "DSM Access": {
-      "shouldTranslate": false
-    },
-    "Dossier vide": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Empty folder"
-          }
-        }
-      }
-    },
-    "Fichiers": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Files"
-          }
-        }
-      }
-    },
-    "Sélectionnez un module": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select a module"
-          }
-        }
-      }
-    },
-    "dossier": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "folder"
-          }
-        }
-      }
-    },
-    "fichier": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "file"
-          }
-        }
-      }
-    },
-    " (alerte)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": " (alert)"
-          }
-        }
-      }
-    },
-    "%lld °C": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld °C"
           }
         }
       }
@@ -1114,31 +211,275 @@
         }
       }
     },
-    "%lld Mo": {
+    "%lld paquets installés": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld MB"
+            "value": "%lld installed packages"
           }
         }
       }
     },
-    "123456": {
-      "shouldTranslate": false
-    },
-    "192.168.1.10": {
-      "shouldTranslate": false
-    },
-    "5000": {
-      "shouldTranslate": false
-    },
-    "Adresse du NAS invalide.": {
+    "%lld paquets, %lld mises à jour disponibles": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Invalid NAS address."
+            "value": "%lld packages, %lld updates available"
+          }
+        }
+      }
+    },
+    "%lld secteurs non corrigibles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld uncorrectable sectors"
+          }
+        }
+      }
+    },
+    "%lld volumes, %lld disques": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld volumes, %lld disks"
+          }
+        }
+      }
+    },
+    "%lld °C": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld °C"
+          }
+        }
+      }
+    },
+    "%lld éléments": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld items"
+          }
+        }
+      }
+    },
+    "1 jour": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 day"
+          }
+        }
+      }
+    },
+    "1 élément": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 item"
+          }
+        }
+      }
+    },
+    "192.168.1.10": {
+      "shouldTranslate": false
+    },
+    "30 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 days"
+          }
+        }
+      }
+    },
+    "7 jours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 days"
+          }
+        }
+      }
+    },
+    "Activer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable"
+          }
+        }
+      }
+    },
+    "Activer %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable %@"
+          }
+        }
+      }
+    },
+    "Activer la notification par courriel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable email notification"
+          }
+        }
+      }
+    },
+    "Activer les notifications sur le bureau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable desktop notifications"
+          }
+        }
+      }
+    },
+    "Activez ou désactivez les protocoles de partage de fichiers du NAS.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable or disable the NAS file-sharing protocols."
+          }
+        }
+      }
+    },
+    "Activé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enabled"
+          }
+        }
+      }
+    },
+    "Actualisation automatique": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic refresh"
+          }
+        }
+      }
+    },
+    "Actualisation automatique activée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic refresh on"
+          }
+        }
+      }
+    },
+    "Actualisation automatique désactivée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic refresh off"
+          }
+        }
+      }
+    },
+    "Actualiser": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh"
+          }
+        }
+      }
+    },
+    "Actualiser les dossiers partagés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh shared folders"
+          }
+        }
+      }
+    },
+    "Actualiser les informations du NAS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh NAS information"
+          }
+        }
+      }
+    },
+    "Actualiser les paquets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh packages"
+          }
+        }
+      }
+    },
+    "Actualiser les ressources": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh resources"
+          }
+        }
+      }
+    },
+    "Actualiser l’état des services": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh service status"
+          }
+        }
+      }
+    },
+    "Actualiser l’état du stockage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refresh storage status"
+          }
+        }
+      }
+    },
+    "Administration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administration"
           }
         }
       }
@@ -1153,12 +494,142 @@
         }
       }
     },
+    "Adresse du NAS invalide.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid NAS address."
+          }
+        }
+      }
+    },
+    "Afficher les versions bêta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show beta versions"
+          }
+        }
+      }
+    },
     "Annuler": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Cancel"
+          }
+        }
+      }
+    },
+    "Arrêter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        }
+      }
+    },
+    "Arrêter %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop %@"
+          }
+        }
+      }
+    },
+    "Arrêté": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stopped"
+          }
+        }
+      }
+    },
+    "Attention": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attention"
+          }
+        }
+      }
+    },
+    "Aucun dossier partagé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No shared folders"
+          }
+        }
+      }
+    },
+    "Aucun lien de partage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No share links"
+          }
+        }
+      }
+    },
+    "Aucun paquet installé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No installed packages"
+          }
+        }
+      }
+    },
+    "Aucun stockage détecté": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No storage detected"
+          }
+        }
+      }
+    },
+    "Avertissement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Warning"
+          }
+        }
+      }
+    },
+    "Basique": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Basic"
+          }
+        }
+      }
+    },
+    "Capacité": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capacity"
           }
         }
       }
@@ -1173,12 +644,82 @@
         }
       }
     },
+    "Ce paquet propose des options de désinstallation dans DSM (conserver ou supprimer les données) qui ne sont pas disponibles ici : les réglages par défaut seront appliqués.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This package offers uninstall options in DSM (keep or delete data) that aren’t available here: the default settings will be applied."
+          }
+        }
+      }
+    },
+    "Centre de paquets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Package Center"
+          }
+        }
+      }
+    },
+    "Certains paquets ne prennent pas en charge la mise à jour automatique.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some packages don’t support automatic updates."
+          }
+        }
+      }
+    },
+    "Cette fonctionnalité n'est pas disponible sur ce NAS (API %@).": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This feature is not available on this NAS (API %@)."
+          }
+        }
+      }
+    },
+    "Charge": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load"
+          }
+        }
+      }
+    },
+    "Charge du processeur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processor load"
+          }
+        }
+      }
+    },
     "Chargement des informations…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
             "value": "Loading information…"
+          }
+        }
+      }
+    },
+    "Chargement…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading…"
           }
         }
       }
@@ -1199,6 +740,46 @@
           "stringUnit": {
             "state": "translated",
             "value": "Incorrect verification code. Try again."
+          }
+        }
+      }
+    },
+    "Collage en cours…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pasting…"
+          }
+        }
+      }
+    },
+    "Colle l'élément copié ou coupé dans ce dossier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pastes the copied or cut item into this folder"
+          }
+        }
+      }
+    },
+    "Coller": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste"
+          }
+        }
+      }
+    },
+    "Confirmez la suppression en retapant le nom du dossier partagé.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm deletion by retyping the shared folder name."
           }
         }
       }
@@ -1243,522 +824,72 @@
         }
       }
     },
-    "Déconnexion": {
+    "Copier": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Log out"
+            "value": "Copy"
           }
         }
       }
     },
-    "Erreur du NAS (code %lld).": {
+    "Copier le lien": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "NAS error (code %lld)."
+            "value": "Copy link"
           }
         }
       }
     },
-    "Ferme la session sur le NAS": {
+    "Copié : %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ends the session on the NAS"
+            "value": "Copied: %@"
           }
         }
       }
     },
-    "Impossible de joindre le NAS : %@": {
+    "Copié ici : %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Unable to reach the NAS: %@"
+            "value": "Copied here: %@"
           }
         }
       }
     },
-    "La double authentification est obligatoire pour ce compte. Activez-la dans DSM.": {
+    "Coupé : %@. Ouvrez la destination puis Coller pour déplacer.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Two-factor authentication is required for this account. Enable it in DSM."
+            "value": "Cut: %@. Open the destination, then Paste to move it."
           }
         }
       }
     },
-    "La réponse du NAS n'a pas pu être lue.": {
+    "Critique": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The NAS response could not be read."
+            "value": "Critical"
           }
         }
       }
     },
-    "Mémoire vive": {
+    "Crée un dossier dans le dossier courant": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Memory"
-          }
-        }
-      }
-    },
-    "Modèle": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Model"
-          }
-        }
-      }
-    },
-    "Mot de passe": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Password"
-          }
-        }
-      }
-    },
-    "Nom d'utilisateur": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Username"
-          }
-        }
-      }
-    },
-    "Nom d'utilisateur ou mot de passe incorrect.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Incorrect username or password."
-          }
-        }
-      }
-    },
-    "Numéro de série": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Serial number"
-          }
-        }
-      }
-    },
-    "Ouvrez l'app Synology Secure SignIn et saisissez le code à 6 chiffres affiché.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open the Synology Secure SignIn app and enter the 6-digit code shown."
-          }
-        }
-      }
-    },
-    "Permission refusée pour ce compte.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permission denied for this account."
-          }
-        }
-      }
-    },
-    "Port": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Port"
-          }
-        }
-      }
-    },
-    "Réessayer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retry"
-          }
-        }
-      }
-    },
-    "Réponse inattendue du NAS.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unexpected response from the NAS."
-          }
-        }
-      }
-    },
-    "Saisissez le code de vérification.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter the verification code."
-          }
-        }
-      }
-    },
-    "Saisissez le code de vérification à six chiffres": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enter the six-digit verification code"
-          }
-        }
-      }
-    },
-    "Se connecter": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect"
-          }
-        }
-      }
-    },
-    "Se souvenir de cet appareil": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remember this device"
-          }
-        }
-      }
-    },
-    "Température": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Temperature"
-          }
-        }
-      }
-    },
-    "Temps de fonctionnement": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uptime"
-          }
-        }
-      }
-    },
-    "Un code de vérification à deux facteurs est requis.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A two-factor verification code is required."
-          }
-        }
-      }
-    },
-    "Utiliser HTTPS (connexion sécurisée)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Use HTTPS (secure connection)"
-          }
-        }
-      }
-    },
-    "Valider": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Submit"
-          }
-        }
-      }
-    },
-    "Veuillez renseigner l'adresse, le nom d'utilisateur et le mot de passe.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Please enter the address, username and password."
-          }
-        }
-      }
-    },
-    "Vérification en cours…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Verifying…"
-          }
-        }
-      }
-    },
-    "Vérification en deux étapes": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Two-factor verification"
-          }
-        }
-      }
-    },
-    "Version DSM": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DSM version"
-          }
-        }
-      }
-    },
-    "Votre NAS": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Your NAS"
-          }
-        }
-      }
-    },
-    "Ressources en direct": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live resources"
-          }
-        }
-      }
-    },
-    "Actualiser": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh"
-          }
-        }
-      }
-    },
-    "Recharge les valeurs et les annonce": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reloads the values and announces them"
-          }
-        }
-      }
-    },
-    "Actualisation automatique": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatic refresh"
-          }
-        }
-      }
-    },
-    "Met à jour les valeurs toutes les 5 secondes": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Updates the values every 5 seconds"
-          }
-        }
-      }
-    },
-    "Processeur": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Processor"
-          }
-        }
-      }
-    },
-    "Charge": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Load"
-          }
-        }
-      }
-    },
-    "Fichier d'échange": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Swap file"
-          }
-        }
-      }
-    },
-    "Réseau": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Network"
-          }
-        }
-      }
-    },
-    "Réception": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Received"
-          }
-        }
-      }
-    },
-    "Envoi": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sent"
-          }
-        }
-      }
-    },
-    "%lld %": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld %"
-          }
-        }
-      }
-    },
-    "Utilisateur %lld %, système %lld %": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "User %lld %, system %lld %"
-          }
-        }
-      }
-    },
-    "%@ sur %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ of %@"
-          }
-        }
-      }
-    },
-    "%@/s": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@/s"
-          }
-        }
-      }
-    },
-    "Processeur %@ %, mémoire %@ %": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Processor %@ %, memory %@ %"
-          }
-        }
-      }
-    },
-    "Actualisation automatique activée": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatic refresh on"
-          }
-        }
-      }
-    },
-    "Actualisation automatique désactivée": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatic refresh off"
-          }
-        }
-      }
-    },
-    "Rechercher les mises à jour…": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Check for Updates…"
-          }
-        }
-      }
-    },
-    "Partages": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Shares"
-          }
-        }
-      }
-    },
-    "Créer un dossier partagé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create shared folder"
+            "value": "Creates a folder in the current folder"
           }
         }
       }
@@ -1773,32 +904,85 @@
         }
       }
     },
-    "Supprimer…": {
+    "Créer": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete…"
+            "value": "Create"
           }
         }
       }
     },
-    "Nom du dossier partagé": {
+    "Créer le lien": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Shared folder name"
+            "value": "Create link"
           }
         }
       }
     },
-    "Volume": {
+    "Créer un dossier": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Volume"
+            "value": "New folder"
+          }
+        }
+      }
+    },
+    "Créer un dossier partagé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create shared folder"
+          }
+        }
+      }
+    },
+    "Créer un lien de partage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create share link"
+          }
+        }
+      }
+    },
+    "Créez un dossier partagé pour le rendre disponible sur le réseau.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a shared folder to make it available on the network."
+          }
+        }
+      }
+    },
+    "DSM Access": {
+      "shouldTranslate": false
+    },
+    "DSM n’a renvoyé aucun volume ni disque.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DSM did not return any volumes or drives."
+          }
+        }
+      }
+    },
+    "Dernières versions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latest versions"
           }
         }
       }
@@ -1813,52 +997,32 @@
         }
       }
     },
-    "Supprimer ce dossier partagé ?": {
+    "Disques": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Delete this shared folder?"
+            "value": "Disks"
           }
         }
       }
     },
-    "« %@ » et tout son contenu seront supprimés définitivement. Cette action est irréversible.": {
+    "Dossier créé : %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "“%@” and all its contents will be permanently deleted. This action cannot be undone."
+            "value": "Folder created: %@"
           }
         }
       }
     },
-    "Retapez le nom du dossier pour confirmer": {
+    "Dossier parent": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Retype the folder name to confirm"
-          }
-        }
-      }
-    },
-    "Supprimer définitivement": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete permanently"
-          }
-        }
-      }
-    },
-    "Confirmez la suppression en retapant le nom du dossier partagé.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Confirm deletion by retyping the shared folder name."
+            "value": "Parent folder"
           }
         }
       }
@@ -1883,362 +1047,62 @@
         }
       }
     },
-    "%lld dossiers partagés": {
+    "Dossier vide": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%lld shared folders"
+            "value": "Empty folder"
           }
         }
       }
     },
-    "un dossier partagé porte déjà ce nom": {
+    "Dossiers partagés": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "a shared folder with this name already exists"
+            "value": "Shared folders"
           }
         }
       }
     },
-    "le nombre maximum de dossiers partagés est atteint": {
+    "Durée de vie restante": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "the maximum number of shared folders has been reached"
+            "value": "Remaining life"
           }
         }
       }
     },
-    "sur %@": {
+    "Déconnexion": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "on %@"
+            "value": "Log out"
           }
         }
       }
     },
-    "SMB (Windows, macOS)": {
+    "Dégradé": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "SMB (Windows, macOS)"
+            "value": "Degraded"
           }
         }
       }
     },
-    "NFS (Linux, virtualisation)": {
+    "Délai dépassé.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "NFS (Linux, virtualization)"
-          }
-        }
-      }
-    },
-    "FTP": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "FTP"
-          }
-        }
-      }
-    },
-    "rsync (sauvegarde réseau)": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "rsync (network backup)"
-          }
-        }
-      }
-    },
-    "%@ activé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ enabled"
-          }
-        }
-      }
-    },
-    "%@ désactivé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ disabled"
-          }
-        }
-      }
-    },
-    "Échec pour %@ : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Failed for %@: %@"
-          }
-        }
-      }
-    },
-    "Services de fichiers : %lld activés sur %lld": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "File services: %lld of %lld enabled"
-          }
-        }
-      }
-    },
-    "Services de fichiers": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "File Services"
-          }
-        }
-      }
-    },
-    "Activez ou désactivez les protocoles de partage de fichiers du NAS.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable or disable the NAS file-sharing protocols."
-          }
-        }
-      }
-    },
-    "Recharge l'état des services": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reloads the services' status"
-          }
-        }
-      }
-    },
-    "Désactiver ce service ?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disable this service?"
-          }
-        }
-      }
-    },
-    "Désactiver %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disable %@"
-          }
-        }
-      }
-    },
-    "Désactiver": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disable"
-          }
-        }
-      }
-    },
-    "Activer": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable"
-          }
-        }
-      }
-    },
-    "Activer %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enable %@"
-          }
-        }
-      }
-    },
-    "Réessayer %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retry %@"
-          }
-        }
-      }
-    },
-    "Activé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enabled"
-          }
-        }
-      }
-    },
-    "Désactivé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disabled"
-          }
-        }
-      }
-    },
-    "État indisponible": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Status unavailable"
-          }
-        }
-      }
-    },
-    "SMB est le protocole utilisé par le Finder et l'Explorateur Windows. Le désactiver coupera l'accès aux fichiers depuis ces apps, y compris depuis cet appareil. Vous pourrez le réactiver ici.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "SMB is the protocol used by Finder and Windows Explorer. Disabling it will cut off file access from those apps, including from this device. You can re-enable it here."
-          }
-        }
-      }
-    },
-    "Le service sera arrêté et les connexions en cours interrompues. Vous pourrez le réactiver ici.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The service will be stopped and any active connections dropped. You can re-enable it here."
-          }
-        }
-      }
-    },
-    "Centre de paquets": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Package Center"
-          }
-        }
-      }
-    },
-    "Paquet inconnu": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unknown package"
-          }
-        }
-      }
-    },
-    "En cours": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Running"
-          }
-        }
-      }
-    },
-    "Arrêté": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stopped"
-          }
-        }
-      }
-    },
-    "%lld paquets installés": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld installed packages"
-          }
-        }
-      }
-    },
-    "%lld paquets, %lld mises à jour disponibles": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld packages, %lld updates available"
-          }
-        }
-      }
-    },
-    "Mise à jour disponible : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Update available: %@"
-          }
-        }
-      }
-    },
-    "Recharge la liste des paquets": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reloads the package list"
-          }
-        }
-      }
-    },
-    "Aucun paquet installé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No installed packages"
-          }
-        }
-      }
-    },
-    "Version %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version %@"
+            "value": "Timed out."
           }
         }
       }
@@ -2253,16 +1117,6 @@
         }
       }
     },
-    "Arrêter": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop"
-          }
-        }
-      }
-    },
     "Démarrer %@": {
       "localizations": {
         "en": {
@@ -2273,142 +1127,62 @@
         }
       }
     },
-    "Arrêter %@": {
+    "Déplacer (couper)": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stop %@"
+            "value": "Move (cut)"
           }
         }
       }
     },
-    "%@ démarré": {
+    "Déplacé ici : %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ started"
+            "value": "Moved here: %@"
           }
         }
       }
     },
-    "%@ arrêté": {
+    "Désactiver": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%@ stopped"
+            "value": "Disable"
           }
         }
       }
     },
-    "Identifiant de paquet introuvable.": {
+    "Désactiver %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Package identifier not found."
+            "value": "Disable %@"
           }
         }
       }
     },
-    "Désinstaller…": {
+    "Désactiver ce service ?": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uninstall…"
+            "value": "Disable this service?"
           }
         }
       }
     },
-    "Désinstaller %@": {
+    "Désactivé": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uninstall %@"
-          }
-        }
-      }
-    },
-    "%@ désinstallé": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ uninstalled"
-          }
-        }
-      }
-    },
-    "Désinstaller ce paquet ?": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uninstall this package?"
-          }
-        }
-      }
-    },
-    "Échec de la désinstallation de %@ : %@": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Failed to uninstall %@: %@"
-          }
-        }
-      }
-    },
-    "« %@ » sera désinstallé. Les données stockées dans des dossiers partagés (photos, bases de données…) peuvent être conservées selon le paquet ; pour les supprimer, utilisez le module Partages. Vous pourrez réinstaller le paquet depuis DSM.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "“%@” will be uninstalled. Data stored in shared folders (photos, databases…) may be kept depending on the package; to delete it, use the Shares module. You can reinstall the package from DSM."
-          }
-        }
-      }
-    },
-    "Ce paquet propose des options de désinstallation dans DSM (conserver ou supprimer les données) qui ne sont pas disponibles ici : les réglages par défaut seront appliqués.": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This package offers uninstall options in DSM (keep or delete data) that aren’t available here: the default settings will be applied."
-          }
-        }
-      }
-    },
-    "Réglages du Centre de paquets": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Package Center Settings"
-          }
-        }
-      }
-    },
-    "Ouvre les réglages du Centre de paquets": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opens Package Center settings"
-          }
-        }
-      }
-    },
-    "Mise à jour automatique": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Automatic updates"
+            "value": "Disabled"
           }
         }
       }
@@ -2423,142 +1197,402 @@
         }
       }
     },
-    "Versions importantes": {
+    "Désinstaller %@": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Important versions"
+            "value": "Uninstall %@"
           }
         }
       }
     },
-    "Dernières versions": {
+    "Désinstaller ce paquet ?": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Latest versions"
+            "value": "Uninstall this package?"
           }
         }
       }
     },
-    "Certains paquets ne prennent pas en charge la mise à jour automatique.": {
+    "Désinstaller…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Some packages don’t support automatic updates."
+            "value": "Uninstall…"
           }
         }
       }
     },
-    "Afficher les versions bêta": {
+    "Détail de la mémoire": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Show beta versions"
+            "value": "Memory details"
           }
         }
       }
     },
-    "Les versions bêta permettent d'essayer les nouvelles fonctionnalités avant leur publication officielle.": {
+    "Détail du processeur": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Beta versions let you try new features before their official release."
+            "value": "Processor details"
           }
         }
       }
     },
-    "Notifications de mise à jour": {
+    "En cours": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Update notifications"
+            "value": "Running"
           }
         }
       }
     },
-    "Activer les notifications sur le bureau": {
+    "Envoi": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enable desktop notifications"
+            "value": "Sent"
           }
         }
       }
     },
-    "Activer la notification par courriel": {
+    "Envoi en cours…": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Enable email notification"
+            "value": "Uploading…"
           }
         }
       }
     },
-    "Terminé": {
+    "Envoi réseau": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Done"
+            "value": "Network upload"
           }
         }
       }
     },
-    "Réglage enregistré": {
+    "Envoie des fichiers depuis votre Mac vers ce dossier": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Setting saved"
+            "value": "Uploads files from your Mac to this folder"
           }
         }
       }
     },
-    "Échec de l'enregistrement : %@": {
+    "Envoyer": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Failed to save: %@"
+            "value": "Upload"
           }
         }
       }
     },
-    "Réglages non chargés.": {
+    "Erreur": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Settings not loaded."
+            "value": "Error"
           }
         }
       }
     },
-    "Réglages du Centre de paquets chargés": {
+    "Erreur du NAS (code %lld).": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Package Center settings loaded"
+            "value": "NAS error (code %lld)."
           }
         }
       }
     },
-    "Cette fonctionnalité n'est pas disponible sur ce NAS (API %@).": {
+    "Espace": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "This feature is not available on this NAS (API %@)."
+            "value": "Space"
+          }
+        }
+      }
+    },
+    "Expiration": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expiration"
+          }
+        }
+      }
+    },
+    "Extension": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Expanding"
+          }
+        }
+      }
+    },
+    "FTP": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FTP"
+          }
+        }
+      }
+    },
+    "Ferme la session sur le NAS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ends the session on the NAS"
+          }
+        }
+      }
+    },
+    "Fermer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        }
+      }
+    },
+    "Fichier d'échange": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap file"
+          }
+        }
+      }
+    },
+    "Fichier d’échange": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Swap"
+          }
+        }
+      }
+    },
+    "Fichier envoyé : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File uploaded: %@"
+          }
+        }
+      }
+    },
+    "Fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files"
+          }
+        }
+      }
+    },
+    "Fichiers et partage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files and sharing"
+          }
+        }
+      }
+    },
+    "Groupe de stockage %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage pool %lld"
+          }
+        }
+      }
+    },
+    "Groupes de stockage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage pools"
+          }
+        }
+      }
+    },
+    "Gère les liens de partage existants": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manages existing share links"
+          }
+        }
+      }
+    },
+    "Gérer la session DSM": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage the DSM session"
+          }
+        }
+      }
+    },
+    "Identifiant de paquet introuvable.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Package identifier not found."
+          }
+        }
+      }
+    },
+    "Impossible d'envoyer ici.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot upload here."
+          }
+        }
+      }
+    },
+    "Impossible de charger les données": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to load data"
+          }
+        }
+      }
+    },
+    "Impossible de coller ici.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot paste here."
+          }
+        }
+      }
+    },
+    "Impossible de créer le dossier ici.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cannot create a folder here."
+          }
+        }
+      }
+    },
+    "Impossible de joindre le NAS : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unable to reach the NAS: %@"
+          }
+        }
+      }
+    },
+    "Inodes utilisés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inodes used"
+          }
+        }
+      }
+    },
+    "Installez des paquets depuis DSM pour les gérer ici.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install packages from DSM to manage them here."
+          }
+        }
+      }
+    },
+    "Jamais": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Never"
+          }
+        }
+      }
+    },
+    "La double authentification est obligatoire pour ce compte. Activez-la dans DSM.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two-factor authentication is required for this account. Enable it in DSM."
+          }
+        }
+      }
+    },
+    "La réponse du NAS n'a pas pu être lue.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The NAS response could not be read."
+          }
+        }
+      }
+    },
+    "La session a expiré. Reconnectez-vous au NAS.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The session has expired. Reconnect to the NAS."
           }
         }
       }
@@ -2573,12 +1607,1324 @@
         }
       }
     },
-    "La session a expiré. Reconnectez-vous au NAS.": {
+    "Le service sera arrêté et les connexions en cours interrompues. Vous pourrez le réactiver ici.": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The session has expired. Reconnect to the NAS."
+            "value": "The service will be stopped and any active connections dropped. You can re-enable it here."
+          }
+        }
+      }
+    },
+    "Les versions bêta permettent d'essayer les nouvelles fonctionnalités avant leur publication officielle.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beta versions let you try new features before their official release."
+          }
+        }
+      }
+    },
+    "Lien copié": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link copied"
+          }
+        }
+      }
+    },
+    "Lien de partage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share link"
+          }
+        }
+      }
+    },
+    "Lien de partage créé et copié": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share link created and copied"
+          }
+        }
+      }
+    },
+    "Lien supprimé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link deleted"
+          }
+        }
+      }
+    },
+    "Liens de partage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Share links"
+          }
+        }
+      }
+    },
+    "Met à jour les valeurs toutes les 5 secondes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updates the values every 5 seconds"
+          }
+        }
+      }
+    },
+    "Mise à jour automatique": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic updates"
+          }
+        }
+      }
+    },
+    "Mise à jour disponible : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update available: %@"
+          }
+        }
+      }
+    },
+    "Modèle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model"
+          }
+        }
+      }
+    },
+    "Mot de passe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        }
+      }
+    },
+    "Mot de passe (facultatif)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password (optional)"
+          }
+        }
+      }
+    },
+    "Mémoire vive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memory"
+          }
+        }
+      }
+    },
+    "Mémorise le mot de passe pour la prochaine ouverture de l'app": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saves your password for the next time you open the app"
+          }
+        }
+      }
+    },
+    "NFS (Linux, virtualisation)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NFS (Linux, virtualization)"
+          }
+        }
+      }
+    },
+    "Navigation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Navigation"
+          }
+        }
+      }
+    },
+    "Nom d'utilisateur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Username"
+          }
+        }
+      }
+    },
+    "Nom d'utilisateur ou mot de passe incorrect.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Incorrect username or password."
+          }
+        }
+      }
+    },
+    "Nom du dossier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder name"
+          }
+        }
+      }
+    },
+    "Nom du dossier partagé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shared folder name"
+          }
+        }
+      }
+    },
+    "Normal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal"
+          }
+        }
+      }
+    },
+    "Notifications de mise à jour": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update notifications"
+          }
+        }
+      }
+    },
+    "Nouveau nom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New name"
+          }
+        }
+      }
+    },
+    "Numéro de série": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serial number"
+          }
+        }
+      }
+    },
+    "Opération": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operation"
+          }
+        }
+      }
+    },
+    "Ouvre les réglages du Centre de paquets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens Package Center settings"
+          }
+        }
+      }
+    },
+    "Ouvrez l'app Synology Secure SignIn et saisissez le code à 6 chiffres affiché.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the Synology Secure SignIn app and enter the 6-digit code shown."
+          }
+        }
+      }
+    },
+    "Paquet inconnu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unknown package"
+          }
+        }
+      }
+    },
+    "Partages": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shares"
+          }
+        }
+      }
+    },
+    "Permission refusée pour ce compte.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permission denied for this account."
+          }
+        }
+      }
+    },
+    "Port": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Port"
+          }
+        }
+      }
+    },
+    "Processeur": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processor"
+          }
+        }
+      }
+    },
+    "Processeur %@ %%, mémoire %@ %%": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Processeur %1$@ %%, mémoire %2$@ %%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processor %@%%, memory %@%%"
+          }
+        }
+      }
+    },
+    "Processeur %@ %, mémoire %@ %": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processor %@ %, memory %@ %"
+          }
+        }
+      }
+    },
+    "Protocoles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocols"
+          }
+        }
+      }
+    },
+    "Recharge l'état des services": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reloads the services' status"
+          }
+        }
+      }
+    },
+    "Recharge la liste des paquets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reloads the package list"
+          }
+        }
+      }
+    },
+    "Recharge les valeurs et les annonce": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reloads the values and announces them"
+          }
+        }
+      }
+    },
+    "Rechercher les mises à jour…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check for Updates…"
+          }
+        }
+      }
+    },
+    "Reconnexion en cours": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnecting"
+          }
+        }
+      }
+    },
+    "Reconnexion à %@…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reconnecting to %@…"
+          }
+        }
+      }
+    },
+    "Reconstruction": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rebuilding"
+          }
+        }
+      }
+    },
+    "Remonte au dossier parent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go up to the parent folder"
+          }
+        }
+      }
+    },
+    "Renommer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename"
+          }
+        }
+      }
+    },
+    "Renommer « %@ »": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename “%@”"
+          }
+        }
+      }
+    },
+    "Renommé en : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Renamed to: %@"
+          }
+        }
+      }
+    },
+    "Requête annulée.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Request cancelled."
+          }
+        }
+      }
+    },
+    "Ressources en direct": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Live resources"
+          }
+        }
+      }
+    },
+    "Rester connecté": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stay signed in"
+          }
+        }
+      }
+    },
+    "Retapez le nom du dossier pour confirmer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retype the folder name to confirm"
+          }
+        }
+      }
+    },
+    "Rien à coller.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing to paste."
+          }
+        }
+      }
+    },
+    "Réception": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Received"
+          }
+        }
+      }
+    },
+    "Réception réseau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network download"
+          }
+        }
+      }
+    },
+    "Réessayer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry"
+          }
+        }
+      }
+    },
+    "Réessayer %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Retry %@"
+          }
+        }
+      }
+    },
+    "Réglage enregistré": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Setting saved"
+          }
+        }
+      }
+    },
+    "Réglages du Centre de paquets": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Package Center Settings"
+          }
+        }
+      }
+    },
+    "Réglages du Centre de paquets chargés": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Package Center settings loaded"
+          }
+        }
+      }
+    },
+    "Réglages non chargés.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings not loaded."
+          }
+        }
+      }
+    },
+    "Réponse inattendue du NAS.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unexpected response from the NAS."
+          }
+        }
+      }
+    },
+    "Réseau": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network"
+          }
+        }
+      }
+    },
+    "SMB (Windows, macOS)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB (Windows, macOS)"
+          }
+        }
+      }
+    },
+    "SMB est le protocole utilisé par le Finder et l'Explorateur Windows. Le désactiver coupera l'accès aux fichiers depuis ces apps, y compris depuis cet appareil. Vous pourrez le réactiver ici.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB is the protocol used by Finder and Windows Explorer. Disabling it will cut off file access from those apps, including from this device. You can re-enable it here."
+          }
+        }
+      }
+    },
+    "Saisissez le code de vérification à six chiffres": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the six-digit verification code"
+          }
+        }
+      }
+    },
+    "Saisissez le code de vérification.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enter the verification code."
+          }
+        }
+      }
+    },
+    "Santé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Health"
+          }
+        }
+      }
+    },
+    "Se connecter": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect"
+          }
+        }
+      }
+    },
+    "Se souvenir de cet appareil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remember this device"
+          }
+        }
+      }
+    },
+    "Secteurs défectueux au-delà du seuil": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bad sectors above threshold"
+          }
+        }
+      }
+    },
+    "Services de fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File Services"
+          }
+        }
+      }
+    },
+    "Services de fichiers : %lld activés sur %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File services: %lld of %lld enabled"
+          }
+        }
+      }
+    },
+    "Session": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session"
+          }
+        }
+      }
+    },
+    "Session expirée.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session expired."
+          }
+        }
+      }
+    },
+    "Stockage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        }
+      }
+    },
+    "Supprimer": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        }
+      }
+    },
+    "Supprimer ce dossier partagé ?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this shared folder?"
+          }
+        }
+      }
+    },
+    "Supprimer cet élément ?": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this item?"
+          }
+        }
+      }
+    },
+    "Supprimer définitivement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete permanently"
+          }
+        }
+      }
+    },
+    "Supprimer…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete…"
+          }
+        }
+      }
+    },
+    "Supprimé : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted: %@"
+          }
+        }
+      }
+    },
+    "Système": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "System"
+          }
+        }
+      }
+    },
+    "Système de fichiers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File system"
+          }
+        }
+      }
+    },
+    "Sélectionnez un module": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Select a module"
+          }
+        }
+      }
+    },
+    "Temps de fonctionnement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uptime"
+          }
+        }
+      }
+    },
+    "Température": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temperature"
+          }
+        }
+      }
+    },
+    "Terminé": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        }
+      }
+    },
+    "Type RAID": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RAID type"
+          }
+        }
+      }
+    },
+    "Téléchargement en cours…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading…"
+          }
+        }
+      }
+    },
+    "Téléchargement terminé : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download complete: %@"
+          }
+        }
+      }
+    },
+    "Télécharger": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download"
+          }
+        }
+      }
+    },
+    "Un code de vérification à deux facteurs est requis.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A two-factor verification code is required."
+          }
+        }
+      }
+    },
+    "Usure élevée": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "High wear"
+          }
+        }
+      }
+    },
+    "Utilisateur %lld %%, système %lld %%": {
+      "localizations": {
+        "fr": {
+          "stringUnit": {
+            "state": "new",
+            "value": "Utilisateur %1$lld %%, système %2$lld %%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "User %lld%%, system %lld%%"
+          }
+        }
+      }
+    },
+    "Utilisateur %lld %, système %lld %": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "User %lld %, system %lld %"
+          }
+        }
+      }
+    },
+    "Utilisation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usage"
+          }
+        }
+      }
+    },
+    "Utilisation de la mémoire": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memory usage"
+          }
+        }
+      }
+    },
+    "Utiliser HTTPS (connexion sécurisée)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use HTTPS (secure connection)"
+          }
+        }
+      }
+    },
+    "Valider": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Submit"
+          }
+        }
+      }
+    },
+    "Version %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version %@"
+          }
+        }
+      }
+    },
+    "Version DSM": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DSM version"
+          }
+        }
+      }
+    },
+    "Versions importantes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Important versions"
+          }
+        }
+      }
+    },
+    "Veuillez renseigner l'adresse, le nom d'utilisateur et le mot de passe.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please enter the address, username and password."
+          }
+        }
+      }
+    },
+    "Volume": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume"
+          }
+        }
+      }
+    },
+    "Volume %lld": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volume %lld"
+          }
+        }
+      }
+    },
+    "Volumes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumes"
+          }
+        }
+      }
+    },
+    "Votre NAS": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your NAS"
+          }
+        }
+      }
+    },
+    "Vue d’ensemble": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Overview"
+          }
+        }
+      }
+    },
+    "Vérification en cours…": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifying…"
+          }
+        }
+      }
+    },
+    "Vérification en deux étapes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Two-factor verification"
+          }
+        }
+      }
+    },
+    "dossier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "folder"
+          }
+        }
+      }
+    },
+    "fichier": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "file"
+          }
+        }
+      }
+    },
+    "le nombre maximum de dossiers partagés est atteint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the maximum number of shared folders has been reached"
+          }
+        }
+      }
+    },
+    "rsync (sauvegarde réseau)": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "rsync (network backup)"
+          }
+        }
+      }
+    },
+    "sur %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "on %@"
+          }
+        }
+      }
+    },
+    "un dossier partagé porte déjà ce nom": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "a shared folder with this name already exists"
+          }
+        }
+      }
+    },
+    "« %@ » et tout son contenu seront supprimés définitivement. Cette action est irréversible.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” and all its contents will be permanently deleted. This action cannot be undone."
+          }
+        }
+      }
+    },
+    "« %@ » sera désinstallé. Les données stockées dans des dossiers partagés (photos, bases de données…) peuvent être conservées selon le paquet ; pour les supprimer, utilisez le module Partages. Vous pourrez réinstaller le paquet depuis DSM.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” will be uninstalled. Data stored in shared folders (photos, databases…) may be kept depending on the package; to delete it, use the Shares module. You can reinstall the package from DSM."
+          }
+        }
+      }
+    },
+    "« %@ » sera supprimé définitivement. Cette action est irréversible.": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” will be permanently deleted. This action cannot be undone."
+          }
+        }
+      }
+    },
+    "Échec de l'enregistrement : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to save: %@"
+          }
+        }
+      }
+    },
+    "Échec de la création : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to create the folder: %@"
+          }
+        }
+      }
+    },
+    "Échec de la création du lien : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to create the link: %@"
+          }
+        }
+      }
+    },
+    "Échec de la désinstallation de %@ : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to uninstall %@: %@"
+          }
+        }
+      }
+    },
+    "Échec de la suppression : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete failed: %@"
+          }
+        }
+      }
+    },
+    "Échec de la suppression du lien : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to delete the link: %@"
+          }
+        }
+      }
+    },
+    "Échec du collage : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paste failed: %@"
+          }
+        }
+      }
+    },
+    "Échec du renommage : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rename failed: %@"
+          }
+        }
+      }
+    },
+    "Échec du téléchargement : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download failed: %@"
+          }
+        }
+      }
+    },
+    "Échec pour %@ : %@": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed for %@: %@"
+          }
+        }
+      }
+    },
+    "État": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        }
+      }
+    },
+    "État indisponible": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status unavailable"
           }
         }
       }

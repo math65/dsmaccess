@@ -13,23 +13,35 @@ struct SharesView: View {
     @State private var vm: SharesViewModel
     @State private var showCreateSheet = false
     @State private var pendingDelete: SharedFolder?
-    @AccessibilityFocusState private var focusTitle: Bool
+    @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
         _vm = State(initialValue: SharesViewModel(session: session))
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            header
-            content
+        content
+        .navigationTitle("Dossiers partagés")
+        .toolbar {
+            ToolbarItemGroup {
+                Button {
+                    Task { await load() }
+                } label: {
+                    Label("Actualiser", systemImage: "arrow.clockwise")
+                }
+                .help("Actualiser les dossiers partagés")
+
+                Button {
+                    showCreateSheet = true
+                } label: {
+                    Label("Créer un dossier partagé", systemImage: "plus")
+                }
+                .keyboardShortcut("n", modifiers: [.command, .shift])
+                .help("Créer un dossier partagé")
+            }
         }
-        .padding(28)
-        .frame(maxWidth: 560, alignment: .leading)
         .task {
-            focusTitle = true
-            await vm.load()
-            AccessibilityNotification.Announcement(vm.summary).post()
+            await load()
         }
         .sheet(isPresented: $showCreateSheet) {
             CreateShareSheet(volumes: vm.volumes) { name, volume, description in
@@ -49,43 +61,28 @@ struct SharesView: View {
         }
     }
 
-    private var header: some View {
-        HStack {
-            Text("Partages")
-                .font(.largeTitle.bold())
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($focusTitle)
-            Spacer()
-            Button {
-                showCreateSheet = true
-            } label: {
-                Label("Créer un dossier partagé", systemImage: "plus")
-            }
-            .keyboardShortcut("n", modifiers: [.command, .shift])
-            .accessibilityHint("Crée un nouveau dossier partagé sur le NAS")
-        }
-    }
-
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.shares.isEmpty {
-            HStack(spacing: 12) {
-                ProgressView().controlSize(.small)
-                Text("Chargement…").foregroundStyle(.secondary)
-            }
+            ModuleLoadingView()
+                .accessibilityFocused($focusContent)
         } else if let error = vm.errorMessage {
-            VStack(alignment: .leading, spacing: 12) {
-                Text(error).foregroundStyle(.red)
-                Button("Réessayer") {
-                    Task { await vm.load(); AccessibilityNotification.Announcement(vm.summary).post() }
-                }
+            ModuleErrorView(message: error) {
+                Task { await load() }
             }
+            .accessibilityFocused($focusContent)
         } else if vm.shares.isEmpty {
-            Text("Aucun dossier partagé").foregroundStyle(.secondary)
+            EmptyModuleView(
+                title: "Aucun dossier partagé",
+                systemImage: "externaldrive.badge.person.crop",
+                description: "Créez un dossier partagé pour le rendre disponible sur le réseau."
+            )
+            .accessibilityFocused($focusContent)
         } else {
             List(vm.shares) { share in
                 row(for: share)
             }
+            .accessibilityFocused($focusContent)
         }
     }
 
@@ -108,6 +105,14 @@ struct SharesView: View {
         .contextMenu {
             Button("Supprimer…", role: .destructive) { pendingDelete = share }
         }
+    }
+
+    private func load() async {
+        focusContent = true
+        await vm.load()
+        guard !Task.isCancelled else { return }
+        focusContent = true
+        VoiceOver.announce(vm.summary)
     }
 }
 
