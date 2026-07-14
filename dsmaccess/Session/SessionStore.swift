@@ -18,14 +18,22 @@ final class SessionStore {
     private(set) var sid: String?
     /// Client réseau réutilisable par les écrans (infos, plus tard fichiers/utilisateurs…).
     private(set) var client: DSMClientProtocol?
+    /// API réellement exposées par le DSM et ses paquets installés.
+    private(set) var capabilities = DSMCapabilities()
 
     var isLoggedIn: Bool { sid != nil }
 
     /// Enregistre une session ouverte après un login réussi.
-    func establish(endpoint: DSMEndpoint, sid: String, client: DSMClientProtocol) {
+    func establish(
+        endpoint: DSMEndpoint,
+        sid: String,
+        client: DSMClientProtocol,
+        capabilities: DSMCapabilities
+    ) {
         self.endpoint = endpoint
         self.sid = sid
         self.client = client
+        self.capabilities = capabilities
     }
 
     /// Réinitialise l'état (après logout ou expiration de session).
@@ -33,5 +41,6 @@ final class SessionStore {
         self.endpoint = nil
         self.sid = nil
         self.client = nil
+        capabilities = DSMCapabilities()
     }
 }

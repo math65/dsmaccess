@@ -10,6 +10,8 @@ import Foundation
 /// Contrat de la façade DSM. Les services concrets partagent un transport unique qui
 /// centralise la découverte des API, l'authentification et la gestion des erreurs.
 protocol DSMClientProtocol: AnyObject {
+    var capabilities: DSMCapabilities { get }
+    func discoverCapabilities() async throws -> DSMCapabilities
     func apiInfo(for apis: [String]) async throws -> [String: APIInfoEntry]
     func login(
         account: String,
@@ -85,6 +87,12 @@ final class DSMClient: DSMClientProtocol {
         shares = DSMShareService(transport: transport)
         fileServiceSettings = DSMFileServiceSettingsService(transport: transport)
         packages = DSMPackageService(transport: transport)
+    }
+
+    var capabilities: DSMCapabilities { transport.capabilities }
+
+    func discoverCapabilities() async throws -> DSMCapabilities {
+        try await transport.discoverAll()
     }
 
     func apiInfo(for apis: [String]) async throws -> [String: APIInfoEntry] {

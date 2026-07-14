@@ -112,7 +112,7 @@ final class ConnectionViewModel {
                 account: cleanedAccount, password: password,
                 otpCode: nil, deviceID: deviceID, rememberDevice: false
             )
-            finish(with: result, account: cleanedAccount, endpoint: endpoint)
+            await finish(with: result, account: cleanedAccount, endpoint: endpoint)
         } catch DSMError.needsOTP {
             state = .needsOTP
             errorMessage = nil
@@ -167,7 +167,7 @@ final class ConnectionViewModel {
                 otpCode: otpCode.trimmingCharacters(in: .whitespaces),
                 deviceID: nil, rememberDevice: rememberDevice
             )
-            finish(with: result, account: cleanedAccount, endpoint: endpoint)
+            await finish(with: result, account: cleanedAccount, endpoint: endpoint)
         } catch DSMError.badOTP {
             state = .needsOTP
             otpCode = ""
@@ -187,7 +187,7 @@ final class ConnectionViewModel {
 
     // MARK: - Interne
 
-    private func finish(with result: LoginResult, account: String, endpoint: DSMEndpoint) {
+    private func finish(with result: LoginResult, account: String, endpoint: DSMEndpoint) async {
         guard let client else { return }
         if rememberDevice, let did = result.did, !did.isEmpty {
             KeychainStore.save(did, service: KeychainStore.deviceTokenService, account: keychainKey(account, endpoint))
@@ -199,7 +199,13 @@ final class ConnectionViewModel {
             CredentialStore.forget(account: account, endpoint: endpoint)
         }
         persistPreferences(account: account, endpoint: endpoint)
-        session.establish(endpoint: endpoint, sid: result.sid, client: client)
+        let capabilities = (try? await client.discoverCapabilities()) ?? client.capabilities
+        session.establish(
+            endpoint: endpoint,
+            sid: result.sid,
+            client: client,
+            capabilities: capabilities
+        )
         // RootView bascule automatiquement vers l'écran de contenu.
         state = .editing
         errorMessage = nil
