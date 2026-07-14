@@ -101,4 +101,50 @@ struct AdministrationModelsTests {
         #expect(container.cpuPercent == 2.5)
         #expect(container.memoryBytes == 67_108_864)
     }
+
+    @Test func decodesSurveillanceCameraStream() throws {
+        let data = Data(
+            #"""
+            {
+              "id": 144,
+              "name": "Entrée",
+              "enabled": true,
+              "status": 1,
+              "ip": "192.168.1.20",
+              "vendor": "ONVIF",
+              "model": "Generic_ONVIF",
+              "stream1": {"resolution": "1920x1080", "fps": "25"}
+            }
+            """#.utf8
+        )
+
+        let camera = try JSONDecoder().decode(SurveillanceCamera.self, from: data)
+
+        #expect(camera.id == "144")
+        #expect(camera.isAvailable)
+        #expect(camera.resolution == "1920x1080")
+        #expect(camera.framesPerSecond == 25)
+    }
+
+    @Test func decodesSystemLogAliases() throws {
+        let data = Data(
+            #"""
+            {
+              "time": 1710000000,
+              "priority": "warning",
+              "type": "connection",
+              "who": "alex",
+              "from": "192.168.1.30",
+              "event": "Login failed"
+            }
+            """#.utf8
+        )
+
+        let entry = try JSONDecoder().decode(SystemLogEntry.self, from: data)
+
+        #expect(entry.timestamp == "1710000000")
+        #expect(entry.level == "warning")
+        #expect(entry.user == "alex")
+        #expect(entry.message == "Login failed")
+    }
 }

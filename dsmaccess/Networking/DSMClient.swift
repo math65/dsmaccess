@@ -85,6 +85,12 @@ protocol DSMClientProtocol: AnyObject {
     func listContainers(sid: String) async throws -> [ContainerItem]
     func performContainerAction(_ action: ContainerAction, name: String, sid: String) async throws
     func containerLogs(name: String, sid: String) async throws -> [ContainerLogEntry]
+    func listSurveillanceCameras(sid: String) async throws -> [SurveillanceCamera]
+    func setSurveillanceCameras(ids: Set<String>, enabled: Bool, sid: String) async throws
+    func surveillanceSnapshot(cameraID: String, sid: String) async throws -> Data
+    func listSystemLogs(sid: String) async throws -> [SystemLogEntry]
+    func listBlockedAddresses(sid: String) async throws -> [BlockedAddress]
+    func unblockAddress(_ address: String, sid: String) async throws
     func logout(sid: String) async throws
 }
 
@@ -102,6 +108,8 @@ final class DSMClient: DSMClientProtocol {
     let downloadStation: DSMDownloadStationService
     let virtualMachines: DSMVirtualMachineService
     let containers: DSMContainerService
+    let surveillance: DSMSurveillanceService
+    let logsSecurity: DSMLogSecurityService
 
     init(endpoint: DSMEndpoint) {
         let transport = DSMTransport(endpoint: endpoint)
@@ -117,6 +125,8 @@ final class DSMClient: DSMClientProtocol {
         downloadStation = DSMDownloadStationService(transport: transport)
         virtualMachines = DSMVirtualMachineService(transport: transport)
         containers = DSMContainerService(transport: transport)
+        surveillance = DSMSurveillanceService(transport: transport)
+        logsSecurity = DSMLogSecurityService(transport: transport)
     }
 
     var capabilities: DSMCapabilities { transport.capabilities }
@@ -365,6 +375,30 @@ final class DSMClient: DSMClientProtocol {
 
     func containerLogs(name: String, sid: String) async throws -> [ContainerLogEntry] {
         try await containers.logs(name: name)
+    }
+
+    func listSurveillanceCameras(sid: String) async throws -> [SurveillanceCamera] {
+        try await surveillance.cameras()
+    }
+
+    func setSurveillanceCameras(ids: Set<String>, enabled: Bool, sid: String) async throws {
+        try await surveillance.setEnabled(enabled, ids: ids)
+    }
+
+    func surveillanceSnapshot(cameraID: String, sid: String) async throws -> Data {
+        try await surveillance.snapshot(cameraID: cameraID)
+    }
+
+    func listSystemLogs(sid: String) async throws -> [SystemLogEntry] {
+        try await logsSecurity.logs()
+    }
+
+    func listBlockedAddresses(sid: String) async throws -> [BlockedAddress] {
+        try await logsSecurity.blockedAddresses()
+    }
+
+    func unblockAddress(_ address: String, sid: String) async throws {
+        try await logsSecurity.unblock(address)
     }
 
     func logout(sid: String) async throws {
