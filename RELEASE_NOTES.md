@@ -1,18 +1,26 @@
-## v1.1-beta.2 (build 3) — 2026-07-13
+## v1.1-beta.3 (build 4) — 2026-07-14
 
-This beta polishes 1.1 with three fixes that came straight from your beta
-feedback — thank you, and keep it coming.
+This beta brings two new things and fixes a connection annoyance — all straight
+from your beta feedback. Thank you.
+
+### New
+
+- Control Panel: a new "Control Panel" section arrives, starting with "Network
+  and identity". It shows your server name, local IP address, subnet mask,
+  gateway, DNS servers, IPv6 and network interface in clear, accessible cards.
+  This first step is read-only; renaming the server will follow.
+- Package Center: you can now apply a package update, not just see that one is
+  available. When an official Synology package has an update, an "Update" button
+  installs it — the NAS handles the download and install. This one is brand new
+  and I couldn't fully test it on my end, so please try it and tell me how it
+  goes. One honest note: a few updates need the NAS to reboot to finish — the app
+  tells you, but that reboot you still trigger from DSM.
 
 ### Fixes
 
-- Files: entering an empty folder no longer leaves you stuck. VoiceOver focus
-  now lands on the folder header, so the "Parent folder" button is right there
-  to go back up.
-- Storage: opening the Storage screen no longer announces a false "can't reach
-  the NAS" error while your storage details load normally.
-- Files: moving items is easier to find. The action is now called
-  "Move (cut)", and once you have cut an item, the app reminds you to paste it
-  at the destination to complete the move.
+- Sign in: the occasional "timed out" error when connecting is gone. The app now
+  retries that first request automatically and silently, so a "cold" connection
+  no longer fails on the first try.
 
 Every screen keeps the VoiceOver-first approach: clear labels, a logical focus
 order, and spoken announcements on load, on error, and after each action.
@@ -24,4 +32,4 @@ order, and spoken announcements on load, on error, and after each action.
 
 ### Download
 
-[dsmaccess-1.1-beta.2.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.2/dsmaccess-1.1-beta.2.zip)
+[dsmaccess-1.1-beta.3.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.3/dsmaccess-1.1-beta.3.zip)
