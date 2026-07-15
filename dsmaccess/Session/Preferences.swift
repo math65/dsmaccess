@@ -23,6 +23,7 @@ enum Preferences {
         static let nasProfiles = "nasProfiles"
         static let selectedNASProfileID = "selectedNASProfileID"
         static let enabledAnnouncementCategories = "enabledAnnouncementCategories"
+        static let queueAnnouncements = "queueAnnouncements"
         static let sidebarOrder = "sidebarOrder"
         static let enabledSidebarModules = "enabledSidebarModules"
         static let automaticallyHideUnavailableModules = "automaticallyHideUnavailableModules"
@@ -93,6 +94,14 @@ enum Preferences {
             return Set(values.compactMap(AnnouncementCategory.init(rawValue:)))
         }
         set { defaults.set(newValue.map(\.rawValue).sorted(), forKey: Key.enabledAnnouncementCategories) }
+    }
+
+    static var queueAnnouncements: Bool {
+        get {
+            guard defaults.object(forKey: Key.queueAnnouncements) != nil else { return true }
+            return defaults.bool(forKey: Key.queueAnnouncements)
+        }
+        set { defaults.set(newValue, forKey: Key.queueAnnouncements) }
     }
 
     static var sidebarOrder: [AppModule] {

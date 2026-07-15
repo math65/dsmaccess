@@ -41,9 +41,11 @@ struct LoginView: View {
             Button("Annuler", role: .cancel) {
                 vm.rejectPendingCertificate()
             }
+            .help("Refuser le certificat et revenir à la connexion")
             Button("Approuver et se connecter") {
                 Task { await vm.approvePendingCertificate() }
             }
+            .help("Approuver ce certificat puis se connecter au NAS")
         } message: {
             if let fingerprint = vm.pendingCertificateFingerprint {
                 Text("DSM utilise un certificat qui n'est pas reconnu par macOS. Vérifiez cette empreinte SHA-256 avant de l'approuver : \(fingerprint)")
@@ -89,13 +91,16 @@ struct LoginView: View {
                             .focused($hostFocused)
                             .accessibilityFocused($focusHost)
                             .accessibilityIdentifier("login.host")
+                            .help("Adresse IP ou nom réseau du NAS")
                     }
                     Toggle("Utiliser HTTPS (connexion sécurisée)", isOn: $vm.useHTTPS)
                         .onChange(of: vm.useHTTPS) { _, _ in vm.syncDefaultPortIfNeeded() }
                         .accessibilityIdentifier("login.https")
+                        .help("Utiliser une connexion HTTPS chiffrée")
                     LabeledField(label: "Port") {
                         TextField("5000", text: $vm.portText)
                             .accessibilityIdentifier("login.port")
+                            .help("Port réseau utilisé par DSM")
                     }
                     if let portError = vm.portValidationMessage {
                         Text(portError)
@@ -107,15 +112,18 @@ struct LoginView: View {
                         TextField("", text: $vm.account)
                             .textContentType(.username)
                             .accessibilityIdentifier("login.account")
+                            .help("Nom du compte DSM")
                     }
                     LabeledField(label: "Mot de passe") {
                         SecureField("", text: $vm.password)
                             .textContentType(.password)
                             .accessibilityIdentifier("login.password")
+                            .help("Mot de passe du compte DSM")
                     }
                     Toggle("Rester connecté", isOn: $vm.rememberPassword)
                         .accessibilityHint("Mémorise le mot de passe pour la prochaine ouverture de l'app")
                         .accessibilityIdentifier("login.remember-password")
+                        .help("Mémoriser le mot de passe dans le Trousseau pour les prochaines ouvertures")
                 }
 
                 if let error = vm.errorMessage {
@@ -140,6 +148,7 @@ struct LoginView: View {
                     .keyboardShortcut(.defaultAction)
                     .disabled(!vm.canSubmit)
                     .accessibilityIdentifier("login.submit")
+                    .help("Se connecter au NAS avec les informations saisies")
                 }
             }
             .padding(28)

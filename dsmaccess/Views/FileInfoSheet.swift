@@ -87,6 +87,7 @@ struct FileInfoSheet: View {
                 Spacer()
                 Button("Fermer", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Fermer les informations")
             }
             .padding()
         }

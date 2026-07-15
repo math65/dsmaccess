@@ -32,6 +32,7 @@ struct NASProfileSettingsRow: View {
                 TextField("Nom du NAS", text: $name)
                     .onSubmit(rename)
                     .accessibilityLabel("Nom du NAS")
+                    .help("Modifier le nom affiché pour ce NAS")
                 Text("\(profile.account) — \(profile.host):\(profile.port)")
                     .font(.callout)
                     .foregroundStyle(.secondary)
@@ -45,6 +46,7 @@ struct NASProfileSettingsRow: View {
 
             Button("Renommer", action: rename)
                 .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .help("Enregistrer le nouveau nom du NAS")
 
             Button("Supprimer", systemImage: "trash", role: .destructive, action: onDelete)
                 .labelStyle(.iconOnly)

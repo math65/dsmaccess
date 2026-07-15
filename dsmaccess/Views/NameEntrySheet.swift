@@ -51,15 +51,18 @@ struct NameEntrySheet: View {
                     .focused($fieldFocused)
                     .accessibilityFocused($a11yFocused)
                     .onSubmit(confirm)
+                    .help(fieldLabel)
             }
 
             HStack {
                 Spacer()
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Annuler cette opération")
                 Button(confirmLabel, action: confirm)
                     .keyboardShortcut(.defaultAction)
                     .disabled(trimmedName.isEmpty)
+                    .help(confirmLabel)
             }
         }
         .padding(20)

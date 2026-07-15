@@ -113,6 +113,7 @@ struct UsersGroupsView: View {
                     .contextMenu {
                         Button("Supprimer le groupe…", role: .destructive) { groupToDelete = group }
                             .disabled(isProtected(group))
+                            .help("Supprimer ce groupe")
                     }
             }
         }
@@ -120,16 +121,20 @@ struct UsersGroupsView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItemGroup {
+        ToolbarItem {
             Menu {
                 Button("Nouvel utilisateur…") { showCreateUser = true }
+                    .help("Créer un nouvel utilisateur")
                 Button("Nouveau groupe…") { showCreateGroup = true }
+                    .help("Créer un nouveau groupe")
             } label: {
                 Label("Ajouter", systemImage: "plus")
             }
             .help("Ajouter un utilisateur ou un groupe")
+        }
 
-            if selectedTab == .users, let user = selectedUser {
+        if selectedTab == .users, let user = selectedUser {
+            ToolbarItem {
                 Button {
                     Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
                 } label: {
@@ -141,7 +146,9 @@ struct UsersGroupsView: View {
                 .disabled(isProtected(user) || isBusy(user))
                 .help(user.isDisabled ? "Activer l’utilisateur" : "Désactiver l’utilisateur")
             }
+        }
 
+        ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
@@ -174,9 +181,11 @@ struct UsersGroupsView: View {
                 Button(user.isDisabled ? "Activer" : "Désactiver") {
                     Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
                 }
+                .help(user.isDisabled ? "Activer cet utilisateur" : "Désactiver cet utilisateur")
                 Button("Supprimer l’utilisateur…", role: .destructive) {
                     userToDelete = user
                 }
+                .help("Supprimer cet utilisateur")
             }
         }
     }
@@ -199,6 +208,7 @@ struct UsersGroupsView: View {
                 Button("Supprimer le groupe…", role: .destructive) {
                     groupToDelete = group
                 }
+                .help("Supprimer ce groupe")
             }
         }
     }
@@ -209,9 +219,11 @@ struct UsersGroupsView: View {
             Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
         }
         .disabled(isProtected(user) || isBusy(user))
+        .help(user.isDisabled ? "Activer cet utilisateur" : "Désactiver cet utilisateur")
         Divider()
         Button("Supprimer l’utilisateur…", role: .destructive) { userToDelete = user }
             .disabled(isProtected(user) || isBusy(user))
+            .help("Supprimer cet utilisateur")
     }
 
     private var filteredUsers: [DSMUser] {
@@ -314,21 +326,27 @@ private struct CreateUserSheet: View {
                     TextField("Nom d’utilisateur", text: $name)
                         .focused($nameFocused)
                         .accessibilityFocused($accessibilityFocused)
+                        .help("Nom du nouvel utilisateur")
                     SecureField("Mot de passe", text: $password)
+                        .help("Mot de passe du nouvel utilisateur")
                     SecureField("Confirmer le mot de passe", text: $passwordConfirmation)
+                        .help("Retaper le mot de passe du nouvel utilisateur")
                     if !passwordConfirmation.isEmpty && !passwordsMatch {
                         Text("Les mots de passe ne correspondent pas.")
                             .foregroundStyle(.red)
                             .accessibilityLabel("Erreur : les mots de passe ne correspondent pas.")
                     }
                     TextField("Adresse e-mail (facultative)", text: $email)
+                        .help("Adresse e-mail facultative du nouvel utilisateur")
                     TextField("Description (facultative)", text: $description)
+                        .help("Description facultative du nouvel utilisateur")
                 }
 
                 if !groups.isEmpty {
                     Section("Groupes") {
                         ForEach(groups) { group in
                             Toggle(group.name, isOn: groupBinding(group.name))
+                                .help(String(localized: "Ajouter ou retirer l’utilisateur du groupe \(group.name)"))
                         }
                     }
                 }
@@ -340,9 +358,11 @@ private struct CreateUserSheet: View {
                 Spacer()
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Annuler la création de l’utilisateur")
                 Button("Créer", action: create)
                     .keyboardShortcut(.defaultAction)
                     .disabled(!canCreate)
+                    .help("Créer l’utilisateur")
             }
             .padding()
         }
@@ -400,20 +420,24 @@ private struct CreateGroupSheet: View {
                 TextField("Nom du groupe", text: $name)
                     .focused($nameFocused)
                     .accessibilityFocused($accessibilityFocused)
+                    .help("Nom du nouveau groupe")
             }
             LabeledField(label: "Description (facultative)") {
                 TextField("Description (facultative)", text: $description)
+                    .help("Description facultative du nouveau groupe")
             }
             HStack {
                 Spacer()
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Annuler la création du groupe")
                 Button("Créer") {
                     onCreate(DSMGroupDraft(name: trimmedName, description: description))
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(trimmedName.isEmpty)
+                .help("Créer le groupe")
             }
         }
         .padding(20)
@@ -456,16 +480,19 @@ private struct AccountDeletionSheet: View {
                 TextField(name, text: $confirmation)
                     .focused($fieldFocused)
                     .accessibilityFocused($accessibilityFocused)
+                    .help("Retaper le nom pour confirmer la suppression")
             }
             HStack {
                 Spacer()
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Annuler la suppression")
                 Button("Supprimer", role: .destructive) {
                     onDelete()
                     dismiss()
                 }
                 .disabled(!confirmed)
+                .help("Confirmer la suppression")
             }
         }
         .padding(20)

@@ -30,9 +30,11 @@ struct OTPView: View {
                 TextField("123456", text: $vm.otpCode)
                     .accessibilityFocused($focusCode)
                     .onSubmit { Task { await vm.submitOTP() } }
+                    .help("Saisir le code de vérification à six chiffres")
             }
 
             Toggle("Se souvenir de cet appareil", isOn: $vm.rememberDevice)
+                .help("Mémoriser ce Mac comme appareil approuvé")
 
             if let error = vm.errorMessage {
                 Text(error)
@@ -51,11 +53,13 @@ struct OTPView: View {
                 }
                 Spacer()
                 Button("Annuler") { vm.cancelOTP() }
+                    .help("Annuler la vérification et revenir à la connexion")
                 Button("Valider") {
                     Task { await vm.submitOTP() }
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(vm.otpCode.isEmpty || vm.state == .connecting)
+                .help("Valider le code de vérification")
             }
         }
         .padding(28)

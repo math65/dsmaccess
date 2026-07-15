@@ -37,6 +37,7 @@ struct ModuleErrorView: View {
             Text(message)
         } actions: {
             Button("Réessayer", action: retry)
+                .help("Réessayer le chargement")
         }
     }
 }

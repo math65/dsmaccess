@@ -81,9 +81,12 @@ struct MainView: View {
         }
         .alert("Renommer le NAS", isPresented: $isRenamingNAS) {
             TextField("Nom du NAS", text: $proposedNASName)
+                .help("Saisir le nouveau nom du NAS")
             Button("Renommer", action: renameNAS)
                 .disabled(proposedNASName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .help("Enregistrer le nouveau nom du NAS")
             Button("Annuler", role: .cancel) { }
+                .help("Annuler le changement de nom")
         } message: {
             Text("Choisissez le nom affiché dans DSM Access.")
         }
@@ -172,15 +175,19 @@ struct MainView: View {
                         Text(profile.displayName)
                     }
                 }
+                .help(String(localized: "Se connecter à \(profile.displayName)"))
             }
 
             Divider()
             Button("Ajouter un NAS…", systemImage: "plus", action: addNAS)
+                .help("Ajouter un NAS à DSM Access")
             Button("Renommer le NAS…", action: beginRenamingNAS)
+                .help("Renommer le NAS connecté")
             Divider()
             Button("Déconnexion", role: .destructive) {
                 Task { await logout() }
             }
+            .help("Se déconnecter du NAS")
         } label: {
             Label(
                 session.activeProfile?.displayName ?? String(localized: "NAS"),

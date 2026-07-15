@@ -25,7 +25,7 @@ struct PackagesView: View {
         .navigationTitle("Centre de paquets")
         .searchable(text: $searchText, prompt: "Rechercher des paquets")
         .toolbar {
-            ToolbarItemGroup {
+            ToolbarItem {
                 Picker("Filtrer les paquets", selection: $filter) {
                     ForEach(PackageFilter.allCases) { filter in
                         Text(filter.title).tag(filter)
@@ -33,14 +33,18 @@ struct PackagesView: View {
                 }
                 .pickerStyle(.menu)
                 .help("Filtrer les paquets")
+            }
 
+            ToolbarItem {
                 Button {
                     showSettings = true
                 } label: {
                     Label("Réglages du Centre de paquets", systemImage: "gearshape")
                 }
                 .help("Réglages du Centre de paquets")
+            }
 
+            ToolbarItem {
                 Button {
                     Task { await load() }
                 } label: {
@@ -63,7 +67,9 @@ struct PackagesView: View {
             Button("Désinstaller \(package.displayName)", role: .destructive) {
                 requestUninstall(package)
             }
+            .help(String(localized: "Désinstaller \(package.displayName)"))
             Button("Annuler", role: .cancel) { }
+                .help("Conserver ce paquet")
         } message: { package in
             Text(uninstallWarning(for: package))
         }
@@ -130,11 +136,13 @@ struct PackagesView: View {
                     setRunning(package, running: !package.isRunning)
                 }
                 .disabled(vm.busy.contains(package.id))
+                .help(package.isRunning ? "Arrêter ce paquet" : "Démarrer ce paquet")
             }
             if package.canUninstall {
                 if package.canStartStop { Divider() }
                 Button("Désinstaller…", role: .destructive) { pendingUninstall = package }
                     .disabled(vm.busy.contains(package.id))
+                    .help("Désinstaller ce paquet")
             }
         }
     }
@@ -163,10 +171,12 @@ struct PackagesView: View {
                     Button("Arrêter") { setRunning(package, running: false) }
                         .disabled(isBusy)
                         .accessibilityLabel("Arrêter \(package.displayName)")
+                        .help(String(localized: "Arrêter \(package.displayName)"))
                 } else {
                     Button("Démarrer") { setRunning(package, running: true) }
                         .disabled(isBusy)
                         .accessibilityLabel("Démarrer \(package.displayName)")
+                        .help(String(localized: "Démarrer \(package.displayName)"))
                 }
             }
             if package.canUninstall {
@@ -177,6 +187,7 @@ struct PackagesView: View {
                 }
                 .disabled(isBusy)
                 .accessibilityLabel("Désinstaller \(package.displayName)")
+                .help(String(localized: "Désinstaller \(package.displayName)"))
             }
         }
     }

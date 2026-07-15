@@ -100,7 +100,9 @@ struct FileBrowserView: View {
                         VoiceOver.announce(message, priority: .high)
                     }
                 }
+                .help("Supprimer définitivement les éléments sélectionnés")
                 Button("Annuler", role: .cancel) { pendingDeleteItems.removeAll() }
+                    .help("Annuler la suppression")
             } message: {
                 Text(deleteMessage)
             }
@@ -181,21 +183,28 @@ struct FileBrowserView: View {
             .accessibilityHint("Remonte au dossier parent")
         }
 
-        ToolbarItemGroup(placement: .primaryAction) {
+        ToolbarItem(placement: .primaryAction) {
             Menu {
                 Button("Nouveau dossier", systemImage: "folder.badge.plus") {
                     activeSheet = .createFolder
                 }
+                .help("Créer un nouveau dossier")
                 Button("Envoyer des fichiers…", systemImage: "square.and.arrow.up") {
                     startUpload()
                 }
+                .help("Envoyer des fichiers dans ce dossier")
             } label: {
                 Label("Ajouter", systemImage: "plus")
             }
             .disabled(!vm.canWrite || vm.isWorking)
             .help("Ajouter des éléments")
+        }
 
+        ToolbarItem(placement: .primaryAction) {
             selectedItemActionsMenu
+        }
+
+        ToolbarItem(placement: .primaryAction) {
             moreOptionsMenu
         }
     }
@@ -204,44 +213,54 @@ struct FileBrowserView: View {
         Menu("Actions sur la sélection", systemImage: "slider.horizontal.3") {
             Button("Ouvrir", systemImage: "arrow.forward", action: activateSelection)
                 .disabled(singleSelectedItem == nil)
+                .help("Ouvrir l’élément sélectionné")
             Button("Télécharger…", systemImage: "square.and.arrow.down") {
                 startDownload(selectedItems)
             }
+            .help("Télécharger les éléments sélectionnés")
             Divider()
             Button("Copier", systemImage: "doc.on.doc") {
                 VoiceOver.announce(vm.copy(selectedItems), category: .result)
             }
             .disabled(!vm.canWrite)
+            .help("Copier les éléments sélectionnés")
             Button("Déplacer (couper)", systemImage: "scissors") {
                 VoiceOver.announce(vm.cut(selectedItems), category: .result)
             }
             .disabled(!vm.canWrite)
+            .help("Déplacer les éléments sélectionnés")
             Button("Créer un lien de partage", systemImage: "link") {
                 shareItem = singleSelectedItem
             }
             .disabled(singleSelectedItem == nil || !vm.canWrite)
+            .help("Créer un lien vers l’élément sélectionné")
             Button("Renommer…", systemImage: "pencil") {
                 if let item = singleSelectedItem { activeSheet = .rename(item) }
             }
             .disabled(singleSelectedItem == nil || !vm.canWrite)
+            .help("Renommer l’élément sélectionné")
             Divider()
             Button("Compresser…", systemImage: "archivebox") {
                 activeSheet = .compress(selectedItems)
             }
             .disabled(!vm.canWrite)
+            .help("Compresser les éléments sélectionnés")
             Button("Extraire", systemImage: "archivebox.fill") {
                 if let item = singleSelectedItem { extract(item) }
             }
             .disabled(singleSelectedItem.map(vm.canExtract) != true || !vm.canWrite)
+            .help("Extraire l’archive sélectionnée")
             Button("Supprimer…", systemImage: "trash", role: .destructive) {
                 pendingDeleteItems = selectedItems
             }
             .disabled(!vm.canWrite)
+            .help("Supprimer les éléments sélectionnés")
             Divider()
             Button("Lire les informations", systemImage: "info.circle") {
                 infoItem = singleSelectedItem
             }
             .disabled(singleSelectedItem == nil)
+            .help("Lire les informations de l’élément sélectionné")
         }
         .disabled(selectedItems.isEmpty || vm.isWorking)
         .help("Actions sur les éléments sélectionnés")
@@ -251,15 +270,17 @@ struct FileBrowserView: View {
         Menu("Plus d’options", systemImage: "ellipsis.circle") {
             Button("Coller", systemImage: "doc.on.clipboard", action: paste)
                 .disabled(!vm.canPaste || vm.isWorking)
+                .help("Coller dans ce dossier")
 
             favoritesMenu
 
             Button("Liens de partage", systemImage: "link") {
                 showingShareLinks = true
             }
+            .help("Gérer les liens de partage")
 
             Divider()
-            Section("Trier par") {
+            Menu("Trier", systemImage: "arrow.up.arrow.down") {
                 ForEach(FileBrowserViewModel.SortMode.allCases) { mode in
                     Button {
                         vm.sortMode = mode
@@ -270,14 +291,18 @@ struct FileBrowserView: View {
                             Text(mode.title)
                         }
                     }
+                    .help(String(localized: "Trier par \(mode.title)"))
                 }
+                Divider()
+                Button(
+                    vm.sortAscending ? "Ordre décroissant" : "Ordre croissant",
+                    systemImage: vm.sortAscending ? "arrow.down" : "arrow.up"
+                ) {
+                    vm.sortAscending.toggle()
+                }
+                .help(vm.sortAscending ? "Passer à l’ordre décroissant" : "Passer à l’ordre croissant")
             }
-            Button(
-                vm.sortAscending ? "Ordre décroissant" : "Ordre croissant",
-                systemImage: vm.sortAscending ? "arrow.down" : "arrow.up"
-            ) {
-                vm.sortAscending.toggle()
-            }
+            .help("Choisir le tri des fichiers")
         }
         .help("Plus d’options pour ce dossier")
     }
@@ -297,6 +322,7 @@ struct FileBrowserView: View {
                         Label("Ajouter aux favoris", systemImage: "star")
                     }
                 }
+                .help(vm.isFavorite(path: path) ? "Retirer ce dossier des favoris" : "Ajouter ce dossier aux favoris")
                 Divider()
             }
 
@@ -312,6 +338,7 @@ struct FileBrowserView: View {
                         }
                     }
                     .disabled(!favorite.isAvailable)
+                    .help(String(localized: "Ouvrir le favori \(favorite.name)"))
                 }
             }
         } label: {

@@ -5,6 +5,25 @@ import Testing
 @Suite(.serialized)
 @MainActor
 struct AppSettingsTests {
+    @Test func queuesAnnouncementsByDefaultAndPersistsTheSetting() {
+        let defaults = UserDefaults.standard
+        let previousValue = defaults.object(forKey: "queueAnnouncements")
+        defer {
+            if let previousValue {
+                defaults.set(previousValue, forKey: "queueAnnouncements")
+            } else {
+                defaults.removeObject(forKey: "queueAnnouncements")
+            }
+        }
+
+        defaults.removeObject(forKey: "queueAnnouncements")
+        #expect(Preferences.queueAnnouncements)
+
+        let settings = AppSettings()
+        settings.queueAnnouncements = false
+        #expect(!Preferences.queueAnnouncements)
+    }
+
     @Test func reordersSidebarModulesWithinASection() {
         let previousOrder = Preferences.sidebarOrder
         defer { Preferences.sidebarOrder = previousOrder }

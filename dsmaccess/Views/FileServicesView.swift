@@ -51,7 +51,9 @@ struct FileServicesView: View {
             Button("Désactiver \(service.displayName)", role: .destructive) {
                 apply(service, enabled: false)
             }
+            .help(String(localized: "Désactiver \(service.displayName)"))
             Button("Annuler", role: .cancel) { }
+                .help("Conserver ce service activé")
         } message: { service in
             Text(disableWarning(for: service))
         }
@@ -95,12 +97,15 @@ struct FileServicesView: View {
             case .on:
                 Button("Désactiver \(service.displayName)") { pendingDisable = service }
                     .disabled(vm.busy.contains(service))
+                    .help(String(localized: "Désactiver \(service.displayName)"))
             case .off:
                 Button("Activer \(service.displayName)") { apply(service, enabled: true) }
                     .disabled(vm.busy.contains(service))
+                    .help(String(localized: "Activer \(service.displayName)"))
             case .unknown, .failed:
                 Button("Réessayer") { reloadAll() }
                     .disabled(vm.busy.contains(service))
+                    .help(String(localized: "Réessayer de charger \(service.displayName)"))
             }
         }
     }
@@ -128,10 +133,12 @@ struct FileServicesView: View {
                 .accessibilityLabel(service.displayName)
                 .accessibilityValue(stateText(state))
                 .accessibilityHint("Active ou désactive ce protocole")
+                .help(String(localized: "Activer ou désactiver \(service.displayName)"))
         case .unknown, .failed:
             Button("Réessayer") { reloadAll() }
                 .disabled(isBusy)
                 .accessibilityLabel("Réessayer \(service.displayName)")
+                .help(String(localized: "Réessayer de charger \(service.displayName)"))
         }
     }
 

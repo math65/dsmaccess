@@ -25,14 +25,16 @@ struct SharesView: View {
         .navigationTitle("Dossiers partagés")
         .searchable(text: $searchText, prompt: "Rechercher des dossiers partagés")
         .toolbar {
-            ToolbarItemGroup {
+            ToolbarItem {
                 Button {
                     Task { await load() }
                 } label: {
                     Label("Actualiser", systemImage: "arrow.clockwise")
                 }
                 .help("Actualiser les dossiers partagés")
+            }
 
+            ToolbarItem {
                 Button {
                     showCreateSheet = true
                 } label: {
@@ -107,11 +109,14 @@ struct SharesView: View {
                 Image(systemName: "trash")
             }
             .accessibilityLabel("Supprimer \(share.displayName)")
+            .help(String(localized: "Supprimer \(share.displayName)"))
         }
         .contextMenu {
             Button("Copier le chemin SMB") { copySMBPath(for: share) }
+                .help("Copier le chemin SMB de ce dossier partagé")
             Divider()
             Button("Supprimer…", role: .destructive) { pendingDelete = share }
+                .help("Supprimer ce dossier partagé")
         }
     }
 
@@ -178,6 +183,7 @@ private struct CreateShareSheet: View {
                     .focused($nameFocused)
                     .accessibilityFocused($a11yFocused)
                     .onSubmit(confirm)
+                    .help("Nom du nouveau dossier partagé")
             }
 
             if volumes.count > 1 {
@@ -188,20 +194,24 @@ private struct CreateShareSheet: View {
                         }
                     }
                     .labelsHidden()
+                    .help("Choisir le volume du nouveau dossier partagé")
                 }
             }
 
             LabeledField(label: "Description (facultative)") {
                 TextField("Description (facultative)", text: $description)
+                    .help("Description facultative du dossier partagé")
             }
 
             HStack {
                 Spacer()
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Annuler la création du dossier partagé")
                 Button("Créer", action: confirm)
                     .keyboardShortcut(.defaultAction)
                     .disabled(trimmedName.isEmpty)
+                    .help("Créer le dossier partagé")
             }
         }
         .padding(20)
@@ -250,17 +260,20 @@ private struct DeleteShareSheet: View {
                 TextField(folder.displayName, text: $typedName)
                     .focused($fieldFocused)
                     .accessibilityFocused($a11yFocused)
+                    .help("Retaper le nom du dossier partagé pour confirmer")
             }
 
             HStack {
                 Spacer()
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Annuler la suppression du dossier partagé")
                 Button("Supprimer définitivement", role: .destructive) {
                     onConfirm()
                     dismiss()
                 }
                 .disabled(!nameMatches)
+                .help("Supprimer définitivement le dossier partagé")
             }
         }
         .padding(20)

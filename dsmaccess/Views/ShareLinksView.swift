@@ -26,6 +26,7 @@ struct ShareLinksView: View {
                 Spacer()
                 Button("Fermer", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Fermer les liens de partage")
             }
             content
         }
@@ -46,6 +47,7 @@ struct ShareLinksView: View {
             VStack(spacing: 12) {
                 Text(error).foregroundStyle(.red).multilineTextAlignment(.center)
                 Button("Réessayer") { Task { await loadShareLinks() } }
+                    .help("Réessayer de charger les liens de partage")
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityFocused($focusStatus)
@@ -98,12 +100,14 @@ struct ShareLinksView: View {
                 Image(systemName: "doc.on.clipboard")
             }
             .accessibilityLabel("Copier le lien")
+            .help("Copier ce lien de partage")
             Button(role: .destructive) {
                 Task { let msg = await vm.deleteShareLink(link); VoiceOver.announce(msg, priority: .high) }
             } label: {
                 Image(systemName: "trash")
             }
             .accessibilityLabel("Supprimer")
+            .help("Supprimer ce lien de partage")
         }
     }
 

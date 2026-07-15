@@ -40,10 +40,13 @@ struct DownloadStationView: View {
                 Button("Supprimer", role: .destructive) {
                     Task { await deleteSelection(forceComplete: false) }
                 }
+                .help("Retirer les téléchargements sélectionnés")
                 Button("Supprimer et marquer comme terminés", role: .destructive) {
                     Task { await deleteSelection(forceComplete: true) }
                 }
+                .help("Retirer les téléchargements et les marquer comme terminés")
                 Button("Annuler", role: .cancel) { }
+                    .help("Conserver les téléchargements sélectionnés")
             } message: {
                 Text("Les tâches seront retirées de Download Station. Les fichiers déjà téléchargés seront conservés.")
             }
@@ -82,7 +85,7 @@ struct DownloadStationView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItemGroup {
+        ToolbarItem {
             Button {
                 showCreateSheet = true
             } label: {
@@ -90,7 +93,9 @@ struct DownloadStationView: View {
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
             .help("Ajouter un téléchargement")
+        }
 
+        ToolbarItem {
             Button {
                 Task { await pauseSelection() }
             } label: {
@@ -98,7 +103,9 @@ struct DownloadStationView: View {
             }
             .disabled(!selectionCanPause || selectionIsBusy)
             .help("Mettre les téléchargements sélectionnés en pause")
+        }
 
+        ToolbarItem {
             Button {
                 Task { await resumeSelection() }
             } label: {
@@ -106,7 +113,9 @@ struct DownloadStationView: View {
             }
             .disabled(!selectionCanResume || selectionIsBusy)
             .help("Reprendre les téléchargements sélectionnés")
+        }
 
+        ToolbarItem {
             Button(role: .destructive) {
                 showDeleteConfirmation = true
             } label: {
@@ -114,14 +123,19 @@ struct DownloadStationView: View {
             }
             .disabled(selection.isEmpty || selectionIsBusy)
             .help("Supprimer les téléchargements sélectionnés")
+        }
 
+        ToolbarItem {
             Menu {
                 Toggle("Actualisation automatique", isOn: $autoRefresh)
+                    .help("Actualiser automatiquement les téléchargements")
             } label: {
                 Label("Options d’actualisation", systemImage: "ellipsis.circle")
             }
             .help("Options d’actualisation")
+        }
 
+        ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
@@ -169,14 +183,17 @@ struct DownloadStationView: View {
         .accessibilityActions {
             if task.canPause {
                 Button("Mettre en pause") { Task { await pause(ids: [task.id]) } }
+                    .help("Mettre ce téléchargement en pause")
             }
             if task.canResume {
                 Button("Reprendre") { Task { await resume(ids: [task.id]) } }
+                    .help("Reprendre ce téléchargement")
             }
             Button("Supprimer…", role: .destructive) {
                 selection = [task.id]
                 showDeleteConfirmation = true
             }
+            .help("Supprimer ce téléchargement")
         }
     }
 
@@ -184,15 +201,18 @@ struct DownloadStationView: View {
     private func taskActions(_ task: DownloadTask) -> some View {
         if task.canPause {
             Button("Mettre en pause") { Task { await pause(ids: [task.id]) } }
+                .help("Mettre ce téléchargement en pause")
         }
         if task.canResume {
             Button("Reprendre") { Task { await resume(ids: [task.id]) } }
+                .help("Reprendre ce téléchargement")
         }
         Divider()
         Button("Supprimer…", role: .destructive) {
             selection = [task.id]
             showDeleteConfirmation = true
         }
+        .help("Supprimer ce téléchargement")
     }
 
     private var statusBar: some View {
@@ -355,9 +375,11 @@ private struct CreateDownloadSheet: View {
                     .focused($uriFocused)
                     .accessibilityFocused($accessibilityFocused)
                     .onSubmit(create)
+                    .help("Adresse du fichier à télécharger")
             }
             LabeledField(label: "Dossier de destination (facultatif)") {
                 TextField("downloads", text: $destination)
+                    .help("Dossier de destination dans Download Station")
             }
             Text("Laissez le dossier vide pour utiliser la destination par défaut de Download Station.")
                 .font(.caption)
@@ -367,9 +389,11 @@ private struct CreateDownloadSheet: View {
                 Spacer()
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
+                    .help("Annuler l’ajout du téléchargement")
                 Button("Ajouter", action: create)
                     .keyboardShortcut(.defaultAction)
                     .disabled(trimmedURI.isEmpty)
+                    .help("Ajouter ce téléchargement à Download Station")
             }
         }
         .padding(20)

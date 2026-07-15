@@ -36,6 +36,7 @@ struct NASSettingsView: View {
 
             HStack {
                 Button("Ajouter un NAS…", systemImage: "plus", action: addNAS)
+                    .help("Ajouter un NAS à DSM Access")
                 Spacer()
             }
         }

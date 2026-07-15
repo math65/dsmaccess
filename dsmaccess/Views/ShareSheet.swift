@@ -72,6 +72,7 @@ struct ShareSheet: View {
         LabeledField(label: "Mot de passe (facultatif)") {
             SecureField("Mot de passe (facultatif)", text: $password)
                 .focused($passwordFocused)
+                .help("Protéger le lien de partage par un mot de passe")
         }
 
         Picker("Expiration", selection: $expiry) {
@@ -79,6 +80,7 @@ struct ShareSheet: View {
                 Text(option.label).tag(option)
             }
         }
+        .help("Choisir la date d’expiration du lien")
 
         if let errorMessage {
             Text(errorMessage)
@@ -90,9 +92,11 @@ struct ShareSheet: View {
             Spacer()
             Button("Annuler", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
+                .help("Annuler la création du lien")
             Button("Créer le lien") { Task { await createLink() } }
                 .keyboardShortcut(.defaultAction)
                 .disabled(isCreating)
+                .help("Créer le lien de partage")
         }
         .onAppear {
             passwordFocused = true
@@ -121,8 +125,10 @@ struct ShareSheet: View {
             Spacer()
             Button("Fermer", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
+                .help("Fermer le lien de partage")
             Button("Copier le lien") { copyToClipboard(url) }
                 .keyboardShortcut(.defaultAction)
+                .help("Copier le lien de partage")
         }
         .onAppear {
             copyToClipboard(url, announce: false)

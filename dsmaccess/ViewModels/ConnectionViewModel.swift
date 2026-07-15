@@ -164,8 +164,20 @@ final class ConnectionViewModel {
             return
         }
 
-        password = saved
-        await connect()
+        for attempt in 0..<3 {
+            password = saved
+            await connect()
+            if session.isLoggedIn || !hasTransientNetworkFailure || attempt == 2 {
+                break
+            }
+            errorMessage = nil
+            do {
+                try await Task.sleep(for: .milliseconds(750 * (attempt + 1)))
+            } catch {
+                isRestoring = false
+                return
+            }
+        }
         isRestoring = false
 
         if !session.isLoggedIn, lastError?.isCredentialFailure == true {
@@ -277,6 +289,11 @@ final class ConnectionViewModel {
 
     private func keychainKey(_ account: String, _ endpoint: DSMEndpoint) -> String {
         "\(account)@\(endpoint.host):\(endpoint.port)"
+    }
+
+    private var hasTransientNetworkFailure: Bool {
+        if case .network = lastError { return true }
+        return false
     }
 
     private func persistPreferences(account: String, endpoint: DSMEndpoint) {

@@ -47,7 +47,9 @@ struct LogsSecurityView: View {
                 Button("Débloquer \(blockedAddress.address)", role: .destructive) {
                     Task { await unblock(blockedAddress) }
                 }
+                .help(String(localized: "Débloquer \(blockedAddress.address)"))
                 Button("Annuler", role: .cancel) { }
+                    .help("Conserver cette adresse bloquée")
             } message: { blockedAddress in
                 Text("Les nouvelles connexions provenant de \(blockedAddress.address) seront à nouveau autorisées par le blocage automatique.")
             }
@@ -135,6 +137,7 @@ struct LogsSecurityView: View {
                             .contextMenu {
                                 Button("Débloquer…", role: .destructive) { pendingUnblock = address }
                                     .disabled(viewModel.busyAddresses.contains(address.address))
+                                    .help(String(localized: "Débloquer \(address.address)"))
                             }
                     }
                 }
@@ -145,8 +148,8 @@ struct LogsSecurityView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItemGroup {
-            if selectedTab == .logs {
+        if selectedTab == .logs {
+            ToolbarItem {
                 Menu {
                     Picker("Niveau", selection: $levelFilter) {
                         Text("Tous les niveaux").tag(LevelFilter.all)
@@ -154,12 +157,15 @@ struct LogsSecurityView: View {
                         Text("Avertissements").tag(LevelFilter.warning)
                         Text("Informations").tag(LevelFilter.info)
                     }
+                    .help("Choisir le niveau de journal à afficher")
                 } label: {
                     Label("Filtrer le journal", systemImage: "line.3.horizontal.decrease.circle")
                 }
                 .help("Filtrer le journal par niveau")
             }
+        }
 
+        ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
@@ -215,6 +221,7 @@ struct LogsSecurityView: View {
             Button("Débloquer…") { pendingUnblock = blockedAddress }
                 .disabled(viewModel.busyAddresses.contains(blockedAddress.address))
                 .accessibilityLabel("Débloquer \(blockedAddress.address)")
+                .help(String(localized: "Débloquer \(blockedAddress.address)"))
         }
         .accessibilityElement(children: .contain)
     }

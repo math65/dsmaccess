@@ -69,7 +69,7 @@ struct SurveillanceView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItemGroup {
+        ToolbarItem {
             Button {
                 Task { await setSelected(enabled: true) }
             } label: {
@@ -77,7 +77,9 @@ struct SurveillanceView: View {
             }
             .disabled(!selectionCanEnable || selectionIsBusy)
             .help("Activer les caméras sélectionnées")
+        }
 
+        ToolbarItem {
             Button {
                 Task { await setSelected(enabled: false) }
             } label: {
@@ -85,7 +87,9 @@ struct SurveillanceView: View {
             }
             .disabled(!selectionCanDisable || selectionIsBusy)
             .help("Désactiver les caméras sélectionnées")
+        }
 
+        ToolbarItem {
             Button {
                 showInspector.toggle()
                 if showInspector, let selectedCamera {
@@ -96,14 +100,19 @@ struct SurveillanceView: View {
             }
             .disabled(selectedCamera == nil)
             .help(showInspector ? "Masquer l’instantané" : "Afficher l’instantané et les informations")
+        }
 
+        ToolbarItem {
             Menu {
                 Toggle("Actualisation automatique", isOn: $autoRefresh)
+                    .help("Actualiser automatiquement les caméras")
             } label: {
                 Label("Options d’actualisation", systemImage: "ellipsis.circle")
             }
             .help("Options d’actualisation")
+        }
 
+        ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
@@ -142,12 +151,14 @@ struct SurveillanceView: View {
                 Button(camera.enabled ? "Désactiver" : "Activer") {
                     Task { await set(enabled: !camera.enabled, ids: [camera.id]) }
                 }
+                .help(camera.enabled ? "Désactiver cette caméra" : "Activer cette caméra")
             }
             Button("Charger l’instantané") {
                 selection = [camera.id]
                 showInspector = true
                 Task { await loadSnapshot(camera) }
             }
+            .help("Charger l’instantané de cette caméra")
         }
     }
 
@@ -156,12 +167,14 @@ struct SurveillanceView: View {
         Button(camera.enabled ? "Désactiver" : "Activer") {
             Task { await set(enabled: !camera.enabled, ids: [camera.id]) }
         }
+        .help(camera.enabled ? "Désactiver cette caméra" : "Activer cette caméra")
         Divider()
         Button("Instantané et informations") {
             selection = [camera.id]
             showInspector = true
             Task { await loadSnapshot(camera) }
         }
+        .help("Afficher l’instantané et les informations de cette caméra")
     }
 
     @ViewBuilder

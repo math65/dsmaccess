@@ -19,6 +19,7 @@ struct UnavailableModuleView: View {
             SettingsLink {
                 Text("Modifier la barre latérale…")
             }
+            .help("Ouvrir les réglages de la barre latérale")
         }
         .navigationTitle(module.title)
         .task {

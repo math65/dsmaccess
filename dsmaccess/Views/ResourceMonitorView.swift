@@ -19,6 +19,7 @@ struct ResourceMonitorView: View {
             content
             Toggle("Actualisation automatique", isOn: $vm.autoRefresh)
                 .accessibilityHint("Met à jour les valeurs toutes les 5 secondes")
+                .help("Actualiser automatiquement les ressources toutes les cinq secondes")
         } header: {
             HStack {
                 Text("Ressources en direct")

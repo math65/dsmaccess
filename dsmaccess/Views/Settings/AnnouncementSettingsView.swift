@@ -11,6 +11,17 @@ struct AnnouncementSettingsView: View {
 
     var body: some View {
         Form {
+            Section("Comportement") {
+                Toggle(
+                    "Mettre les annonces en file d’attente",
+                    isOn: $settings.queueAnnouncements
+                )
+                .help("Lit toutes les annonces dans l’ordre sans interrompre l’annonce précédente")
+                Text("Lorsque cette option est activée, les annonces rapides comme « chargement » puis « terminé » sont toutes lues dans l’ordre.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+            }
+
             Section {
                 ForEach(AnnouncementCategory.allCases) { category in
                     Toggle(isOn: binding(for: category)) {
@@ -22,6 +33,7 @@ struct AnnouncementSettingsView: View {
                         }
                     }
                     .accessibilityHint(category.detail)
+                    .help(category.detail)
                 }
             } header: {
                 Text("Annonces VoiceOver")

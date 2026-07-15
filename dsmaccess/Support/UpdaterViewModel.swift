@@ -61,5 +61,6 @@ struct CheckForUpdatesView: View {
             updater.checkForUpdates()
         }
         .disabled(!updater.canCheckForUpdates)
+        .help("Rechercher une nouvelle version de DSM Access")
     }
 }

@@ -40,7 +40,9 @@ struct VirtualMachinesView: View {
                 Button("Forcer l’extinction de \(machine.name)", role: .destructive) {
                     Task { await perform(.powerOff, on: machine) }
                 }
+                .help(String(localized: "Forcer l’extinction de \(machine.name)"))
                 Button("Annuler", role: .cancel) { }
+                    .help("Annuler l’extinction forcée")
             } message: { machine in
                 Text("La machine « \(machine.name) » sera arrêtée sans laisser son système d’exploitation se fermer proprement. Des données peuvent être perdues.")
             }
@@ -83,7 +85,7 @@ struct VirtualMachinesView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItemGroup {
+        ToolbarItem {
             Button {
                 guard let selectedMachine else { return }
                 Task { await perform(.powerOn, on: selectedMachine) }
@@ -92,7 +94,9 @@ struct VirtualMachinesView: View {
             }
             .disabled(selectedMachine?.canStart != true || selectedIsBusy)
             .help("Démarrer la machine virtuelle")
+        }
 
+        ToolbarItem {
             Button {
                 guard let selectedMachine else { return }
                 Task { await perform(.shutdown, on: selectedMachine) }
@@ -101,18 +105,24 @@ struct VirtualMachinesView: View {
             }
             .disabled(selectedMachine?.canStop != true || selectedIsBusy)
             .help("Demander un arrêt propre au système invité")
+        }
 
+        ToolbarItem {
             Menu {
                 Button("Forcer l’extinction…", role: .destructive) {
                     pendingPowerOff = selectedMachine
                 }
                 .disabled(selectedMachine?.canStop != true || selectedIsBusy)
+                .help("Forcer l’extinction de la machine virtuelle")
                 Toggle("Actualisation automatique", isOn: $autoRefresh)
+                    .help("Actualiser automatiquement les machines virtuelles")
             } label: {
                 Label("Actions", systemImage: "ellipsis.circle")
             }
             .help("Autres actions")
+        }
 
+        ToolbarItem {
             Button {
                 showInspector.toggle()
             } label: {
@@ -120,7 +130,9 @@ struct VirtualMachinesView: View {
             }
             .disabled(selectedMachine == nil)
             .help(showInspector ? "Masquer les informations" : "Afficher les informations")
+        }
 
+        ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
@@ -157,17 +169,21 @@ struct VirtualMachinesView: View {
         .accessibilityActions {
             if machine.canStart {
                 Button("Démarrer") { Task { await perform(.powerOn, on: machine) } }
+                    .help("Démarrer cette machine virtuelle")
             }
             if machine.canStop {
                 Button("Arrêter proprement") { Task { await perform(.shutdown, on: machine) } }
+                    .help("Arrêter proprement cette machine virtuelle")
                 Button("Forcer l’extinction…", role: .destructive) {
                     pendingPowerOff = machine
                 }
+                .help("Forcer l’extinction de cette machine virtuelle")
             }
             Button("Lire les informations") {
                 selection = machine.id
                 showInspector = true
             }
+            .help("Lire les informations de cette machine virtuelle")
         }
     }
 
@@ -175,17 +191,21 @@ struct VirtualMachinesView: View {
     private func machineActions(_ machine: VirtualMachine) -> some View {
         if machine.canStart {
             Button("Démarrer") { Task { await perform(.powerOn, on: machine) } }
+                .help("Démarrer cette machine virtuelle")
         }
         if machine.canStop {
             Button("Arrêter proprement") { Task { await perform(.shutdown, on: machine) } }
+                .help("Arrêter proprement cette machine virtuelle")
             Divider()
             Button("Forcer l’extinction…", role: .destructive) { pendingPowerOff = machine }
+                .help("Forcer l’extinction de cette machine virtuelle")
         }
         Divider()
         Button("Lire les informations") {
             selection = machine.id
             showInspector = true
         }
+        .help("Lire les informations de cette machine virtuelle")
     }
 
     @ViewBuilder

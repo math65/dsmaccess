@@ -4,542 +4,22 @@
     "" : {
       "shouldTranslate" : false
     },
-    "%@ (indisponible)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ (unavailable)"
-          }
-        }
-      }
-    },
-    "%@ indisponible" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ unavailable"
-          }
-        }
-      }
-    },
-    "%@ n’est pas disponible sur ce NAS" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ is not available on this NAS"
-          }
-        }
-      }
-    },
-    "%@ — %@:%lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@ — %@:%lld"
-          }
-        }
-      }
-    },
-    "%@, position %lld sur %lld" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%@, position %lld of %lld"
-          }
-        }
-      }
-    },
-    "Actions sur la sélection" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selected Item Actions"
-          }
-        }
-      }
-    },
-    "Actions sur les éléments sélectionnés" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Actions for selected items"
-          }
-        }
-      }
-    },
-    "Afficher ou masquer la barre latérale" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Show or hide the sidebar"
-          }
-        }
-      }
-    },
-    "Ajoutez un NAS depuis cette fenêtre ou depuis le menu NAS." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add a NAS from this window or from the NAS menu."
-          }
-        }
-      }
-    },
-    "Ajouter un NAS…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Add NAS…"
-          }
-        }
-      }
-    },
-    "Annonce la connexion, le module sélectionné et les changements de dossier." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Announces sign-in, the selected module, and folder changes."
-          }
-        }
-      }
-    },
-    "Annonce le début des chargements, recherches et opérations longues." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Announces the start of loading, searches, and long operations."
-          }
-        }
-      }
-    },
-    "Annonce les erreurs de connexion, de chargement et d’opération." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Announces connection, loading, and operation errors."
-          }
-        }
-      }
-    },
-    "Annonce les résumés de contenu et le résultat des actions." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Announces content summaries and action results."
-          }
-        }
-      }
-    },
-    "Annonce l’activation ou la désactivation des actualisations automatiques." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Announces when automatic refresh is enabled or disabled."
-          }
-        }
-      }
-    },
-    "Annonces" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Announcements"
-          }
-        }
-      }
-    },
-    "Annonces VoiceOver" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "VoiceOver announcements"
-          }
-        }
-      }
-    },
-    "Aucun NAS enregistré" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No saved NAS devices"
-          }
-        }
-      }
-    },
-    "Barre latérale" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sidebar"
-          }
-        }
-      }
-    },
-    "Changer de NAS" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Switch NAS"
-          }
-        }
-      }
-    },
-    "Chargement de Surveillance Station…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading Surveillance Station…"
-          }
-        }
-      }
-    },
-    "Chargement des dossiers partagés…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading shared folders…"
-          }
-        }
-      }
-    },
-    "Chargement des journaux et de la sécurité…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading logs and security…"
-          }
-        }
-      }
-    },
-    "Chargement des paquets…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading packages…"
-          }
-        }
-      }
-    },
-    "Chargement des services de fichiers…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading file services…"
-          }
-        }
-      }
-    },
-    "Chargement des utilisateurs et groupes…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading users and groups…"
-          }
-        }
-      }
-    },
-    "Chargement du stockage…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading storage…"
-          }
-        }
-      }
-    },
-    "Chargements et opérations en cours" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading and operations in progress"
-          }
-        }
-      }
-    },
-    "Ces réglages affectent les annonces supplémentaires de DSM Access. Les libellés et états standards des contrôles restent toujours disponibles à VoiceOver." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "These settings affect additional DSM Access announcements. Standard control labels and states always remain available to VoiceOver."
-          }
-        }
-      }
-    },
-    "Choisissez le nom affiché dans DSM Access." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Choose the name shown in DSM Access."
-          }
-        }
-      }
-    },
-    "Cochez les modules à afficher. Faites-les glisser pour les réordonner dans leur section, ou sélectionnez-en un puis utilisez Commande + Flèche vers le haut ou Commande + Flèche vers le bas." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Select the modules to show. Drag them to reorder them within their section, or select one and use Command + Up Arrow or Command + Down Arrow."
-          }
-        }
-      }
-    },
-    "Déconnectez-vous avant de supprimer ce NAS" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sign out before deleting this NAS"
-          }
-        }
-      }
-    },
-    "Descendre" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Move Down"
-          }
-        }
-      }
-    },
-    "Gérer les NAS…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Manage NAS Devices…"
-          }
-        }
-      }
-    },
-    "Masquer automatiquement les fonctionnalités indisponibles sur le NAS connecté" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Automatically hide features unavailable on the connected NAS"
-          }
-        }
-      }
-    },
-    "Modifier la barre latérale…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Edit Sidebar…"
-          }
-        }
-      }
-    },
-    "Monter" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Move Up"
-          }
-        }
-      }
-    },
-    "NAS" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NAS"
-          }
-        }
-      }
-    },
-    "NAS connecté" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Connected NAS"
-          }
-        }
-      }
-    },
-    "NAS enregistrés" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saved NAS Devices"
-          }
-        }
-      }
-    },
-    "NAS renommé %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NAS renamed %@"
-          }
-        }
-      }
-    },
-    "Navigation et changements d’écran" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Navigation and screen changes"
-          }
-        }
-      }
-    },
-    "Nom du NAS" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "NAS name"
-          }
-        }
-      }
-    },
-    "Ordre décroissant" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Descending order"
-          }
-        }
-      }
-    },
-    "Plus d’options" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "More Options"
-          }
-        }
-      }
-    },
-    "Plus d’options pour ce dossier" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "More options for this folder"
-          }
-        }
-      }
-    },
-    "Réglages de la barre latérale" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sidebar settings"
-          }
-        }
-      }
-    },
-    "Réglages des annonces VoiceOver" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "VoiceOver announcement settings"
-          }
-        }
-      }
-    },
-    "Réglages des NAS enregistrés" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saved NAS settings"
-          }
-        }
-      }
-    },
-    "Renommer le NAS" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rename NAS"
-          }
-        }
-      }
-    },
-    "Renommer le NAS…" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Rename NAS…"
-          }
-        }
-      }
-    },
-    "Résultats et opérations terminées" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Results and completed operations"
-          }
-        }
-      }
-    },
-    "Supprimer ce NAS" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Delete this NAS"
-          }
-        }
-      }
-    },
     " (alerte)" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : " (alert)"
+          }
+        }
+      }
+    },
+    "%@ (indisponible)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (unavailable)"
           }
         }
       }
@@ -594,6 +74,26 @@
         }
       }
     },
+    "%@ indisponible" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ unavailable"
+          }
+        }
+      }
+    },
+    "%@ n’est pas disponible sur ce NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ is not available on this NAS"
+          }
+        }
+      }
+    },
     "%@ par seconde" : {
       "localizations" : {
         "en" : {
@@ -620,6 +120,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%@ used of %@"
+          }
+        }
+      }
+    },
+    "%@ — %@:%lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ — %@:%lld"
           }
         }
       }
@@ -656,6 +166,16 @@
         }
       }
     },
+    "%@, position %lld sur %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, position %lld of %lld"
+          }
+        }
+      }
+    },
     "%@/s" : {
       "localizations" : {
         "en" : {
@@ -665,17 +185,6 @@
           }
         }
       }
-    },
-    "%@:%lld" : {
-      "localizations" : {
-        "fr" : {
-          "stringUnit" : {
-            "state" : "new",
-            "value" : "%1$@:%2$lld"
-          }
-        }
-      },
-      "shouldTranslate" : false
     },
     "%lld %%" : {
       "localizations" : {
@@ -1168,6 +677,26 @@
         }
       }
     },
+    "Actions sur la sélection" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected Item Actions"
+          }
+        }
+      }
+    },
+    "Actions sur les éléments sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actions for selected items"
+          }
+        }
+      }
+    },
     "Active ou désactive ce protocole" : {
       "localizations" : {
         "en" : {
@@ -1198,6 +727,26 @@
         }
       }
     },
+    "Activer cet utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable this user"
+          }
+        }
+      }
+    },
+    "Activer cette caméra" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable this camera"
+          }
+        }
+      }
+    },
     "Activer la notification par courriel" : {
       "localizations" : {
         "en" : {
@@ -1218,6 +767,26 @@
         }
       }
     },
+    "Activer les notifications de mise à jour par courriel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable update notifications by email"
+          }
+        }
+      }
+    },
+    "Activer les notifications de mise à jour sur le bureau" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable desktop update notifications"
+          }
+        }
+      }
+    },
     "Activer les notifications sur le bureau" : {
       "localizations" : {
         "en" : {
@@ -1234,6 +803,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Enable user"
+          }
+        }
+      }
+    },
+    "Activer ou désactiver %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enable or disable %@"
           }
         }
       }
@@ -1304,6 +883,66 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Refresh"
+          }
+        }
+      }
+    },
+    "Actualiser automatiquement les caméras" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically refresh cameras"
+          }
+        }
+      }
+    },
+    "Actualiser automatiquement les conteneurs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically refresh containers"
+          }
+        }
+      }
+    },
+    "Actualiser automatiquement les machines virtuelles" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically refresh virtual machines"
+          }
+        }
+      }
+    },
+    "Actualiser automatiquement les ressources toutes les cinq secondes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically refresh resources every five seconds"
+          }
+        }
+      }
+    },
+    "Actualiser automatiquement les téléchargements" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically refresh downloads"
+          }
+        }
+      }
+    },
+    "Actualiser le dossier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh the folder"
           }
         }
       }
@@ -1468,6 +1107,16 @@
         }
       }
     },
+    "Adresse IP ou nom réseau du NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "IP address or network name of the NAS"
+          }
+        }
+      }
+    },
     "Adresse du NAS (IP ou nom)" : {
       "localizations" : {
         "en" : {
@@ -1498,6 +1147,16 @@
         }
       }
     },
+    "Adresse du fichier à télécharger" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Address of the file to download"
+          }
+        }
+      }
+    },
     "Adresse débloquée : %@" : {
       "localizations" : {
         "en" : {
@@ -1514,6 +1173,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Email address (optional)"
+          }
+        }
+      }
+    },
+    "Adresse e-mail facultative du nouvel utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional email address for the new user"
           }
         }
       }
@@ -1538,6 +1207,16 @@
         }
       }
     },
+    "Afficher %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show %@"
+          }
+        }
+      }
+    },
     "Afficher les informations" : {
       "localizations" : {
         "en" : {
@@ -1558,6 +1237,16 @@
         }
       }
     },
+    "Afficher les informations et journaux du conteneur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show container information and logs"
+          }
+        }
+      }
+    },
     "Afficher les versions bêta" : {
       "localizations" : {
         "en" : {
@@ -1568,12 +1257,52 @@
         }
       }
     },
+    "Afficher les versions bêta dans le Centre de paquets" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show beta versions in Package Center"
+          }
+        }
+      }
+    },
     "Afficher l’instantané et les informations" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show snapshot and information"
+          }
+        }
+      }
+    },
+    "Afficher l’instantané et les informations de cette caméra" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show the snapshot and information for this camera"
+          }
+        }
+      }
+    },
+    "Afficher ou masquer %@ dans la barre latérale" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show or hide %@ in the sidebar"
+          }
+        }
+      }
+    },
+    "Afficher ou masquer la barre latérale" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show or hide the sidebar"
           }
         }
       }
@@ -1598,12 +1327,62 @@
         }
       }
     },
+    "Ajouter ce dossier aux favoris" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add this folder to favorites"
+          }
+        }
+      }
+    },
+    "Ajouter ce téléchargement à Download Station" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add this download to Download Station"
+          }
+        }
+      }
+    },
     "Ajouter des éléments" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Add Items"
+          }
+        }
+      }
+    },
+    "Ajouter ou retirer l’utilisateur du groupe %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add the user to or remove the user from the %@ group"
+          }
+        }
+      }
+    },
+    "Ajouter un NAS à DSM Access" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a NAS to DSM Access"
+          }
+        }
+      }
+    },
+    "Ajouter un NAS…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add NAS…"
           }
         }
       }
@@ -1624,6 +1403,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Add a user or group"
+          }
+        }
+      }
+    },
+    "Ajoutez un NAS depuis cette fenêtre ou depuis le menu NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a NAS from this window or from the NAS menu."
           }
         }
       }
@@ -1658,6 +1447,76 @@
         }
       }
     },
+    "Annonce la connexion, le module sélectionné et les changements de dossier." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Announces sign-in, the selected module, and folder changes."
+          }
+        }
+      }
+    },
+    "Annonce le début des chargements, recherches et opérations longues." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Announces the start of loading, searches, and long operations."
+          }
+        }
+      }
+    },
+    "Annonce les erreurs de connexion, de chargement et d’opération." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Announces connection, loading, and operation errors."
+          }
+        }
+      }
+    },
+    "Annonce les résumés de contenu et le résultat des actions." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Announces content summaries and action results."
+          }
+        }
+      }
+    },
+    "Annonce l’activation ou la désactivation des actualisations automatiques." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Announces when automatic refresh is enabled or disabled."
+          }
+        }
+      }
+    },
+    "Annonces" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Announcements"
+          }
+        }
+      }
+    },
+    "Annonces VoiceOver" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VoiceOver announcements"
+          }
+        }
+      }
+    },
     "Annuler" : {
       "localizations" : {
         "en" : {
@@ -1668,12 +1527,132 @@
         }
       }
     },
+    "Annuler cette opération" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel this operation"
+          }
+        }
+      }
+    },
+    "Annuler la création de l’utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel creating the user"
+          }
+        }
+      }
+    },
+    "Annuler la création du dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel creating the shared folder"
+          }
+        }
+      }
+    },
+    "Annuler la création du groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel creating the group"
+          }
+        }
+      }
+    },
+    "Annuler la création du lien" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel creating the link"
+          }
+        }
+      }
+    },
+    "Annuler la suppression" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel deletion"
+          }
+        }
+      }
+    },
+    "Annuler la suppression du dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel deleting the shared folder"
+          }
+        }
+      }
+    },
+    "Annuler la vérification et revenir à la connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel verification and return to sign in"
+          }
+        }
+      }
+    },
+    "Annuler le changement de nom" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel renaming"
+          }
+        }
+      }
+    },
+    "Annuler l’ajout du téléchargement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel adding the download"
+          }
+        }
+      }
+    },
+    "Annuler l’extinction forcée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel forced power off"
+          }
+        }
+      }
+    },
     "Applications" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Applications"
+          }
+        }
+      }
+    },
+    "Approuver ce certificat puis se connecter au NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approve this certificate, then connect to the NAS"
           }
         }
       }
@@ -1768,6 +1747,16 @@
         }
       }
     },
+    "Arrêter ce paquet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop this package"
+          }
+        }
+      }
+    },
     "Arrêter le conteneur" : {
       "localizations" : {
         "en" : {
@@ -1784,6 +1773,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Shut down gracefully"
+          }
+        }
+      }
+    },
+    "Arrêter proprement cette machine virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shut down this virtual machine gracefully"
           }
         }
       }
@@ -1834,6 +1833,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "None"
+          }
+        }
+      }
+    },
+    "Aucun NAS connecté" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No NAS connected"
+          }
+        }
+      }
+    },
+    "Aucun NAS enregistré" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No saved NAS devices"
           }
         }
       }
@@ -2088,6 +2107,16 @@
         }
       }
     },
+    "Barre latérale" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sidebar"
+          }
+        }
+      }
+    },
     "Basique" : {
       "localizations" : {
         "en" : {
@@ -2238,6 +2267,16 @@
         }
       }
     },
+    "Ces réglages affectent les annonces supplémentaires de DSM Access. Les libellés et états standards des contrôles restent toujours disponibles à VoiceOver." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These settings affect additional DSM Access announcements. Standard control labels and states always remain available to VoiceOver."
+          }
+        }
+      }
+    },
     "Cette fonctionnalité n'est pas disponible sur ce NAS (API %@)." : {
       "localizations" : {
         "en" : {
@@ -2248,12 +2287,32 @@
         }
       }
     },
+    "Changer de NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch NAS"
+          }
+        }
+      }
+    },
     "Charge du processeur" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Processor load"
+          }
+        }
+      }
+    },
+    "Chargement de Surveillance Station…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading Surveillance Station…"
           }
         }
       }
@@ -2298,6 +2357,16 @@
         }
       }
     },
+    "Chargement des dossiers partagés…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading shared folders…"
+          }
+        }
+      }
+    },
     "Chargement des fichiers…" : {
       "localizations" : {
         "en" : {
@@ -2314,6 +2383,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Loading information…"
+          }
+        }
+      }
+    },
+    "Chargement des journaux et de la sécurité…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading logs and security…"
           }
         }
       }
@@ -2348,6 +2427,26 @@
         }
       }
     },
+    "Chargement des paquets…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading packages…"
+          }
+        }
+      }
+    },
+    "Chargement des services de fichiers…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading file services…"
+          }
+        }
+      }
+    },
     "Chargement des téléchargements…" : {
       "localizations" : {
         "en" : {
@@ -2358,12 +2457,42 @@
         }
       }
     },
+    "Chargement des utilisateurs et groupes…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading users and groups…"
+          }
+        }
+      }
+    },
     "Chargement du journal…" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Loading log…"
+          }
+        }
+      }
+    },
+    "Chargement du stockage…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading storage…"
+          }
+        }
+      }
+    },
+    "Chargements et opérations en cours" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading and operations in progress"
           }
         }
       }
@@ -2384,6 +2513,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Load snapshot"
+          }
+        }
+      }
+    },
+    "Charger l’instantané de cette caméra" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load the snapshot for this camera"
           }
         }
       }
@@ -2418,12 +2557,82 @@
         }
       }
     },
+    "Choisir la date d’expiration du lien" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the link expiration date"
+          }
+        }
+      }
+    },
+    "Choisir la stratégie de mise à jour automatique des paquets" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the automatic package update policy"
+          }
+        }
+      }
+    },
+    "Choisir le niveau de journal à afficher" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the log level to show"
+          }
+        }
+      }
+    },
+    "Choisir le tri des fichiers" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose file sorting"
+          }
+        }
+      }
+    },
+    "Choisir le volume du nouveau dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the volume for the new shared folder"
+          }
+        }
+      }
+    },
     "Choisissez le dossier de destination des téléchargements." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choose the destination folder for the downloads."
+          }
+        }
+      }
+    },
+    "Choisissez le nom affiché dans DSM Access." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the name shown in DSM Access."
+          }
+        }
+      }
+    },
+    "Cochez les modules à afficher. Faites-les glisser pour les réordonner dans leur section, ou sélectionnez-en un puis utilisez Commande + Flèche vers le haut ou Commande + Flèche vers le bas." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select the modules to show. Drag them to reorder them within their section, or select one and use Command + Up Arrow or Command + Down Arrow."
           }
         }
       }
@@ -2488,12 +2697,32 @@
         }
       }
     },
+    "Comportement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behavior"
+          }
+        }
+      }
+    },
     "Compresser" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Compress"
+          }
+        }
+      }
+    },
+    "Compresser les éléments sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compress the selected items"
           }
         }
       }
@@ -2538,6 +2767,36 @@
         }
       }
     },
+    "Configurer les annonces VoiceOver" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure VoiceOver announcements"
+          }
+        }
+      }
+    },
+    "Configurer les modules de la barre latérale" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure sidebar modules"
+          }
+        }
+      }
+    },
+    "Confirmer la suppression" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm deletion"
+          }
+        }
+      }
+    },
     "Confirmer le mot de passe" : {
       "localizations" : {
         "en" : {
@@ -2564,6 +2823,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Confirm deletion by retyping the name."
+          }
+        }
+      }
+    },
+    "Connectez-vous pour ajouter un NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign in to add a NAS"
           }
         }
       }
@@ -2604,6 +2873,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Connecting…"
+          }
+        }
+      }
+    },
+    "Conserver ce paquet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep this package"
+          }
+        }
+      }
+    },
+    "Conserver ce service activé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep this service enabled"
+          }
+        }
+      }
+    },
+    "Conserver cette adresse bloquée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep this address blocked"
+          }
+        }
+      }
+    },
+    "Conserver les téléchargements sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the selected downloads"
           }
         }
       }
@@ -2678,6 +2987,16 @@
         }
       }
     },
+    "Copier ce lien de partage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy this sharing link"
+          }
+        }
+      }
+    },
     "Copier le chemin SMB" : {
       "localizations" : {
         "en" : {
@@ -2688,12 +3007,42 @@
         }
       }
     },
+    "Copier le chemin SMB de ce dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy the SMB path for this shared folder"
+          }
+        }
+      }
+    },
     "Copier le lien" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copy link"
+          }
+        }
+      }
+    },
+    "Copier le lien de partage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy the sharing link"
+          }
+        }
+      }
+    },
+    "Copier les éléments sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy the selected items"
           }
         }
       }
@@ -2758,6 +3107,26 @@
         }
       }
     },
+    "Créer le dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create the shared folder"
+          }
+        }
+      }
+    },
+    "Créer le groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create the group"
+          }
+        }
+      }
+    },
     "Créer le lien" : {
       "localizations" : {
         "en" : {
@@ -2768,12 +3137,32 @@
         }
       }
     },
+    "Créer le lien de partage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create the sharing link"
+          }
+        }
+      }
+    },
     "Créer l’archive" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Create Archive"
+          }
+        }
+      }
+    },
+    "Créer l’utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create the user"
           }
         }
       }
@@ -2814,6 +3203,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Create share link"
+          }
+        }
+      }
+    },
+    "Créer un lien vers l’élément sélectionné" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a link to the selected item"
+          }
+        }
+      }
+    },
+    "Créer un nouveau dossier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a new folder"
+          }
+        }
+      }
+    },
+    "Créer un nouveau groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a new group"
+          }
+        }
+      }
+    },
+    "Créer un nouvel utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a new user"
           }
         }
       }
@@ -2961,6 +3390,16 @@
         }
       }
     },
+    "Descendre" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Down"
+          }
+        }
+      }
+    },
     "Description" : {
       "localizations" : {
         "en" : {
@@ -2977,6 +3416,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Description (optional)"
+          }
+        }
+      }
+    },
+    "Description facultative du dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional shared folder description"
+          }
+        }
+      }
+    },
+    "Description facultative du nouveau groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional description for the new group"
+          }
+        }
+      }
+    },
+    "Description facultative du nouvel utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional description for the new user"
           }
         }
       }
@@ -3037,6 +3506,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Destination folder (optional)"
+          }
+        }
+      }
+    },
+    "Dossier de destination dans Download Station" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Destination folder in Download Station"
           }
         }
       }
@@ -3161,6 +3640,16 @@
         }
       }
     },
+    "Déconnectez-vous avant de supprimer ce NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out before deleting this NAS"
+          }
+        }
+      }
+    },
     "Déconnectée" : {
       "localizations" : {
         "en" : {
@@ -3251,6 +3740,26 @@
         }
       }
     },
+    "Démarrer ce paquet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start this package"
+          }
+        }
+      }
+    },
+    "Démarrer cette machine virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start this virtual machine"
+          }
+        }
+      }
+    },
     "Démarrer la machine virtuelle" : {
       "localizations" : {
         "en" : {
@@ -3301,6 +3810,36 @@
         }
       }
     },
+    "Déplacer le module sélectionné vers le bas" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move the selected module down"
+          }
+        }
+      }
+    },
+    "Déplacer le module sélectionné vers le haut" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move the selected module up"
+          }
+        }
+      }
+    },
+    "Déplacer les éléments sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move the selected items"
+          }
+        }
+      }
+    },
     "Désactiver" : {
       "localizations" : {
         "en" : {
@@ -3327,6 +3866,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Disable this service?"
+          }
+        }
+      }
+    },
+    "Désactiver cet utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable this user"
+          }
+        }
+      }
+    },
+    "Désactiver cette caméra" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disable this camera"
           }
         }
       }
@@ -3377,6 +3936,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Uninstall %@"
+          }
+        }
+      }
+    },
+    "Désinstaller ce paquet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall this package"
           }
         }
       }
@@ -3481,6 +4050,16 @@
         }
       }
     },
+    "Enregistrer le nouveau nom du NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the new NAS name"
+          }
+        }
+      }
+    },
     "Envoi en cours…" : {
       "localizations" : {
         "en" : {
@@ -3507,6 +4086,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Upload"
+          }
+        }
+      }
+    },
+    "Envoyer des fichiers dans ce dossier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload files to this folder"
           }
         }
       }
@@ -3651,6 +4240,16 @@
         }
       }
     },
+    "Extraire l’archive sélectionnée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extract the selected archive"
+          }
+        }
+      }
+    },
     "FTP" : {
       "localizations" : {
         "en" : {
@@ -3717,6 +4316,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Close"
+          }
+        }
+      }
+    },
+    "Fermer le lien de partage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close the sharing link"
+          }
+        }
+      }
+    },
+    "Fermer les informations" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close the information window"
+          }
+        }
+      }
+    },
+    "Fermer les liens de partage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close sharing links"
+          }
+        }
+      }
+    },
+    "Fermer les réglages du Centre de paquets" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close Package Center settings"
           }
         }
       }
@@ -3831,6 +4470,26 @@
         }
       }
     },
+    "Forcer l’extinction de cette machine virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force this virtual machine to power off"
+          }
+        }
+      }
+    },
+    "Forcer l’extinction de la machine virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force the virtual machine to power off"
+          }
+        }
+      }
+    },
     "Forcer l’extinction…" : {
       "localizations" : {
         "en" : {
@@ -3902,11 +4561,32 @@
       }
     },
     "Gérer la session DSM" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Manage the DSM session"
+          }
+        }
+      }
+    },
+    "Gérer les NAS enregistrés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage saved NAS devices"
+          }
+        }
+      }
+    },
+    "Gérer les NAS…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manage NAS Devices…"
           }
         }
       }
@@ -4551,6 +5231,46 @@
         }
       }
     },
+    "Lire les informations de cette machine virtuelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read information about this virtual machine"
+          }
+        }
+      }
+    },
+    "Lire les informations de l’élément sélectionné" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read information about the selected item"
+          }
+        }
+      }
+    },
+    "Lit toutes les annonces dans l’ordre sans interrompre l’annonce précédente" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reads every announcement in order without interrupting the previous announcement"
+          }
+        }
+      }
+    },
+    "Lorsque cette option est activée, les annonces rapides comme « chargement » puis « terminé » sont toutes lues dans l’ordre." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When enabled, rapid announcements such as “loading” followed by “complete” are all read in order."
+          }
+        }
+      }
+    },
     "L’administration des utilisateurs et groupes n’est pas exposée par ce NAS." : {
       "localizations" : {
         "en" : {
@@ -4591,12 +5311,32 @@
         }
       }
     },
+    "Masquer automatiquement les fonctionnalités indisponibles sur le NAS connecté" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically hide features unavailable on the connected NAS"
+          }
+        }
+      }
+    },
     "Masquer les informations" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hide information"
+          }
+        }
+      }
+    },
+    "Masquer les modules qui ne sont pas disponibles sur le NAS connecté" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide modules that are unavailable on the connected NAS"
           }
         }
       }
@@ -4621,12 +5361,32 @@
         }
       }
     },
+    "Mettre ce téléchargement en pause" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pause this download"
+          }
+        }
+      }
+    },
     "Mettre en pause" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pause"
+          }
+        }
+      }
+    },
+    "Mettre les annonces en file d’attente" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Queue announcements"
           }
         }
       }
@@ -4721,6 +5481,26 @@
         }
       }
     },
+    "Modifier la barre latérale…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit Sidebar…"
+          }
+        }
+      }
+    },
+    "Modifier le nom affiché pour ce NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change the displayed name for this NAS"
+          }
+        }
+      }
+    },
     "Modifiez la recherche ou le filtre de niveau." : {
       "localizations" : {
         "en" : {
@@ -4761,6 +5541,16 @@
         }
       }
     },
+    "Monter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Up"
+          }
+        }
+      }
+    },
     "Mot de passe" : {
       "localizations" : {
         "en" : {
@@ -4777,6 +5567,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Password (optional)"
+          }
+        }
+      }
+    },
+    "Mot de passe du compte DSM" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM account password"
+          }
+        }
+      }
+    },
+    "Mot de passe du nouvel utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password for the new user"
           }
         }
       }
@@ -4811,6 +5621,66 @@
         }
       }
     },
+    "Mémoriser ce Mac comme appareil approuvé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remember this Mac as a trusted device"
+          }
+        }
+      }
+    },
+    "Mémoriser le mot de passe dans le Trousseau pour les prochaines ouvertures" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the password in Keychain for future launches"
+          }
+        }
+      }
+    },
+    "NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NAS"
+          }
+        }
+      }
+    },
+    "NAS connecté" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connected NAS"
+          }
+        }
+      }
+    },
+    "NAS enregistrés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved NAS Devices"
+          }
+        }
+      }
+    },
+    "NAS renommé %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NAS renamed %@"
+          }
+        }
+      }
+    },
     "NFS (Linux, virtualisation)" : {
       "localizations" : {
         "en" : {
@@ -4827,6 +5697,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Navigation"
+          }
+        }
+      }
+    },
+    "Navigation et changements d’écran" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Navigation and screen changes"
           }
         }
       }
@@ -4881,6 +5761,26 @@
         }
       }
     },
+    "Nom du NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "NAS name"
+          }
+        }
+      }
+    },
+    "Nom du compte DSM" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM account name"
+          }
+        }
+      }
+    },
     "Nom du dossier" : {
       "localizations" : {
         "en" : {
@@ -4911,6 +5811,36 @@
         }
       }
     },
+    "Nom du nouveau dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name of the new shared folder"
+          }
+        }
+      }
+    },
+    "Nom du nouveau groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name of the new group"
+          }
+        }
+      }
+    },
+    "Nom du nouvel utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name of the new user"
+          }
+        }
+      }
+    },
     "Nom d’utilisateur" : {
       "localizations" : {
         "en" : {
@@ -4932,6 +5862,7 @@
       }
     },
     "Non disponible" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5042,6 +5973,7 @@
       }
     },
     "Options de tri" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5101,6 +6033,16 @@
         }
       }
     },
+    "Ordre décroissant" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descending order"
+          }
+        }
+      }
+    },
     "Ouvrez l'app Synology Secure SignIn et saisissez le code à 6 chiffres affiché." : {
       "localizations" : {
         "en" : {
@@ -5117,6 +6059,56 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open"
+          }
+        }
+      }
+    },
+    "Ouvrir le dossier parent" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the parent folder"
+          }
+        }
+      }
+    },
+    "Ouvrir le favori %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the %@ favorite"
+          }
+        }
+      }
+    },
+    "Ouvrir les réglages de la barre latérale" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Sidebar settings"
+          }
+        }
+      }
+    },
+    "Ouvrir les réglages des NAS enregistrés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open saved NAS settings"
+          }
+        }
+      }
+    },
+    "Ouvrir l’élément sélectionné" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open the selected item"
           }
         }
       }
@@ -5141,6 +6133,26 @@
         }
       }
     },
+    "Passer à l’ordre croissant" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to ascending order"
+          }
+        }
+      }
+    },
+    "Passer à l’ordre décroissant" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to descending order"
+          }
+        }
+      }
+    },
     "Permission refusée pour ce compte." : {
       "localizations" : {
         "en" : {
@@ -5151,12 +6163,42 @@
         }
       }
     },
+    "Plus d’options" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More Options"
+          }
+        }
+      }
+    },
+    "Plus d’options pour ce dossier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More options for this folder"
+          }
+        }
+      }
+    },
     "Port" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Port"
+          }
+        }
+      }
+    },
+    "Port réseau utilisé par DSM" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network port used by DSM"
           }
         }
       }
@@ -5243,6 +6285,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Protocols"
+          }
+        }
+      }
+    },
+    "Protéger le lien de partage par un mot de passe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protect the sharing link with a password"
           }
         }
       }
@@ -5387,6 +6439,16 @@
         }
       }
     },
+    "Rechercher une nouvelle version de DSM Access" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check for a new version of DSM Access"
+          }
+        }
+      }
+    },
     "Reconnexion en cours" : {
       "localizations" : {
         "en" : {
@@ -5447,6 +6509,16 @@
         }
       }
     },
+    "Refuser le certificat et revenir à la connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reject the certificate and return to sign in"
+          }
+        }
+      }
+    },
     "Remonte au dossier parent" : {
       "localizations" : {
         "en" : {
@@ -5463,6 +6535,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rename"
+          }
+        }
+      }
+    },
+    "Renommer le NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename NAS"
+          }
+        }
+      }
+    },
+    "Renommer le NAS connecté" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename the connected NAS"
+          }
+        }
+      }
+    },
+    "Renommer le NAS…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename NAS…"
+          }
+        }
+      }
+    },
+    "Renommer l’élément sélectionné" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename the selected item"
           }
         }
       }
@@ -5503,6 +6615,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Resume"
+          }
+        }
+      }
+    },
+    "Reprendre ce téléchargement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resume this download"
           }
         }
       }
@@ -5557,6 +6679,36 @@
         }
       }
     },
+    "Retaper le mot de passe du nouvel utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retype the password for the new user"
+          }
+        }
+      }
+    },
+    "Retaper le nom du dossier partagé pour confirmer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retype the shared folder name to confirm"
+          }
+        }
+      }
+    },
+    "Retaper le nom pour confirmer la suppression" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retype the name to confirm deletion"
+          }
+        }
+      }
+    },
     "Retapez le nom du dossier pour confirmer" : {
       "localizations" : {
         "en" : {
@@ -5577,12 +6729,42 @@
         }
       }
     },
+    "Retirer ce dossier des favoris" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove this folder from favorites"
+          }
+        }
+      }
+    },
     "Retirer des favoris" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "Retirer les téléchargements et les marquer comme terminés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove the downloads and mark them as completed"
+          }
+        }
+      }
+    },
+    "Retirer les téléchargements sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove the selected downloads"
           }
         }
       }
@@ -5627,12 +6809,82 @@
         }
       }
     },
+    "Réessayer de charger %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry loading %@"
+          }
+        }
+      }
+    },
+    "Réessayer de charger les liens de partage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry loading sharing links"
+          }
+        }
+      }
+    },
+    "Réessayer de charger les réglages du Centre de paquets" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry loading Package Center settings"
+          }
+        }
+      }
+    },
+    "Réessayer le chargement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry loading"
+          }
+        }
+      }
+    },
     "Réglage enregistré" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Setting saved"
+          }
+        }
+      }
+    },
+    "Réglages de la barre latérale" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sidebar settings"
+          }
+        }
+      }
+    },
+    "Réglages des NAS enregistrés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saved NAS settings"
+          }
+        }
+      }
+    },
+    "Réglages des annonces VoiceOver" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VoiceOver announcement settings"
           }
         }
       }
@@ -5697,6 +6949,16 @@
         }
       }
     },
+    "Résultats et opérations terminées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Results and completed operations"
+          }
+        }
+      }
+    },
     "SMB (Windows, macOS)" : {
       "localizations" : {
         "en" : {
@@ -5713,6 +6975,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "SMB is the protocol used by Finder and Windows Explorer. Disabling it will cut off file access from those apps, including from this device. You can re-enable it here."
+          }
+        }
+      }
+    },
+    "Saisir le code de vérification à six chiffres" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the six-digit verification code"
+          }
+        }
+      }
+    },
+    "Saisir le nouveau nom du NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the new NAS name"
           }
         }
       }
@@ -5753,6 +7035,36 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Connect"
+          }
+        }
+      }
+    },
+    "Se connecter au NAS avec les informations saisies" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect to the NAS using the entered information"
+          }
+        }
+      }
+    },
+    "Se connecter à %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connect to %@"
+          }
+        }
+      }
+    },
+    "Se déconnecter du NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign out of the NAS"
           }
         }
       }
@@ -5808,6 +7120,7 @@
       }
     },
     "Session" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -5877,6 +7190,26 @@
         }
       }
     },
+    "Supprimer ce NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this NAS"
+          }
+        }
+      }
+    },
+    "Supprimer ce dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this shared folder"
+          }
+        }
+      }
+    },
     "Supprimer ce dossier partagé ?" : {
       "localizations" : {
         "en" : {
@@ -5887,12 +7220,52 @@
         }
       }
     },
+    "Supprimer ce groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this group"
+          }
+        }
+      }
+    },
     "Supprimer ce groupe ?" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete this group?"
+          }
+        }
+      }
+    },
+    "Supprimer ce lien de partage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this sharing link"
+          }
+        }
+      }
+    },
+    "Supprimer ce téléchargement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this download"
+          }
+        }
+      }
+    },
+    "Supprimer cet utilisateur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete this user"
           }
         }
       }
@@ -5923,6 +7296,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete permanently"
+          }
+        }
+      }
+    },
+    "Supprimer définitivement le dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently delete the shared folder"
+          }
+        }
+      }
+    },
+    "Supprimer définitivement les éléments sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently delete the selected items"
           }
         }
       }
@@ -5963,6 +7356,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Remove selected downloads?"
+          }
+        }
+      }
+    },
+    "Supprimer les éléments sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete the selected items"
           }
         }
       }
@@ -6177,6 +7580,16 @@
         }
       }
     },
+    "Trier par %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort by %@"
+          }
+        }
+      }
+    },
     "Type" : {
       "localizations" : {
         "en" : {
@@ -6273,6 +7686,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Download"
+          }
+        }
+      }
+    },
+    "Télécharger les éléments sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download the selected items"
           }
         }
       }
@@ -6413,12 +7836,32 @@
         }
       }
     },
+    "Utiliser une connexion HTTPS chiffrée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use an encrypted HTTPS connection"
+          }
+        }
+      }
+    },
     "Valider" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Submit"
+          }
+        }
+      }
+    },
+    "Valider le code de vérification" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Submit the verification code"
           }
         }
       }

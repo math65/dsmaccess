@@ -71,7 +71,7 @@ struct ContainersView: View {
 
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
-        ToolbarItemGroup {
+        ToolbarItem {
             Button {
                 guard let selectedContainer else { return }
                 Task { await perform(.start, on: selectedContainer) }
@@ -80,7 +80,9 @@ struct ContainersView: View {
             }
             .disabled(selectedContainer?.isRunning != false || selectedIsBusy)
             .help("Démarrer le conteneur")
+        }
 
+        ToolbarItem {
             Button {
                 guard let selectedContainer else { return }
                 Task { await perform(.stop, on: selectedContainer) }
@@ -89,7 +91,9 @@ struct ContainersView: View {
             }
             .disabled(selectedContainer?.isRunning != true || selectedIsBusy)
             .help("Arrêter le conteneur")
+        }
 
+        ToolbarItem {
             Button {
                 guard let selectedContainer else { return }
                 Task { await perform(.restart, on: selectedContainer) }
@@ -98,7 +102,9 @@ struct ContainersView: View {
             }
             .disabled(selectedContainer?.isRunning != true || selectedIsBusy)
             .help("Redémarrer le conteneur")
+        }
 
+        ToolbarItem {
             Button {
                 showInspector.toggle()
                 if showInspector, let selectedContainer {
@@ -109,14 +115,19 @@ struct ContainersView: View {
             }
             .disabled(selectedContainer == nil)
             .help(showInspector ? "Masquer les informations" : "Afficher les informations et journaux")
+        }
 
+        ToolbarItem {
             Menu {
                 Toggle("Actualisation automatique", isOn: $autoRefresh)
+                    .help("Actualiser automatiquement les conteneurs")
             } label: {
                 Label("Options d’actualisation", systemImage: "ellipsis.circle")
             }
             .help("Options d’actualisation")
+        }
 
+        ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
@@ -153,14 +164,17 @@ struct ContainersView: View {
             Button(container.isRunning ? "Arrêter" : "Démarrer") {
                 Task { await perform(container.isRunning ? .stop : .start, on: container) }
             }
+            .help(container.isRunning ? "Arrêter le conteneur" : "Démarrer le conteneur")
             if container.isRunning {
                 Button("Redémarrer") { Task { await perform(.restart, on: container) } }
+                    .help("Redémarrer le conteneur")
             }
             Button("Informations et journaux") {
                 selection = container.id
                 showInspector = true
                 Task { await viewModel.loadLogs(for: container) }
             }
+            .help("Afficher les informations et journaux du conteneur")
         }
     }
 
@@ -168,9 +182,12 @@ struct ContainersView: View {
     private func containerActions(_ container: ContainerItem) -> some View {
         if container.isRunning {
             Button("Arrêter") { Task { await perform(.stop, on: container) } }
+                .help("Arrêter le conteneur")
             Button("Redémarrer") { Task { await perform(.restart, on: container) } }
+                .help("Redémarrer le conteneur")
         } else {
             Button("Démarrer") { Task { await perform(.start, on: container) } }
+                .help("Démarrer le conteneur")
         }
         Divider()
         Button("Informations et journaux") {
@@ -178,6 +195,7 @@ struct ContainersView: View {
             showInspector = true
             Task { await viewModel.loadLogs(for: container) }
         }
+        .help("Afficher les informations et journaux du conteneur")
     }
 
     @ViewBuilder

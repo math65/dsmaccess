@@ -28,6 +28,7 @@ struct SidebarSettingsView: View {
                                 Label(module.title, systemImage: module.systemImage)
                             }
                             .tag(module)
+                            .help(String(localized: "Afficher ou masquer \(module.localizedTitle) dans la barre latérale"))
                             .draggable(module.rawValue)
                             .dropDestination(for: String.self) { values, _ in
                                 move(values.first, before: module)
@@ -41,9 +42,11 @@ struct SidebarSettingsView: View {
                 Button("Monter", systemImage: "arrow.up", action: moveSelectionUp)
                     .keyboardShortcut(.upArrow, modifiers: .command)
                     .disabled(!canMoveSelection(by: -1))
+                    .help("Déplacer le module sélectionné vers le haut")
                 Button("Descendre", systemImage: "arrow.down", action: moveSelectionDown)
                     .keyboardShortcut(.downArrow, modifiers: .command)
                     .disabled(!canMoveSelection(by: 1))
+                    .help("Déplacer le module sélectionné vers le bas")
                 Spacer()
             }
 
@@ -51,6 +54,7 @@ struct SidebarSettingsView: View {
                 "Masquer automatiquement les fonctionnalités indisponibles sur le NAS connecté",
                 isOn: $settings.automaticallyHideUnavailableModules
             )
+            .help("Masquer les modules qui ne sont pas disponibles sur le NAS connecté")
         }
         .padding(16)
         .task {

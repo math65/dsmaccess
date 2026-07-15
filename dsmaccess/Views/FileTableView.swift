@@ -236,6 +236,7 @@ private func closureMenuItem(title: String, handler: @escaping () -> Void) -> NS
     let target = ClosureMenuTarget(handler: handler)
     let item = NSMenuItem(title: title, action: #selector(ClosureMenuTarget.fire), keyEquivalent: "")
     item.target = target
+    item.toolTip = title
     // `target` est faible sur NSMenuItem ; representedObject le conserve pendant la vie du menu.
     item.representedObject = target
     return item

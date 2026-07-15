@@ -14,13 +14,22 @@ struct AppSettingsView: View {
     var body: some View {
         TabView {
             AnnouncementSettingsView(settings: settings)
-                .tabItem { Label("Annonces", systemImage: "speaker.wave.2") }
+                .tabItem {
+                    Label("Annonces", systemImage: "speaker.wave.2")
+                        .help("Configurer les annonces VoiceOver")
+                }
 
             SidebarSettingsView(settings: settings)
-                .tabItem { Label("Barre latérale", systemImage: "sidebar.left") }
+                .tabItem {
+                    Label("Barre latérale", systemImage: "sidebar.left")
+                        .help("Configurer les modules de la barre latérale")
+                }
 
             NASSettingsView(session: session)
-                .tabItem { Label("NAS", systemImage: "externaldrive.connected.to.line.below") }
+                .tabItem {
+                    Label("NAS", systemImage: "externaldrive.connected.to.line.below")
+                        .help("Gérer les NAS enregistrés")
+                }
         }
         .frame(width: 620, height: 520)
     }

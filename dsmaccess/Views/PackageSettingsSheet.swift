@@ -32,6 +32,7 @@ struct PackageSettingsSheet: View {
                 Spacer()
                 Button("Terminé") { dismiss() }
                     .keyboardShortcut(.defaultAction)
+                    .help("Fermer les réglages du Centre de paquets")
             }
         }
         .padding(24)
@@ -55,6 +56,7 @@ struct PackageSettingsSheet: View {
             VStack(alignment: .leading, spacing: 12) {
                 Text(error).foregroundStyle(.red)
                 Button("Réessayer") { Task { await load() } }
+                    .help("Réessayer de charger les réglages du Centre de paquets")
             }
             .accessibilityFocused($focusStatus)
         } else if vm.settings != nil {
@@ -71,6 +73,7 @@ struct PackageSettingsSheet: View {
                     Text("Versions importantes").tag(AutoUpdateMode.important)
                     Text("Dernières versions").tag(AutoUpdateMode.latest)
                 }
+                .help("Choisir la stratégie de mise à jour automatique des paquets")
                 Text("Certains paquets ne prennent pas en charge la mise à jour automatique.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -83,6 +86,7 @@ struct PackageSettingsSheet: View {
                     get: { $0.updateChannelBeta },
                     set: { await vm.setBeta($0) }
                 ))
+                .help("Afficher les versions bêta dans le Centre de paquets")
                 Text("Les versions bêta permettent d'essayer les nouvelles fonctionnalités avant leur publication officielle.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -98,10 +102,12 @@ struct PackageSettingsSheet: View {
                     get: { $0.enableDsm },
                     set: { await vm.setDsmNotify($0) }
                 ))
+                .help("Activer les notifications de mise à jour sur le bureau")
                 Toggle("Activer la notification par courriel", isOn: boolBinding(
                     get: { $0.enableEmail },
                     set: { await vm.setEmailNotify($0) }
                 ))
+                .help("Activer les notifications de mise à jour par courriel")
             }
         }
         .disabled(vm.isSaving)
