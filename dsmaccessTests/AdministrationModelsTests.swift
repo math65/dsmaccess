@@ -171,6 +171,21 @@ struct AdministrationModelsTests {
         }
     }
 
+    @Test func handlesNumericValuesOutsideIntegerRange() throws {
+        let oversizedInteger = Data(
+            #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":true,"enable_email":false,"default_vol":"volume1","trust_level":1e300,"update_channel":"stable"}"#.utf8
+        )
+        #expect(throws: (any Error).self) {
+            try JSONDecoder().decode(PackageSettings.self, from: oversizedInteger)
+        }
+
+        let oversizedTransfer = Data(
+            #"{"id":"task","title":"Archive","size":1e300,"status":"waiting"}"#.utf8
+        )
+        let task = try JSONDecoder().decode(DownloadTask.self, from: oversizedTransfer)
+        #expect(task.size == 0)
+    }
+
     @Test func requiresCompletePackageSettingsBeforeMutation() throws {
         let complete = Data(
             #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":1,"enable_email":"false","default_vol":"volume1","trust_level":"2","update_channel":"stable"}"#.utf8

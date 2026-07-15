@@ -11,10 +11,12 @@ extension KeyedDecodingContainer {
     nonisolated func flexInt(_ key: Key) -> Int? {
         if let value = try? decode(Int.self, forKey: key) { return value }
         if let value = try? decode(Int64.self, forKey: key) { return Int(exactly: value) }
-        if let value = try? decode(Double.self, forKey: key) { return Int(value.rounded()) }
+        if let value = try? decode(Double.self, forKey: key) {
+            return Int(exactly: value.rounded())
+        }
         if let value = try? decode(String.self, forKey: key) {
             if let integer = Int(value) { return integer }
-            if let number = Double(value) { return Int(number.rounded()) }
+            if let number = Double(value) { return Int(exactly: number.rounded()) }
         }
         return nil
     }
@@ -22,10 +24,12 @@ extension KeyedDecodingContainer {
     nonisolated func flexInt64(_ key: Key) -> Int64? {
         if let value = try? decode(Int64.self, forKey: key) { return value }
         if let value = try? decode(Int.self, forKey: key) { return Int64(value) }
-        if let value = try? decode(Double.self, forKey: key) { return Int64(value.rounded()) }
+        if let value = try? decode(Double.self, forKey: key) {
+            return Int64(exactly: value.rounded())
+        }
         if let value = try? decode(String.self, forKey: key) {
             if let integer = Int64(value) { return integer }
-            if let number = Double(value) { return Int64(number.rounded()) }
+            if let number = Double(value) { return Int64(exactly: number.rounded()) }
         }
         return nil
     }
@@ -46,7 +50,7 @@ extension KeyedDecodingContainer {
     nonisolated func flexString(_ key: Key) -> String? {
         if let value = try? decode(String.self, forKey: key) { return value }
         if let value = try? decode(Int64.self, forKey: key) { return String(value) }
-        if let value = try? decode(Double.self, forKey: key) { return value.formatted() }
+        if let value = try? decode(Double.self, forKey: key) { return String(value) }
         if let value = try? decode(Bool.self, forKey: key) { return value ? "true" : "false" }
         return nil
     }
