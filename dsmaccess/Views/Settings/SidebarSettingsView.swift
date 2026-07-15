@@ -8,15 +8,9 @@ import SwiftUI
 struct SidebarSettingsView: View {
     @Bindable var settings: AppSettings
     @State private var selection: AppModule?
-    @AccessibilityFocusState private var focusHeading: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("Barre latérale")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($focusHeading)
-
+        VStack(alignment: .leading, spacing: 16) {
             Text("Cochez les modules à afficher. Faites-les glisser pour les réordonner dans leur section, ou sélectionnez-en un puis utilisez Commande + Flèche vers le haut ou Commande + Flèche vers le bas.")
                 .foregroundStyle(.secondary)
 
@@ -56,14 +50,7 @@ struct SidebarSettingsView: View {
             )
             .help("Masquer les modules qui ne sont pas disponibles sur le NAS connecté")
         }
-        .padding(16)
-        .task {
-            focusHeading = true
-            VoiceOver.announce(
-                String(localized: "Réglages de la barre latérale"),
-                category: .navigation
-            )
-        }
+        .padding(20)
     }
 
     private func modules(in section: AppModuleSection) -> [AppModule] {

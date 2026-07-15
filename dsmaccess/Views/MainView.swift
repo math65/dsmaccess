@@ -5,7 +5,6 @@
 //  Fenêtre d'administration principale.
 //
 
-import AppKit
 import SwiftUI
 
 struct MainView: View {
@@ -54,8 +53,8 @@ struct MainView: View {
             .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 300)
         } detail: {
             moduleView
-                .toolbar { commonToolbar }
         }
+        .toolbar { commonToolbar }
         .focusedSceneValue(\.selectedModule, $selection)
         .focusedSceneValue(\.availableModules, Set(visibleModules))
         .focusedSceneValue(
@@ -151,11 +150,6 @@ struct MainView: View {
 
     @ToolbarContentBuilder
     private var commonToolbar: some ToolbarContent {
-        ToolbarItem(placement: .navigation) {
-            Button("Afficher ou masquer la barre latérale", systemImage: "sidebar.left", action: toggleSidebar)
-                .help("Afficher ou masquer la barre latérale")
-        }
-
         if session.profiles.count > 1 {
             ToolbarItem(placement: .primaryAction) {
                 nasSelectionMenu
@@ -200,13 +194,6 @@ struct MainView: View {
     private func normalizeSelection() {
         guard !visibleModules.contains(selection), let first = visibleModules.first else { return }
         selection = first
-    }
-
-    private func toggleSidebar() {
-        NSApp.keyWindow?.firstResponder?.tryToPerform(
-            #selector(NSSplitViewController.toggleSidebar(_:)),
-            with: nil
-        )
     }
 
     private func addNAS() {

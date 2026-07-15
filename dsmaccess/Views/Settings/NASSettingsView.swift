@@ -8,15 +8,9 @@ import SwiftUI
 struct NASSettingsView: View {
     let session: SessionStore
     @Environment(\.dismiss) private var dismiss
-    @AccessibilityFocusState private var focusHeading: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text("NAS enregistrés")
-                .font(.headline)
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($focusHeading)
-
+        VStack(alignment: .leading, spacing: 16) {
             if session.profiles.isEmpty {
                 ContentUnavailableView(
                     "Aucun NAS enregistré",
@@ -40,14 +34,7 @@ struct NASSettingsView: View {
                 Spacer()
             }
         }
-        .padding(16)
-        .task {
-            focusHeading = true
-            VoiceOver.announce(
-                String(localized: "Réglages des NAS enregistrés"),
-                category: .navigation
-            )
-        }
+        .padding(20)
     }
 
     private func addNAS() {

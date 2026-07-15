@@ -7,7 +7,6 @@ import SwiftUI
 
 struct AnnouncementSettingsView: View {
     @Bindable var settings: AppSettings
-    @AccessibilityFocusState private var focusHeading: Bool
 
     var body: some View {
         Form {
@@ -32,25 +31,18 @@ struct AnnouncementSettingsView: View {
                                 .foregroundStyle(.secondary)
                         }
                     }
+                    .accessibilityLabel(category.title)
                     .accessibilityHint(category.detail)
                     .help(category.detail)
                 }
             } header: {
                 Text("Annonces VoiceOver")
-                    .accessibilityFocused($focusHeading)
             } footer: {
                 Text("Ces réglages affectent les annonces supplémentaires de DSM Access. Les libellés et états standards des contrôles restent toujours disponibles à VoiceOver.")
             }
         }
         .formStyle(.grouped)
-        .padding(16)
-        .task {
-            focusHeading = true
-            VoiceOver.announce(
-                String(localized: "Réglages des annonces VoiceOver"),
-                category: .navigation
-            )
-        }
+        .padding(20)
     }
 
     private func binding(for category: AnnouncementCategory) -> Binding<Bool> {

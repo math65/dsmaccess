@@ -70,6 +70,25 @@ final class dsmaccessUITests: XCTestCase {
         XCTAssertEqual(app.buttons["login.submit"].label, "Connect")
     }
 
+    @MainActor
+    func testSettingsUsesAccessibleSidebarNavigation() throws {
+        app.typeKey(",", modifierFlags: .command)
+
+        let settingsSidebar = app.descendants(matching: .any)["settings.sidebar"]
+        let announcementsPane = app.descendants(matching: .any)["settings.pane.announcements"]
+        let sidebarPane = app.descendants(matching: .any)["settings.pane.sidebar"]
+        let nasPane = app.descendants(matching: .any)["settings.pane.nas"]
+
+        XCTAssertTrue(settingsSidebar.waitForExistence(timeout: 5))
+        XCTAssertTrue(announcementsPane.exists)
+        XCTAssertTrue(sidebarPane.exists)
+        XCTAssertTrue(nasPane.exists)
+
+        sidebarPane.click()
+        XCTAssertTrue(app.checkBoxes["Masquer automatiquement les fonctionnalités indisponibles sur le NAS connecté"].waitForExistence(timeout: 2))
+        try app.performAccessibilityAudit()
+    }
+
     private func makeApplication(language: String, locale: String) -> XCUIApplication {
         let application = XCUIApplication()
         application.launchArguments = [

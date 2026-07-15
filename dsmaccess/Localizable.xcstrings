@@ -2627,6 +2627,16 @@
         }
       }
     },
+    "Choisissez une section dans la barre latérale des réglages." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a section in the settings sidebar."
+          }
+        }
+      }
+    },
     "Cochez les modules à afficher. Faites-les glisser pour les réordonner dans leur section, ou sélectionnez-en un puis utilisez Commande + Flèche vers le haut ou Commande + Flèche vers le bas." : {
       "localizations" : {
         "en" : {
@@ -6859,6 +6869,16 @@
         }
       }
     },
+    "Réglages" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings"
+          }
+        }
+      }
+    },
     "Réglages de la barre latérale" : {
       "localizations" : {
         "en" : {
@@ -6915,6 +6935,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Settings not loaded."
+          }
+        }
+      }
+    },
+    "Réglages, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings, %@"
           }
         }
       }
@@ -7085,6 +7115,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "High-availability failover"
+          }
+        }
+      }
+    },
+    "Sections des réglages" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings sections"
           }
         }
       }
@@ -7490,6 +7530,16 @@
         }
       }
     },
+    "Sélectionnez une section" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a section"
+          }
+        }
+      }
+    },
     "Taille" : {
       "localizations" : {
         "en" : {
@@ -7571,6 +7621,7 @@
       }
     },
     "Trier par" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {

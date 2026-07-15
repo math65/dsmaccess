@@ -36,5 +36,7 @@ struct dsmaccessApp: App {
                 .environment(settings)
                 .environment(session)
         }
+        .defaultSize(width: 820, height: 600)
+        .windowResizability(.contentMinSize)
     }
 }
