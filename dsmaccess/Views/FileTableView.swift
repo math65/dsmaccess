@@ -75,7 +75,7 @@ struct FileTableView: NSViewRepresentable {
 
         context.coordinator.isApplyingSelection = true
         let currentRows = items.map {
-            "\(canWrite)|\(showsPath)|\($0.path)|\($0.name)|\($0.detailText ?? "")"
+            "\(canWrite)|\(showsPath)|\($0.isdir)|\($0.path)|\($0.name)|\($0.detailText ?? "")"
         }
         if context.coordinator.rowPresentationKeys != currentRows {
             table.reloadData()
