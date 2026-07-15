@@ -215,4 +215,18 @@ struct AdministrationModelsTests {
         #expect(folder.id == "documents")
         #expect(folder.id == folder.id)
     }
+
+    @Test func rejectsInvalidStorageMetrics() throws {
+        #expect(usagePercent(usedBytes: "50", totalBytes: "100") == 50)
+        #expect(usagePercent(usedBytes: "101", totalBytes: "100") == nil)
+        #expect(usagePercent(usedBytes: "9223372036854775807", totalBytes: "1") == nil)
+
+        let volume = try JSONDecoder().decode(
+            Volume.self,
+            from: Data(
+                #"{"id":"volume_1","size":{"total_inode":"1","free_inode":"-9223372036854775808"}}"#.utf8
+            )
+        )
+        #expect(volume.inodePercent == nil)
+    }
 }

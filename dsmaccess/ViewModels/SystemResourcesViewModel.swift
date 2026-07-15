@@ -93,8 +93,10 @@ final class SystemResourcesViewModel {
     /// Charge processeur totale en pourcentage (utilisateur + système + autre).
     var cpuPercent: Int? {
         guard let cpu = usage?.cpu else { return nil }
-        let values = [cpu.userLoad, cpu.systemLoad, cpu.otherLoad].compactMap { $0 }
-        return values.isEmpty ? nil : values.reduce(0, +)
+        let values = [cpu.userLoad, cpu.systemLoad, cpu.otherLoad]
+            .compactMap { $0 }
+            .filter { (0...100).contains($0) }
+        return values.isEmpty ? nil : min(values.reduce(0, +), 100)
     }
 
     var cpuText: String {
@@ -106,7 +108,9 @@ final class SystemResourcesViewModel {
         return String(localized: "Utilisateur \(user) %, système \(system) %")
     }
 
-    var memoryPercent: Int? { usage?.memory?.realUsage }
+    var memoryPercent: Int? {
+        usage?.memory?.realUsage.flatMap { (0...100).contains($0) ? $0 : nil }
+    }
 
     var memoryText: String {
         memoryPercent.map { String(localized: "\($0) %") } ?? "—"
@@ -114,15 +118,22 @@ final class SystemResourcesViewModel {
 
     /// « 3,2 Go sur 8 Go » (les tailles DSM sont en Kio → conversion en octets).
     var memoryDetailText: String? {
-        guard let mem = usage?.memory, let total = mem.totalReal else { return nil }
-        let used = max(0, total - (mem.availReal ?? 0))
-        let usedBytes = Int64(used) * 1024
-        let totalBytes = Int64(total) * 1024
+        guard let mem = usage?.memory,
+              let total = mem.totalReal,
+              total >= 0,
+              let totalKiB = Int64(exactly: total) else { return nil }
+        let available = mem.availReal ?? 0
+        guard (0...total).contains(available),
+              let availableKiB = Int64(exactly: available) else { return nil }
+        let (usedBytes, usedOverflow) = (totalKiB - availableKiB)
+            .multipliedReportingOverflow(by: 1024)
+        let (totalBytes, totalOverflow) = totalKiB.multipliedReportingOverflow(by: 1024)
+        guard !usedOverflow, !totalOverflow else { return nil }
         return String(localized: "\(usedBytes.formatted(.byteCount(style: .memory))) sur \(totalBytes.formatted(.byteCount(style: .memory)))")
     }
 
     var swapText: String? {
-        guard let swap = usage?.memory?.swapUsage else { return nil }
+        guard let swap = usage?.memory?.swapUsage, (0...100).contains(swap) else { return nil }
         return String(localized: "\(swap) %")
     }
 
@@ -135,7 +146,7 @@ final class SystemResourcesViewModel {
     var networkUpText: String { rateText(totalInterface?.tx) }
 
     private func rateText(_ bytesPerSecond: Int?) -> String {
-        guard let bytesPerSecond else { return "—" }
+        guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
         let formatted = Int64(bytesPerSecond).formatted(.byteCount(style: .memory))
         return String(localized: "\(formatted)/s")
     }

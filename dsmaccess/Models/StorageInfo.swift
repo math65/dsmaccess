@@ -116,13 +116,15 @@ func localizedStorageStatus(_ raw: String?) -> String {
 /// Formate en « X utilisés sur Y » à partir de deux chaînes d'octets.
 func formattedSpace(usedBytes: String?, totalBytes: String?) -> String? {
     guard let used = usedBytes.flatMap({ Int64($0) }),
-          let total = totalBytes.flatMap({ Int64($0) }) else { return nil }
+          let total = totalBytes.flatMap({ Int64($0) }),
+          used >= 0, total >= 0 else { return nil }
     return String(localized: "\(used.formatted(.byteCount(style: .file))) utilisés sur \(total.formatted(.byteCount(style: .file)))")
 }
 
 func usagePercent(usedBytes: String?, totalBytes: String?) -> Int? {
     guard let used = usedBytes.flatMap({ Int64($0) }),
-          let total = totalBytes.flatMap({ Int64($0) }), total > 0 else { return nil }
+          let total = totalBytes.flatMap({ Int64($0) }),
+          total > 0, (0...total).contains(used) else { return nil }
     return Int((Double(used) / Double(total) * 100).rounded())
 }
 
@@ -157,13 +159,15 @@ extension Volume {
     /// Progression d'une opération en cours (« Reconstruction 47 % »), sinon nil.
     var operationText: String? {
         guard let step = progress?.step, step != "none",
-              let pct = progress?.percent.flatMap({ Int($0) }), pct >= 0 else { return nil }
+              let pct = progress?.percent.flatMap({ Int($0) }),
+              (0...100).contains(pct) else { return nil }
         return "\(localizedStorageStatus(step)) \(pct) %"
     }
     /// Pourcentage d'inodes utilisés (nil si non disponible).
     var inodePercent: Int? {
         guard let total = size?.totalInode.flatMap({ Int64($0) }), total > 0,
-              let free = size?.freeInode.flatMap({ Int64($0) }) else { return nil }
+              let free = size?.freeInode.flatMap({ Int64($0) }),
+              (0...total).contains(free) else { return nil }
         return Int((Double(total - free) / Double(total) * 100).rounded())
     }
 }
