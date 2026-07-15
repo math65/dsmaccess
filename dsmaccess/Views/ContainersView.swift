@@ -21,7 +21,6 @@ struct ContainersView: View {
 
     var body: some View {
         content
-            .navigationTitle("Conteneurs")
             .searchable(text: $searchText, prompt: "Rechercher un conteneur")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
@@ -314,7 +313,7 @@ struct ContainersView: View {
         await viewModel.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { contentFocused = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { contentFocused = true }
         }
         VoiceOver.announce(
             viewModel.summary,

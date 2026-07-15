@@ -47,7 +47,6 @@ struct SystemInfoView: View {
                 ModuleLoadingView("Chargement des informations…")
             }
         }
-        .navigationTitle("Votre NAS")
         .toolbar {
             ToolbarItem {
                 Button {
@@ -73,7 +72,7 @@ struct SystemInfoView: View {
             session.updateActiveProfileDefaultName(to: modelName)
         }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { focusContent = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { focusContent = true }
         }
         VoiceOver.announce(
             vm.summary,

@@ -22,7 +22,6 @@ struct SurveillanceView: View {
 
     var body: some View {
         content
-            .navigationTitle("Surveillance Station")
             .searchable(text: $searchText, prompt: "Rechercher une caméra")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
@@ -293,7 +292,7 @@ struct SurveillanceView: View {
         await viewModel.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { contentFocused = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { contentFocused = true }
         }
         VoiceOver.announce(
             viewModel.summary,

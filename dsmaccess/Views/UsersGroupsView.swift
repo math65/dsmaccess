@@ -30,7 +30,6 @@ struct UsersGroupsView: View {
 
     var body: some View {
         content
-            .navigationTitle("Utilisateurs et groupes")
             .searchable(text: $searchText, prompt: "Rechercher un compte ou un groupe")
             .toolbar { toolbar }
             .task { await load(restoresInitialFocus: true) }
@@ -291,7 +290,7 @@ struct UsersGroupsView: View {
         await viewModel.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { contentFocused = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { contentFocused = true }
         }
         VoiceOver.announce(
             viewModel.summary,

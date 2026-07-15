@@ -75,10 +75,12 @@ enum VoiceOver {
     }
 
     /// SwiftUI peut perdre la cible VoiceOver quand un état de chargement est remplacé.
-    /// On ne corrige le focus que si son repli est réellement situé dans la barre d'outils.
+    /// Attend la mise à jour de la hiérarchie, puis corrige uniquement un focus capturé
+    /// par un contrôle de la barre d'outils. La barre elle-même reste une étape navigable.
     @MainActor
-    static func restoreContentFocusIfNeeded(_ restore: () -> Void) {
-        guard focusedElementIsInsideToolbar else { return }
+    static func restoreFocusIfCapturedByToolbar(_ restore: () -> Void) async {
+        await Task.yield()
+        guard !Task.isCancelled, focusedElementIsToolbarDescendant else { return }
         restore()
     }
 
@@ -95,15 +97,17 @@ enum VoiceOver {
     }
 
     @MainActor
-    private static var focusedElementIsInsideToolbar: Bool {
+    private static var focusedElementIsToolbarDescendant: Bool {
         var element: Any? = NSApp.accessibilityFocusedUIElement
+        var isFocusedElement = true
         for _ in 0..<12 {
             guard let object = element as? NSObject else { return false }
             if object.value(forKey: "accessibilityRole") as? NSAccessibility.Role == .toolbar {
-                return true
+                return !isFocusedElement
             }
             guard let accessibleElement = object as? NSAccessibilityElement else { return false }
             element = accessibleElement.accessibilityParent()
+            isFocusedElement = false
         }
         return false
     }

@@ -16,7 +16,6 @@ struct FileServicesView: View {
 
     var body: some View {
         content
-        .navigationTitle("Services de fichiers")
         .toolbar {
             ToolbarItem {
                 Button {
@@ -154,7 +153,7 @@ struct FileServicesView: View {
         await vm.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { focusContent = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { focusContent = true }
         }
         VoiceOver.announce(
             vm.summary,

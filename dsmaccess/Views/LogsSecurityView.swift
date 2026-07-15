@@ -31,7 +31,6 @@ struct LogsSecurityView: View {
 
     var body: some View {
         content
-            .navigationTitle("Journaux et sécurité")
             .searchable(text: $searchText, prompt: searchPrompt)
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
@@ -290,7 +289,7 @@ struct LogsSecurityView: View {
         await viewModel.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { contentFocused = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { contentFocused = true }
         }
         VoiceOver.announce(
             viewModel.summary,

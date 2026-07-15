@@ -21,7 +21,6 @@ struct UnavailableModuleView: View {
             }
             .help("Ouvrir les réglages de la barre latérale")
         }
-        .navigationTitle(module.title)
         .task {
             VoiceOver.announce(
                 String(localized: "\(module.localizedTitle) n’est pas disponible sur ce NAS"),

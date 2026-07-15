@@ -41,7 +41,6 @@ struct StorageView: View {
                 .accessibilityFocused($focusContent)
             }
         }
-        .navigationTitle("Stockage")
         .toolbar {
             ToolbarItem {
                 Button {
@@ -115,7 +114,7 @@ struct StorageView: View {
         await vm.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { focusContent = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { focusContent = true }
         }
         VoiceOver.announce(
             vm.summary,

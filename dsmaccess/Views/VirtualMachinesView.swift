@@ -22,7 +22,6 @@ struct VirtualMachinesView: View {
 
     var body: some View {
         content
-            .navigationTitle("Machines virtuelles")
             .searchable(text: $searchText, prompt: "Rechercher une machine virtuelle")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
@@ -301,7 +300,7 @@ struct VirtualMachinesView: View {
         await viewModel.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { contentFocused = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { contentFocused = true }
         }
         VoiceOver.announce(
             viewModel.summary,

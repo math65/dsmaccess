@@ -14,6 +14,7 @@ struct MainView: View {
     @State private var selection = AppModule.systemInfo
     @State private var isRenamingNAS = false
     @State private var proposedNASName = ""
+    @AccessibilityFocusState private var sidebarFocusedModule: AppModule?
 
     init(session: SessionStore) {
         self.session = session
@@ -43,17 +44,18 @@ struct MainView: View {
                                 .help(available ? Text(module.title) : Text(module.unavailableHelp))
                                 .accessibilityLabel(sidebarLabel(for: module, available: available))
                                 .accessibilityHint(available ? Text("") : Text(module.unavailableHelp))
+                                .accessibilityFocused($sidebarFocusedModule, equals: module)
                             }
                         }
                     }
                 }
             }
             .listStyle(.sidebar)
-            .navigationTitle("DSM Access")
             .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 300)
         } detail: {
             moduleView
         }
+        .navigationTitle(selection.title)
         .toolbar { commonToolbar }
         .focusedSceneValue(\.selectedModule, $selection)
         .focusedSceneValue(\.availableModules, Set(visibleModules))
@@ -77,6 +79,12 @@ struct MainView: View {
         }
         .onChange(of: selection) { _, module in
             VoiceOver.announce(module.localizedTitle, category: .navigation)
+        }
+        .task(id: selection) {
+            // Let SwiftUI finish replacing the destination and its toolbar before
+            // restoring the VoiceOver cursor to the row that initiated navigation.
+            await Task.yield()
+            sidebarFocusedModule = selection
         }
         .alert("Renommer le NAS", isPresented: $isRenamingNAS) {
             TextField("Nom du NAS", text: $proposedNASName)

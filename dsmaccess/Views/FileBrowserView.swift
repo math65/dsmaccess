@@ -41,7 +41,6 @@ struct FileBrowserView: View {
 
     var body: some View {
         content
-            .navigationTitle(vm.title)
             .searchable(text: $searchText, prompt: "Rechercher dans ce dossier")
             .toolbar { fileToolbar }
             .focusedSceneValue(\.fileCommandActions, commandActions)
@@ -54,7 +53,7 @@ struct FileBrowserView: View {
                 await vm.loadCurrent()
                 guard !Task.isCancelled else { return }
                 await vm.loadFavorites()
-                VoiceOver.restoreContentFocusIfNeeded(restoreInitialContentFocus)
+                await VoiceOver.restoreFocusIfCapturedByToolbar(restoreInitialContentFocus)
                 announceSummary()
             }
             .task(id: searchText) {

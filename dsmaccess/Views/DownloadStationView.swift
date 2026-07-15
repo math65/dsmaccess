@@ -22,7 +22,6 @@ struct DownloadStationView: View {
 
     var body: some View {
         content
-            .navigationTitle("Download Station")
             .searchable(text: $searchText, prompt: "Rechercher un téléchargement")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
@@ -260,7 +259,7 @@ struct DownloadStationView: View {
         await viewModel.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { contentFocused = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { contentFocused = true }
         }
         VoiceOver.announce(
             viewModel.summary,

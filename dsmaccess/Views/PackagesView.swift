@@ -22,7 +22,6 @@ struct PackagesView: View {
 
     var body: some View {
         content
-        .navigationTitle("Centre de paquets")
         .searchable(text: $searchText, prompt: "Rechercher des paquets")
         .toolbar {
             ToolbarItem {
@@ -215,7 +214,7 @@ struct PackagesView: View {
         await vm.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            VoiceOver.restoreContentFocusIfNeeded { focusContent = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { focusContent = true }
         }
         VoiceOver.announce(
             vm.summary,
