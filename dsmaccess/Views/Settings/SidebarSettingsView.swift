@@ -12,25 +12,29 @@ struct SidebarSettingsView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Cochez les modules à afficher. Faites-les glisser pour les réordonner dans leur section, ou sélectionnez-en un puis utilisez Commande + Flèche vers le haut ou Commande + Flèche vers le bas.")
-                .foregroundStyle(.secondary)
 
             List(selection: $selection) {
                 ForEach(AppModuleSection.allCases) { section in
-                    Section(section.title) {
-                        ForEach(modules(in: section)) { module in
-                            Toggle(isOn: enabledBinding(for: module)) {
-                                Label(module.title, systemImage: module.systemImage)
-                            }
-                            .tag(module)
-                            .help(String(localized: "Afficher ou masquer \(module.localizedTitle) dans la barre latérale"))
-                            .draggable(module.rawValue)
-                            .dropDestination(for: String.self) { values, _ in
-                                move(values.first, before: module)
-                            }
+                    Text(section.title)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, section == .overview ? 0 : 8)
+                        .accessibilityAddTraits(.isHeader)
+
+                    ForEach(modules(in: section)) { module in
+                        Toggle(isOn: enabledBinding(for: module)) {
+                            Label(module.title, systemImage: module.systemImage)
+                        }
+                        .tag(module)
+                        .help(String(localized: "Afficher ou masquer \(module.localizedTitle) dans la barre latérale"))
+                        .draggable(module.rawValue)
+                        .dropDestination(for: String.self) { values, _ in
+                            move(values.first, before: module)
                         }
                     }
                 }
             }
+            .accessibilityLabel("Barre latérale")
 
             HStack(spacing: 8) {
                 Button("Monter", systemImage: "arrow.up", action: moveSelectionUp)

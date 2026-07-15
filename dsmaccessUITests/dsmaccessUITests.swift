@@ -55,7 +55,7 @@ final class dsmaccessUITests: XCTestCase {
 
     @MainActor
     func testLoginScreenPassesAccessibilityAudit() throws {
-        try app.performAccessibilityAudit()
+        try performAccessibilityAudit()
     }
 
     @MainActor
@@ -88,7 +88,8 @@ final class dsmaccessUITests: XCTestCase {
 
         sidebarPane.click()
         XCTAssertTrue(app.checkBoxes["Masquer automatiquement les fonctionnalités indisponibles sur le NAS connecté"].waitForExistence(timeout: 2))
-        try app.performAccessibilityAudit()
+        app.windows["DSM Access"].buttons["_XCUI:CloseWindow"].click()
+        try performAccessibilityAudit()
     }
 
     private func makeApplication(language: String, locale: String) -> XCUIApplication {
@@ -107,5 +108,39 @@ final class dsmaccessUITests: XCTestCase {
             "-selectedNASProfileID", ""
         ]
         return application
+    }
+
+    @MainActor
+    private func performAccessibilityAudit() throws {
+        try app.performAccessibilityAudit { issue in
+            guard let element = issue.element,
+                  element.identifier.isEmpty,
+                  element.label.isEmpty else { return false }
+
+            if issue.auditType == .sufficientElementDescription {
+                // SwiftUI insère un groupe hôte anonyme autour du contenu de chaque fenêtre.
+                // Ce groupe n'est pas ciblable ; ses descendants portent les libellés utiles.
+                if element.elementType == .group {
+                    return self.app.windows.allElementsBoundByIndex.contains { window in
+                        window.frame == element.frame
+                    }
+                }
+
+                // AppKit publie aussi une Touch Bar vide sur les Mac qui n'en disposent pas.
+                return element.elementType == .touchBar
+            }
+
+            if issue.auditType == .parentChild, element.elementType == .group {
+                // AppKit expose le glyphe interne du bouton plein écran comme un groupe distinct.
+                return self.app.windows.allElementsBoundByIndex.contains { window in
+                    window.frame.contains(element.frame)
+                        && element.frame.maxY <= window.frame.minY + 30
+                        && element.frame.width <= 16
+                        && element.frame.height <= 16
+                }
+            }
+
+            return false
+        }
     }
 }
