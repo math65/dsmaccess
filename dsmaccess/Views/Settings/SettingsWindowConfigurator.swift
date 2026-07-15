@@ -21,7 +21,8 @@ struct SettingsWindowConfigurator: NSViewRepresentable {
     }
 
     private func configureWindow(containing view: NSView) {
-        DispatchQueue.main.async { [weak view] in
+        Task { @MainActor [weak view] in
+            await Task.yield()
             guard let toolbar = view?.window?.toolbar else { return }
             toolbar.allowsUserCustomization = false
             toolbar.autosavesConfiguration = false

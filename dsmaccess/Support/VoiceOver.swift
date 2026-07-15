@@ -101,11 +101,10 @@ enum VoiceOver {
         var element: Any? = NSApp.accessibilityFocusedUIElement
         var isFocusedElement = true
         for _ in 0..<12 {
-            guard let object = element as? NSObject else { return false }
-            if object.value(forKey: "accessibilityRole") as? NSAccessibility.Role == .toolbar {
+            guard let accessibleElement = element as? NSAccessibilityProtocol else { return false }
+            if accessibleElement.accessibilityRole() == .toolbar {
                 return !isFocusedElement
             }
-            guard let accessibleElement = object as? NSAccessibilityElement else { return false }
             element = accessibleElement.accessibilityParent()
             isFocusedElement = false
         }

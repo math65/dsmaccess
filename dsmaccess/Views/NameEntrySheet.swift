@@ -4,7 +4,7 @@
 //
 //  Feuille de saisie d'un nom, réutilisée pour « Créer un dossier » et « Renommer ».
 //  Accessible : focus (clavier + VoiceOver) déposé sur le champ à l'ouverture, annonce du
-//  titre, validation par Entrée. Première `.sheet` du projet.
+//  titre et validation par Entrée.
 //
 
 import SwiftUI

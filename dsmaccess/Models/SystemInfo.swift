@@ -3,7 +3,6 @@
 //  dsmaccess
 //
 //  Charge utile de SYNO.DSM.Info (method=getinfo) : infos système de base du NAS.
-//  Sert d'écran « preuve que la connexion fonctionne » pour le MVP.
 //
 
 import Foundation

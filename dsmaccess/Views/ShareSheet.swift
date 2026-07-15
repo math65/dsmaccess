@@ -13,7 +13,6 @@ import SwiftUI
 
 struct ShareSheet: View {
     let item: FileStationItem
-    /// Crée le lien et renvoie le résultat (injecté par la coquille).
     let create: (_ password: String?, _ dateExpired: String?) async -> FileBrowserViewModel.ShareOutcome
 
     @State private var phase: Phase = .options
@@ -88,10 +87,21 @@ struct ShareSheet: View {
                 .accessibilityFocused($focusError)
         }
 
+        if isCreating {
+            HStack(spacing: 8) {
+                ProgressView()
+                    .controlSize(.small)
+                Text("Opération en cours…")
+                    .foregroundStyle(.secondary)
+            }
+            .accessibilityElement(children: .combine)
+        }
+
         HStack {
             Spacer()
             Button("Annuler", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
+                .disabled(isCreating)
                 .help("Annuler la création du lien")
             Button("Créer le lien") { Task { await createLink() } }
                 .keyboardShortcut(.defaultAction)
@@ -141,8 +151,15 @@ struct ShareSheet: View {
     }
 
     private func createLink() async {
+        guard !isCreating else { return }
         isCreating = true
+        defer { isCreating = false }
         errorMessage = nil
+        VoiceOver.announce(
+            String(localized: "Opération en cours…"),
+            category: .progress,
+            priority: .low
+        )
         switch await create(password.isEmpty ? nil : password, expiryDate(for: expiry)) {
         case .link(let url):
             phase = .created(url)
@@ -151,7 +168,6 @@ struct ShareSheet: View {
             focusError = true
             VoiceOver.announce(message, category: .error, priority: .high)
         }
-        isCreating = false
     }
 
     /// Convertit l'expiration choisie en date « AAAA-MM-JJ » (nil = jamais).
