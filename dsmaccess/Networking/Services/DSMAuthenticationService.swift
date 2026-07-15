@@ -25,22 +25,22 @@ final class DSMAuthenticationService {
         deviceID: String?,
         rememberDevice: Bool
     ) async throws -> LoginResult {
-        var parameters = [
-            "account": account,
-            "passwd": password,
-            "session": Self.sessionName,
-            "format": "sid",
-            "enable_syno_token": "yes",
+        var parameters: [String: DSMParameter] = [
+            "account": .string(account),
+            "passwd": .string(password),
+            "session": .string(Self.sessionName),
+            "format": .string("sid"),
+            "enable_syno_token": .string("yes"),
         ]
         if let otpCode, !otpCode.isEmpty {
-            parameters["otp_code"] = otpCode
+            parameters["otp_code"] = .string(otpCode)
         }
         if let deviceID, !deviceID.isEmpty {
-            parameters["device_id"] = deviceID
+            parameters["device_id"] = .string(deviceID)
         }
         if rememberDevice {
-            parameters["enable_device_token"] = "yes"
-            parameters["device_name"] = "DSM Access (Mac)"
+            parameters["enable_device_token"] = .string("yes")
+            parameters["device_name"] = .string("DSM Access (Mac)")
         }
 
         let response = try await transport.response(
@@ -62,7 +62,7 @@ final class DSMAuthenticationService {
         try? await transport.perform(
             api: Self.api,
             method: "logout",
-            parameters: ["session": Self.sessionName]
+            parameters: ["session": .string(Self.sessionName)]
         )
     }
 

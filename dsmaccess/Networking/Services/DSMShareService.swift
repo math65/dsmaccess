@@ -21,7 +21,7 @@ final class DSMShareService {
         let list = try await transport.value(
             api: Self.shareAPI,
             method: "list",
-            parameters: ["additional": "[\"recyclebin\",\"share_quota\"]"],
+            parameters: ["additional": try DSMParameter.json(["recyclebin", "share_quota"])],
             as: ShareList.self
         )
         return list.shares ?? []
@@ -33,8 +33,8 @@ final class DSMShareService {
             api: Self.shareAPI,
             method: "create",
             parameters: [
-                "name": try jsonString(name),
-                "shareinfo": try jsonString(shareInfo),
+                "name": .string(name),
+                "shareinfo": try DSMParameter.json(shareInfo),
             ]
         )
     }
@@ -43,15 +43,7 @@ final class DSMShareService {
         try await transport.perform(
             api: Self.shareAPI,
             method: "delete",
-            parameters: ["name": try jsonString([name])]
+            parameters: ["name": try DSMParameter.json([name])]
         )
-    }
-
-    private func jsonString<Value: Encodable>(_ value: Value) throws -> String {
-        let data = try JSONEncoder().encode(value)
-        guard let string = String(data: data, encoding: .utf8) else {
-            throw DSMError.decoding
-        }
-        return string
     }
 }

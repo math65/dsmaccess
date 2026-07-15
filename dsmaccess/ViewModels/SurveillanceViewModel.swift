@@ -21,40 +21,41 @@ final class SurveillanceViewModel {
     var snapshotErrorMessage: String?
 
     private let session: SessionStore
+    private var loadGeneration = 0
+    private var snapshotGeneration = 0
 
     init(session: SessionStore) {
         self.session = session
     }
 
     func load(silently: Bool = false) async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
-        if !silently { isLoading = true }
+        loadGeneration += 1
+        let generation = loadGeneration
+        isLoading = !silently
         errorMessage = nil
-        defer { isLoading = false }
+        defer { if generation == loadGeneration { isLoading = false } }
 
         do {
-            cameras = try await client.listSurveillanceCameras(sid: sid).sorted {
+            let result = try await session.withClient { try await $0.listSurveillanceCameras() }.sorted {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
+            guard generation == loadGeneration else { return }
+            cameras = result
         } catch {
-            guard !DSMError.isCancellation(error) else { return }
+            guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }
     }
 
     func setEnabled(_ enabled: Bool, ids: Set<String>) async -> String {
         guard !ids.isEmpty else { return String(localized: "Aucune caméra sélectionnée") }
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         busyIDs.formUnion(ids)
         defer { busyIDs.subtract(ids) }
 
         do {
-            try await client.setSurveillanceCameras(ids: ids, enabled: enabled, sid: sid)
+            try await session.withClient {
+                try await $0.setSurveillanceCameras(ids: ids, enabled: enabled)
+            }
             await load(silently: true)
             return enabled
                 ? String(localized: "\(ids.count) caméras activées")
@@ -66,16 +67,23 @@ final class SurveillanceViewModel {
     }
 
     func loadSnapshot(for camera: SurveillanceCamera) async {
-        guard let client = session.client, let sid = session.sid else { return }
+        snapshotGeneration += 1
+        let generation = snapshotGeneration
         isLoadingSnapshot = true
         snapshotErrorMessage = nil
         snapshotCameraID = camera.id
-        defer { isLoadingSnapshot = false }
+        defer { if generation == snapshotGeneration { isLoadingSnapshot = false } }
 
         do {
-            snapshotData = try await client.surveillanceSnapshot(cameraID: camera.id, sid: sid)
+            let data = try await session.withClient {
+                try await $0.surveillanceSnapshot(cameraID: camera.id)
+            }
+            guard generation == snapshotGeneration, snapshotCameraID == camera.id else { return }
+            snapshotData = data
         } catch {
-            guard !DSMError.isCancellation(error) else { return }
+            guard generation == snapshotGeneration,
+                  snapshotCameraID == camera.id,
+                  !DSMError.isCancellation(error) else { return }
             snapshotData = nil
             snapshotErrorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }

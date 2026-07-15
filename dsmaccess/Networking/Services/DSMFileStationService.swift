@@ -32,7 +32,9 @@ final class DSMFileStationService {
         let result = try await transport.value(
             api: Self.listAPI,
             method: "list_share",
-            parameters: ["additional": "[\"owner\",\"time\",\"perm\",\"volume_status\"]"],
+            parameters: [
+                "additional": try DSMParameter.json(["owner", "time", "perm", "volume_status"]),
+            ],
             as: FileStationShares.self
         )
         return result.shares
@@ -43,8 +45,8 @@ final class DSMFileStationService {
             api: Self.listAPI,
             method: "list",
             parameters: [
-                "folder_path": folderPath,
-                "additional": "[\"real_path\",\"size\",\"owner\",\"time\",\"perm\",\"type\"]",
+                "folder_path": .string(folderPath),
+                "additional": try DSMParameter.json(["real_path", "size", "owner", "time", "perm", "type"]),
             ],
             as: FileStationFiles.self
         )
@@ -52,22 +54,18 @@ final class DSMFileStationService {
     }
 
     func download(path: String, to destination: URL) async throws {
-        let resolved = try await transport.resolvedAPI(Self.downloadAPI)
-        var parameters = try transport.authenticatedParameters()
-        parameters["api"] = resolved.name
-        parameters["version"] = String(resolved.version)
-        parameters["method"] = "download"
-        parameters["path"] = path
-        parameters["mode"] = "download"
-
-        let url = try transport.makeURL(path: resolved.path, parameters: parameters)
+        let url = try await transport.makeURL(
+            api: Self.downloadAPI,
+            method: "download",
+            parameters: ["path": .string(path), "mode": .string("download")]
+        )
         let (temporaryURL, response) = try await transport.download(from: url)
         guard let httpResponse = response as? HTTPURLResponse,
               (200..<300).contains(httpResponse.statusCode) else {
             throw DSMError.invalidResponse
         }
         if let mimeType = response.mimeType, mimeType.contains("json") {
-            let data = (try? await readFile(at: temporaryURL)) ?? Data()
+            let data = (try? await MultipartBodyFile.readData(at: temporaryURL)) ?? Data()
             if let response = try? JSONDecoder().decode(DSMResponse<EmptyData>.self, from: data),
                !response.success {
                 throw DSMError.apiError(code: response.error?.code ?? -1)
@@ -77,16 +75,17 @@ final class DSMFileStationService {
 
         let fileManager = FileManager.default
         if fileManager.fileExists(atPath: destination.path) {
-            try fileManager.removeItem(at: destination)
+            _ = try fileManager.replaceItemAt(destination, withItemAt: temporaryURL)
+        } else {
+            try fileManager.moveItem(at: temporaryURL, to: destination)
         }
-        try fileManager.moveItem(at: temporaryURL, to: destination)
     }
 
     func createFolder(in folderPath: String, name: String) async throws {
         try await transport.perform(
             api: Self.createFolderAPI,
             method: "create",
-            parameters: ["folder_path": folderPath, "name": name]
+            parameters: ["folder_path": .string(folderPath), "name": .string(name)]
         )
     }
 
@@ -94,7 +93,7 @@ final class DSMFileStationService {
         try await transport.perform(
             api: Self.renameAPI,
             method: "rename",
-            parameters: ["path": path, "name": name]
+            parameters: ["path": .string(path), "name": .string(name)]
         )
     }
 
@@ -110,7 +109,7 @@ final class DSMFileStationService {
                 try await transport.perform(
                     api: Self.deleteAPI,
                     method: "delete",
-                    parameters: ["path": path, "recursive": "true"]
+                    parameters: ["path": .string(path), "recursive": .boolean(true)]
                 )
             }
             return
@@ -121,7 +120,7 @@ final class DSMFileStationService {
             method: "start",
             parameters: [
                 "path": try DSMParameter.json(paths),
-                "recursive": "true",
+                "recursive": .boolean(true),
             ],
             as: FileOperationTask.self
         )
@@ -129,35 +128,28 @@ final class DSMFileStationService {
     }
 
     func upload(fileURL: URL, to folderPath: String) async throws {
-        let resolved = try await transport.resolvedAPI(Self.uploadAPI)
-        var routeParameters = try transport.authenticatedParameters()
-        routeParameters["api"] = resolved.name
-        routeParameters["version"] = String(resolved.version)
-        routeParameters["method"] = "upload"
-        let url = try transport.makeURL(path: resolved.path, parameters: routeParameters)
-
         let boundary = "Boundary-\(UUID().uuidString)"
-        var body = Data()
-        var fields = routeParameters
-        fields["path"] = folderPath
-        fields["create_parents"] = "true"
-        fields["overwrite"] = "false"
-        for key in fields.keys.sorted() {
-            guard let value = fields[key] else { continue }
-            body.appendUTF8("--\(boundary)\r\n")
-            body.appendUTF8("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n")
-            body.appendUTF8("\(value)\r\n")
-        }
-        body.appendUTF8("--\(boundary)\r\n")
-        body.appendUTF8("Content-Disposition: form-data; name=\"file\"; filename=\"\(fileURL.lastPathComponent)\"\r\n")
-        body.appendUTF8("Content-Type: application/octet-stream\r\n\r\n")
-        body.append(try await readFile(at: fileURL))
-        body.appendUTF8("\r\n--\(boundary)--\r\n")
+        let route = try await transport.multipartRoute(
+            api: Self.uploadAPI,
+            method: "upload",
+            parameters: [
+                "path": .string(folderPath),
+                "create_parents": .boolean(true),
+                "overwrite": .boolean(false),
+            ]
+        )
+        let bodyURL = try await MultipartBodyFile.create(
+            fields: route.fields,
+            fileURL: fileURL,
+            fileFieldName: "file",
+            boundary: boundary
+        )
+        defer { try? FileManager.default.removeItem(at: bodyURL) }
 
-        var request = URLRequest(url: url)
+        var request = URLRequest(url: route.url)
         request.httpMethod = "POST"
         request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        let (data, response) = try await transport.upload(for: request, from: body)
+        let (data, response) = try await transport.upload(for: request, fromFile: bodyURL)
         guard let httpResponse = response as? HTTPURLResponse,
               (200..<300).contains(httpResponse.statusCode) else {
             throw DSMError.invalidResponse
@@ -184,9 +176,9 @@ final class DSMFileStationService {
             method: "start",
             parameters: [
                 "path": try DSMParameter.json(paths),
-                "dest_folder_path": destinationFolder,
-                "overwrite": "false",
-                "remove_src": removeSource ? "true" : "false",
+                "dest_folder_path": .string(destinationFolder),
+                "overwrite": .boolean(false),
+                "remove_src": .boolean(removeSource),
             ],
             as: CopyMoveTask.self
         )
@@ -195,9 +187,9 @@ final class DSMFileStationService {
     }
 
     func createShareLink(path: String, password: String?, expirationDate: String?) async throws -> String {
-        var parameters = ["path": try DSMParameter.json([path])]
-        if let password, !password.isEmpty { parameters["password"] = password }
-        if let expirationDate, !expirationDate.isEmpty { parameters["date_expired"] = expirationDate }
+        var parameters: [String: DSMParameter] = ["path": try DSMParameter.json([path])]
+        if let password, !password.isEmpty { parameters["password"] = .string(password) }
+        if let expirationDate, !expirationDate.isEmpty { parameters["date_expired"] = .string(expirationDate) }
         let result = try await transport.value(
             api: Self.sharingAPI,
             method: "create",
@@ -222,7 +214,7 @@ final class DSMFileStationService {
         try await transport.perform(
             api: Self.sharingAPI,
             method: "delete",
-            parameters: ["id": id]
+            parameters: ["id": .string(id)]
         )
     }
 
@@ -232,8 +224,8 @@ final class DSMFileStationService {
             method: "start",
             parameters: [
                 "folder_path": try DSMParameter.json([folderPath]),
-                "recursive": "true",
-                "pattern": pattern,
+                "recursive": .boolean(true),
+                "pattern": .string(pattern),
                 "filetype": "all",
             ],
             as: FileStationSearchTask.self
@@ -246,9 +238,9 @@ final class DSMFileStationService {
                     api: Self.searchAPI,
                     method: "list",
                     parameters: [
-                        "taskid": task.taskid,
-                        "limit": "-1",
-                        "additional": "[\"real_path\",\"size\",\"owner\",\"time\",\"perm\",\"type\"]",
+                        "taskid": .string(task.taskid),
+                        "limit": .integer(-1),
+                        "additional": try DSMParameter.json(["real_path", "size", "owner", "time", "perm", "type"]),
                     ],
                     as: FileStationSearchResults.self
                 )
@@ -264,7 +256,7 @@ final class DSMFileStationService {
             try? await transport.perform(
                 api: Self.searchAPI,
                 method: "stop",
-                parameters: ["taskid": task.taskid]
+                parameters: ["taskid": .string(task.taskid)]
             )
             try? await cleanSearch(taskID: task.taskid)
             throw error
@@ -275,7 +267,7 @@ final class DSMFileStationService {
         try await transport.value(
             api: Self.favoriteAPI,
             method: "list",
-            parameters: ["limit": "0", "status_filter": "all"],
+            parameters: ["limit": .integer(0), "status_filter": "all"],
             as: FileStationFavorites.self
         ).favorites
     }
@@ -284,7 +276,7 @@ final class DSMFileStationService {
         try await transport.perform(
             api: Self.favoriteAPI,
             method: "add",
-            parameters: ["path": path, "name": name, "index": "-1"]
+            parameters: ["path": .string(path), "name": .string(name), "index": .integer(-1)]
         )
     }
 
@@ -292,7 +284,7 @@ final class DSMFileStationService {
         try await transport.perform(
             api: Self.favoriteAPI,
             method: "delete",
-            parameters: ["path": path]
+            parameters: ["path": .string(path)]
         )
     }
 
@@ -303,7 +295,7 @@ final class DSMFileStationService {
             method: "start",
             parameters: [
                 "path": try DSMParameter.json(paths),
-                "dest_file_path": destinationPath,
+                "dest_file_path": .string(destinationPath),
                 "level": "moderate",
                 "mode": "add",
                 "format": "zip",
@@ -318,11 +310,11 @@ final class DSMFileStationService {
             api: Self.extractAPI,
             method: "start",
             parameters: [
-                "file_path": archivePath,
-                "dest_folder_path": destinationFolder,
-                "overwrite": "false",
-                "keep_dir": "true",
-                "create_subfolder": "true",
+                "file_path": .string(archivePath),
+                "dest_folder_path": .string(destinationFolder),
+                "overwrite": .boolean(false),
+                "keep_dir": .boolean(true),
+                "create_subfolder": .boolean(true),
             ],
             as: FileOperationTask.self
         )
@@ -333,7 +325,7 @@ final class DSMFileStationService {
         try await transport.perform(
             api: Self.searchAPI,
             method: "clean",
-            parameters: ["taskid": taskID]
+            parameters: ["taskid": .string(taskID)]
         )
     }
 
@@ -343,7 +335,7 @@ final class DSMFileStationService {
             let status = try await transport.value(
                 api: api,
                 method: "status",
-                parameters: ["taskid": taskID],
+                parameters: ["taskid": .string(taskID)],
                 as: FileOperationStatus.self
             )
             if status.finished { return }
@@ -352,15 +344,4 @@ final class DSMFileStationService {
         throw DSMError.network(String(localized: "Délai dépassé."))
     }
 
-    private func readFile(at url: URL) async throws -> Data {
-        try await Task.detached(priority: .userInitiated) {
-            try Data(contentsOf: url, options: .mappedIfSafe)
-        }.value
-    }
-}
-
-private extension Data {
-    mutating func appendUTF8(_ string: String) {
-        append(Data(string.utf8))
-    }
 }

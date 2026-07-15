@@ -10,7 +10,8 @@ struct FileStationModelsTests {
             "/photos/été\n2026.jpg",
         ])
 
-        let decoded = try JSONDecoder().decode([String].self, from: Data(encoded.utf8))
+        let value = try encoded.encoded(for: nil)
+        let decoded = try JSONDecoder().decode([String].self, from: Data(value.utf8))
         #expect(decoded == [
             "/documents/rapport \"final\".pdf",
             "/photos/été\n2026.jpg",

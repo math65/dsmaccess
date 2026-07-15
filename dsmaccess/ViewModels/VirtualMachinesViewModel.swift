@@ -23,16 +23,12 @@ final class VirtualMachinesViewModel {
     }
 
     func load(silently: Bool = false) async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         if !silently { isLoading = true }
         errorMessage = nil
         defer { isLoading = false }
 
         do {
-            machines = try await client.listVirtualMachines(sid: sid).sorted {
+            machines = try await session.withClient { try await $0.listVirtualMachines() }.sorted {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
         } catch {
@@ -42,14 +38,13 @@ final class VirtualMachinesViewModel {
     }
 
     func perform(_ action: VirtualMachinePowerAction, on machine: VirtualMachine) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         busyIDs.insert(machine.id)
         defer { busyIDs.remove(machine.id) }
 
         do {
-            try await client.performVirtualMachineAction(action, guestID: machine.guestID, sid: sid)
+            try await session.withClient {
+                try await $0.performVirtualMachineAction(action, guestID: machine.guestID)
+            }
             await load(silently: true)
             switch action {
             case .powerOn: return String(localized: "Démarrage demandé pour \(machine.name)")

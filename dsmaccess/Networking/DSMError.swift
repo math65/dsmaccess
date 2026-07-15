@@ -13,6 +13,8 @@ enum DSMError: Error, LocalizedError, Equatable {
     case invalidEndpoint
     /// Problème réseau (hôte injoignable, délai dépassé, certificat refusé…).
     case network(String)
+    /// Certificat auto-signé ou non approuvé qui nécessite une décision explicite.
+    case untrustedCertificate(fingerprint: String)
     /// Réponse illisible (JSON non décodable).
     case decoding
     /// Réponse HTTP inattendue.
@@ -46,6 +48,8 @@ enum DSMError: Error, LocalizedError, Equatable {
             return String(localized: "Adresse du NAS invalide.")
         case .network(let detail):
             return String(localized: "Impossible de joindre le NAS : \(detail)")
+        case .untrustedCertificate:
+            return String(localized: "Le certificat de sécurité de ce NAS n'est pas approuvé.")
         case .decoding:
             return String(localized: "La réponse du NAS n'a pas pu être lue.")
         case .invalidResponse:

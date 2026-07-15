@@ -26,7 +26,9 @@ final class DSMPackageService {
             api: Self.packageAPI,
             method: "list",
             parameters: [
-                "additional": "[\"status\",\"installed_info\",\"startable\",\"ctl_uninstall\",\"is_uninstall_pages\"]"
+                "additional": try DSMParameter.json([
+                    "status", "installed_info", "startable", "ctl_uninstall", "is_uninstall_pages",
+                ])
             ],
             as: PackageList.self
         )
@@ -36,16 +38,16 @@ final class DSMPackageService {
     func availableVersions() async throws -> [String: String] {
         var versions: [String: String] = [:]
         for loadsThirdPartyPackages in [false, true] {
-            let list = try? await transport.value(
+            let list = try await transport.value(
                 api: Self.serverAPI,
                 method: "list",
                 parameters: [
-                    "blforcerefresh": "false",
-                    "blloadothers": loadsThirdPartyPackages ? "true" : "false",
+                    "blforcerefresh": .boolean(false),
+                    "blloadothers": .boolean(loadsThirdPartyPackages),
                 ],
                 as: ServerPackageList.self
             )
-            for package in list?.packages ?? [] {
+            for package in list.packages ?? [] {
                 if let identifier = package.id?.lowercased(), let version = package.version {
                     versions[identifier] = version
                 }
@@ -58,7 +60,7 @@ final class DSMPackageService {
         try await transport.perform(
             api: Self.controlAPI,
             method: running ? "start" : "stop",
-            parameters: ["id": packageID]
+            parameters: ["id": .string(packageID)]
         )
     }
 
@@ -67,7 +69,7 @@ final class DSMPackageService {
             api: Self.uninstallationAPI,
             method: "uninstall",
             parameters: [
-                "id": packageID,
+                "id": .string(packageID),
                 "dsm_apps": "",
             ]
         )
@@ -86,19 +88,15 @@ final class DSMPackageService {
             api: Self.settingAPI,
             method: "set",
             parameters: [
-                "enable_autoupdate": flag(settings.enableAutoupdate),
-                "autoupdateall": flag(settings.autoupdateAll),
-                "autoupdateimportant": flag(settings.autoupdateImportant),
-                "enable_dsm": flag(settings.enableDsm),
-                "enable_email": flag(settings.enableEmail),
-                "default_vol": settings.defaultVol,
-                "trust_level": String(settings.trustLevel),
-                "update_channel": settings.updateChannelBeta ? "beta" : "stable",
+                "enable_autoupdate": .boolean(settings.enableAutoupdate),
+                "autoupdateall": .boolean(settings.autoupdateAll),
+                "autoupdateimportant": .boolean(settings.autoupdateImportant),
+                "enable_dsm": .boolean(settings.enableDsm),
+                "enable_email": .boolean(settings.enableEmail),
+                "default_vol": .string(settings.defaultVol),
+                "trust_level": .integer(settings.trustLevel),
+                "update_channel": .string(settings.updateChannelBeta ? "beta" : "stable"),
             ]
         )
-    }
-
-    private func flag(_ value: Bool) -> String {
-        value ? "true" : "false"
     }
 }

@@ -28,7 +28,7 @@ final class DSMFileServiceSettingsService {
         try await transport.perform(
             api: DSMAPI(service.api),
             method: "set",
-            parameters: [service.enableKey: enabled ? "true" : "false"]
+            parameters: [service.enableKey: .boolean(enabled)]
         )
     }
 }

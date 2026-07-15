@@ -36,33 +36,26 @@ final class FileServicesViewModel {
     }
 
     func load() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         isLoading = true
         for service in services {
-            states[service] = await fetch(service, client: client, sid: sid)
+            states[service] = await fetch(service)
         }
         isLoading = false
     }
 
     /// Bascule un service. Renvoie le message à annoncer à VoiceOver.
     func setEnabled(_ service: FileService, _ enabled: Bool) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         busy.insert(service)
         defer { busy.remove(service) }
         do {
-            try await client.setFileService(service, enabled: enabled, sid: sid)
-            states[service] = await fetch(service, client: client, sid: sid)
+            try await session.withClient { try await $0.setFileService(service, enabled: enabled) }
+            states[service] = await fetch(service)
             return enabled
                 ? String(localized: "\(service.displayName) activé")
                 : String(localized: "\(service.displayName) désactivé")
         } catch {
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            states[service] = await fetch(service, client: client, sid: sid)
+            states[service] = await fetch(service)
             return String(localized: "Échec pour \(service.displayName) : \(reason)")
         }
     }
@@ -73,9 +66,9 @@ final class FileServicesViewModel {
         return String(localized: "Services de fichiers : \(on) activés sur \(services.count)")
     }
 
-    private func fetch(_ service: FileService, client: DSMClientProtocol, sid: String) async -> FileServiceState {
+    private func fetch(_ service: FileService) async -> FileServiceState {
         do {
-            switch try await client.fileServiceEnabled(service, sid: sid) {
+            switch try await session.withClient({ try await $0.fileServiceEnabled(service) }) {
             case true?: return .on
             case false?: return .off
             case nil: return .unknown

@@ -35,16 +35,14 @@ final class SystemResourcesViewModel {
 
     /// Recharge les mesures. `announce == true` réannonce le résumé (actualisation manuelle).
     func load(announce: Bool = false) async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         if usage == nil { isLoading = true }
         errorMessage = nil
         do {
-            usage = try await client.resourceUsage(sid: sid)
+            usage = try await session.withClient { try await $0.resourceUsage() }
         } catch {
-            errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            if !DSMError.isCancellation(error) {
+                errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            }
         }
         isLoading = false
         if announce {

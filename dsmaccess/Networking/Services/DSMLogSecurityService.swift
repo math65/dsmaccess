@@ -26,8 +26,8 @@ final class DSMLogSecurityService {
             api: Self.logAPI,
             method: "list",
             parameters: [
-                "offset": "0",
-                "limit": String(limit),
+                "offset": .integer(0),
+                "limit": .integer(limit),
                 "sort_by": "time",
                 "sort_direction": "DESC",
             ],
@@ -41,7 +41,7 @@ final class DSMLogSecurityService {
         let result = try await transport.value(
             api: api,
             method: "list",
-            parameters: ["offset": "0", "limit": "-1"],
+            parameters: ["offset": .integer(0), "limit": .integer(-1)],
             as: BlockedAddressList.self
         )
         return result.addresses.filter { !$0.address.isEmpty }

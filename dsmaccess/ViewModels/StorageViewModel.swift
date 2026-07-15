@@ -35,14 +35,10 @@ final class StorageViewModel {
     }
 
     func load() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         isLoading = true
         errorMessage = nil
         do {
-            info = try await client.storageInfo(sid: sid)
+            info = try await session.withClient { try await $0.storageInfo() }
         } catch {
             // Une annulation (vue quittée / requête remplacée) n'est pas un échec : on l'ignore,
             // sinon un faux « impossible de joindre le NAS » s'affiche alors que les données arrivent.

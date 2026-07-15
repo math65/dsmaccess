@@ -26,14 +26,10 @@ final class PackageSettingsViewModel {
     }
 
     func load() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         isLoading = true
         errorMessage = nil
         do {
-            settings = try await client.packageSettings(sid: sid)
+            settings = try await session.withClient { try await $0.packageSettings() }
         } catch {
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }
@@ -59,9 +55,6 @@ final class PackageSettingsViewModel {
     /// Applique une mutation aux réglages chargés, enregistre l'objet complet, et renvoie le
     /// message à annoncer à VoiceOver.
     private func apply(_ mutate: (inout PackageSettings) -> Void) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         guard var updated = settings else {
             return String(localized: "Réglages non chargés.")
         }
@@ -69,7 +62,7 @@ final class PackageSettingsViewModel {
         isSaving = true
         defer { isSaving = false }
         do {
-            try await client.setPackageSettings(updated, sid: sid)
+            try await session.withClient { try await $0.setPackageSettings(updated) }
             settings = updated
             return String(localized: "Réglage enregistré")
         } catch {

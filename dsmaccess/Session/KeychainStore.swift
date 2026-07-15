@@ -15,6 +15,8 @@ enum KeychainStore {
     static let deviceTokenService = "math65.dsmaccess.deviceToken"
     /// Service utilisé pour les mots de passe mémorisés (reconnexion automatique).
     static let passwordService = "math65.dsmaccess.password"
+    /// Service utilisé pour les empreintes des certificats explicitement approuvés.
+    static let serverTrustService = "math65.dsmaccess.serverTrust"
 
     /// Enregistre (ou remplace) une valeur pour un couple service/compte.
     @discardableResult

@@ -2,18 +2,35 @@
 //  ServerTrustDelegate.swift
 //  dsmaccess
 //
-//  Accepte le certificat TLS auto-signé d'un NAS local, mais UNIQUEMENT pour l'hôte
-//  que l'utilisateur a explicitement configuré (pas de contournement global).
+//  Validation TLS stricte avec approbation explicite et persistante des certificats
+//  auto-signés utilisés par les NAS locaux.
 //
 
+import CryptoKit
 import Foundation
+import Security
 
-/// Delegate d'URLSession qui autorise le certificat auto-signé de l'hôte de confiance.
-final class ServerTrustDelegate: NSObject, URLSessionDelegate {
-    private let trustedHost: String
+/// Les certificats valides suivent la politique système. Un certificat non valide
+/// n'est accepté que si son empreinte SHA-256 correspond à celle approuvée auparavant.
+final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
+    private let endpoint: DSMEndpoint
+    private let approvedFingerprint: String?
+    private let lock = NSLock()
+    private var rejectedFingerprint: String?
 
-    init(trustedHost: String) {
-        self.trustedHost = trustedHost
+    init(endpoint: DSMEndpoint) {
+        self.endpoint = endpoint
+        approvedFingerprint = KeychainStore.load(
+            service: KeychainStore.serverTrustService,
+            account: endpoint.trustStoreKey
+        )
+    }
+
+    func consumeRejectedFingerprint() -> String? {
+        lock.lock()
+        defer { lock.unlock() }
+        defer { rejectedFingerprint = nil }
+        return rejectedFingerprint
     }
 
     nonisolated func urlSession(
@@ -21,14 +38,40 @@ final class ServerTrustDelegate: NSObject, URLSessionDelegate {
         didReceive challenge: URLAuthenticationChallenge,
         completionHandler: @escaping @Sendable (URLSession.AuthChallengeDisposition, URLCredential?) -> Void
     ) {
-        // On ne prend en charge que la validation du certificat serveur, et seulement
-        // pour l'hôte configuré. Tout le reste suit la validation par défaut du système.
         guard challenge.protectionSpace.authenticationMethod == NSURLAuthenticationMethodServerTrust,
-              challenge.protectionSpace.host == trustedHost,
+              challenge.protectionSpace.host.caseInsensitiveCompare(endpoint.host) == .orderedSame,
+              challenge.protectionSpace.port == endpoint.port,
               let trust = challenge.protectionSpace.serverTrust else {
             completionHandler(.performDefaultHandling, nil)
             return
         }
-        completionHandler(.useCredential, URLCredential(trust: trust))
+
+        if SecTrustEvaluateWithError(trust, nil) {
+            completionHandler(.performDefaultHandling, nil)
+            return
+        }
+
+        guard let fingerprint = Self.leafFingerprint(for: trust) else {
+            completionHandler(.cancelAuthenticationChallenge, nil)
+            return
+        }
+
+        if fingerprint == approvedFingerprint {
+            completionHandler(.useCredential, URLCredential(trust: trust))
+        } else {
+            lock.lock()
+            rejectedFingerprint = fingerprint
+            lock.unlock()
+            completionHandler(.cancelAuthenticationChallenge, nil)
+        }
+    }
+
+    private static func leafFingerprint(for trust: SecTrust) -> String? {
+        guard let chain = SecTrustCopyCertificateChain(trust) as? [SecCertificate],
+              let leaf = chain.first else {
+            return nil
+        }
+        let digest = SHA256.hash(data: SecCertificateCopyData(leaf) as Data)
+        return digest.map { String(format: "%02X", $0) }.joined(separator: ":")
     }
 }

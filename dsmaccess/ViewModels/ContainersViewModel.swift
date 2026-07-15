@@ -21,39 +21,40 @@ final class ContainersViewModel {
     var logErrorMessage: String?
 
     private let session: SessionStore
+    private var loadGeneration = 0
+    private var logGeneration = 0
 
     init(session: SessionStore) {
         self.session = session
     }
 
     func load(silently: Bool = false) async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
-        if !silently { isLoading = true }
+        loadGeneration += 1
+        let generation = loadGeneration
+        isLoading = !silently
         errorMessage = nil
-        defer { isLoading = false }
+        defer { if generation == loadGeneration { isLoading = false } }
 
         do {
-            containers = try await client.listContainers(sid: sid).sorted {
+            let result = try await session.withClient { try await $0.listContainers() }.sorted {
                 $0.name.localizedStandardCompare($1.name) == .orderedAscending
             }
+            guard generation == loadGeneration else { return }
+            containers = result
         } catch {
-            guard !DSMError.isCancellation(error) else { return }
+            guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }
     }
 
     func perform(_ action: ContainerAction, on container: ContainerItem) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         busyNames.insert(container.name)
         defer { busyNames.remove(container.name) }
 
         do {
-            try await client.performContainerAction(action, name: container.name, sid: sid)
+            try await session.withClient {
+                try await $0.performContainerAction(action, name: container.name)
+            }
             await load(silently: true)
             switch action {
             case .start: return String(localized: "Conteneur démarré : \(container.name)")
@@ -67,16 +68,21 @@ final class ContainersViewModel {
     }
 
     func loadLogs(for container: ContainerItem) async {
-        guard let client = session.client, let sid = session.sid else { return }
+        logGeneration += 1
+        let generation = logGeneration
         isLoadingLogs = true
         logErrorMessage = nil
         logsContainerName = container.name
-        defer { isLoadingLogs = false }
+        defer { if generation == logGeneration { isLoadingLogs = false } }
 
         do {
-            logs = try await client.containerLogs(name: container.name, sid: sid)
+            let result = try await session.withClient { try await $0.containerLogs(name: container.name) }
+            guard generation == logGeneration, logsContainerName == container.name else { return }
+            logs = result
         } catch {
-            guard !DSMError.isCancellation(error) else { return }
+            guard generation == logGeneration,
+                  logsContainerName == container.name,
+                  !DSMError.isCancellation(error) else { return }
             logs = []
             logErrorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }

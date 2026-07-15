@@ -25,19 +25,25 @@ final class SharesViewModel {
     }
 
     func load() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         isLoading = true
         errorMessage = nil
         do {
-            shares = try await client.listSharedFolders(sid: sid).sorted {
-                ($0.name ?? "").localizedStandardCompare($1.name ?? "") == .orderedAscending
+            let result = try await session.withClient { client in
+                let shares = try await client.listSharedFolders().sorted {
+                    ($0.name ?? "").localizedStandardCompare($1.name ?? "") == .orderedAscending
+                }
+                let info: StorageInfo?
+                do {
+                    info = try await client.storageInfo()
+                } catch DSMError.sessionExpired {
+                    throw DSMError.sessionExpired
+                } catch {
+                    info = nil
+                }
+                return (shares, info)
             }
-            // Volumes pour le sélecteur de création (réutilise l'API du module Stockage).
-            // Le chemin d'un volume DSM suit son numéro : num_id 1 → « /volume1 ».
-            if let info = try? await client.storageInfo(sid: sid) {
+            shares = result.0
+            if let info = result.1 {
                 volumes = (info.volumes ?? [])
                     .compactMap { $0.numId.map { "/volume\($0)" } }
                     .sorted { $0.localizedStandardCompare($1) == .orderedAscending }
@@ -50,12 +56,14 @@ final class SharesViewModel {
 
     /// Crée un dossier partagé. Renvoie le message à annoncer.
     func create(name: String, volumePath: String, description: String) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         do {
-            try await client.createSharedFolder(name: name, volumePath: volumePath,
-                                                 description: description, sid: sid)
+            try await session.withClient {
+                try await $0.createSharedFolder(
+                    name: name,
+                    volumePath: volumePath,
+                    description: description
+                )
+            }
             await load()
             return String(localized: "Dossier partagé créé : \(name)")
         } catch {
@@ -65,11 +73,11 @@ final class SharesViewModel {
 
     /// Supprime un dossier partagé. Renvoie le message à annoncer.
     func delete(_ folder: SharedFolder) async -> String {
-        guard let client = session.client, let sid = session.sid, let name = folder.name else {
-            return String(localized: "Session expirée.")
+        guard let name = folder.name else {
+            return String(localized: "Identifiant du dossier partagé introuvable.")
         }
         do {
-            try await client.deleteSharedFolder(name: name, sid: sid)
+            try await session.withClient { try await $0.deleteSharedFolder(name: name) }
             await load()
             return String(localized: "Dossier partagé supprimé : \(name)")
         } catch {

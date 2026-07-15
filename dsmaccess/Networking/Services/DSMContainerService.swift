@@ -23,8 +23,8 @@ final class DSMContainerService {
             api: Self.containerAPI,
             method: "list",
             parameters: [
-                "offset": "0",
-                "limit": "-1",
+                "offset": .integer(0),
+                "limit": .integer(-1),
                 "additional": try DSMParameter.json(["resource"]),
             ],
             as: ContainerList.self
@@ -36,7 +36,7 @@ final class DSMContainerService {
         try await transport.perform(
             api: Self.containerAPI,
             method: action.rawValue,
-            parameters: ["name": name]
+            parameters: ["name": .string(name)]
         )
     }
 
@@ -46,9 +46,9 @@ final class DSMContainerService {
             api: Self.logAPI,
             method: "get",
             parameters: [
-                "name": name,
-                "offset": "0",
-                "limit": String(limit),
+                "name": .string(name),
+                "offset": .integer(0),
+                "limit": .integer(limit),
             ],
             as: ContainerLogList.self
         )

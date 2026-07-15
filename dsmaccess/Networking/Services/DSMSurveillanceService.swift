@@ -22,12 +22,12 @@ final class DSMSurveillanceService {
             api: Self.cameraAPI,
             method: "List",
             parameters: [
-                "offset": "0",
-                "limit": "-1",
-                "privCamType": "1",
-                "basic": "true",
-                "streamInfo": "true",
-                "blIncludeDeletedCam": "false",
+                "offset": .integer(0),
+                "limit": .integer(-1),
+                "privCamType": .integer(1),
+                "basic": .boolean(true),
+                "streamInfo": .boolean(true),
+                "blIncludeDeletedCam": .boolean(false),
             ],
             as: SurveillanceCameraList.self
         )
@@ -41,7 +41,7 @@ final class DSMSurveillanceService {
         try await transport.perform(
             api: Self.cameraAPI,
             method: enabled ? "Enable" : "Disable",
-            parameters: [key: ids.sorted().joined(separator: ",")]
+            parameters: [key: .string(ids.sorted().joined(separator: ","))]
         )
     }
 
@@ -50,14 +50,11 @@ final class DSMSurveillanceService {
         guard resolved.version >= 9 else {
             throw DSMError.unsupportedAPIVersion(Self.cameraAPI.name)
         }
-        var parameters = try transport.authenticatedParameters()
-        parameters["api"] = resolved.name
-        parameters["version"] = String(resolved.version)
-        parameters["method"] = "GetSnapshot"
-        parameters["id"] = cameraID
-        parameters["profileType"] = "1"
-
-        let url = try transport.makeURL(path: resolved.path, parameters: parameters)
+        let url = try await transport.makeURL(
+            api: Self.cameraAPI,
+            method: "GetSnapshot",
+            parameters: ["id": .string(cameraID), "profileType": .integer(1)]
+        )
         let (data, response) = try await transport.data(for: URLRequest(url: url))
         guard let httpResponse = response as? HTTPURLResponse,
               (200..<300).contains(httpResponse.statusCode),

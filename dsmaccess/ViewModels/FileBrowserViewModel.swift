@@ -59,6 +59,9 @@ final class FileBrowserViewModel {
 
     private var directoryItems: [FileStationItem] = []
     private let session: SessionStore
+    private var loadGeneration = 0
+    private var searchGeneration = 0
+    private var shareLinksGeneration = 0
 
     init(session: SessionStore) {
         self.session = session
@@ -98,35 +101,33 @@ final class FileBrowserViewModel {
     }
 
     func loadCurrent() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
+        loadGeneration += 1
+        let generation = loadGeneration
+        let level = currentLevel
         isLoading = true
         errorMessage = nil
+        defer { if generation == loadGeneration { isLoading = false } }
         do {
-            let result: [FileStationItem]
-            if let path = currentLevel.path {
-                result = try await client.list(folderPath: path, sid: sid)
-            } else {
-                result = try await client.listShares(sid: sid)
+            let result = try await session.withClient { client in
+                if let path = level.path {
+                    return try await client.list(folderPath: path)
+                } else {
+                    return try await client.listShares()
+                }
             }
-            try Task.checkCancellation()
+            guard generation == loadGeneration, currentLevel == level else { return }
             directoryItems = result
             items = result
             isShowingSearchResults = false
-        } catch is CancellationError {
-            // Une nouvelle navigation ou recherche a remplacé ce chargement.
         } catch {
+            guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = errorMessage(for: error)
         }
-        isLoading = false
     }
 
     func loadFavorites() async {
-        guard let client = session.client, let sid = session.sid else { return }
         do {
-            favorites = try await client.fileStationFavorites(sid: sid)
+            favorites = try await session.withClient { try await $0.fileStationFavorites() }
         } catch {
             // Les favoris sont un complément : leur absence ne masque jamais les fichiers.
             favorites = []
@@ -135,6 +136,8 @@ final class FileBrowserViewModel {
 
     func search(_ query: String) async {
         let pattern = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        searchGeneration += 1
+        let generation = searchGeneration
         searchQuery = pattern
         guard !pattern.isEmpty else {
             isSearching = false
@@ -146,26 +149,25 @@ final class FileBrowserViewModel {
 
         if currentLevel.path == nil {
             items = directoryItems.filter {
-                $0.name.localizedCaseInsensitiveContains(pattern)
+                $0.name.localizedStandardContains(pattern)
             }
             isShowingSearchResults = true
             return
         }
 
-        guard let client = session.client, let sid = session.sid, let path = currentLevel.path else {
-            return
-        }
+        guard let path = currentLevel.path else { return }
         isSearching = true
-        defer { isSearching = false }
+        defer { if generation == searchGeneration { isSearching = false } }
         errorMessage = nil
         do {
-            let result = try await client.searchFiles(in: path, matching: pattern, sid: sid)
-            try Task.checkCancellation()
+            let result = try await session.withClient {
+                try await $0.searchFiles(in: path, matching: pattern)
+            }
+            guard generation == searchGeneration, searchQuery == pattern else { return }
             items = result
             isShowingSearchResults = true
-        } catch is CancellationError {
-            return
         } catch {
+            guard generation == searchGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = errorMessage(for: error)
         }
     }
@@ -205,14 +207,11 @@ final class FileBrowserViewModel {
     }
 
     func download(_ item: FileStationItem, to destination: URL) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return String(localized: "Session expirée.")
-        }
+        defer { destination.stopAccessingSecurityScopedResource() }
         isDownloading = true
         defer { isDownloading = false }
         do {
-            try await client.downloadFile(path: item.path, sid: sid, to: destination)
+            try await session.withClient { try await $0.downloadFile(path: item.path, to: destination) }
             return String(localized: "Téléchargement terminé : \(item.name)")
         } catch {
             return String(localized: "Échec du téléchargement : \(errorMessage(for: error))")
@@ -220,10 +219,7 @@ final class FileBrowserViewModel {
     }
 
     func download(_ selectedItems: [FileStationItem], to directory: URL) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return String(localized: "Session expirée.")
-        }
+        defer { directory.stopAccessingSecurityScopedResource() }
         isDownloading = true
         defer { isDownloading = false }
         var completed = 0
@@ -232,7 +228,7 @@ final class FileBrowserViewModel {
             let destination = directory.appendingPathComponent(suggestedFilename(for: item))
             do {
                 try Task.checkCancellation()
-                try await client.downloadFile(path: item.path, sid: sid, to: destination)
+                try await session.withClient { try await $0.downloadFile(path: item.path, to: destination) }
                 completed += 1
             } catch is CancellationError {
                 break
@@ -247,31 +243,25 @@ final class FileBrowserViewModel {
     }
 
     func createFolder(named name: String) async -> String {
-        guard let client = session.client, let sid = session.sid, let parent = currentLevel.path else {
+        guard let parent = currentLevel.path else {
             return String(localized: "Impossible de créer le dossier ici.")
         }
         return await performAndReload {
-            try await client.createFolder(in: parent, name: name, sid: sid)
+            try await self.session.withClient { try await $0.createFolder(in: parent, name: name) }
             return String(localized: "Dossier créé : \(name)")
         }
     }
 
     func rename(_ item: FileStationItem, to name: String) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         return await performAndReload {
-            try await client.rename(path: item.path, to: name, sid: sid)
+            try await self.session.withClient { try await $0.rename(path: item.path, to: name) }
             return String(localized: "Renommé en : \(name)")
         }
     }
 
     func delete(_ selectedItems: [FileStationItem]) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         return await performAndReload {
-            try await client.delete(paths: selectedItems.map(\.path), sid: sid)
+            try await self.session.withClient { try await $0.delete(paths: selectedItems.map(\.path)) }
             return selectedItems.count == 1
                 ? String(localized: "Supprimé : \(selectedItems[0].name)")
                 : String(localized: "\(selectedItems.count) éléments supprimés")
@@ -279,7 +269,7 @@ final class FileBrowserViewModel {
     }
 
     func upload(fileURLs: [URL]) async -> String {
-        guard let client = session.client, let sid = session.sid, let parent = currentLevel.path else {
+        guard let parent = currentLevel.path else {
             return String(localized: "Impossible d’envoyer ici.")
         }
         isWorking = true
@@ -288,9 +278,10 @@ final class FileBrowserViewModel {
         var firstFailure: String?
         let query = searchQuery
         for url in fileURLs {
+            defer { url.stopAccessingSecurityScopedResource() }
             do {
                 try Task.checkCancellation()
-                try await client.upload(fileURL: url, to: parent, sid: sid)
+                try await session.withClient { try await $0.upload(fileURL: url, to: parent) }
                 sent += 1
             } catch {
                 if firstFailure == nil { firstFailure = errorMessage(for: error) }
@@ -325,16 +316,17 @@ final class FileBrowserViewModel {
 
     func paste() async -> String {
         guard let clipboard else { return String(localized: "Rien à coller.") }
-        guard let client = session.client, let sid = session.sid, let destination = currentLevel.path else {
+        guard let destination = currentLevel.path else {
             return String(localized: "Impossible de coller ici.")
         }
         return await performAndReload {
-            try await client.copyMove(
-                paths: clipboard.items.map(\.path),
-                to: destination,
-                remove: clipboard.movesItems,
-                sid: sid
-            )
+            try await self.session.withClient {
+                try await $0.copyMove(
+                    paths: clipboard.items.map(\.path),
+                    to: destination,
+                    remove: clipboard.movesItems
+                )
+            }
             if clipboard.movesItems { self.clipboard = nil }
             return clipboard.movesItems
                 ? String(localized: "\(clipboard.items.count) éléments déplacés ici")
@@ -343,24 +335,28 @@ final class FileBrowserViewModel {
     }
 
     func compress(_ selectedItems: [FileStationItem], archiveName: String) async -> String {
-        guard let client = session.client, let sid = session.sid, let folder = currentLevel.path else {
+        guard let folder = currentLevel.path else {
             return String(localized: "Impossible de créer une archive ici.")
         }
         let trimmed = archiveName.trimmingCharacters(in: .whitespacesAndNewlines)
         let filename = trimmed.lowercased().hasSuffix(".zip") ? trimmed : "\(trimmed).zip"
         let destination = folder.appendingNASPathComponent(filename)
         return await performAndReload {
-            try await client.compress(paths: selectedItems.map(\.path), to: destination, sid: sid)
+            try await self.session.withClient {
+                try await $0.compress(paths: selectedItems.map(\.path), to: destination)
+            }
             return String(localized: "Archive créée : \(filename)")
         }
     }
 
     func extract(_ item: FileStationItem) async -> String {
-        guard let client = session.client, let sid = session.sid, let folder = currentLevel.path else {
+        guard let folder = currentLevel.path else {
             return String(localized: "Impossible d’extraire l’archive ici.")
         }
         return await performAndReload {
-            try await client.extract(archivePath: item.path, to: folder, sid: sid)
+            try await self.session.withClient {
+                try await $0.extract(archivePath: item.path, to: folder)
+            }
             return String(localized: "Archive extraite : \(item.name)")
         }
     }
@@ -376,16 +372,18 @@ final class FileBrowserViewModel {
     }
 
     func toggleCurrentFavorite() async -> String {
-        guard let client = session.client, let sid = session.sid, let path = currentLevel.path else {
+        guard let path = currentLevel.path else {
             return String(localized: "Impossible d’ajouter ce dossier aux favoris.")
         }
         do {
             if isFavorite(path: path) {
-                try await client.removeFileStationFavorite(path: path, sid: sid)
+                try await session.withClient { try await $0.removeFileStationFavorite(path: path) }
                 await loadFavorites()
                 return String(localized: "Favori supprimé : \(currentLevel.name)")
             }
-            try await client.addFileStationFavorite(path: path, name: currentLevel.name, sid: sid)
+            try await session.withClient {
+                try await $0.addFileStationFavorite(path: path, name: currentLevel.name)
+            }
             await loadFavorites()
             return String(localized: "Favori ajouté : \(currentLevel.name)")
         } catch {
@@ -399,16 +397,14 @@ final class FileBrowserViewModel {
     }
 
     func createShareLink(for item: FileStationItem, password: String?, dateExpired: String?) async -> ShareOutcome {
-        guard let client = session.client, let sid = session.sid else {
-            return .failure(String(localized: "Session expirée."))
-        }
         do {
-            let url = try await client.createShareLink(
-                path: item.path,
-                password: password,
-                dateExpired: dateExpired,
-                sid: sid
-            )
+            let url = try await session.withClient {
+                try await $0.createShareLink(
+                    path: item.path,
+                    password: password,
+                    dateExpired: dateExpired
+                )
+            }
             return .link(url)
         } catch {
             return .failure(String(localized: "Échec de la création du lien : \(errorMessage(for: error))"))
@@ -416,26 +412,24 @@ final class FileBrowserViewModel {
     }
 
     func loadShareLinks() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
+        shareLinksGeneration += 1
+        let generation = shareLinksGeneration
         isLoadingShareLinks = true
         shareLinksError = nil
+        defer { if generation == shareLinksGeneration { isLoadingShareLinks = false } }
         do {
-            shareLinks = try await client.listShareLinks(sid: sid)
+            let result = try await session.withClient { try await $0.listShareLinks() }
+            guard generation == shareLinksGeneration else { return }
+            shareLinks = result
         } catch {
+            guard generation == shareLinksGeneration, !DSMError.isCancellation(error) else { return }
             shareLinksError = errorMessage(for: error)
         }
-        isLoadingShareLinks = false
     }
 
     func deleteShareLink(_ link: SharingLink) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         do {
-            try await client.deleteShareLink(id: link.id, sid: sid)
+            try await session.withClient { try await $0.deleteShareLink(id: link.id) }
             await loadShareLinks()
             return String(localized: "Lien supprimé")
         } catch {

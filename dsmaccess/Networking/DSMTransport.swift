@@ -22,7 +22,7 @@ final class DSMTransport {
 
     init(endpoint: DSMEndpoint) {
         self.endpoint = endpoint
-        let delegate = ServerTrustDelegate(trustedHost: endpoint.host)
+        let delegate = endpoint.useHTTPS ? ServerTrustDelegate(endpoint: endpoint) : nil
         trustDelegate = delegate
 
         let configuration = URLSessionConfiguration.ephemeral
@@ -31,10 +31,19 @@ final class DSMTransport {
         session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
     }
 
-    init(endpoint: DSMEndpoint, session: URLSession) {
+    init(
+        endpoint: DSMEndpoint,
+        session: URLSession,
+        capabilities: DSMCapabilities
+    ) {
         self.endpoint = endpoint
         self.session = session
         trustDelegate = nil
+        self.capabilities = capabilities
+    }
+
+    convenience init(endpoint: DSMEndpoint, session: URLSession) {
+        self.init(endpoint: endpoint, session: session, capabilities: DSMCapabilities())
     }
 
     func establishSession(_ result: LoginResult) {
@@ -89,25 +98,24 @@ final class DSMTransport {
     func response<Value: Decodable>(
         api: DSMAPI,
         method: String,
-        parameters: [String: String] = [:],
+        parameters: [String: DSMParameter] = [:],
         authenticated: Bool = true,
         as type: Value.Type
     ) async throws -> DSMResponse<Value> {
         let resolved = try await resolve(api)
-        var query = parameters
-        query["api"] = resolved.name
-        query["version"] = String(resolved.version)
-        query["method"] = method
-        if authenticated {
-            try appendAuthentication(to: &query)
-        }
+        let query = try encodedParameters(
+            resolved: resolved,
+            method: method,
+            parameters: parameters,
+            authenticated: authenticated
+        )
         return try await send(path: resolved.path, parameters: query)
     }
 
     func value<Value: Decodable>(
         api: DSMAPI,
         method: String,
-        parameters: [String: String] = [:],
+        parameters: [String: DSMParameter] = [:],
         authenticated: Bool = true,
         as type: Value.Type
     ) async throws -> Value {
@@ -127,7 +135,7 @@ final class DSMTransport {
     func perform(
         api: DSMAPI,
         method: String,
-        parameters: [String: String] = [:],
+        parameters: [String: DSMParameter] = [:],
         authenticated: Bool = true
     ) async throws {
         let response = try await response(
@@ -146,12 +154,6 @@ final class DSMTransport {
         try await resolve(api)
     }
 
-    func authenticatedParameters() throws -> [String: String] {
-        var parameters: [String: String] = [:]
-        try appendAuthentication(to: &parameters)
-        return parameters
-    }
-
     func makeURL(path: String, parameters: [String: String]) throws -> URL {
         var components = URLComponents()
         components.scheme = endpoint.scheme
@@ -165,11 +167,43 @@ final class DSMTransport {
         return url
     }
 
+    func makeURL(
+        api: DSMAPI,
+        method: String,
+        parameters: [String: DSMParameter] = [:],
+        authenticated: Bool = true
+    ) async throws -> URL {
+        let resolved = try await resolve(api)
+        let encoded = try encodedParameters(
+            resolved: resolved,
+            method: method,
+            parameters: parameters,
+            authenticated: authenticated
+        )
+        return try makeURL(path: resolved.path, parameters: encoded)
+    }
+
+    func multipartRoute(
+        api: DSMAPI,
+        method: String,
+        parameters: [String: DSMParameter] = [:],
+        authenticated: Bool = true
+    ) async throws -> (url: URL, fields: [String: String]) {
+        let resolved = try await resolve(api)
+        let fields = try encodedParameters(
+            resolved: resolved,
+            method: method,
+            parameters: parameters,
+            authenticated: authenticated
+        )
+        return (try makeURL(path: resolved.path, parameters: [:]), fields)
+    }
+
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         do {
             return try await session.data(for: request)
         } catch let error as URLError {
-            throw error.code == .cancelled ? DSMError.cancelled : DSMError.network(error.localizedDescription)
+            throw mappedNetworkError(error)
         }
     }
 
@@ -177,7 +211,7 @@ final class DSMTransport {
         do {
             return try await session.download(from: url)
         } catch let error as URLError {
-            throw error.code == .cancelled ? DSMError.cancelled : DSMError.network(error.localizedDescription)
+            throw mappedNetworkError(error)
         }
     }
 
@@ -185,7 +219,15 @@ final class DSMTransport {
         do {
             return try await session.upload(for: request, from: body)
         } catch let error as URLError {
-            throw error.code == .cancelled ? DSMError.cancelled : DSMError.network(error.localizedDescription)
+            throw mappedNetworkError(error)
+        }
+    }
+
+    func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
+        do {
+            return try await session.upload(for: request, fromFile: fileURL)
+        } catch let error as URLError {
+            throw mappedNetworkError(error)
         }
     }
 
@@ -206,18 +248,28 @@ final class DSMTransport {
         }
     }
 
+    private func encodedParameters(
+        resolved: ResolvedDSMAPI,
+        method: String,
+        parameters: [String: DSMParameter],
+        authenticated: Bool
+    ) throws -> [String: String] {
+        var encoded = try parameters.mapValues { try $0.encoded(for: resolved.requestFormat) }
+        encoded["api"] = resolved.name
+        encoded["version"] = String(resolved.version)
+        encoded["method"] = method
+        if authenticated {
+            try appendAuthentication(to: &encoded)
+        }
+        return encoded
+    }
+
     private func send<Value: Decodable>(
         path: String,
         parameters: [String: String]
     ) async throws -> DSMResponse<Value> {
         let url = try makeURL(path: path, parameters: parameters)
-        let data: Data
-        let response: URLResponse
-        do {
-            (data, response) = try await session.data(from: url)
-        } catch let error as URLError {
-            throw error.code == .cancelled ? DSMError.cancelled : DSMError.network(error.localizedDescription)
-        }
+        let (data, response) = try await data(for: URLRequest(url: url))
         guard let httpResponse = response as? HTTPURLResponse,
               (200..<300).contains(httpResponse.statusCode) else {
             throw DSMError.invalidResponse
@@ -227,6 +279,15 @@ final class DSMTransport {
         } catch {
             throw DSMError.decoding
         }
+    }
+
+    private func mappedNetworkError(_ error: URLError) -> DSMError {
+        if let fingerprint = trustDelegate?.consumeRejectedFingerprint() {
+            return .untrustedCertificate(fingerprint: fingerprint)
+        }
+        return error.code == .cancelled
+            ? .cancelled
+            : .network(error.localizedDescription)
     }
 
     private func error(from body: DSMErrorBody?) -> DSMError {

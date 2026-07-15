@@ -38,7 +38,10 @@ enum Preferences {
 
     /// Dernier choix HTTPS.
     static var lastUseHTTPS: Bool {
-        get { defaults.bool(forKey: Key.lastUseHTTPS) }
+        get {
+            guard defaults.object(forKey: Key.lastUseHTTPS) != nil else { return true }
+            return defaults.bool(forKey: Key.lastUseHTTPS)
+        }
         set { defaults.set(newValue, forKey: Key.lastUseHTTPS) }
     }
 

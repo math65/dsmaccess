@@ -25,29 +25,31 @@ final class LogsSecurityViewModel {
     }
 
     func load() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         isLoading = true
         errorMessage = nil
         blockedAddressesError = nil
         defer { isLoading = false }
 
         do {
-            if session.capabilities.supports("SYNO.Core.SyslogClient.Log") {
-                logs = try await client.listSystemLogs(sid: sid)
-            } else {
-                logs = []
-            }
+            try await session.withClient { client in
+                if session.capabilities.supports("SYNO.Core.SyslogClient.Log") {
+                    logs = try await client.listSystemLogs()
+                } else {
+                    logs = []
+                }
 
-            do {
-                blockedAddresses = try await client.listBlockedAddresses(sid: sid).sorted(using: KeyPathComparator(\.address))
-            } catch let error as DSMError where isOptionalBlockListError(error) {
-                blockedAddresses = []
-            } catch {
-                blockedAddresses = []
-                blockedAddressesError = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+                do {
+                    blockedAddresses = try await client.listBlockedAddresses().sorted {
+                        $0.address.localizedStandardCompare($1.address) == .orderedAscending
+                    }
+                } catch let error as DSMError where isOptionalBlockListError(error) {
+                    blockedAddresses = []
+                } catch DSMError.sessionExpired {
+                    throw DSMError.sessionExpired
+                } catch {
+                    blockedAddresses = []
+                    blockedAddressesError = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+                }
             }
         } catch {
             guard !DSMError.isCancellation(error) else { return }
@@ -56,14 +58,11 @@ final class LogsSecurityViewModel {
     }
 
     func unblock(_ blockedAddress: BlockedAddress) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         busyAddresses.insert(blockedAddress.address)
         defer { busyAddresses.remove(blockedAddress.address) }
 
         do {
-            try await client.unblockAddress(blockedAddress.address, sid: sid)
+            try await session.withClient { try await $0.unblockAddress(blockedAddress.address) }
             blockedAddresses.removeAll { $0.id == blockedAddress.id }
             return String(localized: "Adresse débloquée : \(blockedAddress.address)")
         } catch {

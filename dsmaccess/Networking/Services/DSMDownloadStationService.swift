@@ -23,8 +23,8 @@ final class DSMDownloadStationService {
             api: Self.taskAPI,
             method: "list",
             parameters: [
-                "offset": "0",
-                "limit": "-1",
+                "offset": .integer(0),
+                "limit": .integer(-1),
                 "additional": "detail,transfer,file",
             ],
             as: DownloadTaskList.self
@@ -41,9 +41,9 @@ final class DSMDownloadStationService {
     }
 
     func create(uri: String, destination: String?) async throws {
-        var parameters = ["uri": uri]
+        var parameters: [String: DSMParameter] = ["uri": .string(uri)]
         if let destination, !destination.isEmpty {
-            parameters["destination"] = destination
+            parameters["destination"] = .string(destination)
         }
         try await transport.perform(api: Self.taskAPI, method: "create", parameters: parameters)
     }
@@ -61,8 +61,8 @@ final class DSMDownloadStationService {
             api: Self.taskAPI,
             method: "delete",
             parameters: [
-                "id": ids.sorted().joined(separator: ","),
-                "force_complete": forceComplete ? "true" : "false",
+                "id": .string(ids.sorted().joined(separator: ",")),
+                "force_complete": .boolean(forceComplete),
             ]
         )
     }
@@ -72,7 +72,7 @@ final class DSMDownloadStationService {
         try await transport.perform(
             api: Self.taskAPI,
             method: method,
-            parameters: ["id": ids.sorted().joined(separator: ",")]
+            parameters: ["id": .string(ids.sorted().joined(separator: ","))]
         )
     }
 }

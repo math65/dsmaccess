@@ -24,17 +24,22 @@ final class UsersGroupsViewModel {
     }
 
     func load() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
 
         do {
-            users = try await client.listUsers(sid: sid).sorted(using: KeyPathComparator(\.name))
-            groups = try await client.listGroups(sid: sid).sorted(using: KeyPathComparator(\.name))
+            let result = try await session.withClient { client in
+                let users = try await client.listUsers().sorted {
+                    $0.name.localizedStandardCompare($1.name) == .orderedAscending
+                }
+                let groups = try await client.listGroups().sorted {
+                    $0.name.localizedStandardCompare($1.name) == .orderedAscending
+                }
+                return (users, groups)
+            }
+            users = result.0
+            groups = result.1
         } catch {
             guard !DSMError.isCancellation(error) else { return }
             errorMessage = reason(for: error)
@@ -42,15 +47,15 @@ final class UsersGroupsViewModel {
     }
 
     func createUser(_ draft: DSMUserDraft) async -> String {
-        await perform(key: "user:\(draft.name)") { client, sid in
-            try await client.createUser(draft, sid: sid)
+        await perform(key: "user:\(draft.name)") { client in
+            try await client.createUser(draft)
             return String(localized: "Utilisateur créé : \(draft.name)")
         }
     }
 
     func setUser(_ user: DSMUser, disabled: Bool) async -> String {
-        await perform(key: "user:\(user.name)") { client, sid in
-            try await client.setUser(user.name, disabled: disabled, sid: sid)
+        await perform(key: "user:\(user.name)") { client in
+            try await client.setUser(user.name, disabled: disabled)
             return disabled
                 ? String(localized: "Utilisateur désactivé : \(user.name)")
                 : String(localized: "Utilisateur activé : \(user.name)")
@@ -58,22 +63,22 @@ final class UsersGroupsViewModel {
     }
 
     func deleteUser(_ user: DSMUser) async -> String {
-        await perform(key: "user:\(user.name)") { client, sid in
-            try await client.deleteUser(user.name, sid: sid)
+        await perform(key: "user:\(user.name)") { client in
+            try await client.deleteUser(user.name)
             return String(localized: "Utilisateur supprimé : \(user.name)")
         }
     }
 
     func createGroup(_ draft: DSMGroupDraft) async -> String {
-        await perform(key: "group:\(draft.name)") { client, sid in
-            try await client.createGroup(draft, sid: sid)
+        await perform(key: "group:\(draft.name)") { client in
+            try await client.createGroup(draft)
             return String(localized: "Groupe créé : \(draft.name)")
         }
     }
 
     func deleteGroup(_ group: DSMGroup) async -> String {
-        await perform(key: "group:\(group.name)") { client, sid in
-            try await client.deleteGroup(group.name, sid: sid)
+        await perform(key: "group:\(group.name)") { client in
+            try await client.deleteGroup(group.name)
             return String(localized: "Groupe supprimé : \(group.name)")
         }
     }
@@ -85,16 +90,13 @@ final class UsersGroupsViewModel {
 
     private func perform(
         key: String,
-        operation: (DSMClientProtocol, String) async throws -> String
+        operation: (DSMClientProtocol) async throws -> String
     ) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         busyItems.insert(key)
         defer { busyItems.remove(key) }
 
         do {
-            let message = try await operation(client, sid)
+            let message = try await session.withClient(operation)
             await load()
             return message
         } catch {

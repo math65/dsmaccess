@@ -102,12 +102,9 @@ struct MainView: View {
 
     private func logout() async {
         let endpoint = session.endpoint
-        if let client = session.client, let sid = session.sid {
-            try? await client.logout(sid: sid)
-        }
+        await session.logout()
         if let endpoint {
             CredentialStore.forget(account: Preferences.lastAccount, endpoint: endpoint)
         }
-        session.clear()
     }
 }

@@ -29,6 +29,24 @@ struct LoginView: View {
             }
         }
         .task { await vm.startupIfNeeded() }
+        .alert(
+            "Certificat non approuvé",
+            isPresented: Binding(
+                get: { vm.pendingCertificateFingerprint != nil },
+                set: { if !$0 { vm.rejectPendingCertificate() } }
+            )
+        ) {
+            Button("Annuler", role: .cancel) {
+                vm.rejectPendingCertificate()
+            }
+            Button("Approuver et se connecter") {
+                Task { await vm.approvePendingCertificate() }
+            }
+        } message: {
+            if let fingerprint = vm.pendingCertificateFingerprint {
+                Text("DSM utilise un certificat qui n'est pas reconnu par macOS. Vérifiez cette empreinte SHA-256 avant de l'approuver : \(fingerprint)")
+            }
+        }
     }
 
     /// Écran plein affiché pendant la reconnexion automatique au lancement.
@@ -112,6 +130,12 @@ struct LoginView: View {
             if let newValue {
                 AccessibilityNotification.Announcement(newValue).post()
                 focusError = true
+            }
+        }
+        .task {
+            if let error = vm.errorMessage {
+                focusError = true
+                VoiceOver.announce(error)
             }
         }
     }

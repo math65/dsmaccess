@@ -22,16 +22,14 @@ final class SystemInfoViewModel {
     }
 
     func load() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         isLoading = true
         errorMessage = nil
         do {
-            info = try await client.systemInfo(sid: sid)
+            info = try await session.withClient { try await $0.systemInfo() }
         } catch {
-            errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            if !DSMError.isCancellation(error) {
+                errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            }
         }
         isLoading = false
     }

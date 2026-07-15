@@ -34,6 +34,8 @@ final class ConnectionViewModel {
     private(set) var isRestoring: Bool
     /// Message d'erreur à afficher et à annoncer (nil si aucun).
     var errorMessage: String?
+    /// Empreinte d'un certificat non approuvé, en attente d'une décision explicite.
+    private(set) var pendingCertificateFingerprint: String?
     /// Dernière erreur typée (sert à décider d'oublier un mot de passe mémorisé périmé).
     private var lastError: DSMError?
     /// Empêche de relancer la reconnexion automatique plus d'une fois.
@@ -54,6 +56,7 @@ final class ConnectionViewModel {
         self.useHTTPS = https
         self.portText = String(effectivePort)
         self.rememberPassword = Preferences.rememberPassword
+        self.errorMessage = session.consumeDisconnectionMessage()
         // Reconnexion possible au lancement si un mot de passe est mémorisé pour ce NAS.
         if Preferences.rememberPassword, !host.isEmpty, !account.isEmpty {
             let endpoint = DSMEndpoint(useHTTPS: https, host: host, port: effectivePort)
@@ -63,15 +66,17 @@ final class ConnectionViewModel {
         }
     }
 
-    /// Port effectif (repli sur le port par défaut du schéma si la saisie est vide/invalide).
-    var port: Int {
-        Int(portText) ?? DSMEndpoint.defaultPort(useHTTPS: useHTTPS)
+    /// Port validé. Une saisie non numérique ou hors plage n'est jamais remplacée en silence.
+    var port: Int? {
+        guard let value = Int(portText), (1...65_535).contains(value) else { return nil }
+        return value
     }
 
     var canSubmit: Bool {
         !host.trimmingCharacters(in: .whitespaces).isEmpty
             && !account.trimmingCharacters(in: .whitespaces).isEmpty
             && !password.isEmpty
+            && port != nil
             && state != .connecting
     }
 
@@ -96,6 +101,10 @@ final class ConnectionViewModel {
             return
         }
 
+        guard let port else {
+            errorMessage = String(localized: "Le port doit être un nombre compris entre 1 et 65535.")
+            return
+        }
         let endpoint = DSMEndpoint(useHTTPS: useHTTPS, host: cleanedHost, port: port)
         let client = DSMClient(endpoint: endpoint)
         self.client = client
@@ -112,9 +121,13 @@ final class ConnectionViewModel {
                 account: cleanedAccount, password: password,
                 otpCode: nil, deviceID: deviceID, rememberDevice: false
             )
-            await finish(with: result, account: cleanedAccount, endpoint: endpoint)
+            try await finish(with: result, account: cleanedAccount, endpoint: endpoint)
         } catch DSMError.needsOTP {
             state = .needsOTP
+            errorMessage = nil
+        } catch DSMError.untrustedCertificate(let fingerprint) {
+            state = .editing
+            pendingCertificateFingerprint = fingerprint
             errorMessage = nil
         } catch {
             state = .editing
@@ -132,6 +145,11 @@ final class ConnectionViewModel {
 
         let cleanedHost = host.trimmingCharacters(in: .whitespaces)
         let cleanedAccount = account.trimmingCharacters(in: .whitespaces)
+        guard let port else {
+            isRestoring = false
+            errorMessage = String(localized: "Le port doit être un nombre compris entre 1 et 65535.")
+            return
+        }
         let endpoint = DSMEndpoint(useHTTPS: useHTTPS, host: cleanedHost, port: port)
         guard let saved = CredentialStore.password(account: cleanedAccount, endpoint: endpoint) else {
             isRestoring = false
@@ -167,11 +185,15 @@ final class ConnectionViewModel {
                 otpCode: otpCode.trimmingCharacters(in: .whitespaces),
                 deviceID: nil, rememberDevice: rememberDevice
             )
-            await finish(with: result, account: cleanedAccount, endpoint: endpoint)
+            try await finish(with: result, account: cleanedAccount, endpoint: endpoint)
         } catch DSMError.badOTP {
             state = .needsOTP
             otpCode = ""
             errorMessage = DSMError.badOTP.errorDescription
+        } catch DSMError.untrustedCertificate(let fingerprint) {
+            state = .needsOTP
+            pendingCertificateFingerprint = fingerprint
+            errorMessage = nil
         } catch {
             state = .needsOTP
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
@@ -185,10 +207,41 @@ final class ConnectionViewModel {
         errorMessage = nil
     }
 
+    func approvePendingCertificate() async {
+        guard let fingerprint = pendingCertificateFingerprint,
+              let endpoint = pendingEndpoint else { return }
+        guard KeychainStore.save(
+            fingerprint,
+            service: KeychainStore.serverTrustService,
+            account: endpoint.trustStoreKey
+        ) else {
+            pendingCertificateFingerprint = nil
+            errorMessage = String(localized: "Le certificat n'a pas pu être enregistré dans le trousseau.")
+            return
+        }
+        pendingCertificateFingerprint = nil
+        client = nil
+        await connect()
+    }
+
+    func rejectPendingCertificate() {
+        pendingCertificateFingerprint = nil
+        client = nil
+        pendingEndpoint = nil
+        state = .editing
+    }
+
     // MARK: - Interne
 
-    private func finish(with result: LoginResult, account: String, endpoint: DSMEndpoint) async {
+    private func finish(with result: LoginResult, account: String, endpoint: DSMEndpoint) async throws {
         guard let client else { return }
+        let capabilities: DSMCapabilities
+        do {
+            capabilities = try await client.discoverCapabilities()
+        } catch {
+            try? await client.logout()
+            throw error
+        }
         if rememberDevice, let did = result.did, !did.isEmpty {
             KeychainStore.save(did, service: KeychainStore.deviceTokenService, account: keychainKey(account, endpoint))
         }
@@ -199,10 +252,8 @@ final class ConnectionViewModel {
             CredentialStore.forget(account: account, endpoint: endpoint)
         }
         persistPreferences(account: account, endpoint: endpoint)
-        let capabilities = (try? await client.discoverCapabilities()) ?? client.capabilities
         session.establish(
             endpoint: endpoint,
-            sid: result.sid,
             client: client,
             capabilities: capabilities
         )

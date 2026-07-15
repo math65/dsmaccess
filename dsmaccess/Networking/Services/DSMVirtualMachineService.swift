@@ -22,7 +22,7 @@ final class DSMVirtualMachineService {
         let result = try await transport.value(
             api: Self.guestAPI,
             method: "list",
-            parameters: ["additional": "true"],
+            parameters: ["additional": .boolean(true)],
             as: VirtualMachineList.self
         )
         return result.guests
@@ -38,7 +38,7 @@ final class DSMVirtualMachineService {
         try await transport.perform(
             api: Self.actionAPI,
             method: method,
-            parameters: ["guest_id": guestID]
+            parameters: ["guest_id": .string(guestID)]
         )
     }
 }

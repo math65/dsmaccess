@@ -63,17 +63,51 @@ struct DSMCapabilitiesTests {
         #expect(!capabilities.supports("SYNO.DownloadStation.Statistic"))
     }
 
-    @Test func centralizesSessionAuthentication() throws {
+    @Test func centralizesSessionAuthenticationAndRequestFormat() async throws {
         let endpoint = DSMEndpoint(useHTTPS: true, host: "nas.local", port: 5001)
-        let transport = DSMTransport(endpoint: endpoint, session: .shared)
+        var capabilities = DSMCapabilities()
+        capabilities.merge([
+            "SYNO.Example": APIInfoEntry(
+                path: "example.cgi",
+                minVersion: 1,
+                maxVersion: 2,
+                requestFormat: "JSON"
+            ),
+        ])
+        let transport = DSMTransport(
+            endpoint: endpoint,
+            session: .shared,
+            capabilities: capabilities
+        )
         transport.establishSession(
             LoginResult(sid: "session-id", did: nil, synotoken: "csrf-token")
         )
 
-        let parameters = try transport.authenticatedParameters()
+        let url = try await transport.makeURL(
+            api: DSMAPI("SYNO.Example", preferredVersion: 2),
+            method: "update",
+            parameters: [
+                "path": .string("/Photos/Été 2026"),
+                "enabled": .boolean(true),
+                "limit": .integer(12),
+            ]
+        )
+        let items = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
 
-        #expect(parameters["_sid"] == "session-id")
-        #expect(parameters["SynoToken"] == "csrf-token")
+        #expect(items.contains(URLQueryItem(name: "_sid", value: "session-id")))
+        #expect(items.contains(URLQueryItem(name: "SynoToken", value: "csrf-token")))
+        let encodedPath = try #require(items.first { $0.name == "path" }?.value)
+        let decodedPath = try JSONDecoder().decode(String.self, from: Data(encodedPath.utf8))
+        #expect(decodedPath == "/Photos/Été 2026")
+        #expect(items.contains(URLQueryItem(name: "enabled", value: "true")))
+        #expect(items.contains(URLQueryItem(name: "limit", value: "12")))
+    }
+
+    @Test func encodesFormParametersWithoutJSONQuoting() throws {
+        #expect(try DSMParameter.string("dossier été").encoded(for: nil) == "dossier été")
+        #expect(try DSMParameter.boolean(false).encoded(for: "FORM") == "false")
+        #expect(try DSMParameter.integer(-1).encoded(for: "FORM") == "-1")
+        #expect(try DSMParameter.json(["a", "b"]).encoded(for: "FORM") == "[\"a\",\"b\"]")
     }
 
     @Test func constructsEncodedDiscoveredRoutes() throws {

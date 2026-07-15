@@ -6,6 +6,8 @@
 	<true/>
 	<key>com.apple.security.network.client</key>
 	<true/>
+	<key>com.apple.security.files.user-selected.read-write</key>
+	<true/>
 	<!-- Sparkle (sandbox) : autorise l'accès au service XPC Installer. On garde
 	     network.client ci-dessus, ce qui évite le service Downloader (pas de -spks). -->
 	<key>com.apple.security.temporary-exception.mach-lookup.global-name</key>

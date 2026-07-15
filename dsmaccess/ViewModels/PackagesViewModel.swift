@@ -28,18 +28,25 @@ final class PackagesViewModel {
     }
 
     func load() async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
         isLoading = true
         errorMessage = nil
         do {
-            packages = try await client.listPackages(sid: sid).sorted {
-                $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending
+            let result = try await session.withClient { client in
+                let packages = try await client.listPackages().sorted {
+                    $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending
+                }
+                let versions: [String: String]
+                do {
+                    versions = try await client.availablePackageVersions()
+                } catch DSMError.sessionExpired {
+                    throw DSMError.sessionExpired
+                } catch {
+                    versions = [:]
+                }
+                return (packages, versions)
             }
-            // Catalogue (pour détecter les mises à jour) ; sans bloquer si indisponible.
-            availableVersions = (try? await client.availablePackageVersions(sid: sid)) ?? [:]
+            packages = result.0
+            availableVersions = result.1
         } catch {
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }
@@ -48,16 +55,13 @@ final class PackagesViewModel {
 
     /// Démarre ou arrête un paquet. Renvoie le message à annoncer à VoiceOver.
     func setRunning(_ package: PackageInfo, running: Bool) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         guard let id = package.pkgId else {
             return String(localized: "Identifiant de paquet introuvable.")
         }
         busy.insert(id)
         defer { busy.remove(id) }
         do {
-            try await client.setPackageRunning(id: id, running: running, sid: sid)
+            try await session.withClient { try await $0.setPackageRunning(id: id, running: running) }
             await load()   // relit l'état réel du paquet
             return running
                 ? String(localized: "\(package.displayName) démarré")
@@ -71,16 +75,13 @@ final class PackagesViewModel {
 
     /// Désinstalle un paquet. Renvoie le message à annoncer à VoiceOver.
     func uninstall(_ package: PackageInfo) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         guard let id = package.pkgId else {
             return String(localized: "Identifiant de paquet introuvable.")
         }
         busy.insert(id)
         defer { busy.remove(id) }
         do {
-            try await client.uninstallPackage(id: id, sid: sid)
+            try await session.withClient { try await $0.uninstallPackage(id: id) }
             await load()
             return String(localized: "\(package.displayName) désinstallé")
         } catch {

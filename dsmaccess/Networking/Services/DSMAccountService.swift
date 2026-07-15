@@ -23,8 +23,8 @@ final class DSMAccountService {
             api: Self.userAPI,
             method: "list",
             parameters: [
-                "offset": "0",
-                "limit": "-1",
+                "offset": .integer(0),
+                "limit": .integer(-1),
                 "additional": try DSMParameter.json(["description", "email", "expired", "groups"]),
             ],
             as: DSMUserList.self
@@ -37,8 +37,8 @@ final class DSMAccountService {
             api: Self.groupAPI,
             method: "list",
             parameters: [
-                "offset": "0",
-                "limit": "-1",
+                "offset": .integer(0),
+                "limit": .integer(-1),
                 "additional": try DSMParameter.json(["description", "members"]),
             ],
             as: DSMGroupList.self
@@ -47,14 +47,14 @@ final class DSMAccountService {
     }
 
     func createUser(_ draft: DSMUserDraft) async throws {
-        var parameters = [
-            "name": try DSMParameter.json(draft.name),
-            "password": try DSMParameter.json(draft.password),
-            "description": try DSMParameter.json(draft.description),
-            "email": try DSMParameter.json(draft.email),
-            "expired": try DSMParameter.json("normal"),
-            "cannot_chg_passwd": "false",
-            "password_never_expire": "true",
+        var parameters: [String: DSMParameter] = [
+            "name": .string(draft.name),
+            "password": .string(draft.password),
+            "description": .string(draft.description),
+            "email": .string(draft.email),
+            "expired": .string("normal"),
+            "cannot_chg_passwd": .boolean(false),
+            "password_never_expire": .boolean(true),
         ]
         if !draft.groups.isEmpty {
             parameters["group"] = try DSMParameter.json(draft.groups)
@@ -67,8 +67,8 @@ final class DSMAccountService {
             api: Self.userAPI,
             method: "set",
             parameters: [
-                "name": try DSMParameter.json(name),
-                "expired": try DSMParameter.json(disabled ? "now" : "normal"),
+                "name": .string(name),
+                "expired": .string(disabled ? "now" : "normal"),
             ]
         )
     }
@@ -86,8 +86,8 @@ final class DSMAccountService {
             api: Self.groupAPI,
             method: "create",
             parameters: [
-                "name": try DSMParameter.json(draft.name),
-                "description": try DSMParameter.json(draft.description),
+                "name": .string(draft.name),
+                "description": .string(draft.description),
             ]
         )
     }

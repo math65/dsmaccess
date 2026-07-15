@@ -18,37 +18,46 @@ final class DownloadStationViewModel {
     var errorMessage: String?
 
     private let session: SessionStore
+    private var loadGeneration = 0
 
     init(session: SessionStore) {
         self.session = session
     }
 
     func load(silently: Bool = false) async {
-        guard let client = session.client, let sid = session.sid else {
-            session.clear()
-            return
-        }
-        if !silently { isLoading = true }
+        loadGeneration += 1
+        let generation = loadGeneration
+        isLoading = !silently
         errorMessage = nil
-        defer { isLoading = false }
+        defer { if generation == loadGeneration { isLoading = false } }
 
         do {
-            tasks = try await client.listDownloadTasks(sid: sid).sorted {
-                $0.title.localizedStandardCompare($1.title) == .orderedAscending
+            let result = try await session.withClient { client in
+                let tasks = try await client.listDownloadTasks().sorted {
+                    $0.title.localizedStandardCompare($1.title) == .orderedAscending
+                }
+                let statistic: DownloadStatistic?
+                do {
+                    statistic = try await client.downloadStatistic()
+                } catch DSMError.sessionExpired {
+                    throw DSMError.sessionExpired
+                } catch {
+                    statistic = nil
+                }
+                return (tasks, statistic)
             }
-            statistic = try? await client.downloadStatistic(sid: sid)
+            guard generation == loadGeneration else { return }
+            tasks = result.0
+            statistic = result.1
         } catch {
-            guard !DSMError.isCancellation(error) else { return }
+            guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }
     }
 
     func create(uri: String, destination: String?) async -> String {
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         do {
-            try await client.createDownload(uri: uri, destination: destination, sid: sid)
+            try await session.withClient { try await $0.createDownload(uri: uri, destination: destination) }
             await load()
             return String(localized: "Téléchargement ajouté")
         } catch {
@@ -57,22 +66,22 @@ final class DownloadStationViewModel {
     }
 
     func pause(ids: Set<String>) async -> String {
-        await perform(ids: ids) { client, sid in
-            try await client.pauseDownloads(ids: ids, sid: sid)
+        await perform(ids: ids) { client in
+            try await client.pauseDownloads(ids: ids)
             return String(localized: "\(ids.count) téléchargements mis en pause")
         }
     }
 
     func resume(ids: Set<String>) async -> String {
-        await perform(ids: ids) { client, sid in
-            try await client.resumeDownloads(ids: ids, sid: sid)
+        await perform(ids: ids) { client in
+            try await client.resumeDownloads(ids: ids)
             return String(localized: "\(ids.count) téléchargements repris")
         }
     }
 
     func delete(ids: Set<String>, forceComplete: Bool) async -> String {
-        await perform(ids: ids) { client, sid in
-            try await client.deleteDownloads(ids: ids, forceComplete: forceComplete, sid: sid)
+        await perform(ids: ids) { client in
+            try await client.deleteDownloads(ids: ids, forceComplete: forceComplete)
             return String(localized: "\(ids.count) téléchargements supprimés")
         }
     }
@@ -85,17 +94,14 @@ final class DownloadStationViewModel {
 
     private func perform(
         ids: Set<String>,
-        operation: (DSMClientProtocol, String) async throws -> String
+        operation: (DSMClientProtocol) async throws -> String
     ) async -> String {
         guard !ids.isEmpty else { return String(localized: "Aucun téléchargement sélectionné") }
-        guard let client = session.client, let sid = session.sid else {
-            return String(localized: "Session expirée.")
-        }
         busyIDs.formUnion(ids)
         defer { busyIDs.subtract(ids) }
 
         do {
-            let message = try await operation(client, sid)
+            let message = try await session.withClient(operation)
             await load()
             return message
         } catch {
