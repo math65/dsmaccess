@@ -167,6 +167,8 @@ struct ShareSheet: View {
             errorMessage = message
             focusError = true
             VoiceOver.announce(message, category: .error, priority: .high)
+        case .cancelled:
+            break
         }
     }
 

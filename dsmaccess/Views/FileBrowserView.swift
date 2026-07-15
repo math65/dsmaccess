@@ -95,9 +95,9 @@ struct FileBrowserView: View {
                     let items = pendingDeleteItems
                     pendingDeleteItems.removeAll()
                     Task {
-                        let message = await vm.delete(items)
-                        selection.removeAll()
-                        VoiceOver.announce(message, priority: .high)
+                        announce(await vm.delete(items)) {
+                            selection.removeAll()
+                        }
                     }
                 }
                 .help("Supprimer définitivement les éléments sélectionnés")
@@ -312,8 +312,7 @@ struct FileBrowserView: View {
             if let path = vm.currentLevel.path {
                 Button {
                     Task {
-                        let message = await vm.toggleCurrentFavorite()
-                        VoiceOver.announce(message)
+                        announce(await vm.toggleCurrentFavorite())
                     }
                 } label: {
                     if vm.isFavorite(path: path) {
@@ -363,8 +362,7 @@ struct FileBrowserView: View {
                     priority: .low
                 )
                 Task {
-                    let message = await vm.createFolder(named: name)
-                    VoiceOver.announce(message, priority: .high)
+                    announce(await vm.createFolder(named: name))
                 }
             }
         case .rename(let item):
@@ -381,9 +379,9 @@ struct FileBrowserView: View {
                     priority: .low
                 )
                 Task {
-                    let message = await vm.rename(item, to: name)
-                    selection = [item.path.deletingLastNASPathComponent.appendingNASPathComponent(name)]
-                    VoiceOver.announce(message, priority: .high)
+                    announce(await vm.rename(item, to: name)) {
+                        selection = [item.path.deletingLastNASPathComponent.appendingNASPathComponent(name)]
+                    }
                 }
             }
         case .compress(let items):
@@ -400,9 +398,9 @@ struct FileBrowserView: View {
                     priority: .low
                 )
                 Task {
-                    let message = await vm.compress(items, archiveName: name)
-                    selection.removeAll()
-                    VoiceOver.announce(message, priority: .high)
+                    announce(await vm.compress(items, archiveName: name)) {
+                        selection.removeAll()
+                    }
                 }
             }
         }
@@ -501,9 +499,9 @@ struct FileBrowserView: View {
             priority: .low
         )
         Task {
-            let message = await vm.paste()
-            selection.removeAll()
-            VoiceOver.announce(message, priority: .high)
+            announce(await vm.paste()) {
+                selection.removeAll()
+            }
         }
     }
 
@@ -514,9 +512,9 @@ struct FileBrowserView: View {
             priority: .low
         )
         Task {
-            let message = await vm.extract(item)
-            selection.removeAll()
-            VoiceOver.announce(message, priority: .high)
+            announce(await vm.extract(item)) {
+                selection.removeAll()
+            }
         }
     }
 
@@ -533,8 +531,7 @@ struct FileBrowserView: View {
                 priority: .low
             )
             Task {
-                let message = await vm.download(item, to: url)
-                VoiceOver.announce(message, priority: .high)
+                announce(await vm.download(item, to: url))
             }
             return
         }
@@ -553,8 +550,7 @@ struct FileBrowserView: View {
             priority: .low
         )
         Task {
-            let message = await vm.download(items, to: directory)
-            VoiceOver.announce(message, priority: .high)
+            announce(await vm.download(items, to: directory))
         }
     }
 
@@ -572,8 +568,22 @@ struct FileBrowserView: View {
             priority: .low
         )
         Task {
-            let message = await vm.upload(fileURLs: panel.urls)
-            VoiceOver.announce(message, priority: .high)
+            announce(await vm.upload(fileURLs: panel.urls))
+        }
+    }
+
+    private func announce(
+        _ outcome: FileBrowserViewModel.OperationOutcome,
+        onSuccess: () -> Void = { }
+    ) {
+        switch outcome {
+        case .success(let message):
+            onSuccess()
+            VoiceOver.announce(message, category: .result, priority: .high)
+        case .failure(let message):
+            VoiceOver.announce(message, category: .error, priority: .high)
+        case .cancelled:
+            break
         }
     }
 

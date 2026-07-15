@@ -39,6 +39,12 @@ final class FileBrowserViewModel {
         }
     }
 
+    enum OperationOutcome {
+        case success(String)
+        case failure(String)
+        case cancelled
+    }
+
     private(set) var stack: [Level]
     private(set) var items: [FileStationItem] = []
     private(set) var favorites: [FileStationFavorite] = []
@@ -200,19 +206,20 @@ final class FileBrowserViewModel {
         item.isdir ? "\(item.name).zip" : item.name
     }
 
-    func download(_ item: FileStationItem, to destination: URL) async -> String {
+    func download(_ item: FileStationItem, to destination: URL) async -> OperationOutcome {
         defer { destination.stopAccessingSecurityScopedResource() }
         isDownloading = true
         defer { isDownloading = false }
         do {
             try await session.withClient { try await $0.downloadFile(path: item.path, to: destination) }
-            return String(localized: "Téléchargement terminé : \(item.name)")
+            return .success(String(localized: "Téléchargement terminé : \(item.name)"))
         } catch {
-            return String(localized: "Échec du téléchargement : \(errorMessage(for: error))")
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(String(localized: "Échec du téléchargement : \(errorMessage(for: error))"))
         }
     }
 
-    func download(_ selectedItems: [FileStationItem], to directory: URL) async -> String {
+    func download(_ selectedItems: [FileStationItem], to directory: URL) async -> OperationOutcome {
         defer { directory.stopAccessingSecurityScopedResource() }
         isDownloading = true
         defer { isDownloading = false }
@@ -224,21 +231,23 @@ final class FileBrowserViewModel {
                 try Task.checkCancellation()
                 try await session.withClient { try await $0.downloadFile(path: item.path, to: destination) }
                 completed += 1
-            } catch is CancellationError {
-                break
+            } catch where DSMError.isCancellation(error) {
+                return .cancelled
             } catch {
                 if firstError == nil { firstError = errorMessage(for: error) }
             }
         }
         if completed == selectedItems.count {
-            return String(localized: "\(completed) éléments téléchargés")
+            return .success(String(localized: "\(completed) éléments téléchargés"))
         }
-        return String(localized: "\(completed) téléchargés, \(selectedItems.count - completed) en échec. \(firstError ?? "")")
+        return .failure(
+            String(localized: "\(completed) téléchargés, \(selectedItems.count - completed) en échec. \(firstError ?? "")")
+        )
     }
 
-    func createFolder(named name: String) async -> String {
+    func createFolder(named name: String) async -> OperationOutcome {
         guard let parent = currentLevel.path else {
-            return String(localized: "Impossible de créer le dossier ici.")
+            return .failure(String(localized: "Impossible de créer le dossier ici."))
         }
         return await performAndReload {
             try await self.session.withClient { try await $0.createFolder(in: parent, name: name) }
@@ -246,14 +255,14 @@ final class FileBrowserViewModel {
         }
     }
 
-    func rename(_ item: FileStationItem, to name: String) async -> String {
+    func rename(_ item: FileStationItem, to name: String) async -> OperationOutcome {
         return await performAndReload {
             try await self.session.withClient { try await $0.rename(path: item.path, to: name) }
             return String(localized: "Renommé en : \(name)")
         }
     }
 
-    func delete(_ selectedItems: [FileStationItem]) async -> String {
+    func delete(_ selectedItems: [FileStationItem]) async -> OperationOutcome {
         return await performAndReload {
             try await self.session.withClient { try await $0.delete(paths: selectedItems.map(\.path)) }
             return selectedItems.count == 1
@@ -262,9 +271,9 @@ final class FileBrowserViewModel {
         }
     }
 
-    func upload(fileURLs: [URL]) async -> String {
+    func upload(fileURLs: [URL]) async -> OperationOutcome {
         guard let parent = currentLevel.path else {
-            return String(localized: "Impossible d’envoyer ici.")
+            return .failure(String(localized: "Impossible d’envoyer ici."))
         }
         isWorking = true
         defer { isWorking = false }
@@ -277,6 +286,8 @@ final class FileBrowserViewModel {
                 try Task.checkCancellation()
                 try await session.withClient { try await $0.upload(fileURL: url, to: parent) }
                 sent += 1
+            } catch where DSMError.isCancellation(error) {
+                return .cancelled
             } catch {
                 if firstFailure == nil { firstFailure = errorMessage(for: error) }
             }
@@ -287,11 +298,14 @@ final class FileBrowserViewModel {
         }
         let failed = fileURLs.count - sent
         if failed > 0 {
-            return String(localized: "\(sent) envoyés, \(failed) en échec : \(firstFailure ?? "")")
+            return .failure(
+                String(localized: "\(sent) envoyés, \(failed) en échec : \(firstFailure ?? "")")
+            )
         }
-        return sent == 1
+        let message = sent == 1
             ? String(localized: "Fichier envoyé : \(fileURLs[0].lastPathComponent)")
             : String(localized: "\(sent) fichiers envoyés")
+        return .success(message)
     }
 
     func copy(_ selectedItems: [FileStationItem]) -> String {
@@ -308,10 +322,10 @@ final class FileBrowserViewModel {
             : String(localized: "\(selectedItems.count) éléments coupés. Ouvrez la destination puis Coller pour déplacer.")
     }
 
-    func paste() async -> String {
-        guard let clipboard else { return String(localized: "Rien à coller.") }
+    func paste() async -> OperationOutcome {
+        guard let clipboard else { return .failure(String(localized: "Rien à coller.")) }
         guard let destination = currentLevel.path else {
-            return String(localized: "Impossible de coller ici.")
+            return .failure(String(localized: "Impossible de coller ici."))
         }
         return await performAndReload {
             try await self.session.withClient {
@@ -328,9 +342,9 @@ final class FileBrowserViewModel {
         }
     }
 
-    func compress(_ selectedItems: [FileStationItem], archiveName: String) async -> String {
+    func compress(_ selectedItems: [FileStationItem], archiveName: String) async -> OperationOutcome {
         guard let folder = currentLevel.path else {
-            return String(localized: "Impossible de créer une archive ici.")
+            return .failure(String(localized: "Impossible de créer une archive ici."))
         }
         let trimmed = archiveName.trimmingCharacters(in: .whitespacesAndNewlines)
         let filename = trimmed.lowercased().hasSuffix(".zip") ? trimmed : "\(trimmed).zip"
@@ -343,9 +357,9 @@ final class FileBrowserViewModel {
         }
     }
 
-    func extract(_ item: FileStationItem) async -> String {
+    func extract(_ item: FileStationItem) async -> OperationOutcome {
         guard let folder = currentLevel.path else {
-            return String(localized: "Impossible d’extraire l’archive ici.")
+            return .failure(String(localized: "Impossible d’extraire l’archive ici."))
         }
         return await performAndReload {
             try await self.session.withClient {
@@ -365,29 +379,33 @@ final class FileBrowserViewModel {
         favorites.contains { $0.path == path }
     }
 
-    func toggleCurrentFavorite() async -> String {
+    func toggleCurrentFavorite() async -> OperationOutcome {
         guard let path = currentLevel.path else {
-            return String(localized: "Impossible d’ajouter ce dossier aux favoris.")
+            return .failure(String(localized: "Impossible d’ajouter ce dossier aux favoris."))
         }
         do {
             if isFavorite(path: path) {
                 try await session.withClient { try await $0.removeFileStationFavorite(path: path) }
                 await loadFavorites()
-                return String(localized: "Favori supprimé : \(currentLevel.name)")
+                return .success(String(localized: "Favori supprimé : \(currentLevel.name)"))
             }
             try await session.withClient {
                 try await $0.addFileStationFavorite(path: path, name: currentLevel.name)
             }
             await loadFavorites()
-            return String(localized: "Favori ajouté : \(currentLevel.name)")
+            return .success(String(localized: "Favori ajouté : \(currentLevel.name)"))
         } catch {
-            return String(localized: "Échec de la modification du favori : \(errorMessage(for: error))")
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(
+                String(localized: "Échec de la modification du favori : \(errorMessage(for: error))")
+            )
         }
     }
 
     enum ShareOutcome {
         case link(String)
         case failure(String)
+        case cancelled
     }
 
     func createShareLink(for item: FileStationItem, password: String?, dateExpired: String?) async -> ShareOutcome {
@@ -401,6 +419,7 @@ final class FileBrowserViewModel {
             }
             return .link(url)
         } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(String(localized: "Échec de la création du lien : \(errorMessage(for: error))"))
         }
     }
@@ -421,13 +440,16 @@ final class FileBrowserViewModel {
         }
     }
 
-    func deleteShareLink(_ link: SharingLink) async -> String {
+    func deleteShareLink(_ link: SharingLink) async -> OperationOutcome {
         do {
             try await session.withClient { try await $0.deleteShareLink(id: link.id) }
             await loadShareLinks()
-            return String(localized: "Lien supprimé")
+            return .success(String(localized: "Lien supprimé"))
         } catch {
-            return String(localized: "Échec de la suppression du lien : \(errorMessage(for: error))")
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(
+                String(localized: "Échec de la suppression du lien : \(errorMessage(for: error))")
+            )
         }
     }
 
@@ -442,7 +464,9 @@ final class FileBrowserViewModel {
         return String(localized: "\(title), \(count)")
     }
 
-    private func performAndReload(_ operation: () async throws -> String) async -> String {
+    private func performAndReload(
+        _ operation: () async throws -> String
+    ) async -> OperationOutcome {
         isWorking = true
         defer { isWorking = false }
         do {
@@ -452,9 +476,10 @@ final class FileBrowserViewModel {
             if !query.isEmpty {
                 await search(query)
             }
-            return message
+            return .success(message)
         } catch {
-            return String(localized: "Échec de l’opération : \(errorMessage(for: error))")
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(String(localized: "Échec de l’opération : \(errorMessage(for: error))"))
         }
     }
 

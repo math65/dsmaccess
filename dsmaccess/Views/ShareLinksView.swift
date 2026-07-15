@@ -102,7 +102,7 @@ struct ShareLinksView: View {
             .accessibilityLabel("Copier le lien")
             .help("Copier ce lien de partage")
             Button(role: .destructive) {
-                Task { let msg = await vm.deleteShareLink(link); VoiceOver.announce(msg, priority: .high) }
+                Task { announce(await vm.deleteShareLink(link)) }
             } label: {
                 Image(systemName: "trash")
             }
@@ -115,5 +115,16 @@ struct ShareLinksView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(url, forType: .string)
         VoiceOver.announce(String(localized: "Lien copié"))
+    }
+
+    private func announce(_ outcome: FileBrowserViewModel.OperationOutcome) {
+        switch outcome {
+        case .success(let message):
+            VoiceOver.announce(message, category: .result, priority: .high)
+        case .failure(let message):
+            VoiceOver.announce(message, category: .error, priority: .high)
+        case .cancelled:
+            break
+        }
     }
 }
