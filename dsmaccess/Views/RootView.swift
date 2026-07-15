@@ -2,8 +2,7 @@
 //  RootView.swift
 //  dsmaccess
 //
-//  Aiguilleur : affiche l'écran de connexion tant qu'on n'est pas connecté,
-//  puis l'écran de contenu (infos système) une fois la session ouverte.
+//  Affiche la connexion ou l'interface d'administration selon l'état de la session.
 //
 
 import SwiftUI

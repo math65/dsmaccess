@@ -15,7 +15,7 @@ import Observation
 enum FileServiceState: Equatable {
     case on
     case off
-    case unknown          // drapeau absent de la réponse (nom d'API/champ à confirmer)
+    case unknown          // Drapeau absent de la réponse.
     case failed(String)   // erreur réseau ou API
 }
 
