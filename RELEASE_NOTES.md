@@ -1,21 +1,24 @@
-## v1.1-beta.2 (build 3) — 2026-07-13
+## v1.1-beta.3 (build 4) — 2026-07-14
 
-This beta polishes 1.1 with three fixes that came straight from your beta
-feedback — thank you, and keep it coming.
+This beta adds accessible network identity and package update controls, and
+improves recovery from transient timeouts.
+
+### New
+
+- Control Panel: the new read-only "Network and identity" overview shows the
+  server name, local IP address, subnet mask, gateway, DNS servers, IPv6 address,
+  and network interface.
+- Package Center: official Synology package updates can now be confirmed and
+  installed from the app. The NAS downloads, installs, and restarts the package.
+  If an update requires a NAS restart, complete it from DSM.
 
 ### Fixes
 
-- Files: entering an empty folder no longer leaves you stuck. VoiceOver focus
-  now lands on the folder header, so the "Parent folder" button is right there
-  to go back up.
-- Storage: opening the Storage screen no longer announces a false "can't reach
-  the NAS" error while your storage details load normally.
-- Files: moving items is easier to find. The action is now called
-  "Move (cut)", and once you have cut an item, the app reminds you to paste it
-  at the destination to complete the move.
+- Connections and read requests recover from a transient timeout with one
+  automatic retry. Administrative actions are never retried automatically.
 
-Every screen keeps the VoiceOver-first approach: clear labels, a logical focus
-order, and spoken announcements on load, on error, and after each action.
+Both additions include explicit VoiceOver labels, focused loading and error
+states, and spoken progress and result announcements.
 
 ### Requirements
 
@@ -24,4 +27,4 @@ order, and spoken announcements on load, on error, and after each action.
 
 ### Download
 
-[dsmaccess-1.1-beta.2.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.2/dsmaccess-1.1-beta.2.zip)
+[dsmaccess-1.1-beta.3.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.3/dsmaccess-1.1-beta.3.zip)
