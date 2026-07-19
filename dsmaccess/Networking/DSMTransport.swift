@@ -76,6 +76,10 @@ final class DSMTransport {
         synoToken = nil
     }
 
+    func approveServerCertificate(fingerprint: String) -> Bool {
+        trustDelegate?.approve(fingerprint: fingerprint) == true
+    }
+
     @discardableResult
     func discover(_ names: [String]) async throws -> [String: APIInfoEntry] {
         let requestedNames = names.isEmpty ? [Self.infoAPI.name] : names

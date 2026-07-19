@@ -133,6 +133,10 @@ final class DSMClient: DSMClientProtocol {
 
     var capabilities: DSMCapabilities { transport.capabilities }
 
+    func approveServerCertificate(fingerprint: String) -> Bool {
+        transport.approveServerCertificate(fingerprint: fingerprint)
+    }
+
     func discoverCapabilities() async throws -> DSMCapabilities {
         try await transport.discoverAll()
     }

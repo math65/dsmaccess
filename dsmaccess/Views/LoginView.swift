@@ -35,7 +35,10 @@ struct LoginView: View {
             "Certificat non approuvé",
             isPresented: Binding(
                 get: { vm.pendingCertificateFingerprint != nil },
-                set: { if !$0 { vm.rejectPendingCertificate() } }
+                // Les boutons portent la décision. SwiftUI écrit aussi `false` pendant
+                // la fermeture de l'alerte, ce qui ne doit pas transformer une
+                // approbation en refus pendant la nouvelle tentative de connexion.
+                set: { _ in }
             )
         ) {
             Button("Annuler", role: .cancel) {

@@ -41,4 +41,18 @@ struct ConnectionValidationTests {
         #expect(http.credentialStoreKey(account: "alex") == "alex@http://nas.local:5001")
         #expect(https.credentialStoreKey(account: "alex") != http.credentialStoreKey(account: "alex"))
     }
+
+    @Test func approvedCertificateIsAvailableToTheActiveSession() {
+        let endpoint = DSMEndpoint(useHTTPS: true, host: "nas.local", port: 5001)
+        let fingerprint = "AA:BB:CC"
+        let delegate = ServerTrustDelegate(
+            endpoint: endpoint,
+            approvedFingerprint: nil,
+            persistApprovedFingerprint: { _ in true }
+        )
+
+        #expect(delegate.approve(fingerprint: fingerprint))
+        #expect(delegate.isApproved(fingerprint: fingerprint))
+        #expect(!delegate.isApproved(fingerprint: "DD:EE:FF"))
+    }
 }

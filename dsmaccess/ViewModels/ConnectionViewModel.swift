@@ -102,6 +102,10 @@ final class ConnectionViewModel {
 
     /// Première tentative : identifiants seuls (+ jeton d'appareil mémorisé si présent).
     func connect() async {
+        await connect(reusingPendingClient: false)
+    }
+
+    private func connect(reusingPendingClient: Bool) async {
         let cleanedHost = host.trimmingCharacters(in: .whitespacesAndNewlines)
         let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanedHost.isEmpty, !cleanedAccount.isEmpty, !password.isEmpty else {
@@ -114,9 +118,16 @@ final class ConnectionViewModel {
             return
         }
         let endpoint = DSMEndpoint(useHTTPS: useHTTPS, host: cleanedHost, port: port)
-        let client = DSMClient(endpoint: endpoint)
-        self.client = client
-        self.pendingEndpoint = endpoint
+        let activeClient: DSMClient
+        if reusingPendingClient,
+           pendingEndpoint == endpoint,
+           let client {
+            activeClient = client
+        } else {
+            activeClient = DSMClient(endpoint: endpoint)
+            client = activeClient
+            pendingEndpoint = endpoint
+        }
 
         state = .connecting
         errorMessage = nil
@@ -125,7 +136,7 @@ final class ConnectionViewModel {
         let deviceID = CredentialStore.deviceID(account: cleanedAccount, endpoint: endpoint)
 
         do {
-            let result = try await client.login(
+            let result = try await activeClient.login(
                 account: cleanedAccount, password: password,
                 otpCode: nil, deviceID: deviceID, rememberDevice: false
             )
@@ -229,19 +240,19 @@ final class ConnectionViewModel {
 
     func approvePendingCertificate() async {
         guard let fingerprint = pendingCertificateFingerprint,
-              let endpoint = pendingEndpoint else { return }
-        guard KeychainStore.save(
-            fingerprint,
-            service: KeychainStore.serverTrustService,
-            account: endpoint.trustStoreKey
-        ) else {
+              let client else { return }
+        let shouldRetryOTP = state == .needsOTP
+        guard client.approveServerCertificate(fingerprint: fingerprint) else {
             pendingCertificateFingerprint = nil
             errorMessage = String(localized: "Le certificat n'a pas pu être enregistré dans le trousseau.")
             return
         }
         pendingCertificateFingerprint = nil
-        client = nil
-        await connect()
+        if shouldRetryOTP {
+            await submitOTP()
+        } else {
+            await connect(reusingPendingClient: true)
+        }
     }
 
     func rejectPendingCertificate() {

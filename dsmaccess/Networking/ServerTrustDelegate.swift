@@ -14,16 +14,48 @@ import Security
 /// n'est accepté que si son empreinte SHA-256 correspond à celle approuvée auparavant.
 final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
     private let endpoint: DSMEndpoint
-    private let approvedFingerprint: String?
+    private let persistApprovedFingerprint: @Sendable (String) -> Bool
     private let lock = NSLock()
+    private var approvedFingerprint: String?
     private var rejectedFingerprint: String?
 
     init(endpoint: DSMEndpoint) {
         self.endpoint = endpoint
-        approvedFingerprint = KeychainStore.load(
+        self.approvedFingerprint = KeychainStore.load(
             service: KeychainStore.serverTrustService,
             account: endpoint.trustStoreKey
         )
+        persistApprovedFingerprint = { fingerprint in
+            KeychainStore.save(
+                fingerprint,
+                service: KeychainStore.serverTrustService,
+                account: endpoint.trustStoreKey
+            )
+        }
+    }
+
+    init(
+        endpoint: DSMEndpoint,
+        approvedFingerprint: String?,
+        persistApprovedFingerprint: @escaping @Sendable (String) -> Bool
+    ) {
+        self.endpoint = endpoint
+        self.approvedFingerprint = approvedFingerprint
+        self.persistApprovedFingerprint = persistApprovedFingerprint
+    }
+
+    func approve(fingerprint: String) -> Bool {
+        guard persistApprovedFingerprint(fingerprint) else { return false }
+        lock.lock()
+        approvedFingerprint = fingerprint
+        lock.unlock()
+        return true
+    }
+
+    func isApproved(fingerprint: String) -> Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return approvedFingerprint == fingerprint
     }
 
     func consumeRejectedFingerprint() -> String? {
@@ -56,7 +88,7 @@ final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendab
             return
         }
 
-        if fingerprint == approvedFingerprint {
+        if isApproved(fingerprint: fingerprint) {
             completionHandler(.useCredential, URLCredential(trust: trust))
         } else {
             lock.lock()
