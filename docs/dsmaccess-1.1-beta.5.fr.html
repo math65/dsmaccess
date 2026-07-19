@@ -79,73 +79,25 @@ strong { font-weight: 600; }
 </style>
 </head>
 <body>
-<h2 id="v11-beta4-build-5--19-juillet-2026">v1.1-beta.4 (build 5) — 19
+<h2 id="v11-beta5-build-6--19-juillet-2026">v1.1-beta.5 (build 6) — 19
 juillet 2026</h2>
-<p>Grosse mise à jour. DSM Access a été repensée autour de macOS : une
-vraie barre latérale, des barres d'outils et une fenêtre Réglages
-standard, le tout entièrement utilisable au clavier et avec VoiceOver.
-Elle ajoute aussi plusieurs domaines à gérer, une sécurité des
-certificats renforcée et une série de corrections.</p>
-<h3 id="nouveaux-domaines">Nouveaux domaines</h3>
+<h3 id="en-bref">En bref</h3>
 <ul>
-<li>File Station, reconstruite : sélection multiple, copier, couper,
-coller, envois et téléchargements, création de dossiers, recherche, et
-liens de partage avec mot de passe et date d'expiration facultatifs. Un
-panneau d'informations indique la taille, le type, le propriétaire, les
-autorisations et les chemins.</li>
-<li>Utilisateurs et groupes.</li>
-<li>Download Station.</li>
-<li>Gestionnaire de machines virtuelles.</li>
-<li>Container Manager, avec le journal de chaque conteneur.</li>
-<li>Surveillance Station, avec les instantanés des caméras.</li>
-<li>Journaux et sécurité.</li>
-<li>Plusieurs NAS : enregistrez plusieurs serveurs et passez de l'un à
-l'autre.</li>
-</ul>
-<h3 id="une-app-plus-native">Une app plus native</h3>
-<ul>
-<li>Une barre latérale standard regroupe tout en sections — Vue
-d'ensemble, Fichiers et partage, Administration, Applications — avec un
-raccourci clavier par module.</li>
-<li>Une fenêtre Réglages native (Commande-virgule) permet de choisir les
-annonces que vous entendez et d'afficher, masquer ou réordonner les
-modules de la barre latérale.</li>
-<li>Les actions courantes sont désormais dans la barre d'outils et la
-barre des menus, avec des raccourcis standard.</li>
-</ul>
-<h3 id="sécurité">Sécurité</h3>
-<ul>
-<li>DSM Access vérifie maintenant le certificat de votre NAS. Un
-certificat auto-signé n'est accepté qu'après que vous ayez approuvé son
-empreinte une fois ; ce choix est retenu pour ce serveur, et vous êtes
-de nouveau consulté si le certificat change par la suite. Cela remplace
-l'ancien comportement qui acceptait n'importe quel certificat — ce qui
-compte si votre NAS est joignable depuis l'extérieur.</li>
-</ul>
-<h3 id="accessibilité">Accessibilité</h3>
-<ul>
-<li>Libellés VoiceOver, déplacement du focus et retours parlés sur
-chaque écran et dans chaque état : chargement, contenu vide, erreur et
-réussite.</li>
-<li>Les annonces sont mises en file d'attente : les mises à jour rapides
-se lisent l'une après l'autre au lieu de se couper.</li>
+<li>Corrige un problème de connexion apparu dans la beta.4 :
+l'approbation du certificat de votre NAS fonctionne à nouveau, au lieu
+de voir la demande de confiance revenir sans arrêt.</li>
 </ul>
 <h3 id="corrections">Corrections</h3>
 <ul>
-<li>Le détail d'un conteneur s'ouvre de nouveau sans accroc et affiche
-l'usage du processeur, la mémoire et l'heure de démarrage.</li>
-<li>Le journal des conteneurs se charge correctement.</li>
-<li>Les journaux système affichent leur message complet sur chaque
-ligne.</li>
-<li>Dans les fichiers, un clic droit sur plusieurs éléments sélectionnés
-conserve toute la sélection, et le titre de la fenêtre suit désormais le
-dossier courant.</li>
+<li>Lorsque macOS ne reconnaît pas le certificat de votre NAS,
+l'approuver une fois vous connecte désormais du premier coup, et le
+choix est retenu pour ce serveur. Dans la beta.4, l'approbation n'était
+pas prise en compte : la demande de confiance revenait en boucle et vous
+restiez bloqué sur l'écran de connexion.</li>
 </ul>
 <h3 id="remerciements">Remerciements</h3>
 <ul>
-<li>Cette version est en grande partie l'œuvre d'Ashley Cox : la refonte
-native, les nouveaux modules et la sécurité des certificats lui
-reviennent. Merci, Ashley, pour cette contribution exceptionnelle.</li>
+<li>Merci à Ashley Cox, qui a identifié et corrigé ce problème.</li>
 </ul>
 <h3 id="configuration-requise">Configuration requise</h3>
 <ul>
@@ -154,6 +106,6 @@ reviennent. Merci, Ashley, pour cette contribution exceptionnelle.</li>
 </ul>
 <h3 id="téléchargement">Téléchargement</h3>
 <p><a
-href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.4/dsmaccess-1.1-beta.4.zip">dsmaccess-1.1-beta.4.zip</a></p>
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.5/dsmaccess-1.1-beta.5.zip">dsmaccess-1.1-beta.5.zip</a></p>
 </body>
 </html>
