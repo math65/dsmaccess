@@ -144,10 +144,6 @@ struct FileOperationTask: nonisolated Decodable, Sendable {
     let taskid: String
 }
 
-struct FileOperationStatus: nonisolated Decodable, Sendable {
-    let finished: Bool
-}
-
 /// Réponse de `SYNO.FileStation.Sharing` `method=create` : les liens de partage créés.
 struct SharingLinks: nonisolated Decodable, Sendable {
     let links: [SharingLink]

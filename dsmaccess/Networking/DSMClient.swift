@@ -22,6 +22,7 @@ protocol DSMClientProtocol: AnyObject {
         rememberDevice: Bool
     ) async throws -> LoginResult
     func systemInfo() async throws -> SystemInfo
+    func fileStationCapabilities() async throws -> FileStationCapabilities
     func listShares() async throws -> [FileStationItem]
     func list(folderPath: String) async throws -> [FileStationItem]
     func downloadFile(path: String, to destination: URL) async throws
@@ -29,15 +30,53 @@ protocol DSMClientProtocol: AnyObject {
     func rename(path: String, to name: String) async throws
     func delete(path: String) async throws
     func delete(paths: [String]) async throws
+    func delete(
+        paths: [String],
+        progress: (FileOperationProgress) -> Void
+    ) async throws
     func upload(fileURL: URL, to folderPath: String) async throws
     func copyMove(path: String, to destFolder: String, remove: Bool) async throws
     func copyMove(paths: [String], to destFolder: String, remove: Bool) async throws
+    func copyMove(
+        paths: [String],
+        to destFolder: String,
+        remove: Bool,
+        conflictPolicy: FileConflictPolicy,
+        progress: (FileOperationProgress) -> Void
+    ) async throws
     func searchFiles(in folderPath: String, matching pattern: String) async throws -> [FileStationItem]
     func fileStationFavorites() async throws -> [FileStationFavorite]
     func addFileStationFavorite(path: String, name: String) async throws
     func removeFileStationFavorite(path: String) async throws
     func compress(paths: [String], to destinationPath: String) async throws
+    func compress(
+        paths: [String],
+        to destinationPath: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws
     func extract(archivePath: String, to destinationFolder: String) async throws
+    func extract(
+        archivePath: String,
+        to destinationFolder: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws
+    func checkFileStationWritePermission(
+        in folderPath: String,
+        filename: String,
+        conflictPolicy: FileConflictPolicy,
+        createOnly: Bool
+    ) async throws
+    func fileStationDirectorySize(
+        paths: [String],
+        progress: (FileOperationProgress) -> Void
+    ) async throws -> FileStationDirectorySize
+    func fileStationChecksum(
+        path: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws -> String
+    func fileStationBackgroundTasks() async throws -> [FileStationBackgroundTask]
+    func clearFinishedFileStationBackgroundTasks(taskIDs: [String]) async throws
+    func stopFileStationOperation(kind: FileOperationKind, taskID: String) async throws
     func createShareLink(
         path: String,
         password: String?,
@@ -165,6 +204,10 @@ final class DSMClient: DSMClientProtocol {
         try await system.information()
     }
 
+    func fileStationCapabilities() async throws -> FileStationCapabilities {
+        try await fileStation.capabilities()
+    }
+
     func listShares() async throws -> [FileStationItem] {
         try await fileStation.shares()
     }
@@ -193,6 +236,13 @@ final class DSMClient: DSMClientProtocol {
         try await fileStation.delete(paths: paths)
     }
 
+    func delete(
+        paths: [String],
+        progress: (FileOperationProgress) -> Void
+    ) async throws {
+        try await fileStation.delete(paths: paths, progress: progress)
+    }
+
     func upload(fileURL: URL, to folderPath: String) async throws {
         try await fileStation.upload(fileURL: fileURL, to: folderPath)
     }
@@ -203,6 +253,22 @@ final class DSMClient: DSMClientProtocol {
 
     func copyMove(paths: [String], to destFolder: String, remove: Bool) async throws {
         try await fileStation.copyMove(paths: paths, to: destFolder, removeSource: remove)
+    }
+
+    func copyMove(
+        paths: [String],
+        to destFolder: String,
+        remove: Bool,
+        conflictPolicy: FileConflictPolicy,
+        progress: (FileOperationProgress) -> Void
+    ) async throws {
+        try await fileStation.copyMove(
+            paths: paths,
+            to: destFolder,
+            removeSource: remove,
+            conflictPolicy: conflictPolicy,
+            progress: progress
+        )
     }
 
     func searchFiles(in folderPath: String, matching pattern: String) async throws -> [FileStationItem] {
@@ -225,8 +291,72 @@ final class DSMClient: DSMClientProtocol {
         try await fileStation.compress(paths: paths, to: destinationPath)
     }
 
+    func compress(
+        paths: [String],
+        to destinationPath: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws {
+        try await fileStation.compress(
+            paths: paths,
+            to: destinationPath,
+            progress: progress
+        )
+    }
+
     func extract(archivePath: String, to destinationFolder: String) async throws {
         try await fileStation.extract(archivePath: archivePath, to: destinationFolder)
+    }
+
+    func extract(
+        archivePath: String,
+        to destinationFolder: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws {
+        try await fileStation.extract(
+            archivePath: archivePath,
+            to: destinationFolder,
+            progress: progress
+        )
+    }
+
+    func checkFileStationWritePermission(
+        in folderPath: String,
+        filename: String,
+        conflictPolicy: FileConflictPolicy,
+        createOnly: Bool
+    ) async throws {
+        try await fileStation.checkWritePermission(
+            in: folderPath,
+            filename: filename,
+            conflictPolicy: conflictPolicy,
+            createOnly: createOnly
+        )
+    }
+
+    func fileStationDirectorySize(
+        paths: [String],
+        progress: (FileOperationProgress) -> Void
+    ) async throws -> FileStationDirectorySize {
+        try await fileStation.directorySize(paths: paths, progress: progress)
+    }
+
+    func fileStationChecksum(
+        path: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws -> String {
+        try await fileStation.checksum(path: path, progress: progress)
+    }
+
+    func fileStationBackgroundTasks() async throws -> [FileStationBackgroundTask] {
+        try await fileStation.backgroundTasks()
+    }
+
+    func clearFinishedFileStationBackgroundTasks(taskIDs: [String]) async throws {
+        try await fileStation.clearFinishedBackgroundTasks(taskIDs: taskIDs)
+    }
+
+    func stopFileStationOperation(kind: FileOperationKind, taskID: String) async throws {
+        try await fileStation.stopOperation(kind: kind, taskID: taskID)
     }
 
     func createShareLink(

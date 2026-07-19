@@ -18,6 +18,20 @@ struct DSMResponse<T: Decodable & Sendable>: nonisolated Decodable, Sendable {
 /// Corps d'erreur renvoyé par DSM quand `success == false`.
 struct DSMErrorBody: nonisolated Decodable, Sendable {
     let code: Int
+    let errors: [DSMErrorDetail]?
+
+    init(code: Int, errors: [DSMErrorDetail]? = nil) {
+        self.code = code
+        self.errors = errors
+    }
+}
+
+/// Détail optionnel associé à un élément lorsque DSM refuse une opération groupée.
+struct DSMErrorDetail: nonisolated Decodable, Equatable, Sendable {
+    let code: Int
+    let path: String?
+    let name: String?
+    let id: String?
 }
 
 /// Charge utile vide, pour les appels dont on ignore le contenu de `data` (ex. logout).

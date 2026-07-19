@@ -34,6 +34,13 @@ extension KeyedDecodingContainer {
         return nil
     }
 
+    nonisolated func flexDouble(_ key: Key) -> Double? {
+        if let value = try? decode(Double.self, forKey: key) { return value }
+        if let value = try? decode(Int64.self, forKey: key) { return Double(value) }
+        if let value = try? decode(String.self, forKey: key) { return Double(value) }
+        return nil
+    }
+
     nonisolated func flexBool(_ key: Key) -> Bool? {
         if let value = try? decode(Bool.self, forKey: key) { return value }
         if let value = flexInt(key) { return value != 0 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct DSMAPI: Hashable, Sendable {
+nonisolated struct DSMAPI: Hashable, Sendable {
     let name: String
     let preferredVersion: Int?
     let minimumVersion: Int
@@ -19,14 +19,14 @@ struct DSMAPI: Hashable, Sendable {
     }
 }
 
-struct ResolvedDSMAPI: Equatable, Sendable {
+nonisolated struct ResolvedDSMAPI: Equatable, Sendable {
     let name: String
     let path: String
     let version: Int
     let requestFormat: String?
 }
 
-struct DSMCapabilities: Equatable, Sendable {
+nonisolated struct DSMCapabilities: Equatable, Sendable {
     private(set) var entries: [String: APIInfoEntry] = [:]
 
     var names: Set<String> { Set(entries.keys) }
@@ -37,6 +37,12 @@ struct DSMCapabilities: Equatable, Sendable {
 
     func supports(_ name: String) -> Bool {
         entries[name] != nil
+    }
+
+    func supports(_ api: DSMAPI) -> Bool {
+        guard let entry = entries[api.name] else { return false }
+        let highestAllowed = api.preferredVersion.map { min($0, entry.maxVersion) } ?? entry.maxVersion
+        return highestAllowed >= max(api.minimumVersion, entry.minVersion)
     }
 
     func supports(prefix: String) -> Bool {

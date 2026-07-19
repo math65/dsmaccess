@@ -1,0 +1,26 @@
+{
+  "sourceLanguage" : "fr",
+  "strings" : {
+    "Échec de l’opération sur un élément (codes %lld et %lld)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An item operation failed (codes %1$lld and %2$lld)."
+          }
+        }
+      }
+    },
+    "Échec de l’opération sur « %@ » (codes %lld et %lld)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The operation on “%1$@” failed (codes %2$lld and %3$lld)."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

@@ -402,7 +402,15 @@ final class DSMTransport {
     }
 
     func error(from body: DSMErrorBody?) -> DSMError {
-        switch body?.code {
+        if let body,
+           let detail = body.errors?.first {
+            return .itemOperationFailed(
+                code: body.code,
+                item: detail.path ?? detail.name ?? detail.id,
+                itemCode: detail.code
+            )
+        }
+        return switch body?.code {
         case 105: .permissionDenied
         case 106, 107, 119: .sessionExpired
         case let code?: .apiError(code: code)

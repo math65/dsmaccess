@@ -41,6 +41,8 @@ enum DSMError: Error, LocalizedError, Equatable {
     case otpEnforced
     /// Autre erreur API renvoyée par DSM.
     case apiError(code: Int)
+    /// Échec d'une opération groupée avec le détail du premier élément refusé par DSM.
+    case itemOperationFailed(code: Int, item: String?, itemCode: Int)
 
     var errorDescription: String? {
         switch self {
@@ -76,6 +78,10 @@ enum DSMError: Error, LocalizedError, Equatable {
             return String(localized: "La double authentification est obligatoire pour ce compte. Activez-la dans DSM.")
         case .apiError(let code):
             return String(localized: "Erreur du NAS (code \(code)).")
+        case .itemOperationFailed(let code, let item?, let itemCode):
+            return String(localized: "Échec de l’opération sur « \(item) » (codes \(code) et \(itemCode)).")
+        case .itemOperationFailed(let code, nil, let itemCode):
+            return String(localized: "Échec de l’opération sur un élément (codes \(code) et \(itemCode)).")
         }
     }
 
