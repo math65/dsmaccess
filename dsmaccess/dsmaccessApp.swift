@@ -5,6 +5,7 @@
 //  Created by Mathieu Martin on 09/07/2026.
 //
 
+import AppKit
 import SwiftUI
 
 @main
@@ -14,6 +15,14 @@ struct dsmaccessApp: App {
     @State private var settings = AppSettings()
     /// Updater Sparkle, propriété de l'app pour toute sa durée de vie.
     @StateObject private var updater = UpdaterViewModel()
+
+    init() {
+        // Les tests unitaires sont hébergés par l'app, mais ils ne testent pas ses fenêtres.
+        // Empêcher l'activation évite qu'ils interrompent l'utilisateur à chaque lancement.
+        if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
+            NSApplication.shared.setActivationPolicy(.prohibited)
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
