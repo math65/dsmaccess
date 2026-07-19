@@ -1,6 +1,1109 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+      "%@. %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "%1$@. %2$@"
+            }
+          }
+        }
+      },
+      "%lld tâches File Station" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "%lld File Station tasks"
+            }
+          }
+        }
+      },
+      "Accès au volume" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Volume access"
+            }
+          }
+        }
+      },
+      "Actualiser les tâches File Station" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Refresh File Station tasks"
+            }
+          }
+        }
+      },
+      "Afficher et gérer les opérations exécutées par le NAS" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Show and manage operations run by the NAS"
+            }
+          }
+        }
+      },
+      "Afficher la progression et l’historique des transferts" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Show transfer progress and history"
+            }
+          }
+        }
+      },
+      "Ajout" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Append"
+            }
+          }
+        }
+      },
+      "Annulation des transferts demandée" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Transfer cancellation requested"
+            }
+          }
+        }
+      },
+      "Annulé" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Cancelled"
+            }
+          }
+        }
+      },
+      "Annuler le transfert actif et ceux qui restent en attente" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Cancel the active transfer and those still waiting"
+            }
+          }
+        }
+      },
+      "Annuler les transferts en cours" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Cancel active transfers"
+            }
+          }
+        }
+      },
+      "Aperçu" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Preview"
+            }
+          }
+        }
+      },
+      "Aperçu de %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Preview of %@"
+            }
+          }
+        }
+      },
+      "Aperçu indisponible : %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Preview unavailable: %@"
+            }
+          }
+        }
+      },
+      "Arrêter la tâche %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Stop the %@ task"
+            }
+          }
+        }
+      },
+      "Au" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "To"
+            }
+          }
+        }
+      },
+      "Aucun transfert" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "No transfers"
+            }
+          }
+        }
+      },
+      "Aucune" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "None"
+            }
+          }
+        }
+      },
+      "Aucune tâche File Station" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "No File Station tasks"
+            }
+          }
+        }
+      },
+      "Calcul de la somme MD5…" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Calculating MD5 checksum…"
+            }
+          }
+        }
+      },
+      "Calcul de la taille du dossier…" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Calculating folder size…"
+            }
+          }
+        }
+      },
+      "Calcul de taille" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Size calculation"
+            }
+          }
+        }
+      },
+      "Calcul MD5" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "MD5 calculation"
+            }
+          }
+        }
+      },
+      "Calculer l’empreinte MD5 du fichier" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Calculate the file’s MD5 checksum"
+            }
+          }
+        }
+      },
+      "Calculer la somme MD5" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Calculate MD5 checksum"
+            }
+          }
+        }
+      },
+      "Calculer la taille du dossier" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Calculate folder size"
+            }
+          }
+        }
+      },
+      "Calculer le nombre d’éléments et leur taille totale" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Calculate the item count and total size"
+            }
+          }
+        }
+      },
+      "Ce compte ne peut pas modifier ce dossier : %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "This account cannot modify this folder: %@"
+            }
+          }
+        }
+      },
+      "Ce compte ne peut pas modifier ce dossier." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "This account cannot modify this folder."
+            }
+          }
+        }
+      },
+      "Ce type de tâche ne peut pas être arrêté depuis l’application." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "This type of task cannot be stopped from the app."
+            }
+          }
+        }
+      },
+      "Certains détails ne sont pas disponibles." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Some details are unavailable."
+            }
+          }
+        }
+      },
+      "Cette opération n’est pas disponible sur ce NAS." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "This operation is not available on this NAS."
+            }
+          }
+        }
+      },
+      "Changement des métadonnées" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Metadata changed"
+            }
+          }
+        }
+      },
+      "Chargement des détails du fichier…" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Loading file details…"
+            }
+          }
+        }
+      },
+      "Chargement des informations sur %@…" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Loading information about %@…"
+            }
+          }
+        }
+      },
+      "Chargement des tâches File Station…" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Loading File Station tasks…"
+            }
+          }
+        }
+      },
+      "Compression" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Compression"
+            }
+          }
+        }
+      },
+      "Conserver uniquement les transferts en attente ou en cours" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Keep only queued or active transfers"
+            }
+          }
+        }
+      },
+      "Contenu du dossier" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Folder contents"
+            }
+          }
+        }
+      },
+      "Copie ou déplacement" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Copy or move"
+            }
+          }
+        }
+      },
+      "Date de création" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Creation date"
+            }
+          }
+        }
+      },
+      "Date de dernier accès" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Last accessed"
+            }
+          }
+        }
+      },
+      "Détails indisponibles" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Unavailable details"
+            }
+          }
+        }
+      },
+      "Dossiers" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Folders"
+            }
+          }
+        }
+      },
+      "Droit du dossier partagé" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Shared folder permission"
+            }
+          }
+        }
+      },
+      "Du" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "From"
+            }
+          }
+        }
+      },
+      "Échec de l’arrêt de la tâche : %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Failed to stop the task: %@"
+            }
+          }
+        }
+      },
+      "Échec de l’effacement des tâches : %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Failed to clear tasks: %@"
+            }
+          }
+        }
+      },
+      "Échec de l’opération sur « %@ » (codes %lld et %lld)." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "The operation on “%1$@” failed (codes %2$lld and %3$lld)."
+            }
+          }
+        }
+      },
+      "Échec de l’opération sur un élément (codes %lld et %lld)." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "An item operation failed (codes %1$lld and %2$lld)."
+            }
+          }
+        }
+      },
+      "Effacer les tâches terminées" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Clear finished tasks"
+            }
+          }
+        }
+      },
+      "Effacer les transferts terminés" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Clear finished transfers"
+            }
+          }
+        }
+      },
+      "Espace disponible" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Available space"
+            }
+          }
+        }
+      },
+      "Exécution" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Execute"
+            }
+          }
+        }
+      },
+      "Extensions" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Extensions"
+            }
+          }
+        }
+      },
+      "Facultatif" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Optional"
+            }
+          }
+        }
+      },
+      "Favoris indisponibles : %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Favorites unavailable: %@"
+            }
+          }
+        }
+      },
+      "Historique des tâches File Station" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "File Station task history"
+            }
+          }
+        }
+      },
+      "Historique des transferts" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Transfer history"
+            }
+          }
+        }
+      },
+      "Inclure les sous-dossiers" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Include subfolders"
+            }
+          }
+        }
+      },
+      "Informations actualisées sur %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Information about %@ updated"
+            }
+          }
+        }
+      },
+      "Intégrité" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Integrity"
+            }
+          }
+        }
+      },
+      "La date de création de début doit précéder la date de fin." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "The creation start date must be before the end date."
+            }
+          }
+        }
+      },
+      "La date de dernier accès de début doit précéder la date de fin." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "The last-access start date must be before the end date."
+            }
+          }
+        }
+      },
+      "La date de modification de début doit précéder la date de fin." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "The modification start date must be before the end date."
+            }
+          }
+        }
+      },
+      "La taille minimale doit être inférieure ou égale à la taille maximale." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "The minimum size must be less than or equal to the maximum size."
+            }
+          }
+        }
+      },
+      "Lecture et écriture" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Read and write"
+            }
+          }
+        }
+      },
+      "Lecture seule" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Read only"
+            }
+          }
+        }
+      },
+      "Les opérations de copie, compression, extraction et suppression apparaîtront ici." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Copy, compression, extraction, and deletion operations will appear here."
+            }
+          }
+        }
+      },
+      "Les tâches File Station ne sont pas disponibles sur ce NAS." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "File Station tasks are not available on this NAS."
+            }
+          }
+        }
+      },
+      "Les téléchargements et les envois apparaîtront ici." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Downloads and uploads will appear here."
+            }
+          }
+        }
+      },
+      "Limiter cette date" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Limit by this date"
+            }
+          }
+        }
+      },
+      "Liste de contrôle d’accès" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Access control list"
+            }
+          }
+        }
+      },
+      "Liste interdite" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Listing prohibited"
+            }
+          }
+        }
+      },
+      "Modification interdite" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Modification prohibited"
+            }
+          }
+        }
+      },
+      "Nom et type" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Name and type"
+            }
+          }
+        }
+      },
+      "Nom ou motif" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Name or pattern"
+            }
+          }
+        }
+      },
+      "pdf, docx, jpg" : {
+        "shouldTranslate" : false
+      },
+      "Progression de l’envoi de %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Upload progress for %@"
+            }
+          }
+        }
+      },
+      "Progression du téléchargement de %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Download progress for %@"
+            }
+          }
+        }
+      },
+      "Recharger les informations depuis le NAS" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Reload information from the NAS"
+            }
+          }
+        }
+      },
+      "Recherche avancée" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Advanced search"
+            }
+          }
+        }
+      },
+      "Recherche avancée en cours…" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Advanced search in progress…"
+            }
+          }
+        }
+      },
+      "Recherche avancée…" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Advanced search…"
+            }
+          }
+        }
+      },
+      "Recherche en cours, résultats trouvés : %lld" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Search in progress, results found: %lld"
+            }
+          }
+        }
+      },
+      "Rechercher" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Search"
+            }
+          }
+        }
+      },
+      "Rechercher par type, taille, date, propriétaire ou groupe" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Search by type, size, date, owner, or group"
+            }
+          }
+        }
+      },
+      "Restrictions" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Restrictions"
+            }
+          }
+        }
+      },
+      "Retirer de l’historique les opérations terminées" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Remove completed operations from history"
+            }
+          }
+        }
+      },
+      "Saisissez une taille maximale valide en octets." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Enter a valid maximum size in bytes."
+            }
+          }
+        }
+      },
+      "Saisissez une taille minimale valide en octets." : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Enter a valid minimum size in bytes."
+            }
+          }
+        }
+      },
+      "Séparez plusieurs extensions par une virgule" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Separate multiple extensions with commas"
+            }
+          }
+        }
+      },
+      "Somme MD5 calculée" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "MD5 checksum calculated"
+            }
+          }
+        }
+      },
+      "Somme MD5 copiée" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "MD5 checksum copied"
+            }
+          }
+        }
+      },
+      "Somme MD5 indisponible : %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "MD5 checksum unavailable: %@"
+            }
+          }
+        }
+      },
+      "Sous-dossiers" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Subfolders"
+            }
+          }
+        }
+      },
+      "Tâche File Station arrêtée" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "File Station task stopped"
+            }
+          }
+        }
+      },
+      "Tâches File Station" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "File Station Tasks"
+            }
+          }
+        }
+      },
+      "Tâches File Station terminées effacées" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Finished File Station tasks cleared"
+            }
+          }
+        }
+      },
+      "Taille du dossier calculée : %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Folder size calculated: %@"
+            }
+          }
+        }
+      },
+      "Taille du dossier indisponible : %@" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Folder size unavailable: %@"
+            }
+          }
+        }
+      },
+      "Taille maximale en octets" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Maximum size in bytes"
+            }
+          }
+        }
+      },
+      "Taille minimale en octets" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Minimum size in bytes"
+            }
+          }
+        }
+      },
+      "Taille totale" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Total size"
+            }
+          }
+        }
+      },
+      "Téléchargement interdit" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Download prohibited"
+            }
+          }
+        }
+      },
+      "Terminée" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Completed"
+            }
+          }
+        }
+      },
+      "Transferts" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Transfers"
+            }
+          }
+        }
+      },
+      "Transferts terminés effacés" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Finished transfers cleared"
+            }
+          }
+        }
+      },
+      "Type d’élément" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Item type"
+            }
+          }
+        }
+      },
+      "Type de montage" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Mount type"
+            }
+          }
+        }
+      },
+      "Utilisez les caractères génériques pris en charge par File Station" : {
+        "localizations" : {
+          "en" : {
+            "stringUnit" : {
+              "state" : "translated",
+              "value" : "Use wildcards supported by File Station"
+            }
+          }
+        }
+      },
     "" : {
       "shouldTranslate" : false
     },

@@ -55,6 +55,7 @@ final class FileBrowserViewModel {
     private(set) var isDownloading = false
     private(set) var isShowingSearchResults = false
     private(set) var searchQuery = ""
+    private(set) var searchProgress: FileStationSearchProgress?
     private(set) var clipboard: Clipboard?
     private(set) var shareLinks: [SharingLink] = []
     private(set) var isLoadingShareLinks = false
@@ -90,6 +91,7 @@ final class FileBrowserViewModel {
     private var favoritesGeneration = 0
     private var backgroundTasksGeneration = 0
     private var inspectorGeneration = 0
+    private var advancedSearchCriteria: FileStationSearchCriteria?
 
     init(session: SessionStore) {
         self.session = session
@@ -205,6 +207,8 @@ final class FileBrowserViewModel {
         let pattern = query.trimmingCharacters(in: .whitespacesAndNewlines)
         searchGeneration += 1
         let generation = searchGeneration
+        advancedSearchCriteria = nil
+        searchProgress = nil
         searchQuery = pattern
         guard !pattern.isEmpty else {
             isSearching = false
@@ -246,8 +250,56 @@ final class FileBrowserViewModel {
         }
     }
 
+    func search(_ criteria: FileStationSearchCriteria) async {
+        guard let path = currentLevel.path, supports(.search) else { return }
+        searchGeneration += 1
+        let generation = searchGeneration
+        var scopedCriteria = criteria
+        scopedCriteria.folderPaths = [path]
+        advancedSearchCriteria = scopedCriteria
+        searchQuery = scopedCriteria.pattern?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        searchProgress = nil
+        isSearching = true
+        isShowingSearchResults = true
+        errorMessage = nil
+        defer { if generation == searchGeneration { isSearching = false } }
+        do {
+            let result = try await session.withClient {
+                try await $0.searchFiles(
+                    criteria: scopedCriteria,
+                    resultOptions: FileStationSearchResultOptions(),
+                    progress: { [weak self] progress in
+                        guard self?.searchGeneration == generation else { return }
+                        self?.searchProgress = progress
+                    }
+                )
+            }
+            guard generation == searchGeneration,
+                  advancedSearchCriteria == scopedCriteria else { return }
+            items = result
+            searchProgress = nil
+        } catch {
+            guard generation == searchGeneration,
+                  !DSMError.isCancellation(error) else { return }
+            searchProgress = nil
+            errorMessage = errorMessage(for: error)
+        }
+    }
+
+    func reloadCurrentSearch(simpleQuery: String) async {
+        let criteria = advancedSearchCriteria
+        await loadCurrent()
+        if let criteria {
+            await search(criteria)
+        } else if !simpleQuery.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            await search(simpleQuery)
+        }
+    }
+
     func open(_ item: FileStationItem) async {
         guard item.isdir else { return }
+        advancedSearchCriteria = nil
+        searchProgress = nil
         searchQuery = ""
         stack.append(
             Level(
@@ -262,6 +314,8 @@ final class FileBrowserViewModel {
 
     func openFavorite(_ favorite: FileStationFavorite) async {
         guard favorite.isAvailable else { return }
+        advancedSearchCriteria = nil
+        searchProgress = nil
         searchQuery = ""
         stack = [
             Level(name: String(localized: "Fichiers"), path: nil),
@@ -277,6 +331,8 @@ final class FileBrowserViewModel {
 
     func goUp() async {
         guard canGoUp else { return }
+        advancedSearchCriteria = nil
+        searchProgress = nil
         searchQuery = ""
         stack.removeLast()
         currentFolderIsWritable = currentLevel.writePermissionHint
@@ -417,6 +473,7 @@ final class FileBrowserViewModel {
         var sent = 0
         var firstFailure: String?
         let query = searchQuery
+        let criteria = advancedSearchCriteria
         let queuedTransfers = fileURLs.map { url in
             (
                 url,
@@ -459,7 +516,9 @@ final class FileBrowserViewModel {
             }
         }
         await loadCurrent()
-        if !query.isEmpty {
+        if let criteria {
+            await search(criteria)
+        } else if !query.isEmpty {
             await search(query)
         }
         let failed = fileURLs.count - sent
@@ -811,8 +870,11 @@ final class FileBrowserViewModel {
         do {
             let message = try await operation()
             let query = searchQuery
+            let criteria = advancedSearchCriteria
             await loadCurrent()
-            if !query.isEmpty {
+            if let criteria {
+                await search(criteria)
+            } else if !query.isEmpty {
                 await search(query)
             }
             return .success(message)

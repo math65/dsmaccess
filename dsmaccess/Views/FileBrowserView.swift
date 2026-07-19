@@ -20,7 +20,9 @@ struct FileBrowserView: View {
     @State private var showingShareLinks = false
     @State private var showingTransfers = false
     @State private var showingBackgroundTasks = false
+    @State private var showingAdvancedSearch = false
     @State private var transferTask: Task<Void, Never>?
+    @State private var advancedSearchTask: Task<Void, Never>?
     @State private var tableFocusRequestID = 0
     @AccessibilityFocusState private var focusEmptyState: Bool
 
@@ -141,8 +143,14 @@ struct FileBrowserView: View {
             .sheet(isPresented: $showingBackgroundTasks) {
                 FileStationTasksView(vm: vm)
             }
+            .sheet(isPresented: $showingAdvancedSearch) {
+                if let folderPath = vm.currentLevel.path {
+                    AdvancedFileSearchSheet(folderPath: folderPath, onSubmit: startAdvancedSearch)
+                }
+            }
             .onDisappear {
                 transferTask?.cancel()
+                advancedSearchTask?.cancel()
             }
     }
 
@@ -319,6 +327,13 @@ struct FileBrowserView: View {
             }
             .disabled(!vm.supports(.backgroundTasks))
             .help("Afficher et gérer les opérations exécutées par le NAS")
+
+            Button("Recherche avancée…", systemImage: "magnifyingglass") {
+                searchText = ""
+                showingAdvancedSearch = true
+            }
+            .disabled(vm.currentLevel.path == nil || !vm.supports(.search) || vm.isSearching)
+            .help("Rechercher par type, taille, date, propriétaire ou groupe")
 
             Divider()
             Menu("Trier", systemImage: "arrow.up.arrow.down") {
@@ -506,6 +521,9 @@ struct FileBrowserView: View {
     }
 
     private var progressLabel: String {
+        if vm.isSearching, let progress = vm.searchProgress, progress.total > 0 {
+            return String(localized: "Recherche en cours, résultats trouvés : \(progress.total)")
+        }
         if vm.isSearching { return String(localized: "Recherche en cours…") }
         if vm.isDownloading { return String(localized: "Téléchargement en cours…") }
         return String(localized: "Opération en cours…")
@@ -551,11 +569,24 @@ struct FileBrowserView: View {
     }
 
     private func refresh() async {
-        await vm.loadCurrent()
-        if !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            await vm.search(searchText)
-        }
+        await vm.reloadCurrentSearch(simpleQuery: searchText)
         announceSummary()
+    }
+
+    private func startAdvancedSearch(_ criteria: FileStationSearchCriteria) {
+        advancedSearchTask?.cancel()
+        VoiceOver.announce(
+            String(localized: "Recherche avancée en cours…"),
+            category: .progress,
+            priority: .low
+        )
+        advancedSearchTask = Task {
+            await vm.search(criteria)
+            guard !Task.isCancelled else { return }
+            selection.removeAll()
+            announceSummary()
+            advancedSearchTask = nil
+        }
     }
 
     private func paste() {

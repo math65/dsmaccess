@@ -88,4 +88,63 @@ struct FileStationModelsTests {
         #expect(!document.supportsThumbnailPreview)
         #expect(!folder.supportsThumbnailPreview)
     }
+
+    @Test func buildsAllAdvancedSearchCriteria() throws {
+        let start = Date(timeIntervalSince1970: 1_700_000_000)
+        let end = Date(timeIntervalSince1970: 1_800_000_000)
+        var draft = AdvancedFileSearchDraft()
+        draft.pattern = "rapport*"
+        draft.extensions = ".pdf; docx, jpg"
+        draft.recursive = false
+        draft.itemType = .file
+        draft.minimumSize = "1,024"
+        draft.maximumSize = "2048"
+        draft.filtersModifiedDate = true
+        draft.modifiedAfter = start
+        draft.modifiedBefore = end
+        draft.filtersCreatedDate = true
+        draft.createdAfter = start
+        draft.createdBefore = end
+        draft.filtersAccessedDate = true
+        draft.accessedAfter = start
+        draft.accessedBefore = end
+        draft.owner = "ashley"
+        draft.group = "users"
+
+        let criteria = try draft.criteria(folderPath: "/documents")
+
+        #expect(criteria.folderPaths == ["/documents"])
+        #expect(criteria.pattern == "rapport*")
+        #expect(criteria.extensions == "pdf,docx,jpg")
+        #expect(criteria.recursive == false)
+        #expect(criteria.itemType == .file)
+        #expect(criteria.minimumSize == 1_024)
+        #expect(criteria.maximumSize == 2_048)
+        #expect(criteria.modifiedAfter == start)
+        #expect(criteria.modifiedBefore == end)
+        #expect(criteria.createdAfter == start)
+        #expect(criteria.createdBefore == end)
+        #expect(criteria.accessedAfter == start)
+        #expect(criteria.accessedBefore == end)
+        #expect(criteria.owner == "ashley")
+        #expect(criteria.group == "users")
+    }
+
+    @Test func rejectsInvalidAdvancedSearchRanges() {
+        var draft = AdvancedFileSearchDraft()
+        draft.minimumSize = "200"
+        draft.maximumSize = "100"
+        #expect(throws: AdvancedFileSearchValidationError.self) {
+            try draft.criteria(folderPath: "/documents")
+        }
+
+        draft.minimumSize = ""
+        draft.maximumSize = ""
+        draft.filtersModifiedDate = true
+        draft.modifiedAfter = Date(timeIntervalSince1970: 200)
+        draft.modifiedBefore = Date(timeIntervalSince1970: 100)
+        #expect(throws: AdvancedFileSearchValidationError.self) {
+            try draft.criteria(folderPath: "/documents")
+        }
+    }
 }
