@@ -80,7 +80,7 @@ enum FileStationFeature: String, CaseIterable, Sendable {
         case .writePermission:
             DSMAPI("SYNO.FileStation.CheckPermission", preferredVersion: 3, minimumVersion: 3)
         case .upload:
-            DSMAPI("SYNO.FileStation.Upload", preferredVersion: 2)
+            DSMAPI("SYNO.FileStation.Upload", preferredVersion: 3)
         case .download:
             DSMAPI("SYNO.FileStation.Download", preferredVersion: 2)
         case .sharing:

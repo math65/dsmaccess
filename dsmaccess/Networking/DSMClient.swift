@@ -24,10 +24,34 @@ protocol DSMClientProtocol: AnyObject {
     func systemInfo() async throws -> SystemInfo
     func fileStationCapabilities() async throws -> FileStationCapabilities
     func listShares() async throws -> [FileStationItem]
+    func listShares(options: FileStationListOptions) async throws -> FileStationPage<FileStationItem>
     func list(folderPath: String) async throws -> [FileStationItem]
+    func list(
+        folderPath: String,
+        options: FileStationListOptions
+    ) async throws -> FileStationPage<FileStationItem>
+    func fileInformation(paths: [String]) async throws -> [FileStationItem]
+    func virtualFolders(
+        type: FileStationVirtualFolderType,
+        options: FileStationListOptions
+    ) async throws -> FileStationPage<FileStationItem>
+    func fileThumbnail(
+        path: String,
+        size: FileStationThumbnailSize,
+        rotation: FileStationThumbnailRotation
+    ) async throws -> Data
     func downloadFile(path: String, to destination: URL) async throws
+    func downloadFiles(paths: [String], to destination: URL) async throws
     func createFolder(in folderPath: String, name: String) async throws
+    func createFolders(
+        _ folders: [FileStationFolderCreation],
+        forceParentFolders: Bool
+    ) async throws -> [FileStationItem]
     func rename(path: String, to name: String) async throws
+    func rename(
+        _ changes: [FileStationRenameChange],
+        searchTaskID: String?
+    ) async throws -> [FileStationItem]
     func delete(path: String) async throws
     func delete(paths: [String]) async throws
     func delete(
@@ -35,6 +59,11 @@ protocol DSMClientProtocol: AnyObject {
         progress: (FileOperationProgress) -> Void
     ) async throws
     func upload(fileURL: URL, to folderPath: String) async throws
+    func upload(
+        fileURL: URL,
+        to folderPath: String,
+        options: FileStationUploadOptions
+    ) async throws
     func copyMove(path: String, to destFolder: String, remove: Bool) async throws
     func copyMove(paths: [String], to destFolder: String, remove: Bool) async throws
     func copyMove(
@@ -45,13 +74,32 @@ protocol DSMClientProtocol: AnyObject {
         progress: (FileOperationProgress) -> Void
     ) async throws
     func searchFiles(in folderPath: String, matching pattern: String) async throws -> [FileStationItem]
+    func searchFiles(
+        criteria: FileStationSearchCriteria,
+        resultOptions: FileStationSearchResultOptions,
+        progress: (FileStationSearchProgress) -> Void
+    ) async throws -> [FileStationItem]
     func fileStationFavorites() async throws -> [FileStationFavorite]
+    func fileStationFavorites(
+        status: FileStationFavoriteStatus,
+        offset: Int,
+        limit: Int
+    ) async throws -> FileStationPage<FileStationFavorite>
     func addFileStationFavorite(path: String, name: String) async throws
     func removeFileStationFavorite(path: String) async throws
+    func editFileStationFavorite(path: String, name: String) async throws
+    func replaceFileStationFavorites(_ favorites: [FileStationFavorite]) async throws
+    func clearBrokenFileStationFavorites() async throws
     func compress(paths: [String], to destinationPath: String) async throws
     func compress(
         paths: [String],
         to destinationPath: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws
+    func compress(
+        paths: [String],
+        to destinationPath: String,
+        options: FileStationCompressionOptions,
         progress: (FileOperationProgress) -> Void
     ) async throws
     func extract(archivePath: String, to destinationFolder: String) async throws
@@ -60,6 +108,16 @@ protocol DSMClientProtocol: AnyObject {
         to destinationFolder: String,
         progress: (FileOperationProgress) -> Void
     ) async throws
+    func extract(
+        archivePath: String,
+        to destinationFolder: String,
+        options: FileStationExtractionOptions,
+        progress: (FileOperationProgress) -> Void
+    ) async throws
+    func archiveItems(
+        archivePath: String,
+        options: FileStationArchiveListOptions
+    ) async throws -> FileStationPage<FileStationArchiveItem>
     func checkFileStationWritePermission(
         in folderPath: String,
         filename: String,
@@ -75,6 +133,9 @@ protocol DSMClientProtocol: AnyObject {
         progress: (FileOperationProgress) -> Void
     ) async throws -> String
     func fileStationBackgroundTasks() async throws -> [FileStationBackgroundTask]
+    func fileStationBackgroundTasks(
+        options: FileStationBackgroundTaskListOptions
+    ) async throws -> FileStationPage<FileStationBackgroundTask>
     func clearFinishedFileStationBackgroundTasks(taskIDs: [String]) async throws
     func stopFileStationOperation(kind: FileOperationKind, taskID: String) async throws
     func createShareLink(
@@ -82,8 +143,16 @@ protocol DSMClientProtocol: AnyObject {
         password: String?,
         dateExpired: String?
     ) async throws -> String
+    func createShareLinks(_ creation: FileStationShareLinkCreation) async throws -> [SharingLink]
+    func shareLinkInformation(id: String) async throws -> SharingLink
     func listShareLinks() async throws -> [SharingLink]
+    func listShareLinks(
+        options: FileStationSharingListOptions
+    ) async throws -> FileStationPage<SharingLink>
     func deleteShareLink(id: String) async throws
+    func deleteShareLinks(ids: [String]) async throws
+    func editShareLinks(ids: [String], changes: FileStationShareLinkChanges) async throws
+    func clearInvalidShareLinks() async throws
     func storageInfo() async throws -> StorageInfo
     func resourceUsage() async throws -> ResourceUsage
     func listSharedFolders() async throws -> [SharedFolder]
@@ -212,20 +281,68 @@ final class DSMClient: DSMClientProtocol {
         try await fileStation.shares()
     }
 
+    func listShares(options: FileStationListOptions) async throws -> FileStationPage<FileStationItem> {
+        try await fileStation.shares(options: options)
+    }
+
     func list(folderPath: String) async throws -> [FileStationItem] {
         try await fileStation.items(in: folderPath)
+    }
+
+    func list(
+        folderPath: String,
+        options: FileStationListOptions
+    ) async throws -> FileStationPage<FileStationItem> {
+        try await fileStation.items(in: folderPath, options: options)
+    }
+
+    func fileInformation(paths: [String]) async throws -> [FileStationItem] {
+        try await fileStation.itemInformation(paths: paths)
+    }
+
+    func virtualFolders(
+        type: FileStationVirtualFolderType,
+        options: FileStationListOptions
+    ) async throws -> FileStationPage<FileStationItem> {
+        try await fileStation.virtualFolders(of: type, options: options)
+    }
+
+    func fileThumbnail(
+        path: String,
+        size: FileStationThumbnailSize,
+        rotation: FileStationThumbnailRotation
+    ) async throws -> Data {
+        try await fileStation.thumbnail(path: path, size: size, rotation: rotation)
     }
 
     func downloadFile(path: String, to destination: URL) async throws {
         try await fileStation.download(path: path, to: destination)
     }
 
+    func downloadFiles(paths: [String], to destination: URL) async throws {
+        try await fileStation.download(paths: paths, to: destination)
+    }
+
     func createFolder(in folderPath: String, name: String) async throws {
         try await fileStation.createFolder(in: folderPath, name: name)
     }
 
+    func createFolders(
+        _ folders: [FileStationFolderCreation],
+        forceParentFolders: Bool
+    ) async throws -> [FileStationItem] {
+        try await fileStation.createFolders(folders, forceParentFolders: forceParentFolders)
+    }
+
     func rename(path: String, to name: String) async throws {
         try await fileStation.rename(path: path, to: name)
+    }
+
+    func rename(
+        _ changes: [FileStationRenameChange],
+        searchTaskID: String?
+    ) async throws -> [FileStationItem] {
+        try await fileStation.rename(changes, searchTaskID: searchTaskID)
     }
 
     func delete(path: String) async throws {
@@ -245,6 +362,14 @@ final class DSMClient: DSMClientProtocol {
 
     func upload(fileURL: URL, to folderPath: String) async throws {
         try await fileStation.upload(fileURL: fileURL, to: folderPath)
+    }
+
+    func upload(
+        fileURL: URL,
+        to folderPath: String,
+        options: FileStationUploadOptions
+    ) async throws {
+        try await fileStation.upload(fileURL: fileURL, to: folderPath, options: options)
     }
 
     func copyMove(path: String, to destFolder: String, remove: Bool) async throws {
@@ -275,8 +400,28 @@ final class DSMClient: DSMClientProtocol {
         try await fileStation.search(in: folderPath, matching: pattern)
     }
 
+    func searchFiles(
+        criteria: FileStationSearchCriteria,
+        resultOptions: FileStationSearchResultOptions,
+        progress: (FileStationSearchProgress) -> Void
+    ) async throws -> [FileStationItem] {
+        try await fileStation.search(
+            criteria: criteria,
+            resultOptions: resultOptions,
+            progress: progress
+        )
+    }
+
     func fileStationFavorites() async throws -> [FileStationFavorite] {
         try await fileStation.favorites()
+    }
+
+    func fileStationFavorites(
+        status: FileStationFavoriteStatus,
+        offset: Int,
+        limit: Int
+    ) async throws -> FileStationPage<FileStationFavorite> {
+        try await fileStation.favorites(status: status, offset: offset, limit: limit)
     }
 
     func addFileStationFavorite(path: String, name: String) async throws {
@@ -285,6 +430,18 @@ final class DSMClient: DSMClientProtocol {
 
     func removeFileStationFavorite(path: String) async throws {
         try await fileStation.removeFavorite(path: path)
+    }
+
+    func editFileStationFavorite(path: String, name: String) async throws {
+        try await fileStation.editFavorite(path: path, name: name)
+    }
+
+    func replaceFileStationFavorites(_ favorites: [FileStationFavorite]) async throws {
+        try await fileStation.replaceFavorites(favorites)
+    }
+
+    func clearBrokenFileStationFavorites() async throws {
+        try await fileStation.clearBrokenFavorites()
     }
 
     func compress(paths: [String], to destinationPath: String) async throws {
@@ -303,6 +460,20 @@ final class DSMClient: DSMClientProtocol {
         )
     }
 
+    func compress(
+        paths: [String],
+        to destinationPath: String,
+        options: FileStationCompressionOptions,
+        progress: (FileOperationProgress) -> Void
+    ) async throws {
+        try await fileStation.compress(
+            paths: paths,
+            to: destinationPath,
+            options: options,
+            progress: progress
+        )
+    }
+
     func extract(archivePath: String, to destinationFolder: String) async throws {
         try await fileStation.extract(archivePath: archivePath, to: destinationFolder)
     }
@@ -317,6 +488,27 @@ final class DSMClient: DSMClientProtocol {
             to: destinationFolder,
             progress: progress
         )
+    }
+
+    func extract(
+        archivePath: String,
+        to destinationFolder: String,
+        options: FileStationExtractionOptions,
+        progress: (FileOperationProgress) -> Void
+    ) async throws {
+        try await fileStation.extract(
+            archivePath: archivePath,
+            to: destinationFolder,
+            options: options,
+            progress: progress
+        )
+    }
+
+    func archiveItems(
+        archivePath: String,
+        options: FileStationArchiveListOptions
+    ) async throws -> FileStationPage<FileStationArchiveItem> {
+        try await fileStation.archiveItems(archivePath: archivePath, options: options)
     }
 
     func checkFileStationWritePermission(
@@ -351,6 +543,12 @@ final class DSMClient: DSMClientProtocol {
         try await fileStation.backgroundTasks()
     }
 
+    func fileStationBackgroundTasks(
+        options: FileStationBackgroundTaskListOptions
+    ) async throws -> FileStationPage<FileStationBackgroundTask> {
+        try await fileStation.backgroundTasks(options: options)
+    }
+
     func clearFinishedFileStationBackgroundTasks(taskIDs: [String]) async throws {
         try await fileStation.clearFinishedBackgroundTasks(taskIDs: taskIDs)
     }
@@ -371,12 +569,38 @@ final class DSMClient: DSMClientProtocol {
         )
     }
 
+    func createShareLinks(_ creation: FileStationShareLinkCreation) async throws -> [SharingLink] {
+        try await fileStation.createShareLinks(creation)
+    }
+
+    func shareLinkInformation(id: String) async throws -> SharingLink {
+        try await fileStation.shareLinkInformation(id: id)
+    }
+
     func listShareLinks() async throws -> [SharingLink] {
         try await fileStation.shareLinks()
     }
 
+    func listShareLinks(
+        options: FileStationSharingListOptions
+    ) async throws -> FileStationPage<SharingLink> {
+        try await fileStation.shareLinks(options: options)
+    }
+
     func deleteShareLink(id: String) async throws {
         try await fileStation.deleteShareLink(id: id)
+    }
+
+    func deleteShareLinks(ids: [String]) async throws {
+        try await fileStation.deleteShareLinks(ids: ids)
+    }
+
+    func editShareLinks(ids: [String], changes: FileStationShareLinkChanges) async throws {
+        try await fileStation.editShareLinks(ids: ids, changes: changes)
+    }
+
+    func clearInvalidShareLinks() async throws {
+        try await fileStation.clearInvalidShareLinks()
     }
 
     func storageInfo() async throws -> StorageInfo {

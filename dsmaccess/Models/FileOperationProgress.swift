@@ -71,6 +71,17 @@ struct FileStationBackgroundTasks: nonisolated Decodable, Sendable {
     let total: Int
     let offset: Int
     let tasks: [FileStationBackgroundTask]
+
+    private enum CodingKeys: String, CodingKey {
+        case total, offset, tasks
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        tasks = try container.decode([FileStationBackgroundTask].self, forKey: .tasks)
+        total = container.flexInt(.total) ?? tasks.count
+        offset = container.flexInt(.offset) ?? 0
+    }
 }
 
 struct FileStationBackgroundTask: nonisolated Decodable, Identifiable, Sendable {

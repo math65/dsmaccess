@@ -10,6 +10,8 @@ import Foundation
 @MainActor
 final class DSMTransport {
     typealias RequestData = @Sendable (URLRequest) async throws -> (Data, URLResponse)
+    typealias DownloadFile = @Sendable (URL) async throws -> (URL, URLResponse)
+    typealias UploadFile = @Sendable (URLRequest, URL) async throws -> (Data, URLResponse)
 
     private static let infoAPI = DSMAPI("SYNO.API.Info", preferredVersion: 1)
     /// Point d'amorçage stable ; toutes les autres routes proviennent de cette découverte.
@@ -19,6 +21,8 @@ final class DSMTransport {
     private let session: URLSession
     private let trustDelegate: ServerTrustDelegate?
     private let requestData: RequestData
+    private let downloadFile: DownloadFile
+    private let uploadFile: UploadFile
 
     private(set) var capabilities = DSMCapabilities()
     private var sessionID: String?
@@ -35,6 +39,8 @@ final class DSMTransport {
         let session = URLSession(configuration: configuration, delegate: delegate, delegateQueue: nil)
         self.session = session
         requestData = { try await session.data(for: $0) }
+        downloadFile = { try await session.download(from: $0) }
+        uploadFile = { try await session.upload(for: $0, fromFile: $1) }
     }
 
     init(
@@ -47,19 +53,25 @@ final class DSMTransport {
         trustDelegate = nil
         self.capabilities = capabilities
         requestData = { try await session.data(for: $0) }
+        downloadFile = { try await session.download(from: $0) }
+        uploadFile = { try await session.upload(for: $0, fromFile: $1) }
     }
 
     init(
         endpoint: DSMEndpoint,
         session: URLSession,
         capabilities: DSMCapabilities,
-        requestData: @escaping RequestData
+        requestData: @escaping RequestData,
+        downloadFile: DownloadFile? = nil,
+        uploadFile: UploadFile? = nil
     ) {
         self.endpoint = endpoint
         self.session = session
         trustDelegate = nil
         self.capabilities = capabilities
         self.requestData = requestData
+        self.downloadFile = downloadFile ?? { try await session.download(from: $0) }
+        self.uploadFile = uploadFile ?? { try await session.upload(for: $0, fromFile: $1) }
     }
 
     convenience init(endpoint: DSMEndpoint, session: URLSession) {
@@ -269,7 +281,7 @@ final class DSMTransport {
 
     func download(from url: URL) async throws -> (URL, URLResponse) {
         do {
-            return try await session.download(from: url)
+            return try await downloadFile(url)
         } catch let error as URLError {
             throw mappedNetworkError(error)
         }
@@ -277,7 +289,7 @@ final class DSMTransport {
 
     func upload(for request: URLRequest, fromFile fileURL: URL) async throws -> (Data, URLResponse) {
         do {
-            return try await session.upload(for: request, fromFile: fileURL)
+            return try await uploadFile(request, fileURL)
         } catch let error as URLError {
             throw mappedNetworkError(error)
         }
