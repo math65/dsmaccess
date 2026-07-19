@@ -1,6 +1,596 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "État DSM : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM status: %@"
+          }
+        }
+      }
+    },
+    "Réparation requise" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repair required"
+          }
+        }
+      }
+    },
+    "Réparation requise dans DSM" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repair required in DSM"
+          }
+        }
+      }
+    },
+    "%@ : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@: %2$@"
+          }
+        }
+      }
+    },
+    "%@, préparation par le NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, preparing on the NAS"
+          }
+        }
+      }
+    },
+    "%@, vérification de l’état %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, status check %2$lld"
+          }
+        }
+      }
+    },
+    "%@. Catalogue indisponible : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@. Catalog unavailable: %2$@"
+          }
+        }
+      }
+    },
+    "%lld paquets mis à jour" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld packages updated"
+          }
+        }
+      }
+    },
+    "%lld paquets mis à jour, %lld en échec : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld packages updated, %2$lld failed: %3$@"
+          }
+        }
+      }
+    },
+    "%lld paquets seront mis à jour l’un après l’autre. Chaque téléchargement et chaque installation est lancé une seule fois." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld packages will be updated one at a time. Each download and installation will be started only once."
+          }
+        }
+      }
+    },
+    "API disponibles" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Available APIs"
+          }
+        }
+      }
+    },
+    "Actions disponibles sur ce NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actions available on this NAS"
+          }
+        }
+      }
+    },
+    "Actualisation du catalogue…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refreshing catalog…"
+          }
+        }
+      }
+    },
+    "Afficher les détails de ce paquet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show package details"
+          }
+        }
+      }
+    },
+    "Arrêt de %@ en cours…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stopping %@…"
+          }
+        }
+      }
+    },
+    "Arrêter le suivi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop monitoring"
+          }
+        }
+      }
+    },
+    "Arrêter le suivi dans l’app ; l’installation peut continuer sur le NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop monitoring in the app; installation can continue on the NAS"
+          }
+        }
+      }
+    },
+    "Assistant DSM requis pour la désinstallation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM uninstall assistant required"
+          }
+        }
+      }
+    },
+    "Aucune mise à jour disponible." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No updates available."
+          }
+        }
+      }
+    },
+    "Bêta" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beta"
+          }
+        }
+      }
+    },
+    "Catalogue actualisé : %lld paquets" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catalog refreshed: %lld packages"
+          }
+        }
+      }
+    },
+    "Catalogue indisponible : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catalog unavailable: %@"
+          }
+        }
+      }
+    },
+    "Catalogue officiel" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Official catalog"
+          }
+        }
+      }
+    },
+    "Catalogue officiel du Centre de paquets" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Official Package Center catalog"
+          }
+        }
+      }
+    },
+    "Ce NAS ne fournit pas à DSM Access les dépendances, licences, sources tierces ni pages de configuration de ce paquet." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This NAS does not provide DSM Access with this package’s dependencies, licences, third-party sources or configuration pages."
+          }
+        }
+      }
+    },
+    "Ce paquet exige l’assistant de désinstallation de DSM afin de traiter ses données sans choix implicite." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This package requires DSM’s uninstall assistant so its data is handled without implicit choices."
+          }
+        }
+      }
+    },
+    "Ce paquet exige un assistant de désinstallation propre à DSM. Désinstallez-le depuis le Centre de paquets DSM pour choisir correctement le traitement de ses données." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This package requires its own DSM uninstall assistant. Uninstall it from DSM Package Center so you can choose how its data is handled."
+          }
+        }
+      }
+    },
+    "Ce paquet n’est pas présent dans le catalogue officiel actuellement chargé." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This package is not in the currently loaded official catalog."
+          }
+        }
+      }
+    },
+    "Ce paquet propose un assistant de désinstallation dans DSM. DSM Access ne lancera pas sa désinstallation sans cet assistant." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This package provides an uninstall assistant in DSM. DSM Access will not uninstall it without that assistant."
+          }
+        }
+      }
+    },
+    "DSM Access conserve ces valeurs lors de chaque enregistrement. Pour modifier le niveau de confiance, les sources ou les certificats d’éditeur, utilisez le Centre de paquets DSM : ce NAS ne permet pas à DSM Access de les gérer en toute sécurité." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM Access preserves these values whenever it saves. To change the trust level, sources or publisher certificates, use DSM Package Center: this NAS does not allow DSM Access to manage them safely."
+          }
+        }
+      }
+    },
+    "DSM signale que ce paquet nécessite une réparation. La réparation n’est pas disponible dans DSM Access sur ce NAS ; utilisez le Centre de paquets DSM." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM reports that this package needs repair. Repair is not available in DSM Access on this NAS; use DSM Package Center."
+          }
+        }
+      }
+    },
+    "Démarrage de %@ en cours…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starting %@…"
+          }
+        }
+      }
+    },
+    "Démarrage et arrêt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start and stop"
+          }
+        }
+      }
+    },
+    "Désinstallation de %@ en cours…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstalling %@…"
+          }
+        }
+      }
+    },
+    "Désinstallation directe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Direct uninstall"
+          }
+        }
+      }
+    },
+    "Détails du paquet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Package details"
+          }
+        }
+      }
+    },
+    "Enregistrement des réglages…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saving settings…"
+          }
+        }
+      }
+    },
+    "Forcer l’actualisation du catalogue sur le NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force the NAS to refresh its catalog"
+          }
+        }
+      }
+    },
+    "Inconnue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        }
+      }
+    },
+    "Installés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed"
+          }
+        }
+      }
+    },
+    "La désinstallation de ce paquet n’est pas disponible sur ce NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstalling this package is not available on this NAS."
+          }
+        }
+      }
+    },
+    "Le contrôle de ce paquet n’est pas disponible sur ce NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controlling this package is not available on this NAS."
+          }
+        }
+      }
+    },
+    "L’installation depuis le catalogue n’est pas disponible dans DSM Access sur ce NAS. Installez ce paquet depuis le Centre de paquets DSM." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catalog installation is not available in DSM Access on this NAS. Install this package from DSM Package Center."
+          }
+        }
+      }
+    },
+    "L’installation des mises à jour n’est pas disponible sur ce NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installing updates is not available on this NAS."
+          }
+        }
+      }
+    },
+    "Mettre à jour tous les paquets ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update all packages?"
+          }
+        }
+      }
+    },
+    "Mettre à jour tous les paquets compatibles" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update all compatible packages"
+          }
+        }
+      }
+    },
+    "Mise à jour de %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updating %@"
+          }
+        }
+      }
+    },
+    "Mise à jour de tous les paquets en cours…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updating all packages…"
+          }
+        }
+      }
+    },
+    "Mise à jour disponible" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update available"
+          }
+        }
+      }
+    },
+    "Modifiez la recherche ou le filtre du catalogue." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change the catalog search or filter."
+          }
+        }
+      }
+    },
+    "Niveau de confiance (code DSM)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trust level (DSM code)"
+          }
+        }
+      }
+    },
+    "Non" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No"
+          }
+        }
+      }
+    },
+    "Non installé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not installed"
+          }
+        }
+      }
+    },
+    "Non installés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not installed"
+          }
+        }
+      }
+    },
+    "Oui" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes"
+          }
+        }
+      }
+    },
+    "Paquet installé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installed package"
+          }
+        }
+      }
+    },
+    "Paramètres conservés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preserved settings"
+          }
+        }
+      }
+    },
+    "Parcourir le catalogue officiel annoncé par ce NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Browse the official catalog available from this NAS"
+          }
+        }
+      }
+    },
+    "Rechercher dans le catalogue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search catalog"
+          }
+        }
+      }
+    },
     "%lld éléments File Station" : {
       "localizations" : {
         "en" : {

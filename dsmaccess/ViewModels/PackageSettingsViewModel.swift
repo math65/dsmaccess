@@ -18,6 +18,7 @@ final class PackageSettingsViewModel {
     /// Vrai pendant l'enregistrement d'un réglage (contrôles désactivés le temps de l'appel).
     private(set) var isSaving = false
     var errorMessage: String?
+    var saveErrorMessage: String?
 
     private let session: SessionStore
     private var loadGeneration = 0
@@ -66,6 +67,7 @@ final class PackageSettingsViewModel {
         }
         mutate(&updated)
         isSaving = true
+        saveErrorMessage = nil
         defer { isSaving = false }
         do {
             try await session.withClient { try await $0.setPackageSettings(updated) }
@@ -74,7 +76,9 @@ final class PackageSettingsViewModel {
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de l'enregistrement : \(reason)"))
+            let message = String(localized: "Échec de l'enregistrement : \(reason)")
+            saveErrorMessage = message
+            return .failure(message)
         }
     }
 }

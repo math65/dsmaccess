@@ -247,6 +247,43 @@ struct AdministrationModelsTests {
         }
     }
 
+    @Test func interpretsPackageControlAndRepairMetadataExactly() throws {
+        let stopped = try JSONDecoder().decode(
+            PackageInfo.self,
+            from: Data(
+                #"{"id":"HyperBackup","name":"Hyper Backup","version":"4.1","additional":{"status":"stopped","startable":true,"ctl_uninstall":true,"is_uninstall_pages":true}}"#.utf8
+            )
+        )
+        let broken = try JSONDecoder().decode(
+            PackageInfo.self,
+            from: Data(
+                #"{"id":"Drive","additional":{"status":"broken","startable":false,"ctl_uninstall":false}}"#.utf8
+            )
+        )
+        let unknownStatus = try JSONDecoder().decode(
+            PackageInfo.self,
+            from: Data(#"{"id":"Example","additional":{"status":"no_error"}}"#.utf8)
+        )
+
+        #expect(stopped.isStopped)
+        #expect(!stopped.isRunning)
+        #expect(stopped.canStartStop)
+        #expect(stopped.canUninstall)
+        #expect(stopped.hasUninstallOptions)
+        #expect(!stopped.requiresAttention)
+        #expect(broken.requiresAttention)
+        #expect(broken.statusText == String(localized: "Réparation requise"))
+        #expect(!broken.isStopped)
+        #expect(!broken.canStartStop)
+        #expect(!broken.canUninstall)
+        #expect(!unknownStatus.requiresAttention)
+        let rawUnknownStatus = "no_error"
+        #expect(
+            unknownStatus.statusText
+                == String(localized: "État DSM : \(rawUnknownStatus)")
+        )
+    }
+
     @Test func sharedFolderIdentityIsStable() throws {
         let folder = try JSONDecoder().decode(
             SharedFolder.self,

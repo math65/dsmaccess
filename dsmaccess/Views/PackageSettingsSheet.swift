@@ -28,10 +28,21 @@ struct PackageSettingsSheet: View {
 
             content
 
+            if let error = vm.saveErrorMessage {
+                Label(error, systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(.red)
+                    .accessibilityFocused($focusStatus)
+            }
+
+            if vm.isSaving {
+                ProgressView("Enregistrement des réglages…")
+            }
+
             HStack {
                 Spacer()
                 Button("Terminé") { dismiss() }
                     .keyboardShortcut(.defaultAction)
+                    .disabled(vm.isSaving)
                     .help("Fermer les réglages du Centre de paquets")
             }
         }
@@ -108,6 +119,24 @@ struct PackageSettingsSheet: View {
                     set: { await vm.setEmailNotify($0) }
                 ))
                 .help("Activer les notifications de mise à jour par courriel")
+            }
+
+            Divider()
+
+            VStack(alignment: .leading, spacing: 8) {
+                Text("Paramètres conservés")
+                    .font(.subheadline.weight(.semibold))
+                    .accessibilityAddTraits(.isHeader)
+                if let settings = vm.settings {
+                    LabeledContent("Volume par défaut", value: settings.defaultVol)
+                    LabeledContent("Niveau de confiance (code DSM)") {
+                        Text(settings.trustLevel, format: .number.grouping(.never))
+                    }
+                }
+                Text("DSM Access conserve ces valeurs lors de chaque enregistrement. Pour modifier le niveau de confiance, les sources ou les certificats d’éditeur, utilisez le Centre de paquets DSM : ce NAS ne permet pas à DSM Access de les gérer en toute sécurité.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
         }
         .disabled(vm.isSaving)

@@ -22,6 +22,16 @@ struct DSMPackageServiceTests {
                     "type": "0"
                   },
                   {
+                    "id": "ActiveBackup",
+                    "version": "3.0.0-1",
+                    "link": "https://downloads.synology.com/ActiveBackup.spk",
+                    "md5": "0123456789abcdef0123456789ABCDEF",
+                    "size": "2048",
+                    "beta": "false",
+                    "source": "syno",
+                    "type": "0"
+                  },
+                  {
                     "id": "ThirdParty",
                     "version": "2.0.0",
                     "link": "https://packages.example.com/ThirdParty.spk",
@@ -50,10 +60,11 @@ struct DSMPackageServiceTests {
             }
             """#.utf8
         )
-        let stub = DSMRequestStub(results: [.response(response)])
+        let stub = DSMRequestStub(results: [.response(response), .response(response)])
         let service = makeService(stub: stub)
 
         let updates = try await service.availableUpdates()
+        let refreshedCatalog = try await service.officialCatalog(forceRefresh: true)
 
         #expect(updates.count == 1)
         let update = try #require(updates["activebackup"])
@@ -63,11 +74,21 @@ struct DSMPackageServiceTests {
         #expect(!update.isBeta)
         #expect(update.packageType == 0)
         #expect(update.checksum == "0123456789abcdef0123456789abcdef")
+        #expect(refreshedCatalog == [update])
+
+        let requests = await stub.requests
+        let cachedQuery = try query(from: requests[0])
+        #expect(cachedQuery["blforcerefresh"] == "false")
+        #expect(cachedQuery["blloadothers"] == "false")
+        let refreshedQuery = try query(from: requests[1])
+        #expect(refreshedQuery["blforcerefresh"] == "true")
+        #expect(refreshedQuery["blloadothers"] == "false")
     }
 
     @Test func startsUpgradeOnceAndPollsUntilFinished() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"task_id":"42"}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"finished":"false"}}"#.utf8)),
             .response(Data(#"{"success":true,"data":{"finished":"true"}}"#.utf8)),
         ])
         let service = makeService(stub: stub, pollInterval: .zero, pollLimit: 2)
@@ -84,10 +105,18 @@ struct DSMPackageServiceTests {
             packageType: 0
         )
 
-        try await service.upgrade(update)
+        var progressUpdates = [PackageOperationProgress]()
+        try await service.upgrade(update) { progressUpdates.append($0) }
 
         let requests = await stub.requests
-        #expect(requests.count == 2)
+        #expect(requests.count == 3)
+        #expect(
+            progressUpdates
+                == [
+                    PackageOperationProgress(taskID: "42", statusChecks: 1, isFinished: false),
+                    PackageOperationProgress(taskID: "42", statusChecks: 2, isFinished: true),
+                ]
+        )
         let startQuery = try query(from: requests[0])
         #expect(startQuery["method"] == "upgrade")
         #expect(startQuery["name"] == "ActiveBackup")
@@ -100,6 +129,27 @@ struct DSMPackageServiceTests {
         let statusQuery = try query(from: requests[1])
         #expect(statusQuery["method"] == "status")
         #expect(statusQuery["task_id"] == "42")
+        let finishedQuery = try query(from: requests[2])
+        #expect(finishedQuery["method"] == "status")
+        #expect(finishedQuery["task_id"] == "42")
+    }
+
+    @Test func reportsDiscoveredPackageCapabilitiesWithoutInferringMissingMutations() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"packages":[]}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, includesInstallation: false)
+
+        let capabilities = service.capabilities()
+        let updates = try await service.availableUpdates()
+
+        #expect(capabilities.canBrowseCatalog)
+        #expect(!capabilities.canInstallVerifiedUpdates)
+        #expect(!capabilities.canControlPackages)
+        #expect(!capabilities.canUninstallPackages)
+        #expect(!capabilities.canManageSettings)
+        #expect(capabilities.maximumVersions["SYNO.Core.Package.Server"] == 2)
+        #expect(updates.isEmpty)
     }
 
     @Test func rejectsUnsafeUpdateMetadataBeforeSendingARequest() async throws {
@@ -132,21 +182,25 @@ struct DSMPackageServiceTests {
     private func makeService(
         stub: DSMRequestStub,
         pollInterval: Duration = .milliseconds(1200),
-        pollLimit: Int = 900
+        pollLimit: Int = 900,
+        includesInstallation: Bool = true
     ) -> DSMPackageService {
         var capabilities = DSMCapabilities()
-        capabilities.merge([
+        var entries = [
             "SYNO.Core.Package.Server": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 2
             ),
-            "SYNO.Core.Package.Installation": APIInfoEntry(
+        ]
+        if includesInstallation {
+            entries["SYNO.Core.Package.Installation"] = APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1
-            ),
-        ])
+            )
+        }
+        capabilities.merge(entries)
         let transport = DSMTransport(
             endpoint: DSMEndpoint(useHTTPS: true, host: "nas.local", port: 5001),
             session: .shared,

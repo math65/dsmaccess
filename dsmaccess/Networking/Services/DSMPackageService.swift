@@ -33,6 +33,31 @@ final class DSMPackageService {
         self.updatePollLimit = updatePollLimit
     }
 
+    func capabilities() -> PackageCenterCapabilities {
+        let apis = [
+            Self.packageAPI,
+            Self.serverAPI,
+            Self.installationAPI,
+            Self.controlAPI,
+            Self.uninstallationAPI,
+            Self.settingAPI,
+        ]
+        let maximumVersions = Dictionary(
+            uniqueKeysWithValues: apis.compactMap { api in
+                transport.capabilities.entry(for: api.name).map { (api.name, $0.maxVersion) }
+            }
+        )
+        return PackageCenterCapabilities(
+            canListInstalledPackages: transport.capabilities.supports(Self.packageAPI),
+            canBrowseCatalog: transport.capabilities.supports(Self.serverAPI),
+            canInstallVerifiedUpdates: transport.capabilities.supports(Self.installationAPI),
+            canControlPackages: transport.capabilities.supports(Self.controlAPI),
+            canUninstallPackages: transport.capabilities.supports(Self.uninstallationAPI),
+            canManageSettings: transport.capabilities.supports(Self.settingAPI),
+            maximumVersions: maximumVersions
+        )
+    }
+
     func installedPackages() async throws -> [PackageInfo] {
         let list = try await transport.read(
             api: Self.packageAPI,
@@ -48,26 +73,44 @@ final class DSMPackageService {
     }
 
     func availableUpdates() async throws -> [String: PackageUpdate] {
-        guard transport.capabilities.supports(Self.installationAPI.name) else { return [:] }
+        let catalog = try await officialCatalog()
+        return catalog.reduce(into: [:]) { updates, update in
+            updates[update.packageID.lowercased()] = update
+        }
+    }
+
+    func officialCatalog(forceRefresh: Bool = false) async throws -> [PackageUpdate] {
         let list = try await transport.read(
             api: Self.serverAPI,
             method: "list",
             parameters: [
-                "blforcerefresh": .boolean(false),
+                "blforcerefresh": .boolean(forceRefresh),
                 "blloadothers": .boolean(false),
             ],
             as: ServerPackageList.self
         )
 
-        var updates: [String: PackageUpdate] = [:]
-        for package in list.packages ?? [] {
-            guard let update = packageUpdate(from: package) else { continue }
-            updates[update.packageID.lowercased()] = update
+        let uniquePackages = (list.packages ?? [])
+            .compactMap(packageUpdate)
+            .reduce(into: [String: PackageUpdate]()) { packages, package in
+                packages[package.id] = package
+            }
+            .values
+        return uniquePackages.sorted { left, right in
+            let nameOrder = left.packageID.localizedStandardCompare(right.packageID)
+            if nameOrder != .orderedSame { return nameOrder == .orderedAscending }
+            return left.version.localizedStandardCompare(right.version) == .orderedAscending
         }
-        return updates
     }
 
     func upgrade(_ update: PackageUpdate) async throws {
+        try await upgrade(update, progress: { _ in })
+    }
+
+    func upgrade(
+        _ update: PackageUpdate,
+        progress: (PackageOperationProgress) -> Void
+    ) async throws {
         guard !update.packageID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               update.fileSize > 0,
               update.packageType >= 0,
@@ -94,15 +137,23 @@ final class DSMPackageService {
             as: PackageInstallTask.self
         )
 
-        for _ in 0..<updatePollLimit {
-            try await Task.sleep(for: updatePollInterval)
+        for statusIndex in 0..<updatePollLimit {
+            try Task.checkCancellation()
             let status = try await transport.read(
                 api: Self.installationAPI,
                 method: "status",
                 parameters: ["task_id": .string(task.taskID)],
                 as: PackageInstallStatus.self
             )
+            progress(
+                PackageOperationProgress(
+                    taskID: task.taskID,
+                    statusChecks: statusIndex + 1,
+                    isFinished: status.isFinished
+                )
+            )
             if status.isFinished { return }
+            try await Task.sleep(for: updatePollInterval)
         }
         throw DSMError.network(String(localized: "La mise à jour a expiré."))
     }

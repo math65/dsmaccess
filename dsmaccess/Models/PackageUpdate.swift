@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PackageUpdate: Equatable, Sendable {
+struct PackageUpdate: Equatable, Identifiable, Sendable {
     let packageID: String
     let version: String
     let downloadURL: URL
@@ -15,4 +15,14 @@ struct PackageUpdate: Equatable, Sendable {
     let fileSize: Int
     let isBeta: Bool
     let packageType: Int
+
+    var id: String {
+        [
+            packageID.lowercased(),
+            version,
+            String(isBeta),
+            String(packageType),
+            downloadURL.absoluteString,
+        ].joined(separator: "|")
+    }
 }

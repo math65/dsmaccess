@@ -180,9 +180,15 @@ protocol DSMClientProtocol: AnyObject {
     func deleteSharedFolder(name: String) async throws
     func fileServiceEnabled(_ service: FileService) async throws -> Bool?
     func setFileService(_ service: FileService, enabled: Bool) async throws
+    func packageCenterCapabilities() async throws -> PackageCenterCapabilities
     func listPackages() async throws -> [PackageInfo]
+    func officialPackageCatalog(forceRefresh: Bool) async throws -> [PackageUpdate]
     func availablePackageUpdates() async throws -> [String: PackageUpdate]
     func upgradePackage(_ update: PackageUpdate) async throws
+    func upgradePackage(
+        _ update: PackageUpdate,
+        progress: (PackageOperationProgress) -> Void
+    ) async throws
     func setPackageRunning(id: String, running: Bool) async throws
     func uninstallPackage(id: String) async throws
     func packageSettings() async throws -> PackageSettings
@@ -681,8 +687,16 @@ final class DSMClient: DSMClientProtocol {
         try await fileServiceSettings.set(service, enabled: enabled)
     }
 
+    func packageCenterCapabilities() async throws -> PackageCenterCapabilities {
+        packages.capabilities()
+    }
+
     func listPackages() async throws -> [PackageInfo] {
         try await packages.installedPackages()
+    }
+
+    func officialPackageCatalog(forceRefresh: Bool) async throws -> [PackageUpdate] {
+        try await packages.officialCatalog(forceRefresh: forceRefresh)
     }
 
     func availablePackageUpdates() async throws -> [String: PackageUpdate] {
@@ -691,6 +705,13 @@ final class DSMClient: DSMClientProtocol {
 
     func upgradePackage(_ update: PackageUpdate) async throws {
         try await packages.upgrade(update)
+    }
+
+    func upgradePackage(
+        _ update: PackageUpdate,
+        progress: (PackageOperationProgress) -> Void
+    ) async throws {
+        try await packages.upgrade(update, progress: progress)
     }
 
     func setPackageRunning(id: String, running: Bool) async throws {
