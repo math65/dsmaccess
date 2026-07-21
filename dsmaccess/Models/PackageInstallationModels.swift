@@ -150,7 +150,8 @@ struct PackageInstallQueue: nonisolated Decodable, Sendable {
 
 struct PackageInstallQueueItem: nonisolated Decodable, Equatable, Sendable {
     let packageID: String
-    let operation: String
+    /// Absent sur certaines builds DSM 7.4 (90075 renvoie seulement pkg/beta/volume).
+    let operation: String?
     let version: String?
     let isBeta: Bool
 
@@ -162,7 +163,7 @@ struct PackageInstallQueueItem: nonisolated Decodable, Equatable, Sendable {
     nonisolated init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         packageID = try container.requiredFlexString(.packageID)
-        operation = try container.requiredFlexString(.operation)
+        operation = container.flexString(.operation)
         version = container.flexString(.version)
         isBeta = container.flexBool(.beta) ?? false
     }

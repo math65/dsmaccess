@@ -173,7 +173,8 @@ struct DSMPackageServiceTests {
         #expect(startQuery["filesize"] == "2048")
         #expect(startQuery["operation"] == operationMethod)
         #expect(startQuery["_sid"] == "session-id")
-        #expect(requests[3].httpMethod == "POST")
+        // DSM 7.4-90075 répond 119 à ces mutations en POST : tout le flux reste en GET.
+        #expect(requests[3].httpMethod == "GET")
 
         let statusQuery = try parameters(from: requests[4])
         #expect(statusQuery["method"] == "status")
@@ -188,7 +189,7 @@ struct DSMPackageServiceTests {
         #expect(downloadCheck["taskid"] == "@SYNOPKG_DOWNLOAD_ActiveBackup")
 
         let compoundRequest = try parameters(from: requests[7])
-        #expect(requests[7].httpMethod == "POST")
+        #expect(requests[7].httpMethod == "GET")
         #expect(compoundRequest["api"] == "SYNO.Entry.Request")
         #expect(compoundRequest["method"] == "request")
         #expect(compoundRequest["mode"] == "sequential")
@@ -199,12 +200,51 @@ struct DSMPackageServiceTests {
         #expect(compound[1]["method"] as? String == operationMethod)
         #expect(compound[1]["path"] as? String == "/var/packages/@download/ActiveBackup.spk")
         #expect(compound[1]["force"] as? Bool == true)
+        // DSM attend la chaîne "{}" ; un objet JSON est refusé avec le code 120.
+        #expect(compound[1]["extra_values"] as? String == "{}")
         #expect(compound[2]["method"] as? String == "get")
 
         let cleanup = try parameters(from: requests[8])
-        #expect(requests[8].httpMethod == "POST")
+        #expect(requests[8].httpMethod == "GET")
         #expect(cleanup["method"] == "delete")
         #expect(cleanup["path"] == "/var/packages/@download/ActiveBackup.spk")
+    }
+
+    @Test func acceptsAQueueEntryWithoutOperationField() async throws {
+        // DSM 7.4-90075 renvoie des entrées get_queue réduites à pkg/beta/volume.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(
+                #"{"success":true,"data":{"broken_pkgs":[],"conflicted_pkgs":[],"non_exist_pkgs":[],"paused_pkgs":[],"replaced_pkgs":[],"queue":[{"pkg":"ActiveBackup","beta":false,"volume":""}]}}"#.utf8
+            )),
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"taskid":"download-42"}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"finished":"true","success":true}}"#.utf8)),
+            .response(Data(
+                #"{"success":true,"data":{"filename":"/var/packages/@download/ActiveBackup.spk","id":"ActiveBackup","name":"Active Backup","version":"3.0.0-1","status":"non_installed","install_type":"","install_on_cold_storage":false,"break_pkgs":{},"replace_pkgs":null}}"#.utf8
+            )),
+            .response(Data(
+                #"{"success":true,"data":{"has_fail":false,"result":[{"api":"SYNO.Core.Package.Installation","method":"check","version":2,"success":true,"data":{}},{"api":"SYNO.Core.Package.Installation","method":"install","version":1,"success":true,"data":{"packageName":"ActiveBackup","worker_message":[]}},{"api":"SYNO.Core.Package","method":"get","version":1,"success":true,"data":{}}]}}"#.utf8
+            )),
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, pollInterval: .zero, pollLimit: 2)
+        let downloadURL = try #require(
+            URL(string: "https://downloads.synology.com/ActiveBackup.spk")
+        )
+        let update = PackageUpdate(
+            packageID: "ActiveBackup",
+            version: "3.0.0-1",
+            downloadURL: downloadURL,
+            checksum: "0123456789abcdef0123456789abcdef",
+            fileSize: 2048,
+            isBeta: false,
+            packageType: 0
+        )
+
+        try await service.install(update)
+
+        #expect(await stub.requestCount == 8)
     }
 
     @Test func uploadsAndInstallsAManualSPKWithoutImplicitWizardChoices() async throws {
@@ -330,7 +370,7 @@ struct DSMPackageServiceTests {
         #expect(try stringArray(from: deletion["list"]) == ["https://backup.example.com"])
     }
 
-    @Test func sendsDirectPackageMutationsOnceUsingPOST() async throws {
+    @Test func sendsDirectPackageMutationsOnceUsingGET() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),
             .response(Data(#"{"success":true}"#.utf8)),
@@ -350,7 +390,7 @@ struct DSMPackageServiceTests {
 
         let requests = await stub.requests
         #expect(requests.count == 3)
-        #expect(requests.allSatisfy { $0.httpMethod == "POST" })
+        #expect(requests.allSatisfy { $0.httpMethod == "GET" })
 
         let control = try parameters(from: requests[0])
         #expect(control["method"] == "start")

@@ -252,8 +252,7 @@ final class DSMPackageService {
         try await transport.perform(
             api: Self.feedAPI,
             method: "delete",
-            parameters: ["list": try DSMParameter.json(normalized)],
-            httpMethod: .post
+            parameters: ["list": try DSMParameter.json(normalized)]
         )
     }
 
@@ -317,7 +316,6 @@ final class DSMPackageService {
                 "blqinst": .boolean(false),
                 "operation": .string(operation.downloadOperation),
             ],
-            httpMethod: .post,
             timeoutInterval: 900,
             as: PackageInstallTask.self
         )
@@ -360,7 +358,6 @@ final class DSMPackageService {
             api: Self.controlAPI,
             method: running ? "start" : "stop",
             parameters: ["id": .string(packageID)],
-            httpMethod: .post,
             timeoutInterval: 900
         )
     }
@@ -373,7 +370,6 @@ final class DSMPackageService {
                 "id": .string(packageID),
                 "dsm_apps": "",
             ],
-            httpMethod: .post,
             timeoutInterval: 900
         )
     }
@@ -399,8 +395,7 @@ final class DSMPackageService {
                 "default_vol": .string(settings.defaultVol),
                 "trust_level": .integer(settings.trustLevel),
                 "update_channel": .string(settings.updateChannelBeta ? "beta" : "stable"),
-            ],
-            httpMethod: .post
+            ]
         )
     }
 
@@ -482,7 +477,7 @@ final class DSMPackageService {
     private func validate(queue: PackageInstallQueue, packageID: String) throws {
         let queuedTarget = queue.queue.count == 1
             && queue.queue[0].packageID.caseInsensitiveCompare(packageID) == .orderedSame
-            && queue.queue[0].operation == "install"
+            && (queue.queue[0].operation ?? "install") == "install"
         guard queue.brokenPackages.isEmpty,
               queue.conflictingPackages.isEmpty,
               queue.missingPackages.isEmpty,
@@ -575,7 +570,9 @@ final class DSMPackageService {
             "api": .string(Self.installationAPI.name),
             "method": .string(method),
             "version": .integer(1),
-            "extra_values": .object([:]),
+            // DSM 7.4 (90075) refuse un objet JSON ici (code 120) : la valeur doit être la
+            // chaîne "{}", comme l'envoie le client web du Centre de paquets.
+            "extra_values": .string("{}"),
             "type": .integer(packageType),
             "check_codesign": .boolean(true),
             "force": .boolean(force),
@@ -602,7 +599,6 @@ final class DSMPackageService {
                 "mode": .string("sequential"),
                 "compound": try DSMParameter.json([check, install, refresh]),
             ],
-            httpMethod: .post,
             timeoutInterval: 900,
             as: PackageCompoundData.self
         )
@@ -667,8 +663,7 @@ final class DSMPackageService {
         try await transport.perform(
             api: Self.installationAPI,
             method: "clean",
-            parameters: ["task_id": .string(taskID)],
-            httpMethod: .post
+            parameters: ["task_id": .string(taskID)]
         )
     }
 
@@ -676,8 +671,7 @@ final class DSMPackageService {
         try await transport.perform(
             api: Self.installationAPI,
             method: "delete",
-            parameters: ["path": .string(path)],
-            httpMethod: .post
+            parameters: ["path": .string(path)]
         )
     }
 
@@ -703,8 +697,7 @@ final class DSMPackageService {
         try await transport.perform(
             api: Self.feedAPI,
             method: originalFeed == nil ? "add" : "set",
-            parameters: ["list": try DSMParameter.json(entry)],
-            httpMethod: .post
+            parameters: ["list": try DSMParameter.json(entry)]
         )
     }
 
