@@ -489,11 +489,12 @@ final class DSMTransport {
 
     func error(from body: DSMErrorBody?) -> DSMError {
         if let body,
-           let detail = body.errors?.first {
+           let detail = body.errors?.first,
+           let detailCode = detail.code {
             return .itemOperationFailed(
                 code: body.code,
                 item: detail.path ?? detail.name ?? detail.id,
-                itemCode: detail.code
+                itemCode: detailCode
             )
         }
         return switch body?.code {

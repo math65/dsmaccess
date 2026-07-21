@@ -189,4 +189,25 @@ struct DSMCapabilitiesTests {
         #expect(transport.error(from: DSMErrorBody(code: 119)) == .sessionExpired)
         #expect(transport.error(from: DSMErrorBody(code: 105)) == .permissionDenied)
     }
+
+    @Test func decodesASingleDSMErrorDetailDictionary() async throws {
+        let data = Data(
+            #"{"success":false,"error":{"code":120,"errors":{"name":"extra_values","reason":"type"}}}"#.utf8
+        )
+
+        let response = try await DSMTransport.decodeResponse(EmptyData.self, from: data)
+        let body = try #require(response.error)
+        let detail = try #require(body.errors?.first)
+
+        #expect(body.code == 120)
+        #expect(detail.code == nil)
+        #expect(detail.name == "extra_values")
+        #expect(detail.reason == "type")
+
+        let transport = DSMTransport(
+            endpoint: DSMEndpoint(useHTTPS: true, host: "nas.local", port: 5001),
+            session: .shared
+        )
+        #expect(transport.error(from: body) == .apiError(code: 120))
+    }
 }
