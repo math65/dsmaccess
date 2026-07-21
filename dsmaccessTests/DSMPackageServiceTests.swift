@@ -85,21 +85,24 @@ struct DSMPackageServiceTests {
         #expect(refreshedQuery["blloadothers"] == "false")
     }
 
-    @Test func completesTheVerifiedCatalogInstallationPipeline() async throws {
+    @Test(arguments: [false, true])
+    func completesTheDSM74CatalogInstallationPipeline(isUpgrade: Bool) async throws {
+        let operationMethod = isUpgrade ? "upgrade" : "install"
+        let installationStatus = isUpgrade ? "installed" : "non_installed"
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),
             .response(Data(
                 #"{"success":true,"data":{"broken_pkgs":[],"conflicted_pkgs":[],"non_exist_pkgs":[],"paused_pkgs":[],"replaced_pkgs":[],"queue":[{"pkg":"ActiveBackup","operation":"install","version":"3.0.0-1","beta":false}]}}"#.utf8
             )),
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),
-            .response(Data(#"{"success":true,"data":{"task_id":"42"}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"taskid":"download-42"}}"#.utf8)),
             .response(Data(#"{"success":true,"data":{"finished":"false"}}"#.utf8)),
             .response(Data(#"{"success":true,"data":{"finished":"true","success":true}}"#.utf8)),
             .response(Data(
-                #"{"success":true,"data":{"filename":"/var/packages/@download/ActiveBackup.spk","id":"ActiveBackup","name":"Active Backup","version":"3.0.0-1","status":"non_installed","install_type":"","install_on_cold_storage":false,"break_pkgs":{},"replace_pkgs":null}}"#.utf8
+                #"{"success":true,"data":{"filename":"/var/packages/@download/ActiveBackup.spk","id":"ActiveBackup","name":"Active Backup","version":"3.0.0-1","status":"\#(installationStatus)","install_type":"","install_on_cold_storage":false,"break_pkgs":{},"replace_pkgs":null}}"#.utf8
             )),
             .response(Data(
-                #"{"success":true,"data":{"has_fail":false,"result":[{"api":"SYNO.Core.Package.Installation","method":"check","version":2,"success":true,"data":{}},{"api":"SYNO.Core.Package.Installation","method":"upgrade","version":1,"success":true,"data":{"packageName":"ActiveBackup","worker_message":[]}},{"api":"SYNO.Core.Package","method":"get","version":1,"success":true,"data":{}}]}}"#.utf8
+                #"{"success":true,"data":{"has_fail":false,"result":[{"api":"SYNO.Core.Package.Installation","method":"check","version":2,"success":true,"data":{}},{"api":"SYNO.Core.Package.Installation","method":"\#(operationMethod)","version":1,"success":true,"data":{"packageName":"ActiveBackup","worker_message":[]}},{"api":"SYNO.Core.Package","method":"get","version":1,"success":true,"data":{}}]}}"#.utf8
             )),
             .response(Data(#"{"success":true}"#.utf8)),
         ])
@@ -118,19 +121,32 @@ struct DSMPackageServiceTests {
         )
 
         var progressUpdates = [PackageOperationProgress]()
-        try await service.upgrade(update) { progressUpdates.append($0) }
+        if isUpgrade {
+            try await service.upgrade(update) { progressUpdates.append($0) }
+        } else {
+            try await service.install(update) { progressUpdates.append($0) }
+        }
 
         let requests = await stub.requests
         #expect(requests.count == 9)
         #expect(
             progressUpdates
                 == [
-                    PackageOperationProgress(taskID: "42", statusChecks: 1, isFinished: false),
-                    PackageOperationProgress(taskID: "42", statusChecks: 2, isFinished: true),
+                    PackageOperationProgress(
+                        taskID: "download-42",
+                        statusChecks: 1,
+                        isFinished: false
+                    ),
+                    PackageOperationProgress(
+                        taskID: "download-42",
+                        statusChecks: 2,
+                        isFinished: true
+                    ),
                 ]
         )
         let feasibility = try parameters(from: requests[0])
         #expect(feasibility["method"] == "feasibility_check")
+        #expect(feasibility["version"] == "1")
         #expect(feasibility["type"] == "install_check")
         #expect(try stringArray(from: feasibility["packages"]) == ["ActiveBackup"])
 
@@ -144,29 +160,32 @@ struct DSMPackageServiceTests {
         let check = try parameters(from: requests[2])
         #expect(check["method"] == "check")
         #expect(check["version"] == "2")
-        #expect(check["blupgrade"] == "true")
+        #expect(check["blupgrade"] == String(isUpgrade))
         #expect(check["blCheckDep"] == "false")
 
         let startQuery = try parameters(from: requests[3])
-        #expect(startQuery["method"] == "upgrade")
+        #expect(startQuery["method"] == operationMethod)
         #expect(startQuery["name"] == "ActiveBackup")
+        #expect(startQuery["is_syno"] == "true")
+        #expect(startQuery["beta"] == "false")
         #expect(startQuery["url"] == update.downloadURL.absoluteString)
         #expect(startQuery["checksum"] == update.checksum)
         #expect(startQuery["filesize"] == "2048")
+        #expect(startQuery["operation"] == operationMethod)
         #expect(startQuery["_sid"] == "session-id")
         #expect(requests[3].httpMethod == "POST")
 
         let statusQuery = try parameters(from: requests[4])
         #expect(statusQuery["method"] == "status")
-        #expect(statusQuery["task_id"] == "42")
+        #expect(statusQuery["task_id"] == "download-42")
         let finishedQuery = try parameters(from: requests[5])
         #expect(finishedQuery["method"] == "status")
-        #expect(finishedQuery["task_id"] == "42")
+        #expect(finishedQuery["task_id"] == "download-42")
 
         let downloadCheck = try parameters(from: requests[6])
         #expect(downloadCheck["api"] == "SYNO.Core.Package.Installation.Download")
         #expect(downloadCheck["method"] == "check")
-        #expect(downloadCheck["taskid"] == "42")
+        #expect(downloadCheck["taskid"] == "@SYNOPKG_DOWNLOAD_ActiveBackup")
 
         let compoundRequest = try parameters(from: requests[7])
         #expect(requests[7].httpMethod == "POST")
@@ -177,7 +196,7 @@ struct DSMPackageServiceTests {
         let compound = try objectArray(from: compoundRequest["compound"])
         #expect(compound.count == 3)
         #expect(compound[0]["method"] as? String == "check")
-        #expect(compound[1]["method"] as? String == "upgrade")
+        #expect(compound[1]["method"] as? String == operationMethod)
         #expect(compound[1]["path"] as? String == "/var/packages/@download/ActiveBackup.spk")
         #expect(compound[1]["force"] as? Bool == true)
         #expect(compound[2]["method"] as? String == "get")
@@ -408,7 +427,7 @@ struct DSMPackageServiceTests {
             "SYNO.Core.Package": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
-                maxVersion: 1
+                maxVersion: 2
             ),
             "SYNO.Core.Package.Server": APIInfoEntry(
                 path: "entry.cgi",

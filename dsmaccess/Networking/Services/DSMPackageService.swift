@@ -308,6 +308,8 @@ final class DSMPackageService {
             method: operation.method,
             parameters: [
                 "name": .string(update.packageID),
+                "is_syno": .boolean(true),
+                "beta": .boolean(update.isBeta),
                 "url": .string(update.downloadURL.absoluteString),
                 "checksum": .string(update.checksum),
                 "filesize": .integer(update.fileSize),
@@ -324,7 +326,9 @@ final class DSMPackageService {
         let metadata = try await transport.read(
             api: Self.installationDownloadAPI,
             method: "check",
-            parameters: ["taskid": .string(task.taskID)],
+            parameters: [
+                "taskid": .string("@SYNOPKG_DOWNLOAD_\(update.packageID)"),
+            ],
             timeoutInterval: 900,
             as: PackageInstallationMetadata.self
         )
@@ -461,7 +465,7 @@ final class DSMPackageService {
 
     private func feasibilityCheck(packageID: String, type: String) async throws {
         let response = try await transport.response(
-            api: Self.packageAPI,
+            api: DSMAPI(Self.packageAPI.name, preferredVersion: 1),
             method: "feasibility_check",
             parameters: [
                 "type": .string(type),
