@@ -2137,6 +2137,16 @@
         }
       }
     },
+    "Autre" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Other"
+          }
+        }
+      }
+    },
     "Autres actions" : {
       "localizations" : {
         "en" : {
@@ -3023,6 +3033,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Keep the selected downloads"
+          }
+        }
+      }
+    },
+    "Contacter le développeur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contact the Developer"
+          }
+        }
+      }
+    },
+    "Contacter le développeur…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Contact the Developer…"
           }
         }
       }
@@ -4180,6 +4210,16 @@
         }
       }
     },
+    "Envoi du message en cours" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending the message"
+          }
+        }
+      }
+    },
     "Envoi en cours…" : {
       "localizations" : {
         "en" : {
@@ -4821,6 +4861,16 @@
         }
       }
     },
+    "Impossible de joindre le serveur. Vérifiez votre connexion Internet, puis réessayez." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server could not be reached. Check your Internet connection, then try again."
+          }
+        }
+      }
+    },
     "Impossible d’ajouter ce dossier aux favoris." : {
       "localizations" : {
         "en" : {
@@ -5251,12 +5301,32 @@
         }
       }
     },
+    "Le message n’a pas pu être accepté. Vérifiez l’adresse e-mail et le contenu, puis réessayez." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The message could not be accepted. Check the email address and the content, then try again."
+          }
+        }
+      }
+    },
     "Le port doit être un nombre compris entre 1 et 65535." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The port must be a number between 1 and 65535."
+          }
+        }
+      }
+    },
+    "Le serveur a rencontré une erreur. Réessayez plus tard." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The server ran into an error. Try again later."
           }
         }
       }
@@ -5451,6 +5521,16 @@
         }
       }
     },
+    "L’envoi de messages n’est pas disponible dans cette version de l’app." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending messages is not available in this build of the app."
+          }
+        }
+      }
+    },
     "Machine virtuelle" : {
       "localizations" : {
         "en" : {
@@ -5537,6 +5617,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hide snapshot"
+          }
+        }
+      }
+    },
+    "Message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Message"
+          }
+        }
+      }
+    },
+    "Message envoyé. Merci !" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Message sent. Thank you!"
           }
         }
       }
@@ -6645,6 +6745,16 @@
         }
       }
     },
+    "Question" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Question"
+          }
+        }
+      }
+    },
     "Recherche en cours…" : {
       "localizations" : {
         "en" : {
@@ -7526,6 +7636,16 @@
         }
       }
     },
+    "Signalement de problème" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Problem report"
+          }
+        }
+      }
+    },
     "Stockage" : {
       "localizations" : {
         "en" : {
@@ -7542,6 +7662,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Storage removed"
+          }
+        }
+      }
+    },
+    "Suggestion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suggestion"
           }
         }
       }
@@ -7997,6 +8127,16 @@
         }
       }
     },
+    "Trop de messages envoyés récemment. Réessayez dans une heure." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Too many messages sent recently. Try again in an hour."
+          }
+        }
+      }
+    },
     "Type" : {
       "localizations" : {
         "en" : {
@@ -8013,6 +8153,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "RAID type"
+          }
+        }
+      }
+    },
+    "Type de message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Message type"
           }
         }
       }
@@ -8123,6 +8273,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "A two-factor verification code is required."
+          }
+        }
+      }
+    },
+    "Un instantané de diagnostic sera joint : versions de l’app et de macOS, langue et réglages. Aucune donnée de votre NAS n’est transmise." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A diagnostic snapshot will be attached: app and macOS versions, language, and settings. No data from your NAS is sent."
           }
         }
       }
@@ -8359,6 +8519,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Your NAS"
+          }
+        }
+      }
+    },
+    "Votre adresse e-mail (pour la réponse)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your email address (for the reply)"
           }
         }
       }

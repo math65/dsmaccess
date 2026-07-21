@@ -27,6 +27,9 @@ enum Preferences {
         static let sidebarOrder = "sidebarOrder"
         static let enabledSidebarModules = "enabledSidebarModules"
         static let automaticallyHideUnavailableModules = "automaticallyHideUnavailableModules"
+        static let appBackendInstallID = "appBackendInstallID"
+        static let seenBackendAnnouncementIDs = "appBackendSeenAnnouncementIDs"
+        static let feedbackEmail = "feedbackEmail"
     }
 
     /// Dernière adresse (hôte) du NAS saisie au login.
@@ -131,5 +134,30 @@ enum Preferences {
             return defaults.bool(forKey: Key.automaticallyHideUnavailableModules)
         }
         set { defaults.set(newValue, forKey: Key.automaticallyHideUnavailableModules) }
+    }
+
+    /// Identifiant d'installation anonyme pour les annonces du backend, généré au
+    /// premier accès puis stable. Le serveur n'en stocke qu'un hachage, pour
+    /// dédupliquer le compteur de portée d'une annonce.
+    static var appBackendInstallID: String {
+        if let existing = defaults.string(forKey: Key.appBackendInstallID), !existing.isEmpty {
+            return existing
+        }
+        let fresh = UUID().uuidString
+        defaults.set(fresh, forKey: Key.appBackendInstallID)
+        return fresh
+    }
+
+    /// Identifiants des annonces `once` déjà affichées (le serveur renvoie toujours
+    /// l'annonce active ; le « une seule fois » est appliqué côté client).
+    static var seenBackendAnnouncementIDs: [String] {
+        get { defaults.stringArray(forKey: Key.seenBackendAnnouncementIDs) ?? [] }
+        set { defaults.set(newValue, forKey: Key.seenBackendAnnouncementIDs) }
+    }
+
+    /// Adresse e-mail du formulaire de contact, mémorisée après un envoi réussi.
+    static var feedbackEmail: String {
+        get { defaults.string(forKey: Key.feedbackEmail) ?? "" }
+        set { defaults.set(newValue, forKey: Key.feedbackEmail) }
     }
 }

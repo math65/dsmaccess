@@ -26,10 +26,18 @@ struct dsmaccessApp: App {
         .windowResizability(.contentMinSize)
         .commands {
             DSMCommands()
+            FeedbackCommands()
             CommandGroup(after: .appInfo) {
                 CheckForUpdatesView(updater: updater)
             }
         }
+
+        Window("Contacter le développeur", id: "feedback") {
+            FeedbackView()
+                .environment(session)
+                .environment(settings)
+        }
+        .windowResizability(.contentSize)
 
         Settings {
             AppSettingsView(settings: settings, session: session)

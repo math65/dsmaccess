@@ -34,5 +34,9 @@ CLAUDE.local.md
 # Config/skills Claude Code locales (non publiées)
 .claude/
 
+# Secret Bearer du backend d'apps (anti-spam, jamais versionné — dépôt public).
+# Sans ce fichier le build réussit et l'interface de contact est masquée.
+dsmaccess/AppBackendSecret.plist
+
 # Divers
 *.log

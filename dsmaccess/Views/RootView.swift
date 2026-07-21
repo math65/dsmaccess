@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(SessionStore.self) private var session
+    @State private var announcements = BackendAnnouncementCoordinator()
 
     var body: some View {
         Group {
@@ -19,5 +20,9 @@ struct RootView: View {
             }
         }
         .frame(minWidth: 640, minHeight: 460)
+        .task {
+            await announcements.checkAtLaunch()
+            announcements.presentPendingAnnouncement()
+        }
     }
 }
