@@ -185,7 +185,6 @@ struct PackagesView: View {
             Picker("Centre de paquets", selection: $section) {
                 ForEach(PackageCenterSection.allCases) { section in
                     Text(section.title).tag(section)
-                        .disabled(section == .catalog && !vm.canBrowseCatalog)
                 }
             }
             .pickerStyle(.segmented)

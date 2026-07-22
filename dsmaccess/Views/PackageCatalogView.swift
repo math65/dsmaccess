@@ -20,6 +20,16 @@ struct PackageCatalogView: View {
             ModuleLoadingView()
         } else if let error = vm.errorMessage ?? vm.catalogErrorMessage {
             ModuleErrorView(message: error, retry: retry)
+        } else if vm.capabilities != nil && !vm.canBrowseCatalog {
+            // DSM n'expose pas SYNO.Core.Package.Server aux comptes non administrateurs :
+            // sans cet état explicite, l'onglet paraît vide sans raison.
+            ContentUnavailableView(
+                "Catalogue non disponible",
+                systemImage: "shippingbox",
+                description: Text(
+                    "Ce NAS ne donne pas accès au catalogue officiel avec ce compte. Connectez-vous avec un compte administrateur pour parcourir le catalogue Synology."
+                )
+            )
         } else if visibleCatalog.isEmpty {
             ContentUnavailableView(
                 "Aucun paquet correspondant",

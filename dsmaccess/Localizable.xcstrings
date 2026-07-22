@@ -311,6 +311,16 @@
         }
       }
     },
+    "Catalogue non disponible" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catalog not available"
+          }
+        }
+      }
+    },
     "Catalogue officiel" : {
       "localizations" : {
         "en" : {
@@ -327,6 +337,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Official Package Center catalog"
+          }
+        }
+      }
+    },
+    "Ce NAS ne donne pas accès au catalogue officiel avec ce compte. Connectez-vous avec un compte administrateur pour parcourir le catalogue Synology." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This NAS does not expose the official catalog to this account. Sign in with an administrator account to browse the Synology catalog."
           }
         }
       }
