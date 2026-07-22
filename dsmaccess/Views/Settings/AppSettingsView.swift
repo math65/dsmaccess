@@ -10,6 +10,7 @@ import SwiftUI
 struct AppSettingsView: View {
     let settings: AppSettings
     let session: SessionStore
+    @ObservedObject var updater: UpdaterViewModel
     @AppStorage("selectedSettingsPane") private var selection = AppSettingsPane.announcements
 
     var body: some View {
@@ -40,6 +41,15 @@ struct AppSettingsView: View {
                     )
                 }
                 .tag(AppSettingsPane.nas)
+
+            UpdateSettingsView(updater: updater)
+                .tabItem {
+                    Label(
+                        AppSettingsPane.updates.title,
+                        systemImage: AppSettingsPane.updates.systemImage
+                    )
+                }
+                .tag(AppSettingsPane.updates)
         }
         .background(SettingsWindowConfigurator())
         .accessibilityIdentifier("settings.panes")

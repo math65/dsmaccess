@@ -51,7 +51,7 @@ struct dsmaccessApp: App {
         .windowResizability(.contentSize)
 
         Settings {
-            AppSettingsView(settings: settings, session: session)
+            AppSettingsView(settings: settings, session: session, updater: updater)
                 .environment(settings)
                 .environment(session)
         }

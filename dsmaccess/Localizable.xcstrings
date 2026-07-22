@@ -1,6 +1,96 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Configurer les mises à jour de DSM Access" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Configure DSM Access updates"
+          }
+        }
+      }
+    },
+    "Mises à jour automatiques" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic updates"
+          }
+        }
+      }
+    },
+    "Rechercher automatiquement les mises à jour" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatically check for updates"
+          }
+        }
+      }
+    },
+    "Vérifie au lancement, puis environ une fois par jour" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checks at launch, then about once a day"
+          }
+        }
+      }
+    },
+    "Télécharger et installer automatiquement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download and install automatically"
+          }
+        }
+      }
+    },
+    "Installe la mise à jour à la fermeture de l’app, sans rien demander" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installs the update when the app quits, without asking"
+          }
+        }
+      }
+    },
+    "Avec le téléchargement automatique, la nouvelle version s’installe à la fermeture de l’app : plus de dialogue à chaque mise à jour." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "With automatic download, the new version installs itself when the app quits — no more dialog for every update."
+          }
+        }
+      }
+    },
+    "Rechercher maintenant…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check Now…"
+          }
+        }
+      }
+    },
+    "%@ (build %@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ (build %@)"
+          }
+        }
+      }
+    },
     "État DSM : %@" : {
       "localizations" : {
         "en" : {
