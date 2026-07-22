@@ -1073,6 +1073,22 @@
         }
       }
     },
+    "Fichiers et dossiers" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Files and folders"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fichiers et dossiers"
+          }
+        }
+      }
+    },
     "Paquets installés" : {
       "localizations" : {
         "en" : {

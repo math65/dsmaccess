@@ -48,6 +48,7 @@ struct FileTableView: NSViewRepresentable {
         table.allowsMultipleSelection = true
         table.allowsEmptySelection = true
         table.style = .inset
+        table.setAccessibilityLabel(String(localized: "Fichiers et dossiers"))
         table.dataSource = context.coordinator
         table.delegate = context.coordinator
 
