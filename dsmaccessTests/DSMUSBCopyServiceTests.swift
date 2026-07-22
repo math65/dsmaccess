@@ -19,6 +19,8 @@ struct DSMUSBCopyServiceTests {
         #expect(task.knownType == .exportGeneral)
         #expect(task.knownStrategy == .mirror)
         #expect(task.knownStatus == .unmounted)
+        #expect(!task.canDisable)
+        #expect(task.canDelete)
 
         let requests = await stub.requests
         let request = try #require(requests.first)
@@ -99,6 +101,75 @@ struct DSMUSBCopyServiceTests {
             _ = try await service.create(creation)
         }
         #expect(await stub.requestCount == 1)
+    }
+
+    @Test func photoImportCreationUsesThePackageRequiredConfiguration() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"task_id":9}}"#.utf8)),
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+        let creation = USBCopyTaskCreation(
+            type: .importPhoto,
+            name: "Photos",
+            sourcePath: "/usbshare1/DCIM",
+            destinationPath: "/photo",
+            copyStrategy: .versioning,
+            enableRotation: true,
+            rotationPolicy: .smartRecycle,
+            maxVersionCount: 8,
+            removeSourceFile: false,
+            notKeepDirectoryStructure: false,
+            smartCreateDateDirectory: false,
+            renamePhotoVideo: false,
+            conflictPolicy: .overwrite,
+            runWhenPlugIn: false,
+            ejectWhenTaskDone: false,
+            scheduleEnabled: true,
+            scheduleContent: .defaultValue,
+            filter: .defaultValue(for: .importPhoto)
+        )
+
+        _ = try await service.create(creation)
+
+        let request = try #require(await stub.requests.first)
+        let creationQuery = try query(from: request)
+        let task = try #require(creationQuery["task"]).jsonDictionary
+        #expect(task["copy_strategy"] as? String == "incremental")
+        #expect(task["not_keep_dir_structure"] as? Bool == true)
+        #expect(task["smart_create_date_dir"] as? Bool == true)
+        #expect(task["rename_photo_video"] as? Bool == true)
+        #expect(task["conflict_policy"] as? String == "rename")
+        #expect(task["schedule_enabled"] as? Bool == false)
+        #expect(task["enable_rotation"] == nil)
+        #expect(task["rotation_policy"] == nil)
+        #expect(task["max_version_count"] == nil)
+
+        try await service.setSettings(USBCopyTaskSettings(
+            id: 9,
+            type: .importPhoto,
+            name: "Photos",
+            sourcePath: "/usbshare1/DCIM",
+            destinationPath: "/photo",
+            copyStrategy: .mirror,
+            enableRotation: true,
+            rotationPolicy: .smartRecycle,
+            maxVersionCount: 8,
+            removeSourceFile: false,
+            notKeepDirectoryStructure: false,
+            smartCreateDateDirectory: false,
+            renamePhotoVideo: false,
+            conflictPolicy: .overwrite
+        ))
+        let settingsRequest = try #require(await stub.requests.last)
+        let settingsQuery = try query(from: settingsRequest)
+        let settings = try #require(settingsQuery["task_setting"]).jsonDictionary
+        #expect(settings["copy_strategy"] as? String == "incremental")
+        #expect(settings["enable_rotation"] as? Bool == false)
+        #expect(settings["not_keep_dir_structure"] as? Bool == true)
+        #expect(settings["smart_create_date_dir"] as? Bool == true)
+        #expect(settings["rename_photo_video"] as? Bool == true)
+        #expect(settings["conflict_policy"] as? String == "rename")
     }
 
     @Test func sendsSettingsFilterAndTriggerWithTheirObservedParameterNames() async throws {
@@ -207,27 +278,64 @@ struct DSMUSBCopyServiceTests {
             .response(Data(#"{"success":true,"data":{"repo_volume_path":"/volume1","log_rotate_count":100000,"beep_on_task_start_end":true}}"#.utf8)),
             .response(Data(#"{"success":true,"data":{"count":1,"log_list":[{"description_id":101,"description_parameter":"\"Backup\"","error":"","log_type":1,"task_id":1,"timestamp":1782302241}]}}"#.utf8)),
             .response(Data(#"{"success":true,"data":{"shares":[{"name":"Files","external_dev_type":""},{"name":"usbshare1","external_dev_type":"USB"}]}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"volumes":[{"volume_path":"/volume1","size_total_byte":"1000"},{"volume_path":"/volume2","size_total_byte":0}]}}"#.utf8)),
         ])
         let service = makeService(stub: stub)
 
         let settings = try await service.globalSettings()
         let page = try await service.logs(offset: 0, limit: 200, filter: .all)
         let shares = try await service.availableShares()
+        let volumePaths = try await service.availableVolumePaths()
 
         #expect(settings.repositoryVolumePath == "/volume1")
         #expect(settings.logRotateCount == 100_000)
         #expect(page.count == 1)
         #expect(page.logList.first?.descriptionID == 101)
         #expect(shares.last?.externalDeviceType == "USB")
+        #expect(volumePaths == ["/volume1"])
 
         let requests = await stub.requests
         let logQuery = try query(from: requests[1])
         #expect(logQuery["method"] == "get_log_list")
         #expect(logQuery["offset"] == "0")
         #expect(logQuery["limit"] == "200")
+        let logFilter = try #require(logQuery["log_filter"]).jsonDictionary
+        #expect(Set(logFilter.keys) == ["log_desc_id_list", "log_type"])
+        #expect((logFilter["log_desc_id_list"] as? [Int])?.count == 13)
+        #expect(logFilter["log_type"] as? Int == USBCopyLogType.all.rawValue)
         let shareQuery = try query(from: requests[2])
         #expect(shareQuery["api"] == "SYNO.Core.Share")
         #expect(shareQuery["shareType"] == #"["local","usb","dec","c2"]"#)
+        let volumeQuery = try query(from: requests[3])
+        #expect(volumeQuery["api"] == "SYNO.Core.Storage.Volume")
+        #expect(volumeQuery["method"] == "list")
+        #expect(volumeQuery["limit"] == "-1")
+        #expect(volumeQuery["location"] == #""internal""#)
+    }
+
+    @Test func logRequestUsesTheConfirmedSearchFieldNames() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"count":0,"log_list":[]}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+        let filter = USBCopyLogFilter(
+            descriptionIDs: [100, 103],
+            keyword: "Backup",
+            fromTimestamp: 1_700_000_000,
+            toTimestamp: 1_700_086_399,
+            logType: USBCopyLogType.error.rawValue
+        )
+
+        _ = try await service.logs(offset: 4, limit: 20, filter: filter)
+
+        let request = try #require(await stub.requests.first)
+        let query = try query(from: request)
+        let logFilter = try #require(query["log_filter"]).jsonDictionary
+        #expect(logFilter["log_desc_id_list"] as? [Int] == [100, 103])
+        #expect(logFilter["key_word"] as? String == "Backup")
+        #expect(logFilter["from_timestamp"] as? Int == 1_700_000_000)
+        #expect(logFilter["to_timestamp"] as? Int == 1_700_086_399)
+        #expect(logFilter["log_type"] as? Int == USBCopyLogType.error.rawValue)
     }
 
     @Test func filterSelectionPreservesTheWildcardAndExcludedBuiltInTypes() {
@@ -239,12 +347,69 @@ struct DSMUSBCopyServiceTests {
         let filter = selection.filter
         let restored = USBCopyFilterSelection(filter: filter)
 
-        #expect(filter.whiteList.extensions == ["*"])
+        #expect(filter.whiteList.extensions == ["*", "abc"])
+        #expect(filter.whiteList.names.contains("README"))
         #expect(filter.blackList.extensions.contains("mp3"))
         #expect(filter.blackList.names.contains(".SynologyUSBCopy.config"))
         #expect(restored.selectedExtensions.contains("mp3") == false)
         #expect(restored.customExtensions == ["abc"])
         #expect(restored.customNames == ["README"])
+    }
+
+    @Test func customFilterRulesAreAddedToTheOperationalAllowList() {
+        var selection = USBCopyFilterSelection(
+            selectedExtensions: [],
+            includesOtherFiles: false,
+            customExtensions: ["rtf"],
+            customNames: ["LICENSE"]
+        )
+
+        let filter = selection.filter
+
+        #expect(filter.whiteList.extensions == ["rtf"])
+        #expect(filter.whiteList.names == ["LICENSE"])
+        #expect(filter.customizedList.extensions == ["rtf"])
+        #expect(filter.customizedList.names == ["LICENSE"])
+
+        selection = USBCopyFilterSelection(filter: filter)
+        #expect(selection.customExtensions == ["rtf"])
+        #expect(selection.customNames == ["LICENSE"])
+        #expect(selection.filter == filter)
+    }
+
+    @Test func onlyDefaultTasksExposeTheEnableAndDisableActions() throws {
+        let disabled = try JSONDecoder().decode(
+            USBCopyTask.self,
+            from: Data(
+                #"{"id":4,"name":"Default","type":"export_general","source_path":"/Files","destination_path":"[USB]","copy_strategy":"mirror","status":"disabled","is_default_task":true}"#.utf8
+            )
+        )
+        let enabled = try JSONDecoder().decode(
+            USBCopyTask.self,
+            from: Data(
+                #"{"id":5,"name":"Default","type":"export_general","source_path":"/Files","destination_path":"[USB]","copy_strategy":"mirror","status":"successful","is_default_task":true}"#.utf8
+            )
+        )
+        let canceling = try JSONDecoder().decode(
+            USBCopyTask.self,
+            from: Data(
+                #"{"id":6,"name":"Default","type":"export_general","source_path":"/Files","destination_path":"[USB]","copy_strategy":"mirror","status":"canceling","is_default_task":true}"#.utf8
+            )
+        )
+        let unavailable = try JSONDecoder().decode(
+            USBCopyTask.self,
+            from: Data(
+                #"{"id":7,"name":"Pending","type":"export_general","source_path":"/Files","destination_path":"[USB]","copy_strategy":"mirror","status":"na","is_default_task":false}"#.utf8
+            )
+        )
+
+        #expect(disabled.canEnable)
+        #expect(!disabled.canDisable)
+        #expect(enabled.canDisable)
+        #expect(!enabled.canEnable)
+        #expect(!canceling.canDisable)
+        #expect(!unavailable.canRun)
+        #expect(!unavailable.canDelete)
     }
 
     @Test func filterSelectionPreservesRulesTheEditorDoesNotManage() {
@@ -299,6 +464,12 @@ struct DSMUSBCopyServiceTests {
                 requestFormat: "JSON"
             ),
             "SYNO.Core.Share": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.Core.Storage.Volume": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1,

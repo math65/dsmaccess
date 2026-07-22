@@ -12,6 +12,7 @@ final class DSMUSBCopyService {
     private static let usbCopyAPI = DSMAPI("SYNO.USBCopy")
     private static let taskSchedulerAPI = DSMAPI("SYNO.Core.TaskScheduler", preferredVersion: 2)
     private static let shareAPI = DSMAPI("SYNO.Core.Share", preferredVersion: 1)
+    private static let volumeAPI = DSMAPI("SYNO.Core.Storage.Volume", preferredVersion: 1)
 
     private let transport: DSMTransport
 
@@ -37,21 +38,23 @@ final class DSMUSBCopyService {
     }
 
     func create(_ task: USBCopyTaskCreation) async throws -> Int {
-        try await transport.value(
+        let normalizedTask = task.normalizedForAPI
+        return try await transport.value(
             api: Self.usbCopyAPI,
             method: "create",
-            parameters: ["task": try DSMParameter.json(task)],
+            parameters: ["task": try DSMParameter.json(normalizedTask)],
             as: USBCopyTaskCreationResult.self
         ).taskID
     }
 
     func setSettings(_ settings: USBCopyTaskSettings) async throws {
+        let normalizedSettings = settings.normalizedForAPI
         try await transport.perform(
             api: Self.usbCopyAPI,
             method: "set_setting",
             parameters: [
                 "id": .integer(settings.id),
-                "task_setting": try DSMParameter.json(settings),
+                "task_setting": try DSMParameter.json(normalizedSettings),
             ]
         )
     }
@@ -160,6 +163,22 @@ final class DSMUSBCopyService {
         return result.shares ?? []
     }
 
+    func availableVolumePaths() async throws -> [String] {
+        let result = try await transport.read(
+            api: Self.volumeAPI,
+            method: "list",
+            parameters: [
+                "limit": .integer(-1),
+                "offset": .integer(0),
+                "location": .string("internal"),
+            ],
+            as: USBCopyVolumeList.self
+        )
+        return result.volumes
+            .filter { ($0.sizeTotalByte ?? 0) > 0 }
+            .map(\.volumePath)
+    }
+
     func run(taskID: Int) async throws {
         try await action("run", taskID: taskID)
     }
@@ -186,5 +205,25 @@ final class DSMUSBCopyService {
             method: method,
             parameters: ["id": .integer(taskID)]
         )
+    }
+}
+
+private struct USBCopyVolumeList: nonisolated Decodable, Sendable {
+    let volumes: [USBCopyVolume]
+}
+
+private struct USBCopyVolume: nonisolated Decodable, Sendable {
+    let volumePath: String
+    let sizeTotalByte: Int64?
+
+    private enum CodingKeys: String, CodingKey {
+        case volumePath = "volume_path"
+        case sizeTotalByte = "size_total_byte"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        volumePath = try values.requiredFlexString(.volumePath)
+        sizeTotalByte = values.flexInt64(.sizeTotalByte)
     }
 }

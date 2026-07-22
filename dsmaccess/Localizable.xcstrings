@@ -1,6 +1,26 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "%lld dossiers disponibles" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld folders available"
+          }
+        }
+      }
+    },
+    "1 dossier disponible" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 folder available"
+          }
+        }
+      }
+    },
     "Charger plus d’entrées" : {
       "localizations" : {
         "en" : {
@@ -351,6 +371,36 @@
         }
       }
     },
+    "Choisir le dossier de destination" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Destination Folder"
+          }
+        }
+      }
+    },
+    "Choisir le dossier source" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose Source Folder"
+          }
+        }
+      }
+    },
+    "Choisir ce dossier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose This Folder"
+          }
+        }
+      }
+    },
     "Choisir le sens de la copie" : {
       "localizations" : {
         "en" : {
@@ -391,6 +441,16 @@
         }
       }
     },
+    "Choisissez un dossier sur le périphérique USB. La tâche sera enregistrée puis activée." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a folder on the USB device. The task will be saved and then enabled."
+          }
+        }
+      }
+    },
     "Conserver entre 5 et 100 000 entrées dans le journal USB Copy" : {
       "localizations" : {
         "en" : {
@@ -427,6 +487,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Create folders by date"
+          }
+        }
+      }
+    },
+    "Créer des dossiers et renommer les photos et vidéos selon la date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create folders and rename photos and videos by date"
           }
         }
       }
@@ -721,6 +791,26 @@
         }
       }
     },
+    "Exécuter cette tâche USB Copy ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run This USB Copy Task?"
+          }
+        }
+      }
+    },
+    "Exécuter la tâche" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Run Task"
+          }
+        }
+      }
+    },
     "Exécuter la tâche USB Copy sélectionnée" : {
       "localizations" : {
         "en" : {
@@ -1001,6 +1091,26 @@
         }
       }
     },
+    "La tâche « %@ » supprimera de la destination les fichiers qui ne sont plus présents à la source." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The “%@” task will delete files from the destination when they are no longer present at the source."
+          }
+        }
+      }
+    },
+    "La tâche « %@ » supprimera les fichiers source après leur copie vers la destination." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The “%@” task will delete source files after copying them to the destination."
+          }
+        }
+      }
+    },
     "Le dépôt USB Copy n’est pas configuré." : {
       "localizations" : {
         "en" : {
@@ -1017,6 +1127,46 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "The number of log entries must be between 5 and 100,000."
+          }
+        }
+      }
+    },
+    "Le dépôt USB Copy sera déplacé de « %@ » vers « %@ ». USB Copy peut être temporairement indisponible pendant le déplacement." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The USB Copy repository will be moved from “%@” to “%@”. USB Copy may be temporarily unavailable during the move."
+          }
+        }
+      }
+    },
+    "Le dossier a été enregistré, mais l’activation de la tâche a été annulée." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The folder was saved, but enabling the task was cancelled."
+          }
+        }
+      }
+    },
+    "Le dossier a été enregistré, mais la tâche n’a pas pu être activée. %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The folder was saved, but the task could not be enabled. %@"
+          }
+        }
+      }
+    },
+    "Le périphérique associé à cette tâche n’est pas connecté. Le dossier de destination ne peut pas être modifié." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The device associated with this task is not connected. The destination folder cannot be changed."
           }
         }
       }
@@ -1647,6 +1797,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "USB Copy task updated: %@"
+          }
+        }
+      }
+    },
+    "Tâche enregistrée et activée : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Task saved and enabled: %@"
           }
         }
       }
@@ -3877,6 +4037,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Save"
+          }
+        }
+      }
+    },
+    "Enregistrer et activer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save and Enable"
           }
         }
       }
@@ -10169,6 +10339,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Move the selected items"
+          }
+        }
+      }
+    },
+    "Déplacer et enregistrer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move and Save"
+          }
+        }
+      }
+    },
+    "Déplacer le dépôt USB Copy ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move the USB Copy Repository?"
           }
         }
       }

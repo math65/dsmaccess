@@ -6,14 +6,17 @@
 import SwiftUI
 
 struct USBCopyGlobalSettingsSheet: View {
-    let volumePaths: [String]
     let load: () async throws -> USBCopyGlobalSettings
+    let loadVolumePaths: () async throws -> [String]
     let onSave: (USBCopyGlobalSettings) async -> DSMOperationOutcome
 
     @State private var settings: USBCopyGlobalSettings?
+    @State private var volumePaths: [String] = []
+    @State private var originalRepositoryVolumePath = ""
     @State private var isLoading = true
     @State private var isSaving = false
     @State private var errorMessage: String?
+    @State private var showsRepositoryMoveConfirmation = false
     @AccessibilityFocusState private var contentFocused: Bool
     @AccessibilityFocusState private var errorFocused: Bool
     @Environment(\.dismiss) private var dismiss
@@ -71,13 +74,24 @@ struct USBCopyGlobalSettingsSheet: View {
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .disabled(isSaving)
-                Button("Enregistrer") { Task { await save() } }
+                Button("Enregistrer", action: requestSave)
                     .keyboardShortcut(.defaultAction)
                     .disabled(settings == nil || isLoading || isSaving || !isValid)
             }
             .padding()
         }
         .frame(minWidth: 520, minHeight: 400)
+        .confirmationDialog(
+            "Déplacer le dépôt USB Copy ?",
+            isPresented: $showsRepositoryMoveConfirmation
+        ) {
+            Button("Déplacer et enregistrer") { Task { await save() } }
+            Button("Annuler", role: .cancel) { }
+        } message: {
+            if let settings {
+                Text("Le dépôt USB Copy sera déplacé de « \(originalRepositoryVolumePath) » vers « \(settings.repositoryVolumePath) ». USB Copy peut être temporairement indisponible pendant le déplacement.")
+            }
+        }
         .task {
             await loadSettings()
             guard !Task.isCancelled else { return }
@@ -114,12 +128,26 @@ struct USBCopyGlobalSettingsSheet: View {
         defer { isLoading = false }
         VoiceOver.announce(String(localized: "Chargement des réglages USB Copy…"), category: .progress)
         do {
-            settings = try await load()
+            async let loadedSettings = load()
+            async let loadedVolumePaths = loadVolumePaths()
+            let (newSettings, newVolumePaths) = try await (loadedSettings, loadedVolumePaths)
+            settings = newSettings
+            originalRepositoryVolumePath = newSettings.repositoryVolumePath
+            volumePaths = newVolumePaths
         } catch {
             guard !DSMError.isCancellation(error) else { return }
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
             errorFocused = true
             VoiceOver.announce(errorMessage ?? "", category: .error, priority: .high)
+        }
+    }
+
+    private func requestSave() {
+        guard let settings, isValid else { return }
+        if settings.repositoryVolumePath != originalRepositoryVolumePath {
+            showsRepositoryMoveConfirmation = true
+        } else {
+            Task { await save() }
         }
     }
 

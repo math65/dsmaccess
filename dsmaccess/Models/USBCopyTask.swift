@@ -80,6 +80,7 @@ enum USBCopyTaskStatus: String, Sendable {
     case shareUnavailable
     case shareDeleted
     case canceling
+    case notAvailable = "na"
 
     var localizedName: String {
         switch self {
@@ -93,6 +94,7 @@ enum USBCopyTaskStatus: String, Sendable {
         case .shareUnavailable: String(localized: "Dossier indisponible")
         case .shareDeleted: String(localized: "Dossier supprimé")
         case .canceling: String(localized: "Annulation en cours")
+        case .notAvailable: String(localized: "Non disponible")
         }
     }
 }
@@ -188,7 +190,14 @@ struct USBCopyTask: nonisolated Decodable, Equatable, Identifiable, Sendable {
             || (knownStatus == .failed && isTaskRunnable == true)
     }
     var canEnable: Bool { knownStatus == .disabled }
-    var canDelete: Bool { isDefaultTask == false && knownStatus != .canceling }
+    var canDisable: Bool {
+        isDefaultTask == true && knownStatus != nil && knownStatus != .disabled
+            && knownStatus != .canceling && knownStatus != .notAvailable
+    }
+    var canToggleEnabled: Bool { canEnable || canDisable }
+    var canDelete: Bool {
+        isDefaultTask == false && knownStatus != .canceling && knownStatus != .notAvailable
+    }
 }
 
 struct USBCopyTaskList: nonisolated Decodable, Sendable {

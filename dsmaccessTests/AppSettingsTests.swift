@@ -56,6 +56,35 @@ struct AppSettingsTests {
         #expect(settings.sidebarOrder == AppModule.allCases)
     }
 
+    @Test func enablesANewSidebarModuleWithoutRestoringModulesTheUserHid() {
+        let defaults = UserDefaults.standard
+        let previousEnabled = defaults.object(forKey: "enabledSidebarModules")
+        let previousKnown = defaults.object(forKey: "knownSidebarModules")
+        defer {
+            if let previousEnabled {
+                defaults.set(previousEnabled, forKey: "enabledSidebarModules")
+            } else {
+                defaults.removeObject(forKey: "enabledSidebarModules")
+            }
+            if let previousKnown {
+                defaults.set(previousKnown, forKey: "knownSidebarModules")
+            } else {
+                defaults.removeObject(forKey: "knownSidebarModules")
+            }
+        }
+        defaults.set([AppModule.systemInfo.rawValue], forKey: "enabledSidebarModules")
+        defaults.removeObject(forKey: "knownSidebarModules")
+
+        let migrated = Preferences.enabledSidebarModules
+
+        #expect(migrated.contains(.systemInfo))
+        #expect(migrated.contains(.usbCopy))
+        #expect(!migrated.contains(.storage))
+
+        Preferences.enabledSidebarModules = [.systemInfo]
+        #expect(!Preferences.enabledSidebarModules.contains(.usbCopy))
+    }
+
     @Test func restoresTheSelectedNASProfile() {
         let previousProfiles = Preferences.nasProfiles
         let previousSelection = Preferences.selectedNASProfileID

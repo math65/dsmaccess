@@ -136,6 +136,18 @@ struct USBCopyTaskSettings: nonisolated Encodable, Equatable, Sendable {
         case renamePhotoVideo = "rename_photo_video"
         case conflictPolicy = "conflict_policy"
     }
+
+    var normalizedForAPI: Self {
+        guard type == .importPhoto else { return self }
+        var normalized = self
+        normalized.copyStrategy = .incremental
+        normalized.enableRotation = false
+        normalized.notKeepDirectoryStructure = true
+        normalized.smartCreateDateDirectory = true
+        normalized.renamePhotoVideo = true
+        normalized.conflictPolicy = .rename
+        return normalized
+    }
 }
 
 struct USBCopyTaskCreation: nonisolated Encodable, Equatable, Sendable {
@@ -175,6 +187,21 @@ struct USBCopyTaskCreation: nonisolated Encodable, Equatable, Sendable {
         case ejectWhenTaskDone = "eject_when_task_done"
         case scheduleEnabled = "schedule_enabled"
         case scheduleContent = "schedule_content"
+    }
+
+    var normalizedForAPI: Self {
+        guard type == .importPhoto else { return self }
+        var normalized = self
+        normalized.copyStrategy = .incremental
+        normalized.enableRotation = nil
+        normalized.rotationPolicy = nil
+        normalized.maxVersionCount = nil
+        normalized.notKeepDirectoryStructure = true
+        normalized.smartCreateDateDirectory = true
+        normalized.renamePhotoVideo = true
+        normalized.conflictPolicy = .rename
+        normalized.scheduleEnabled = false
+        return normalized
     }
 }
 

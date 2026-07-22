@@ -128,7 +128,10 @@ struct USBCopyFilterSelection: Equatable, Sendable {
         unmanagedWhiteExtensions = Set(filter.whiteList.extensions)
             .subtracting(builtInExtensions)
             .subtracting(["*"])
-        unmanagedWhiteNames = Set(filter.whiteList.names).subtracting(["*"])
+            .subtracting(customExtensions)
+        unmanagedWhiteNames = Set(filter.whiteList.names)
+            .subtracting(["*"])
+            .subtracting(customNames)
         unmanagedBlackExtensions = Set(filter.blackList.extensions)
             .subtracting(builtInExtensions)
         unmanagedBlackNames = Set(filter.blackList.names)
@@ -149,6 +152,8 @@ struct USBCopyFilterSelection: Equatable, Sendable {
         } else {
             whiteExtensions.formUnion(selectedExtensions)
         }
+        whiteExtensions.formUnion(customExtensions)
+        whiteNames.formUnion(customNames)
         blackNames.insert(".SynologyUSBCopy.config")
         return USBCopyFilter(
             whiteList: USBCopyFileRules(

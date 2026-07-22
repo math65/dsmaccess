@@ -26,6 +26,7 @@ enum Preferences {
         static let queueAnnouncements = "queueAnnouncements"
         static let sidebarOrder = "sidebarOrder"
         static let enabledSidebarModules = "enabledSidebarModules"
+        static let knownSidebarModules = "knownSidebarModules"
         static let automaticallyHideUnavailableModules = "automaticallyHideUnavailableModules"
         static let appBackendInstallID = "appBackendInstallID"
         static let seenBackendAnnouncementIDs = "appBackendSeenAnnouncementIDs"
@@ -119,11 +120,27 @@ enum Preferences {
     static var enabledSidebarModules: Set<AppModule> {
         get {
             guard let values = defaults.stringArray(forKey: Key.enabledSidebarModules) else {
+                defaults.set(AppModule.allCases.map(\.rawValue), forKey: Key.knownSidebarModules)
                 return Set(AppModule.allCases)
             }
-            return Set(values.compactMap(AppModule.init(rawValue:)))
+            var enabled = Set(values.compactMap(AppModule.init(rawValue:)))
+            let knownValues = defaults.stringArray(forKey: Key.knownSidebarModules)
+            let newlyIntroduced: Set<AppModule>
+            if let knownValues {
+                let known = Set(knownValues.compactMap(AppModule.init(rawValue:)))
+                newlyIntroduced = Set(AppModule.allCases).subtracting(known)
+            } else {
+                newlyIntroduced = [.usbCopy]
+            }
+            enabled.formUnion(newlyIntroduced)
+            defaults.set(enabled.map(\.rawValue).sorted(), forKey: Key.enabledSidebarModules)
+            defaults.set(AppModule.allCases.map(\.rawValue), forKey: Key.knownSidebarModules)
+            return enabled
         }
-        set { defaults.set(newValue.map(\.rawValue).sorted(), forKey: Key.enabledSidebarModules) }
+        set {
+            defaults.set(newValue.map(\.rawValue).sorted(), forKey: Key.enabledSidebarModules)
+            defaults.set(AppModule.allCases.map(\.rawValue), forKey: Key.knownSidebarModules)
+        }
     }
 
     static var automaticallyHideUnavailableModules: Bool {

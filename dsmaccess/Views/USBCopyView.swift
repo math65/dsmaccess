@@ -13,6 +13,7 @@ struct USBCopyView: View {
     @State private var searchText = ""
     @State private var presentedSheet: USBCopyPresentedSheet?
     @State private var pendingDeletion: USBCopyTask?
+    @State private var pendingHighImpactRun: USBCopyTask?
     @AccessibilityFocusState private var contentFocused: Bool
 
     init(session: SessionStore) {
@@ -43,6 +44,26 @@ struct USBCopyView: View {
             } message: {
                 if let task = pendingDeletion {
                     Text("La tâche « \(task.name) » sera définitivement supprimée de USB Copy. Cette action est irréversible. Vérifiez que vous n’avez plus besoin de sa configuration ni de son historique.")
+                }
+            }
+            .confirmationDialog(
+                "Exécuter cette tâche USB Copy ?",
+                isPresented: highImpactRunPresented
+            ) {
+                Button("Exécuter la tâche", role: .destructive) {
+                    if let task = pendingHighImpactRun {
+                        Task { await announce(viewModel.run(task)) }
+                    }
+                    pendingHighImpactRun = nil
+                }
+                Button("Annuler", role: .cancel) { pendingHighImpactRun = nil }
+            } message: {
+                if let task = pendingHighImpactRun {
+                    if task.knownStrategy == .mirror {
+                        Text("La tâche « \(task.name) » supprimera de la destination les fichiers qui ne sont plus présents à la source.")
+                    } else {
+                        Text("La tâche « \(task.name) » supprimera les fichiers source après leur copie vers la destination.")
+                    }
                 }
             }
             .onChange(of: viewModel.tasks) {
@@ -100,7 +121,7 @@ struct USBCopyView: View {
                 .help("Arrêter la tâche USB Copy sélectionnée")
             } else {
                 Button("Exécuter", systemImage: "play.fill") {
-                    if let task = selectedTask { Task { await announce(viewModel.run(task)) } }
+                    if let task = selectedTask { requestRun(task) }
                 }
                 .disabled(selectedTask?.canRun != true || selectedTaskIsBusy)
                 .help("Exécuter la tâche USB Copy sélectionnée")
@@ -125,15 +146,15 @@ struct USBCopyView: View {
             Menu("État de la tâche", systemImage: "power") {
                 if selectedTask?.canEnable == true {
                     Button("Activer") {
-                        if let task = selectedTask { Task { await announce(viewModel.enable(task)) } }
+                        if let task = selectedTask { requestEnable(task) }
                     }
-                } else {
+                } else if selectedTask?.canDisable == true {
                     Button("Désactiver") {
                         if let task = selectedTask { Task { await announce(viewModel.disable(task)) } }
                     }
                 }
             }
-            .disabled(selectedTask == nil || selectedTask?.isActive == true || selectedTaskIsBusy)
+            .disabled(selectedTask?.canToggleEnabled != true || selectedTaskIsBusy)
             .help("Activer ou désactiver la tâche USB Copy sélectionnée")
         }
 
@@ -214,6 +235,13 @@ struct USBCopyView: View {
         )
     }
 
+    private var highImpactRunPresented: Binding<Bool> {
+        Binding(
+            get: { pendingHighImpactRun != nil },
+            set: { if !$0 { pendingHighImpactRun = nil } }
+        )
+    }
+
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
             String(localized: "Chargement des tâches USB Copy…"),
@@ -262,6 +290,7 @@ struct USBCopyView: View {
             USBCopyTaskEditorSheet(
                 localShares: viewModel.localShares,
                 externalShares: viewModel.externalShares,
+                loadFolders: viewModel.folders,
                 onCreate: viewModel.create
             )
         case .edit(let taskID):
@@ -288,8 +317,8 @@ struct USBCopyView: View {
             }
         case .globalSettings:
             USBCopyGlobalSettingsSheet(
-                volumePaths: viewModel.localShares.compactMap(\.volPath),
                 load: viewModel.globalSettings,
+                loadVolumePaths: viewModel.repositoryVolumePaths,
                 onSave: viewModel.saveGlobalSettings
             )
         }
@@ -300,22 +329,24 @@ struct USBCopyView: View {
         if task.canCancel {
             Button("Annuler la copie") { Task { await announce(viewModel.cancel(task)) } }
         } else if task.canRun {
-            Button("Exécuter") { Task { await announce(viewModel.run(task)) } }
+            Button("Exécuter") { requestRun(task) }
         }
         if !task.isActive {
             Divider()
             Button("Réglages de la tâche…") { presentedSheet = .edit(task.id) }
             Button("Déclenchement…") { presentedSheet = .trigger(task.id) }
             Button("Filtre de fichiers…") { presentedSheet = .filter(task.id) }
+        }
+        if task.canToggleEnabled || task.canDelete {
             Divider()
-            if task.canEnable {
-                Button("Activer") { Task { await announce(viewModel.enable(task)) } }
-            } else {
-                Button("Désactiver") { Task { await announce(viewModel.disable(task)) } }
-            }
-            if task.canDelete {
-                Button("Supprimer…", role: .destructive) { pendingDeletion = task }
-            }
+        }
+        if task.canEnable {
+            Button("Activer") { requestEnable(task) }
+        } else if task.canDisable {
+            Button("Désactiver") { Task { await announce(viewModel.disable(task)) } }
+        }
+        if task.canDelete {
+            Button("Supprimer…", role: .destructive) { pendingDeletion = task }
         }
     }
 
@@ -324,7 +355,7 @@ struct USBCopyView: View {
         if task.canCancel {
             Button("Annuler la copie") { Task { await announce(viewModel.cancel(task)) } }
         } else if task.canRun {
-            Button("Exécuter") { Task { await announce(viewModel.run(task)) } }
+            Button("Exécuter") { requestRun(task) }
         }
         if !task.isActive {
             Button("Modifier les réglages") { presentedSheet = .edit(task.id) }
@@ -335,6 +366,22 @@ struct USBCopyView: View {
 
     private func selectedTaskStatus(_ task: USBCopyTask) -> String {
         task.knownStatus?.localizedName ?? String(localized: "État inconnu : \(task.status)")
+    }
+
+    private func requestEnable(_ task: USBCopyTask) {
+        if task.destinationPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            presentedSheet = .edit(task.id)
+        } else {
+            Task { await announce(viewModel.enable(task)) }
+        }
+    }
+
+    private func requestRun(_ task: USBCopyTask) {
+        if task.knownStrategy == .mirror || task.removeSourceFile == true {
+            pendingHighImpactRun = task
+        } else {
+            Task { await announce(viewModel.run(task)) }
+        }
     }
 
     private func announce(_ outcome: DSMOperationOutcome) async {
@@ -390,6 +437,7 @@ private struct USBCopyTaskRow: View {
         case .disabled: "pause.circle.fill"
         case .unmounted: "externaldrive.badge.xmark"
         case .canceling: "stop.circle.fill"
+        case .notAvailable: "questionmark.circle"
         case .initial, .none: "circle"
         }
     }
@@ -398,7 +446,7 @@ private struct USBCopyTaskRow: View {
         switch task.knownStatus {
         case .successful: .green
         case .failed, .shareDeleted, .shareUnavailable: .red
-        case .disabled, .unmounted: .secondary
+        case .disabled, .unmounted, .notAvailable: .secondary
         default: .accentColor
         }
     }
@@ -448,6 +496,7 @@ private struct USBCopyTaskDetailsSheet: View {
                         details: details,
                         localShares: viewModel.localShares,
                         externalShares: viewModel.externalShares,
+                        loadFolders: viewModel.folders,
                         onSave: viewModel.save
                     )
                 case .trigger:

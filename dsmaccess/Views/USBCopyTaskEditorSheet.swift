@@ -9,6 +9,7 @@ struct USBCopyTaskEditorSheet: View {
     private let task: USBCopyTask?
     private let localShares: [SharedFolder]
     private let externalShares: [SharedFolder]
+    private let loadFolders: (String) async throws -> [FileStationItem]
     private let onCreate: ((USBCopyTaskCreation) async -> DSMOperationOutcome)?
     private let onSave: ((USBCopyTaskSettings) async -> DSMOperationOutcome)?
 
@@ -38,11 +39,13 @@ struct USBCopyTaskEditorSheet: View {
     init(
         localShares: [SharedFolder],
         externalShares: [SharedFolder],
+        loadFolders: @escaping (String) async throws -> [FileStationItem],
         onCreate: @escaping (USBCopyTaskCreation) async -> DSMOperationOutcome
     ) {
         task = nil
         self.localShares = localShares
         self.externalShares = externalShares
+        self.loadFolders = loadFolders
         self.onCreate = onCreate
         onSave = nil
         let initialType = USBCopyTaskType.exportGeneral
@@ -73,27 +76,41 @@ struct USBCopyTaskEditorSheet: View {
         details: USBCopyTaskDetails,
         localShares: [SharedFolder],
         externalShares: [SharedFolder],
+        loadFolders: @escaping (String) async throws -> [FileStationItem],
         onSave: @escaping (USBCopyTaskSettings) async -> DSMOperationOutcome
     ) {
         let task = details.task
         self.task = task
         self.localShares = localShares
         self.externalShares = externalShares
+        self.loadFolders = loadFolders
         onCreate = nil
         self.onSave = onSave
         _type = State(initialValue: task.knownType ?? .exportGeneral)
         _name = State(initialValue: task.name)
         _sourcePath = State(initialValue: task.sourcePath)
         _destinationPath = State(initialValue: task.destinationPath)
-        _strategy = State(initialValue: task.knownStrategy ?? .versioning)
-        _enableRotation = State(initialValue: task.enableRotation ?? false)
+        let isPhotoImport = task.knownType == .importPhoto
+        _strategy = State(initialValue: isPhotoImport ? .incremental : task.knownStrategy ?? .versioning)
+        _enableRotation = State(initialValue: isPhotoImport ? false : task.enableRotation ?? false)
         _rotationPolicy = State(initialValue: task.rotationPolicy.flatMap(USBCopyRotationPolicy.init) ?? .oldestVersion)
         _maxVersionCount = State(initialValue: task.maxVersionCount ?? 256)
         _removeSourceFile = State(initialValue: task.removeSourceFile ?? false)
-        _notKeepDirectoryStructure = State(initialValue: task.notKeepDirectoryStructure ?? false)
-        _smartCreateDateDirectory = State(initialValue: task.smartCreateDateDirectory ?? false)
-        _renamePhotoVideo = State(initialValue: task.renamePhotoVideo ?? false)
-        _conflictPolicy = State(initialValue: task.conflictPolicy.flatMap(USBCopyConflictPolicy.init) ?? .rename)
+        _notKeepDirectoryStructure = State(
+            initialValue: isPhotoImport || (task.notKeepDirectoryStructure ?? false)
+        )
+        let keepsNoStructure = task.notKeepDirectoryStructure ?? false
+        let renamesPhotoVideo = task.renamePhotoVideo ?? false
+        _smartCreateDateDirectory = State(
+            initialValue: isPhotoImport
+                || (task.smartCreateDateDirectory ?? (keepsNoStructure && !renamesPhotoVideo))
+        )
+        _renamePhotoVideo = State(initialValue: isPhotoImport || (task.renamePhotoVideo ?? false))
+        _conflictPolicy = State(
+            initialValue: isPhotoImport
+                ? .rename
+                : task.conflictPolicy.flatMap(USBCopyConflictPolicy.init) ?? .rename
+        )
         _trigger = State(initialValue: details.trigger)
         _filterSelection = State(initialValue: USBCopyFilterSelection(filter: details.filter))
     }
@@ -116,22 +133,49 @@ struct USBCopyTaskEditorSheet: View {
                     .disabled(task != nil)
                     .help("Choisir le sens de la copie")
 
-                    TextField("Nom de la tâche", text: $name)
-                        .focused($nameFocused)
-                        .help("Nom de la tâche USB Copy, jusqu’à 64 caractères")
+                    if task?.isDefaultTask == true {
+                        LabeledContent("Nom de la tâche") {
+                            Text(verbatim: name)
+                                .textSelection(.enabled)
+                        }
+                    } else {
+                        TextField("Nom de la tâche", text: $name)
+                            .focused($nameFocused)
+                            .help("Nom de la tâche USB Copy, jusqu’à 64 caractères")
+                    }
 
                     USBCopyPathField(
                         label: "Dossier source",
+                        pickerLabel: "Choisir le dossier source",
                         path: $sourcePath,
                         shares: sourceShares,
+                        loadFolders: loadFolders,
                         isDisabled: task != nil
                     )
                     USBCopyPathField(
                         label: "Dossier de destination",
+                        pickerLabel: "Choisir le dossier de destination",
                         path: $destinationPath,
-                        shares: destinationShares,
-                        isDisabled: false
+                        shares: editableDestinationShares,
+                        loadFolders: loadFolders,
+                        isDisabled: destinationPathIsDisabled
                     )
+
+                    if destinationPathIsDisabled {
+                        Label(
+                            "Le périphérique associé à cette tâche n’est pas connecté. Le dossier de destination ne peut pas être modifié.",
+                            systemImage: "externaldrive.badge.xmark"
+                        )
+                        .foregroundStyle(.secondary)
+                    }
+
+                    if enablesDefaultTaskOnSave {
+                        Label(
+                            "Choisissez un dossier sur le périphérique USB. La tâche sera enregistrée puis activée.",
+                            systemImage: "externaldrive.badge.plus"
+                        )
+                        .foregroundStyle(.secondary)
+                    }
 
                     if externalShares.isEmpty {
                         Label(
@@ -173,13 +217,29 @@ struct USBCopyTaskEditorSheet: View {
                         Toggle("Supprimer les fichiers source après la copie", isOn: $removeSourceFile)
                             .help("Déplacer les fichiers au lieu de les conserver à la source")
                         Toggle("Ne pas conserver la structure des dossiers", isOn: $notKeepDirectoryStructure)
+                            .disabled(type == .importPhoto)
                         if notKeepDirectoryStructure {
-                            Toggle("Créer des dossiers selon la date", isOn: $smartCreateDateDirectory)
-                            Toggle("Renommer les photos et vidéos selon la date", isOn: $renamePhotoVideo)
+                            if type == .importPhoto {
+                                LabeledContent("Organisation") {
+                                    Text(USBCopyFlatOrganization.dateDirectoriesAndRename.localizedName)
+                                }
+                            } else {
+                                Picker("Organisation", selection: organizationBinding) {
+                                    ForEach(USBCopyFlatOrganization.allCases) { organization in
+                                        Text(organization.localizedName).tag(organization)
+                                    }
+                                }
+                            }
                         }
-                        Picker("En cas de conflit", selection: $conflictPolicy) {
-                            ForEach(USBCopyConflictPolicy.allCases) { policy in
-                                Text(policy.localizedName).tag(policy)
+                        if type == .importPhoto {
+                            LabeledContent("En cas de conflit") {
+                                Text(USBCopyConflictPolicy.rename.localizedName)
+                            }
+                        } else {
+                            Picker("En cas de conflit", selection: $conflictPolicy) {
+                                ForEach(USBCopyConflictPolicy.allCases) { policy in
+                                    Text(policy.localizedName).tag(policy)
+                                }
                             }
                         }
                     }
@@ -187,7 +247,10 @@ struct USBCopyTaskEditorSheet: View {
 
                 if task == nil {
                     Section("Déclenchement") {
-                        USBCopyScheduleFields(trigger: $trigger)
+                        USBCopyScheduleFields(
+                            trigger: $trigger,
+                            showsSchedule: type != .importPhoto
+                        )
                     }
                     Section("Filtre de fichiers") {
                         USBCopyFilterFields(selection: $filterSelection)
@@ -214,7 +277,12 @@ struct USBCopyTaskEditorSheet: View {
                 Button("Annuler", role: .cancel, action: dismiss.callAsFunction)
                     .keyboardShortcut(.cancelAction)
                     .disabled(isSaving)
-                Button(task == nil ? "Créer" : "Enregistrer", action: requestSave)
+                Button(
+                    task == nil
+                        ? "Créer"
+                        : enablesDefaultTaskOnSave ? "Enregistrer et activer" : "Enregistrer",
+                    action: requestSave
+                )
                     .keyboardShortcut(.defaultAction)
                     .disabled(isSaving)
                     .confirmationDialog(
@@ -253,10 +321,51 @@ struct USBCopyTaskEditorSheet: View {
             sourcePath = sourceShares.first.map { "/\($0.name)" } ?? ""
             destinationPath = destinationShares.first.map { "/\($0.name)" } ?? ""
         }
+        .onChange(of: notKeepDirectoryStructure) { _, doesNotKeepStructure in
+            if doesNotKeepStructure && !smartCreateDateDirectory && !renamePhotoVideo {
+                smartCreateDateDirectory = true
+            } else if !doesNotKeepStructure {
+                smartCreateDateDirectory = false
+                renamePhotoVideo = false
+            }
+        }
     }
 
     private var sourceShares: [SharedFolder] { type.isImport ? externalShares : localShares }
     private var destinationShares: [SharedFolder] { type.isImport ? localShares : externalShares }
+
+    private var editableDestinationShares: [SharedFolder] {
+        guard task != nil, type == .exportGeneral, !destinationPath.isEmpty,
+              let rootName = destinationPath.split(separator: "/").first.map(String.init) else {
+            return destinationShares
+        }
+        return destinationShares.filter { $0.name == rootName }
+    }
+
+    private var destinationPathIsDisabled: Bool {
+        task != nil && type == .exportGeneral && !destinationPath.isEmpty && task?.isUSBMounted != true
+    }
+
+    private var enablesDefaultTaskOnSave: Bool {
+        task?.isDefaultTask == true && task?.canEnable == true
+            && task?.destinationPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true
+    }
+
+    private var organizationBinding: Binding<USBCopyFlatOrganization> {
+        Binding(
+            get: {
+                switch (smartCreateDateDirectory, renamePhotoVideo) {
+                case (false, true): .renamePhotoVideo
+                case (true, true): .dateDirectoriesAndRename
+                default: .dateDirectories
+                }
+            },
+            set: { organization in
+                smartCreateDateDirectory = organization != .renamePhotoVideo
+                renamePhotoVideo = organization != .dateDirectories
+            }
+        )
+    }
 
     private func requestSave() {
         guard validate() else { return }
@@ -314,10 +423,13 @@ struct USBCopyTaskEditorSheet: View {
                 rotationPolicy: rotationPolicy,
                 maxVersionCount: maxVersionCount,
                 removeSourceFile: strategy == .incremental && removeSourceFile,
-                notKeepDirectoryStructure: strategy == .incremental && notKeepDirectoryStructure,
-                smartCreateDateDirectory: strategy == .incremental && smartCreateDateDirectory,
-                renamePhotoVideo: strategy == .incremental && renamePhotoVideo,
-                conflictPolicy: conflictPolicy
+                notKeepDirectoryStructure: type == .importPhoto
+                    || (strategy == .incremental && notKeepDirectoryStructure),
+                smartCreateDateDirectory: type == .importPhoto
+                    || (strategy == .incremental && smartCreateDateDirectory),
+                renamePhotoVideo: type == .importPhoto
+                    || (strategy == .incremental && renamePhotoVideo),
+                conflictPolicy: type == .importPhoto ? .rename : conflictPolicy
             ))
         } else if let onCreate {
             outcome = await onCreate(creation)
@@ -339,13 +451,21 @@ struct USBCopyTaskEditorSheet: View {
             rotationPolicy: strategy == .versioning ? rotationPolicy : nil,
             maxVersionCount: strategy == .versioning ? maxVersionCount : nil,
             removeSourceFile: strategy == .incremental ? removeSourceFile : false,
-            notKeepDirectoryStructure: strategy == .incremental ? notKeepDirectoryStructure : nil,
-            smartCreateDateDirectory: strategy == .incremental ? smartCreateDateDirectory : nil,
-            renamePhotoVideo: strategy == .incremental ? renamePhotoVideo : nil,
-            conflictPolicy: strategy == .incremental ? conflictPolicy : nil,
+            notKeepDirectoryStructure: strategy == .incremental
+                ? type == .importPhoto || notKeepDirectoryStructure
+                : nil,
+            smartCreateDateDirectory: strategy == .incremental
+                ? type == .importPhoto || smartCreateDateDirectory
+                : nil,
+            renamePhotoVideo: strategy == .incremental
+                ? type == .importPhoto || renamePhotoVideo
+                : nil,
+            conflictPolicy: strategy == .incremental
+                ? (type == .importPhoto ? .rename : conflictPolicy)
+                : nil,
             runWhenPlugIn: trigger.runWhenPlugIn,
             ejectWhenTaskDone: trigger.ejectWhenTaskDone,
-            scheduleEnabled: trigger.scheduleEnabled,
+            scheduleEnabled: type == .importPhoto ? false : trigger.scheduleEnabled,
             scheduleContent: trigger.scheduleContent,
             filter: filterSelection.filter
         )
@@ -367,24 +487,51 @@ struct USBCopyTaskEditorSheet: View {
 
 private struct USBCopyPathField: View {
     let label: LocalizedStringKey
+    let pickerLabel: LocalizedStringKey
     @Binding var path: String
     let shares: [SharedFolder]
+    let loadFolders: (String) async throws -> [FileStationItem]
     let isDisabled: Bool
+
+    @State private var showsFolderPicker = false
 
     var body: some View {
         LabeledContent(label) {
             HStack {
-                TextField("Chemin", text: $path)
-                    .disabled(isDisabled)
-                    .accessibilityLabel(label)
-                Menu("Choisir un dossier partagé", systemImage: "folder") {
-                    ForEach(shares) { share in
-                        Button(share.name) { path = "/\(share.name)" }
-                    }
+                Text(verbatim: path)
+                    .textSelection(.enabled)
+                Button(pickerLabel, systemImage: "folder") {
+                    showsFolderPicker = true
                 }
+                .labelStyle(.iconOnly)
                 .disabled(isDisabled || shares.isEmpty)
                 .help("Choisir un dossier partagé dans la liste")
             }
+        }
+        .sheet(isPresented: $showsFolderPicker) {
+            USBCopyFolderPickerSheet(
+                initialPath: path,
+                shares: shares,
+                loadFolders: loadFolders
+            ) { selectedPath in
+                path = selectedPath
+            }
+        }
+    }
+}
+
+private enum USBCopyFlatOrganization: CaseIterable, Identifiable {
+    case dateDirectories
+    case renamePhotoVideo
+    case dateDirectoriesAndRename
+
+    var id: Self { self }
+
+    var localizedName: LocalizedStringKey {
+        switch self {
+        case .dateDirectories: "Créer des dossiers selon la date"
+        case .renamePhotoVideo: "Renommer les photos et vidéos selon la date"
+        case .dateDirectoriesAndRename: "Créer des dossiers et renommer les photos et vidéos selon la date"
         }
     }
 }

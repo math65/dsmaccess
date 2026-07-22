@@ -75,9 +75,27 @@ final class USBCopyViewModel {
     }
 
     func save(_ settings: USBCopyTaskSettings) async -> DSMOperationOutcome {
-        await perform(taskID: settings.id, action: String(localized: "modification de la tâche")) {
+        let enablesDefaultTask = tasks.first(where: { $0.id == settings.id }).map {
+            $0.isDefaultTask == true && $0.canEnable
+                && $0.destinationPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        } ?? false
+        let saveOutcome = await perform(taskID: settings.id, action: String(localized: "modification de la tâche")) {
             try await $0.setUSBCopyTaskSettings(settings)
             return String(localized: "Tâche USB Copy modifiée : \(settings.name)")
+        }
+        guard enablesDefaultTask, case .success = saveOutcome,
+              let task = tasks.first(where: { $0.id == settings.id }) else {
+            return saveOutcome
+        }
+
+        let enableOutcome = await enable(task)
+        return switch enableOutcome {
+        case .success:
+            .success(String(localized: "Tâche enregistrée et activée : \(settings.name)"))
+        case .failure(let message):
+            .failure(String(localized: "Le dossier a été enregistré, mais la tâche n’a pas pu être activée. \(message)"))
+        case .cancelled:
+            .failure(String(localized: "Le dossier a été enregistré, mais l’activation de la tâche a été annulée."))
         }
     }
 
@@ -132,6 +150,18 @@ final class USBCopyViewModel {
 
     func globalSettings() async throws -> USBCopyGlobalSettings {
         try await session.withClient { try await $0.usbCopyGlobalSettings() }
+    }
+
+    func repositoryVolumePaths() async throws -> [String] {
+        try await session.withClient { try await $0.usbCopyAvailableVolumePaths() }
+    }
+
+    func folders(in path: String) async throws -> [FileStationItem] {
+        try await session.withClient { client in
+            try await client.list(folderPath: path)
+                .filter(\.isdir)
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        }
     }
 
     func saveGlobalSettings(_ settings: USBCopyGlobalSettings) async -> DSMOperationOutcome {

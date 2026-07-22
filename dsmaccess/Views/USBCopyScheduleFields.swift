@@ -7,16 +7,22 @@ import SwiftUI
 
 struct USBCopyScheduleFields: View {
     @Binding var trigger: USBCopyTrigger
+    var showsRunWhenPlugIn = true
+    var showsSchedule = true
 
     var body: some View {
-        Toggle("Exécuter la tâche à la connexion du périphérique", isOn: $trigger.runWhenPlugIn)
-            .help("Démarrer automatiquement cette tâche lorsque son périphérique USB est connecté")
+        if showsRunWhenPlugIn {
+            Toggle("Exécuter la tâche à la connexion du périphérique", isOn: $trigger.runWhenPlugIn)
+                .help("Démarrer automatiquement cette tâche lorsque son périphérique USB est connecté")
+        }
         Toggle("Éjecter le périphérique à la fin de la tâche", isOn: $trigger.ejectWhenTaskDone)
             .help("Éjecter le périphérique USB après la fin de la copie")
-        Toggle("Activer la planification", isOn: $trigger.scheduleEnabled)
-            .help("Exécuter aussi cette tâche selon un horaire")
+        if showsSchedule {
+            Toggle("Activer la planification", isOn: $trigger.scheduleEnabled)
+                .help("Exécuter aussi cette tâche selon un horaire")
+        }
 
-        if trigger.scheduleEnabled {
+        if showsSchedule && trigger.scheduleEnabled {
             GroupBox("Jours d’exécution") {
                 VStack(alignment: .leading) {
                     ForEach(USBCopyWeekday.allCases) { weekday in

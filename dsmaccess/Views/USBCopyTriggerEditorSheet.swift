@@ -35,7 +35,11 @@ struct USBCopyTriggerEditorSheet: View {
                 .padding()
             Form {
                 Section("Déclenchement") {
-                    USBCopyScheduleFields(trigger: $trigger)
+                    USBCopyScheduleFields(
+                        trigger: $trigger,
+                        showsRunWhenPlugIn: task.isDefaultTask != true,
+                        showsSchedule: task.isDefaultTask != true
+                    )
                 }
                 if let errorMessage {
                     Section {

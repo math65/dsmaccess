@@ -239,6 +239,7 @@ protocol DSMClientProtocol: AnyObject {
         filter: USBCopyLogFilter
     ) async throws -> USBCopyLogPage
     func usbCopyAvailableShares() async throws -> [SharedFolder]
+    func usbCopyAvailableVolumePaths() async throws -> [String]
     func runUSBCopyTask(id: Int) async throws
     func cancelUSBCopyTask(id: Int) async throws
     func enableUSBCopyTask(id: Int) async throws
@@ -914,6 +915,10 @@ final class DSMClient: DSMClientProtocol {
 
     func usbCopyAvailableShares() async throws -> [SharedFolder] {
         try await usbCopy.availableShares()
+    }
+
+    func usbCopyAvailableVolumePaths() async throws -> [String] {
+        try await usbCopy.availableVolumePaths()
     }
 
     func runUSBCopyTask(id: Int) async throws {

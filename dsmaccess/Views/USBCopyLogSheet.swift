@@ -40,8 +40,8 @@ struct USBCopyLogSheet: View {
                     }
                     Toggle("Limiter à une période", isOn: $usesDateRange)
                     if usesDateRange {
-                        DatePicker("Depuis", selection: $fromDate)
-                        DatePicker("Jusqu’à", selection: $toDate)
+                        DatePicker("Depuis", selection: $fromDate, displayedComponents: .date)
+                        DatePicker("Jusqu’à", selection: $toDate, displayedComponents: .date)
                     }
                     Button("Appliquer le filtre", systemImage: "line.3.horizontal.decrease.circle") {
                         Task { await loadEntries() }
@@ -111,11 +111,14 @@ struct USBCopyLogSheet: View {
 
     private var filter: USBCopyLogFilter {
         let trimmedKeyword = keyword.trimmingCharacters(in: .whitespacesAndNewlines)
+        let calendar = Calendar.current
+        let endOfDay = calendar.date(byAdding: .day, value: 1, to: calendar.startOfDay(for: toDate))?
+            .addingTimeInterval(-1)
         return USBCopyLogFilter(
             descriptionIDs: USBCopyLogFilter.all.descriptionIDs,
             keyword: trimmedKeyword.isEmpty ? nil : trimmedKeyword,
-            fromTimestamp: usesDateRange ? Int(fromDate.timeIntervalSince1970) : nil,
-            toTimestamp: usesDateRange ? Int(toDate.timeIntervalSince1970) : nil,
+            fromTimestamp: usesDateRange ? Int(calendar.startOfDay(for: fromDate).timeIntervalSince1970) : nil,
+            toTimestamp: usesDateRange ? endOfDay.map { Int($0.timeIntervalSince1970) } : nil,
             logType: logType.rawValue
         )
     }
@@ -160,6 +163,7 @@ private struct USBCopyLogRow: View {
         VStack(alignment: .leading) {
             Text(descriptionText)
             HStack {
+                Text(logTypeName)
                 Text(Date(timeIntervalSince1970: TimeInterval(entry.timestamp)), format: .dateTime)
                 if let taskID = entry.taskID {
                     Text("Tâche \(taskID)")
@@ -173,6 +177,10 @@ private struct USBCopyLogRow: View {
             .foregroundStyle(.secondary)
         }
         .accessibilityElement(children: .combine)
+    }
+
+    private var logTypeName: String {
+        USBCopyLogType(rawValue: entry.logType)?.localizedName ?? String(localized: "Non disponible")
     }
 
     private var descriptionText: String {
