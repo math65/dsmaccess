@@ -36,6 +36,14 @@ final class UpdaterViewModel: ObservableObject {
         // leur usage pour poser le comportement par défaut.
         updaterController.updater.publisher(for: \.canCheckForUpdates)
             .assign(to: &$canCheckForUpdates)
+        // Le planificateur interne de Sparkle vérifie au plus une fois par 24 h,
+        // ce qui laisse un testeur beta une version en retard quand deux builds
+        // sortent le même jour. Cette vérification explicite à chaque lancement
+        // est silencieuse (aucune UI sans nouvelle version) et suit le réglage
+        // du panneau Réglages > Mises à jour.
+        if updaterController.updater.automaticallyChecksForUpdates {
+            updaterController.updater.checkForUpdatesInBackground()
+        }
     }
 
     /// Vérification périodique (au lancement puis environ une fois par jour).
