@@ -1,3 +1,49 @@
+## v1.1-beta.8 (build 9) — 23 juillet 2026
+
+### En bref
+
+- L'app s'affiche désormais en anglais quand la langue du Mac n'est ni le
+  français ni l'anglais — sans rien configurer.
+- Centre de paquets : le sélecteur entre paquets installés et catalogue
+  officiel fait maintenant partie de l'écran lui-même, là où VoiceOver le
+  trouve naturellement.
+
+### Corrections
+
+- Centre de paquets : le sélecteur Installés / Catalogue officiel se trouvait
+  dans la barre d'outils de la fenêtre, une zone que VoiceOver traite à part
+  sans jamais signaler qu'un choix s'y trouve. Le sélecteur est désormais en
+  tête de l'écran, dans l'ordre de lecture, annoncé comme un vrai choix à
+  deux options.
+- Centre de paquets : avec un compte sans droits d'administration, l'onglet
+  Catalogue affichait un message trompeur « Aucun paquet correspondant ». Il
+  explique maintenant que DSM réserve le catalogue aux comptes administrateurs.
+- Langue : sur un Mac réglé dans une langue que l'app ne propose pas (le
+  hongrois, par exemple), l'app s'affichait en français. Elle s'affiche
+  désormais en anglais, et le choix d'une langue pour l'app dans Réglages
+  Système fonctionne comme prévu.
+- VoiceOver : les listes principales se présentent désormais — « Fichiers et
+  dossiers », « Dossiers partagés », « Utilisateurs », « Groupes », « Services
+  de fichiers », « Paquets installés », « Pools, volumes et disques » — au lieu
+  d'annoncer un tableau anonyme. Les lignes des Dossiers partagés annoncent
+  aussi correctement leur nature.
+- VoiceOver : le sélecteur du Centre de paquets n'annonce plus son nom deux
+  fois.
+- Lisibilité : les textes d'état et de détail dans toute l'app — état des
+  paquets, versions, santé des disques, détails des journaux, résumés en bas
+  d'écran — sont nettement plus foncés et respectent le contraste recommandé
+  pour les petits textes, en mode clair comme en mode sombre. Un vrai plus en
+  cas de basse vision.
+
+### Configuration requise
+
+- macOS 14 (Sonoma) ou version ultérieure.
+- Un NAS Synology sous DSM 7 sur votre réseau local.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.8.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.8/dsmaccess-1.1-beta.8.zip)
+
 ## v1.1-beta.7 (build 8) — 22 juillet 2026
 
 ### En bref

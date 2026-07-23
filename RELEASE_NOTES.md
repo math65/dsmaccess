@@ -1,3 +1,43 @@
+## v1.1-beta.8 (build 9) — 2026-07-23
+
+### Highlights
+
+- The app now shows up in English when your Mac's language is neither French
+  nor English — nothing to configure.
+- Package Center: the switch between installed packages and the official
+  catalog is now part of the screen itself, where VoiceOver finds it naturally.
+
+### Fixes
+
+- Package Center: the Installed / Official catalog switch lived in the window
+  toolbar, an area VoiceOver treats separately without ever hinting that a
+  choice exists there. The switch now sits at the top of the screen, in normal
+  reading order, announced as a proper two-option choice.
+- Package Center: with an account that has no administrator rights, the catalog
+  tab showed a misleading "no matching packages" message. It now explains that
+  DSM only provides the catalog to administrator accounts.
+- Language: on a Mac set to a language the app doesn't ship (Hungarian, for
+  example), the app appeared in French. It now appears in English, and picking
+  a language for the app in System Settings works as expected.
+- VoiceOver: the main lists now introduce themselves — "Files and folders",
+  "Shared folders", "Users", "Groups", "File services", "Installed packages",
+  "Pools, volumes, and disks" — instead of announcing an anonymous table. Rows
+  in Shared Folders also announce their nature properly.
+- VoiceOver: the Package Center switch no longer announces its name twice.
+- Legibility: status and detail text across the app — package states, versions,
+  disk health, log details, the summaries at the bottom of a screen — is now
+  noticeably darker and meets the recommended contrast for small text, in both
+  light and dark mode. A welcome change with low vision.
+
+### Requirements
+
+- macOS 14 (Sonoma) or later.
+- A Synology NAS running DSM 7 on your local network.
+
+### Download
+
+[dsmaccess-1.1-beta.8.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.8/dsmaccess-1.1-beta.8.zip)
+
 ## v1.1-beta.7 (build 8) — 2026-07-22
 
 ### Highlights
