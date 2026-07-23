@@ -162,6 +162,16 @@ if [[ $RELEASE -eq 1 ]]; then
     NOTES_FILE="$SCRIPT_DIR/RELEASE_NOTES.md"
     [[ -f "$NOTES_FILE" ]] || { echo "✗ RELEASE_NOTES.md introuvable — abandon."; exit 1; }
     TAG="v${VERSION}"
+    CURRENT_BRANCH=$(git -C "$SCRIPT_DIR" rev-parse --abbrev-ref HEAD)
+
+    # GitHub pose le tag de la release sur le dernier commit qu'il connaît, pas sur
+    # l'état local : pousser main d'abord, sinon le tag manque le commit de bump
+    # (tags v1.1-beta.8 et v1.1-beta.9 mal placés pour cette raison).
+    if [[ "$CURRENT_BRANCH" == "main" ]]; then
+        git -C "$SCRIPT_DIR" push origin main
+    else
+        echo "⚠ Branche ${CURRENT_BRANCH} ≠ main : le tag $TAG sera posé sur le dernier commit poussé, vérifie-le après coup."
+    fi
 
     echo "==> Release GitHub $TAG..."
     if gh release view "$TAG" -R "$REPO" &>/dev/null; then
@@ -177,7 +187,6 @@ if [[ $RELEASE -eq 1 ]]; then
     echo "✓ https://github.com/${REPO}/releases/tag/$TAG"
 
     # Pousser l'appcast (servi par Pages) — uniquement depuis main.
-    CURRENT_BRANCH=$(git -C "$SCRIPT_DIR" rev-parse --abbrev-ref HEAD)
     if [[ "$CURRENT_BRANCH" == "main" && -n "$(git -C "$SCRIPT_DIR" status --porcelain -- docs/)" ]]; then
         git -C "$SCRIPT_DIR" add docs/appcast.xml "docs/${ZIP_BASENAME}.html" "docs/${ZIP_BASENAME}.fr.html" 2>/dev/null
         git -C "$SCRIPT_DIR" commit -m "Update appcast and release notes for v${VERSION}"
