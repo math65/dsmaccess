@@ -2,8 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Catégorie Launch Services (utilitaire NAS) : classe l'app dans le Finder /
-	     Launchpad et lève le warning « No App Category » à la compilation. -->
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.utilities</string>
 	<key>NSAppTransportSecurity</key>
@@ -11,14 +9,12 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
-	<!-- Sparkle : requis en sandbox pour lancer le service XPC d'installation. -->
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
 	<key>SUEnableInstallerLauncherService</key>
 	<true/>
-	<!-- URL de l'appcast Sparkle publié avec les versions de l'app. -->
 	<key>SUFeedURL</key>
 	<string>https://math65.github.io/dsmaccess/appcast.xml</string>
-	<!-- Clé publique EdDSA de vérification des mises à jour. La clé privée
-	     correspondante est dans le trousseau de Mathieu (outils Sparkle). -->
 	<key>SUPublicEDKey</key>
 	<string>DSDUNhrNE0tBI9oT++xFgxQW4Hs6/8SyiNNDTXfj/to=</string>
 </dict>

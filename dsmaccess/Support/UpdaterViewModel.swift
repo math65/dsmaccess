@@ -30,14 +30,10 @@ final class UpdaterViewModel: ObservableObject {
         updaterController = SPUStandardUpdaterController(startingUpdater: true,
                                                         updaterDelegate: channelDelegate,
                                                         userDriverDelegate: nil)
-        // Sparkle n'affiche sa demande de permission qu'au second lancement, et un
-        // refus (ou une invite jamais vue) laisse le testeur sur une version périmée
-        // sans le savoir. Tant qu'aucun choix explicite n'a été enregistré, la
-        // vérification au lancement est donc active d'office ; le panneau
-        // Réglages > Mises à jour permet de la désactiver à tout moment.
-        if UserDefaults.standard.object(forKey: "SUEnableAutomaticChecks") == nil {
-            updaterController.updater.automaticallyChecksForUpdates = true
-        }
+        // La vérification automatique est active d'office via SUEnableAutomaticChecks
+        // dans l'Info.plist : la doc Sparkle réserve les API runtime aux changements
+        // décidés par l'utilisateur (panneau Réglages > Mises à jour) et proscrit
+        // leur usage pour poser le comportement par défaut.
         updaterController.updater.publisher(for: \.canCheckForUpdates)
             .assign(to: &$canCheckForUpdates)
     }
