@@ -28,6 +28,7 @@ struct FileCommandActions {
     let canCompress: Bool
     let canDelete: Bool
     let canPaste: Bool
+    let canMoveHere: Bool
     let canExtract: Bool
     let refresh: () -> Void
     let goUp: () -> Void
@@ -37,8 +38,8 @@ struct FileCommandActions {
     let download: () -> Void
     let rename: () -> Void
     let copy: () -> Void
-    let cut: () -> Void
     let paste: () -> Void
+    let moveHere: () -> Void
     let compress: () -> Void
     let extract: () -> Void
     let delete: () -> Void
@@ -193,14 +194,12 @@ struct DSMCommands: Commands {
                     fileActions?.hasSelection != true || fileActions?.canCopyMove != true
                 )
                 .help("Copier les éléments sélectionnés")
-            Button("Déplacer (couper)") { fileActions?.cut() }
-                .disabled(
-                    fileActions?.hasSelection != true || fileActions?.canCopyMove != true
-                )
-                .help("Déplacer les éléments sélectionnés")
             Button("Coller") { fileActions?.paste() }
                 .disabled(fileActions?.canPaste != true)
                 .help("Coller ici les éléments copiés ou les fichiers du Finder")
+            Button("Déplacer ici") { fileActions?.moveHere() }
+                .disabled(fileActions?.canMoveHere != true)
+                .help("Déplacer ici les éléments copiés, en les retirant de leur emplacement d’origine")
             Button("Renommer…") { fileActions?.rename() }
                 .disabled(
                     fileActions?.hasSingleSelection != true || fileActions?.canRename != true

@@ -32,13 +32,13 @@ struct FileTableView: NSViewRepresentable {
     var onRename: (FileStationItem) -> Void
     var onDelete: ([FileStationItem]) -> Void
     var onCopy: ([FileStationItem]) -> Void
-    var onCut: ([FileStationItem]) -> Void
     var onShare: (FileStationItem) -> Void
     var onCompress: ([FileStationItem]) -> Void
     var onExtract: (FileStationItem) -> Void
     var onShowInfo: (FileStationItem) -> Void
     var onGoUp: () -> Void
     var onPaste: () -> Void
+    var onMoveHere: () -> Void
     var makeDragProvider: (FileStationItem) -> NSFilePromiseProvider?
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -64,10 +64,11 @@ struct FileTableView: NSViewRepresentable {
         table.onRename = { [weak coordinator = context.coordinator] in coordinator?.renameSelection() }
         table.onDelete = { [weak coordinator = context.coordinator] in coordinator?.deleteSelection() }
         table.onCopy = { [weak coordinator = context.coordinator] in coordinator?.copySelection() }
-        table.onCut = { [weak coordinator = context.coordinator] in coordinator?.cutSelection() }
         table.onShowInfo = { [weak coordinator = context.coordinator] in coordinator?.showInfoForSelection() }
-        // Le collage vise le dossier affiché, pas la sélection : pas de logique dans le coordinateur.
+        // Coller et déplacer visent le dossier affiché, pas la sélection :
+        // pas de logique dans le coordinateur.
         table.onPaste = { [weak coordinator = context.coordinator] in coordinator?.parent.onPaste() }
+        table.onMoveHere = { [weak coordinator = context.coordinator] in coordinator?.parent.onMoveHere() }
         table.menuProvider = { [weak coordinator = context.coordinator] event in
             coordinator?.contextMenu(for: event)
         }
@@ -137,7 +138,6 @@ struct FileTableView: NSViewRepresentable {
             cell.onRename = { [weak self] in self?.parent.onRename(item) }
             cell.onDelete = { [weak self] in self?.parent.onDelete([item]) }
             cell.onCopy = { [weak self] in self?.parent.onCopy([item]) }
-            cell.onCut = { [weak self] in self?.parent.onCut([item]) }
             cell.onShare = { [weak self] in self?.parent.onShare(item) }
             cell.onCompress = { [weak self] in self?.parent.onCompress([item]) }
             cell.onExtract = { [weak self] in self?.parent.onExtract(item) }
@@ -205,12 +205,6 @@ struct FileTableView: NSViewRepresentable {
             parent.onCopy(items)
         }
 
-        func cutSelection() {
-            let items = selectedItems
-            guard parent.actionAvailability.canCopyMove, !items.isEmpty else { return }
-            parent.onCut(items)
-        }
-
         func showInfoForSelection() {
             guard selectedItems.count == 1, let item = selectedItems.first else { return }
             parent.onShowInfo(item)
@@ -236,7 +230,6 @@ struct FileTableView: NSViewRepresentable {
                 rename: items.count == 1 ? { [weak self] in self?.renameSelection() } : nil,
                 delete: { [weak self] in self?.deleteSelection() },
                 copy: { [weak self] in self?.copySelection() },
-                cut: { [weak self] in self?.cutSelection() },
                 share: items.count == 1 ? { [weak self] in
                     guard let item = self?.selectedItems.first else { return }
                     self?.parent.onShare(item)
@@ -288,7 +281,6 @@ private func makeFileContextMenu(
     rename: (() -> Void)?,
     delete: @escaping () -> Void,
     copy: @escaping () -> Void,
-    cut: @escaping () -> Void,
     share: (() -> Void)?,
     compress: @escaping () -> Void,
     extract: (() -> Void)?,
@@ -318,7 +310,6 @@ private func makeFileContextMenu(
         menu.addItem(NSMenuItem.separator())
         if availability.canCopyMove {
             menu.addItem(closureMenuItem(title: String(localized: "Copier"), handler: copy))
-            menu.addItem(closureMenuItem(title: String(localized: "Déplacer (couper)"), handler: cut))
         }
         if availability.canRename, let rename {
             menu.addItem(closureMenuItem(title: String(localized: "Renommer…"), handler: rename))
@@ -344,8 +335,8 @@ final class KeyboardTableView: NSTableView {
     var onRename: (() -> Void)?
     var onDelete: (() -> Void)?
     var onCopy: (() -> Void)?
-    var onCut: (() -> Void)?
     var onPaste: (() -> Void)?
+    var onMoveHere: (() -> Void)?
     var onShowInfo: (() -> Void)?
     var menuProvider: ((NSEvent) -> NSMenu?)?
     private var selectionBeforeRightMouseDown: IndexSet?
@@ -353,6 +344,7 @@ final class KeyboardTableView: NSTableView {
     override func keyDown(with event: NSEvent) {
         let command = event.modifierFlags.contains(.command)
         let shift = event.modifierFlags.contains(.shift)
+        let option = event.modifierFlags.contains(.option)
         switch event.keyCode {
         case 125 where command:
             onActivate?()
@@ -364,8 +356,9 @@ final class KeyboardTableView: NSTableView {
             onDelete?()
         case 8 where command:
             onCopy?()
-        case 7 where command:
-            onCut?()
+        // ⌘⌥V avant ⌘V : la clause « command » seule matcherait aussi ⌘⌥V.
+        case 9 where command && option:
+            onMoveHere?()
         case 9 where command:
             onPaste?()
         case 2 where command && shift:
@@ -420,7 +413,6 @@ final class FileCellView: NSTableCellView {
     var onRename: (() -> Void)?
     var onDelete: (() -> Void)?
     var onCopy: (() -> Void)?
-    var onCut: (() -> Void)?
     var onShare: (() -> Void)?
     var onCompress: (() -> Void)?
     var onExtract: (() -> Void)?
@@ -509,7 +501,6 @@ final class FileCellView: NSTableCellView {
         }
         if actionAvailability.canCopyMove {
             appendAction(named: String(localized: "Copier"), handler: onCopy, to: &actions)
-            appendAction(named: String(localized: "Déplacer (couper)"), handler: onCut, to: &actions)
         }
         if actionAvailability.canRename {
             appendAction(named: String(localized: "Renommer"), handler: onRename, to: &actions)
@@ -531,7 +522,6 @@ final class FileCellView: NSTableCellView {
             rename: onRename,
             delete: { [weak self] in self?.onDelete?() },
             copy: { [weak self] in self?.onCopy?() },
-            cut: { [weak self] in self?.onCut?() },
             share: onShare,
             compress: { [weak self] in self?.onCompress?() },
             extract: onExtract,

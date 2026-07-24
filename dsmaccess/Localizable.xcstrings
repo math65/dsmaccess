@@ -8257,6 +8257,22 @@
         }
       }
     },
+    "Options de déplacement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move options"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Options de déplacement"
+          }
+        }
+      }
+    },
     "Organisation" : {
       "localizations" : {
         "en" : {
@@ -11091,22 +11107,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld éléments copiés ici"
-          }
-        }
-      }
-    },
-    "%lld éléments coupés. Ouvrez la destination puis Coller pour déplacer." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld items cut. Open the destination, then choose Paste to move them."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld éléments coupés. Ouvrez la destination puis Coller pour déplacer."
           }
         }
       }
@@ -14656,6 +14656,22 @@
         }
       }
     },
+    "Déplacer ici les éléments copiés, en les retirant de leur emplacement d’origine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move the copied items here, removing them from their original location"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer ici les éléments copiés, en les retirant de leur emplacement d’origine"
+          }
+        }
+      }
+    },
     "Le transfert vers le Finder a échoué : la session NAS n’est plus disponible." : {
       "localizations" : {
         "en" : {
@@ -15340,22 +15356,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Copié : %@"
-          }
-        }
-      }
-    },
-    "Coupé : %@. Ouvrez la destination puis Coller pour déplacer." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cut: %@. Open the destination, then Paste to move it."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Coupé : %@. Ouvrez la destination puis Coller pour déplacer."
           }
         }
       }
@@ -16563,18 +16563,50 @@
         }
       }
     },
-    "Déplacer (couper)" : {
+    "Déplacement en cours…" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Move (cut)"
+            "value" : "Moving…"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Déplacer (couper)"
+            "value" : "Déplacement en cours…"
+          }
+        }
+      }
+    },
+    "Déplacer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer"
+          }
+        }
+      }
+    },
+    "Déplacer ici" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move Here"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer ici"
           }
         }
       }
@@ -16607,22 +16639,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Déplacer le module sélectionné vers le haut"
-          }
-        }
-      }
-    },
-    "Déplacer les éléments sélectionnés" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Move the selected items"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Déplacer les éléments sélectionnés"
           }
         }
       }
@@ -18016,6 +18032,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de coller ici."
+          }
+        }
+      }
+    },
+    "Impossible de déplacer des fichiers du Finder. Utilisez Coller pour les envoyer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finder files can’t be moved. Use Paste to upload them."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de déplacer des fichiers du Finder. Utilisez Coller pour les envoyer."
           }
         }
       }
@@ -21858,6 +21890,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Rien à coller."
+          }
+        }
+      }
+    },
+    "Rien à déplacer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nothing to move."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rien à déplacer."
           }
         }
       }

@@ -25,7 +25,6 @@ final class FileBrowserViewModel {
 
     struct Clipboard {
         let items: [FileStationItem]
-        let movesItems: Bool
     }
 
     enum SortMode: String, CaseIterable, Identifiable {
@@ -948,26 +947,24 @@ final class FileBrowserViewModel {
     }
 
     func copy(_ selectedItems: [FileStationItem]) -> String {
-        clipboard = Clipboard(items: selectedItems, movesItems: false)
+        clipboard = Clipboard(items: selectedItems)
         return selectedItems.count == 1
             ? String(localized: "Copié : \(selectedItems[0].name)")
             : String(localized: "\(selectedItems.count) éléments copiés")
     }
 
-    func cut(_ selectedItems: [FileStationItem]) -> String {
-        clipboard = Clipboard(items: selectedItems, movesItems: true)
-        return selectedItems.count == 1
-            ? String(localized: "Coupé : \(selectedItems[0].name). Ouvrez la destination puis Coller pour déplacer.")
-            : String(localized: "\(selectedItems.count) éléments coupés. Ouvrez la destination puis Coller pour déplacer.")
-    }
-
-    func paste(conflictPolicy: FileConflictPolicy = .skip) async -> DSMOperationOutcome {
+    /// Comme dans le Finder, c'est le geste de collage qui décide entre copier
+    /// et déplacer (`moving`) la même sélection copiée.
+    func paste(
+        moving: Bool = false,
+        conflictPolicy: FileConflictPolicy = .skip
+    ) async -> DSMOperationOutcome {
         guard canCopyMove else { return unavailableOutcome(for: .copyMove) }
         guard let clipboard else { return .failure(String(localized: "Rien à coller.")) }
         guard let destination = currentLevel.path else {
             return .failure(String(localized: "Impossible de coller ici."))
         }
-        let label = clipboard.movesItems
+        let label = moving
             ? String(localized: "Déplacement")
             : String(localized: "Copie")
         return await performProgressOperation(label: label) { progress in
@@ -975,13 +972,14 @@ final class FileBrowserViewModel {
                 try await $0.copyMove(
                     paths: clipboard.items.map(\.path),
                     to: destination,
-                    remove: clipboard.movesItems,
+                    remove: moving,
                     conflictPolicy: conflictPolicy,
                     progress: progress
                 )
             }
-            if clipboard.movesItems { self.clipboard = nil }
-            return clipboard.movesItems
+            // Après un déplacement, les chemins mémorisés n'existent plus.
+            if moving { self.clipboard = nil }
+            return moving
                 ? String(localized: "\(clipboard.items.count) éléments déplacés ici")
                 : String(localized: "\(clipboard.items.count) éléments copiés ici")
         }

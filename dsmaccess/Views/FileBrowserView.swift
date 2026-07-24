@@ -25,6 +25,7 @@ struct FileBrowserView: View {
     @State private var showingBackgroundTasks = false
     @State private var showingAdvancedSearch = false
     @State private var showingPasteOptions = false
+    @State private var pasteMovesItems = false
     @State private var showingUploadOptions = false
     @State private var pendingUploadURLs = [URL]()
     @State private var extractionItem: FileStationItem?
@@ -190,8 +191,10 @@ struct FileBrowserView: View {
                 }
             }
             .sheet(isPresented: $showingPasteOptions) {
-                FileConflictPolicySheet(title: "Options de collage", confirmLabel: "Coller") {
-                    policy in
+                FileConflictPolicySheet(
+                    title: pasteMovesItems ? "Options de déplacement" : "Options de collage",
+                    confirmLabel: pasteMovesItems ? "Déplacer" : "Coller"
+                ) { policy in
                     performPaste(conflictPolicy: policy)
                 }
             }
@@ -249,13 +252,13 @@ struct FileBrowserView: View {
                 onRename: { activeSheet = .rename($0) },
                 onDelete: { pendingDeleteItems = $0 },
                 onCopy: copyItems,
-                onCut: cutItems,
                 onShare: { shareItem = $0 },
                 onCompress: { activeSheet = .compress($0) },
                 onExtract: requestExtraction,
                 onShowInfo: { infoItem = $0 },
                 onGoUp: goUp,
                 onPaste: dispatchPaste,
+                onMoveHere: dispatchMove,
                 makeDragProvider: { FinderPasteboard.dragProvider(for: $0, viewModel: vm) }
             )
             .overlay(alignment: .topTrailing) {
@@ -331,11 +334,6 @@ struct FileBrowserView: View {
             }
             .disabled(!vm.canCopyMove)
             .help("Copier les éléments sélectionnés")
-            Button("Déplacer (couper)", systemImage: "scissors") {
-                cutItems(selectedItems)
-            }
-            .disabled(!vm.canCopyMove)
-            .help("Déplacer les éléments sélectionnés")
             Button("Créer un lien de partage", systemImage: "link") {
                 shareItem = singleSelectedItem
             }
@@ -378,6 +376,9 @@ struct FileBrowserView: View {
             Button("Coller", systemImage: "doc.on.clipboard", action: dispatchPaste)
                 .disabled((!vm.canPaste && !vm.canUpload) || vm.isWorking)
                 .help("Coller ici les éléments copiés ou les fichiers du Finder")
+            Button("Déplacer ici", systemImage: "arrow.forward.doc.on.clipboard", action: dispatchMove)
+                .disabled(!vm.canPaste || vm.isWorking)
+                .help("Déplacer ici les éléments copiés, en les retirant de leur emplacement d’origine")
 
             favoritesMenu
 
@@ -559,6 +560,7 @@ struct FileBrowserView: View {
             // reste actif dès qu'un collage est envisageable, et un ⌘V sans contenu
             // annonce « Rien à coller. » plutôt que d'être désactivé à tort.
             canPaste: (vm.canPaste || vm.canUpload) && !vm.isWorking,
+            canMoveHere: vm.canPaste && !vm.isWorking,
             canExtract: selectedItems.count == 1
                 && vm.canExtract(selectedItems[0])
                 && vm.canExtractArchives
@@ -571,8 +573,8 @@ struct FileBrowserView: View {
             download: { startDownload(selectedItems) },
             rename: { if let item = singleSelectedItem { activeSheet = .rename(item) } },
             copy: { copyItems(selectedItems) },
-            cut: { cutItems(selectedItems) },
             paste: dispatchPaste,
+            moveHere: dispatchMove,
             compress: { activeSheet = .compress(selectedItems) },
             extract: { if let item = singleSelectedItem { requestExtraction(item) } },
             delete: { pendingDeleteItems = selectedItems },
@@ -675,21 +677,33 @@ struct FileBrowserView: View {
         VoiceOver.announce(message, category: .result)
     }
 
-    private func cutItems(_ items: [FileStationItem]) {
-        let message = vm.cut(items)
-        FinderPasteboard.claimForInternalClipboard()
-        VoiceOver.announce(message, category: .result)
-    }
-
     private func dispatchPaste() {
         guard !vm.isWorking else { return }
         switch FinderPasteboard.currentIntent(hasInternalClipboard: vm.canPaste) {
         case .uploadFinderFiles(let urls):
             requestFinderUpload(urls)
         case .pasteInternalClipboard:
-            requestPaste()
+            requestPaste(moving: false)
         case .nothing:
             VoiceOver.announce(String(localized: "Rien à coller."), category: .result)
+        }
+    }
+
+    /// ⌘⌥V, comme dans le Finder. Déplacer des fichiers du Mac supposerait de
+    /// les supprimer après l'envoi : le geste est réservé à la copie interne.
+    private func dispatchMove() {
+        guard !vm.isWorking else { return }
+        switch FinderPasteboard.currentIntent(hasInternalClipboard: vm.canPaste) {
+        case .uploadFinderFiles:
+            VoiceOver.announce(
+                String(localized: "Impossible de déplacer des fichiers du Finder. Utilisez Coller pour les envoyer."),
+                category: .error,
+                priority: .high
+            )
+        case .pasteInternalClipboard:
+            requestPaste(moving: true)
+        case .nothing:
+            VoiceOver.announce(String(localized: "Rien à déplacer."), category: .result)
         }
     }
 
@@ -717,18 +731,21 @@ struct FileBrowserView: View {
         showingUploadOptions = true
     }
 
-    private func requestPaste() {
+    private func requestPaste(moving: Bool) {
         guard vm.canPaste, !vm.isWorking else { return }
+        pasteMovesItems = moving
         showingPasteOptions = true
     }
 
     private func performPaste(conflictPolicy: FileConflictPolicy) {
         VoiceOver.announce(
-            String(localized: "Collage en cours…"),
+            pasteMovesItems
+                ? String(localized: "Déplacement en cours…")
+                : String(localized: "Collage en cours…"),
             category: .progress,
             priority: .low
         )
-        startOperation({ await vm.paste(conflictPolicy: conflictPolicy) }) {
+        startOperation({ await vm.paste(moving: pasteMovesItems, conflictPolicy: conflictPolicy) }) {
             selection.removeAll()
         }
     }
