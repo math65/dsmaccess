@@ -44,6 +44,7 @@ struct FileConflictPolicySheet: View {
 
 struct FileUploadOptionsSheet: View {
     let fileCount: Int
+    var folderCount = 0
     let onSubmit: (FileStationUploadOptions) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -69,8 +70,15 @@ struct FileUploadOptionsSheet: View {
             Divider()
 
             Form {
-                Section("Fichiers sélectionnés") {
-                    LabeledContent("Nombre") { Text(fileCount, format: .number) }
+                Section("Éléments sélectionnés") {
+                    if fileCount > 0 {
+                        LabeledContent("Fichiers") { Text(fileCount, format: .number) }
+                    }
+                    if folderCount > 0 {
+                        LabeledContent("Dossiers (contenu inclus)") {
+                            Text(folderCount, format: .number)
+                        }
+                    }
                 }
 
                 Section("Conflits de noms") {

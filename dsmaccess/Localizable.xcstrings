@@ -7265,6 +7265,22 @@
         }
       }
     },
+    "Éléments sélectionnés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected items"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éléments sélectionnés"
+          }
+        }
+      }
+    },
     "Extraire la sélection" : {
       "localizations" : {
         "en" : {
@@ -7985,22 +8001,6 @@
         }
       }
     },
-    "Fichiers sélectionnés" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Selected files"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Fichiers sélectionnés"
-          }
-        }
-      }
-    },
     "Format" : {
       "localizations" : {
         "en" : {
@@ -8205,22 +8205,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Néerlandais"
-          }
-        }
-      }
-    },
-    "Nombre" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Count"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nombre"
           }
         }
       }
@@ -9181,6 +9165,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dossiers"
+          }
+        }
+      }
+    },
+    "Dossiers (contenu inclus)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folders (contents included)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dossiers (contenu inclus)"
           }
         }
       }
@@ -10723,6 +10723,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "%lld fichiers envoyés"
+          }
+        }
+      }
+    },
+    "%lld éléments envoyés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld items uploaded"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld éléments envoyés"
           }
         }
       }
@@ -14608,6 +14624,86 @@
         }
       }
     },
+    "Attendez la fin des transferts en cours avant de coller des fichiers." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wait for the current transfers to finish before pasting files."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attendez la fin des transferts en cours avant de coller des fichiers."
+          }
+        }
+      }
+    },
+    "Collage possible ici ou dans le Finder." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can paste here or in the Finder."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Collage possible ici ou dans le Finder."
+          }
+        }
+      }
+    },
+    "Coller ici les éléments copiés ou les fichiers du Finder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste copied items or Finder files here"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coller ici les éléments copiés ou les fichiers du Finder"
+          }
+        }
+      }
+    },
+    "Le collage dans le Finder a échoué : la session NAS n’est plus disponible." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pasting in the Finder failed: the NAS session is no longer available."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le collage dans le Finder a échoué : la session NAS n’est plus disponible."
+          }
+        }
+      }
+    },
+    "Téléchargement pour le Finder en cours…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloading for the Finder…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Téléchargement pour le Finder en cours…"
+          }
+        }
+      }
+    },
     "Comportement" : {
       "localizations" : {
         "en" : {
@@ -15987,6 +16083,22 @@
         }
       }
     },
+    "Dossier envoyé : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder uploaded: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dossier envoyé : %@"
+          }
+        }
+      }
+    },
     "Dossier de destination (facultatif)" : {
       "localizations" : {
         "en" : {
@@ -16943,6 +17055,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Envoi en cours…"
+          }
+        }
+      }
+    },
+    "Envoi incomplet : certains éléments n’ont pas pu être lus sur le Mac." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upload incomplete: some items could not be read on the Mac."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoi incomplet : certains éléments n’ont pas pu être lus sur le Mac."
           }
         }
       }
@@ -17920,6 +18048,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Impossible de créer le dossier ici."
+          }
+        }
+      }
+    },
+    "Impossible de créer les dossiers : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unable to create the folders: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossible de créer les dossiers : %@"
           }
         }
       }

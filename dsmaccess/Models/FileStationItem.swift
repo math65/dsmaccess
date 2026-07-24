@@ -236,6 +236,12 @@ extension FileStationItem {
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
+    /// Nom du fichier matérialisé côté Mac lors d'un téléchargement ou d'un collage
+    /// dans le Finder : DSM livre un dossier sous forme d'archive ZIP.
+    var promisedFileName: String {
+        isdir ? "\(name).zip" : name
+    }
+
     /// Libellé complet lu par VoiceOver : « photo, dossier » ou « a.jpg, fichier, 2,3 Mo · 12 mars 2024 ».
     var accessibilityLabel: String {
         let kind = isdir ? String(localized: "dossier") : String(localized: "fichier")

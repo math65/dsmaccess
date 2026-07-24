@@ -54,7 +54,6 @@ final class FileBrowserViewModel {
     private(set) var isLoading = false
     private(set) var isSearching = false
     private(set) var isWorking = false
-    private(set) var isDownloading = false
     private(set) var isShowingSearchResults = false
     private(set) var searchQuery = ""
     private(set) var searchProgress: FileStationSearchProgress?
@@ -98,6 +97,7 @@ final class FileBrowserViewModel {
     var sortAscending = true
 
     private var directoryItems: [FileStationItem] = []
+    private var activeDownloadCount = 0
     private let session: SessionStore
     private var loadGeneration = 0
     private var searchGeneration = 0
@@ -132,6 +132,9 @@ final class FileBrowserViewModel {
     var breadcrumb: String { stack.map(\.name).joined(separator: " ▸ ") }
 
     var canDownload: Bool { supports(.download) }
+    // Compteur plutôt que booléen : les promesses de fichiers collées dans le
+    // Finder peuvent déclencher plusieurs téléchargements simultanés.
+    var isDownloading: Bool { activeDownloadCount > 0 }
     var canUpload: Bool { canWrite && supports(.upload) }
     var canCreateFolder: Bool { canWrite && supports(.createFolder) }
     var canRename: Bool { canWrite && supports(.rename) }
@@ -452,20 +455,38 @@ final class FileBrowserViewModel {
     }
 
     func suggestedFilename(for item: FileStationItem) -> String {
-        item.isdir ? "\(item.name).zip" : item.name
+        item.promisedFileName
     }
 
     func download(_ item: FileStationItem, to destination: URL) async -> DSMOperationOutcome {
         guard canDownload else { return unavailableOutcome(for: .download) }
         defer { destination.stopAccessingSecurityScopedResource() }
+        return await performSingleDownload(item, to: destination)
+    }
+
+    /// Téléchargement déclenché par une promesse de fichier collée dans le Finder.
+    /// Aucun scope de sécurité à gérer : l'URL de destination est couverte par le
+    /// sandbox du récepteur de la promesse.
+    func downloadForFinderPromise(
+        _ item: FileStationItem,
+        to destination: URL
+    ) async -> DSMOperationOutcome {
+        guard canDownload else { return unavailableOutcome(for: .download) }
+        return await performSingleDownload(item, to: destination)
+    }
+
+    private func performSingleDownload(
+        _ item: FileStationItem,
+        to destination: URL
+    ) async -> DSMOperationOutcome {
         let transferID = addTransfer(
             direction: .download,
             name: item.name,
             source: item.path,
             destination: destination.path
         )
-        isDownloading = true
-        defer { isDownloading = false }
+        activeDownloadCount += 1
+        defer { activeDownloadCount -= 1 }
         updateTransfer(id: transferID, state: .running)
         do {
             try await session.withClient {
@@ -493,8 +514,8 @@ final class FileBrowserViewModel {
     func download(_ selectedItems: [FileStationItem], to directory: URL) async -> DSMOperationOutcome {
         guard canDownload else { return unavailableOutcome(for: .download) }
         defer { directory.stopAccessingSecurityScopedResource() }
-        isDownloading = true
-        defer { isDownloading = false }
+        activeDownloadCount += 1
+        defer { activeDownloadCount -= 1 }
         var completed = 0
         var firstError: String?
         let queuedTransfers = selectedItems.map { item in
@@ -561,8 +582,8 @@ final class FileBrowserViewModel {
             source: String(localized: "\(selectedItems.count) éléments File Station"),
             destination: destination.path
         )
-        isDownloading = true
-        defer { isDownloading = false }
+        activeDownloadCount += 1
+        defer { activeDownloadCount -= 1 }
         updateTransfer(id: transferID, state: .running)
         do {
             try await session.withClient {
@@ -621,40 +642,64 @@ final class FileBrowserViewModel {
     }
 
     func upload(
-        fileURLs: [URL],
+        urls: [URL],
         options: FileStationUploadOptions = FileStationUploadOptions(conflictPolicy: .skip)
     ) async -> DSMOperationOutcome {
+        // Les scopes de sécurité ont été ouverts par la vue sur les URL racines ;
+        // les fichiers énumérés dans un dossier sont couverts par le scope de leur racine.
+        defer {
+            for url in urls { url.stopAccessingSecurityScopedResource() }
+        }
         guard canUpload else { return unavailableOutcome(for: .upload) }
         guard let parent = currentLevel.path else {
             return .failure(String(localized: "Impossible d’envoyer ici."))
         }
         isWorking = true
         defer { isWorking = false }
+        let plan = await FinderUploadPlan.make(from: urls)
+        if !plan.folders.isEmpty {
+            do {
+                try Task.checkCancellation()
+                // force_parent rend la création idempotente : un dossier déjà
+                // présent sur le NAS est fusionné, pas signalé en erreur.
+                _ = try await session.withClient {
+                    try await $0.createFolders(
+                        plan.folderCreations(under: parent),
+                        forceParentFolders: true
+                    )
+                }
+            } catch where DSMError.isCancellation(error) {
+                return .cancelled
+            } catch {
+                return .failure(
+                    String(localized: "Impossible de créer les dossiers : \(errorMessage(for: error))")
+                )
+            }
+        }
         var sent = 0
         var firstFailure: String?
         let query = searchQuery
         let criteria = advancedSearchCriteria
-        let queuedTransfers = fileURLs.map { url in
+        let queuedTransfers = plan.files.map { file in
             (
-                url,
+                file,
                 addTransfer(
                     direction: .upload,
-                    name: url.lastPathComponent,
-                    source: url.path,
-                    destination: parent
+                    name: file.source.lastPathComponent,
+                    source: file.source.path,
+                    destination: file.destinationFolder(under: parent)
                 )
             )
         }
         for (index, transfer) in queuedTransfers.enumerated() {
-            let (url, transferID) = transfer
-            defer { url.stopAccessingSecurityScopedResource() }
+            let (file, transferID) = transfer
             do {
                 try Task.checkCancellation()
                 updateTransfer(id: transferID, state: .running)
                 try await session.withClient {
                     try await $0.upload(
-                        fileURL: url,
-                        to: parent,
+                        fileURL: file.source,
+                        to: file.destinationFolder(under: parent),
                         options: options,
                         progress: { [weak self] progress in
                             self?.updateTransfer(id: transferID, progress: progress)
@@ -681,16 +726,27 @@ final class FileBrowserViewModel {
         } else if !query.isEmpty {
             await search(query)
         }
-        let failed = fileURLs.count - sent
+        let failed = plan.files.count - sent
         if failed > 0 {
             return .failure(
                 String(localized: "\(sent) envoyés, \(failed) en échec : \(firstFailure ?? "")")
             )
         }
-        let message = sent == 1
-            ? String(localized: "Fichier envoyé : \(fileURLs[0].lastPathComponent)")
-            : String(localized: "\(sent) fichiers envoyés")
-        return .success(message)
+        if plan.unreadableItems > 0 {
+            return .failure(
+                String(localized: "Envoi incomplet : certains éléments n’ont pas pu être lus sur le Mac.")
+            )
+        }
+        if plan.folders.isEmpty {
+            let message = sent == 1
+                ? String(localized: "Fichier envoyé : \(plan.files[0].source.lastPathComponent)")
+                : String(localized: "\(sent) fichiers envoyés")
+            return .success(message)
+        }
+        if urls.count == 1 {
+            return .success(String(localized: "Dossier envoyé : \(urls[0].lastPathComponent)"))
+        }
+        return .success(String(localized: "\(urls.count) éléments envoyés"))
     }
 
     func clearFinishedTransfers() {

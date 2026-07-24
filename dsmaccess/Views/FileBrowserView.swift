@@ -196,7 +196,9 @@ struct FileBrowserView: View {
                 }
             }
             .sheet(isPresented: $showingUploadOptions, onDismiss: discardPendingUploads) {
-                FileUploadOptionsSheet(fileCount: pendingUploadURLs.count) { options in
+                let counts = pendingUploadCounts
+                FileUploadOptionsSheet(fileCount: counts.files, folderCount: counts.folders) {
+                    options in
                     performUpload(options: options)
                 }
             }
@@ -246,13 +248,14 @@ struct FileBrowserView: View {
                 onDownload: startDownload,
                 onRename: { activeSheet = .rename($0) },
                 onDelete: { pendingDeleteItems = $0 },
-                onCopy: { VoiceOver.announce(vm.copy($0)) },
-                onCut: { VoiceOver.announce(vm.cut($0)) },
+                onCopy: copyItems,
+                onCut: cutItems,
                 onShare: { shareItem = $0 },
                 onCompress: { activeSheet = .compress($0) },
                 onExtract: requestExtraction,
                 onShowInfo: { infoItem = $0 },
-                onGoUp: goUp
+                onGoUp: goUp,
+                onPaste: dispatchPaste
             )
             .overlay(alignment: .topTrailing) {
                 if vm.isSearching || vm.isWorking || vm.isDownloading {
@@ -323,12 +326,12 @@ struct FileBrowserView: View {
             }
             Divider()
             Button("Copier", systemImage: "doc.on.doc") {
-                VoiceOver.announce(vm.copy(selectedItems), category: .result)
+                copyItems(selectedItems)
             }
             .disabled(!vm.canCopyMove)
             .help("Copier les éléments sélectionnés")
             Button("Déplacer (couper)", systemImage: "scissors") {
-                VoiceOver.announce(vm.cut(selectedItems), category: .result)
+                cutItems(selectedItems)
             }
             .disabled(!vm.canCopyMove)
             .help("Déplacer les éléments sélectionnés")
@@ -371,9 +374,9 @@ struct FileBrowserView: View {
 
     private var moreOptionsMenu: some View {
         Menu("Plus d’options", systemImage: "ellipsis.circle") {
-            Button("Coller", systemImage: "doc.on.clipboard", action: requestPaste)
-                .disabled(!vm.canPaste || vm.isWorking)
-                .help("Coller dans ce dossier")
+            Button("Coller", systemImage: "doc.on.clipboard", action: dispatchPaste)
+                .disabled((!vm.canPaste && !vm.canUpload) || vm.isWorking)
+                .help("Coller ici les éléments copiés ou les fichiers du Finder")
 
             favoritesMenu
 
@@ -551,7 +554,10 @@ struct FileBrowserView: View {
             canRename: vm.canRename && !vm.isWorking,
             canCompress: vm.canCompress && !vm.isWorking,
             canDelete: vm.canDelete && !vm.isWorking,
-            canPaste: vm.canPaste && !vm.isWorking,
+            // Le presse-papiers système n'est pas observable par SwiftUI : l'élément
+            // reste actif dès qu'un collage est envisageable, et un ⌘V sans contenu
+            // annonce « Rien à coller. » plutôt que d'être désactivé à tort.
+            canPaste: (vm.canPaste || vm.canUpload) && !vm.isWorking,
             canExtract: selectedItems.count == 1
                 && vm.canExtract(selectedItems[0])
                 && vm.canExtractArchives
@@ -563,9 +569,9 @@ struct FileBrowserView: View {
             upload: startUpload,
             download: { startDownload(selectedItems) },
             rename: { if let item = singleSelectedItem { activeSheet = .rename(item) } },
-            copy: { VoiceOver.announce(vm.copy(selectedItems)) },
-            cut: { VoiceOver.announce(vm.cut(selectedItems)) },
-            paste: requestPaste,
+            copy: { copyItems(selectedItems) },
+            cut: { cutItems(selectedItems) },
+            paste: dispatchPaste,
             compress: { activeSheet = .compress(selectedItems) },
             extract: { if let item = singleSelectedItem { requestExtraction(item) } },
             delete: { pendingDeleteItems = selectedItems },
@@ -660,6 +666,57 @@ struct FileBrowserView: View {
             announceSummary()
             advancedSearchTask = nil
         }
+    }
+
+    private func copyItems(_ items: [FileStationItem]) {
+        let message = vm.copy(items)
+        FinderPasteboard.write(items: items, viewModel: vm)
+        VoiceOver.announce(
+            "\(message) \(String(localized: "Collage possible ici ou dans le Finder."))",
+            category: .result
+        )
+    }
+
+    private func cutItems(_ items: [FileStationItem]) {
+        let message = vm.cut(items)
+        FinderPasteboard.claimForInternalCut()
+        VoiceOver.announce(message, category: .result)
+    }
+
+    private func dispatchPaste() {
+        guard !vm.isWorking else { return }
+        switch FinderPasteboard.currentIntent(hasInternalClipboard: vm.canPaste) {
+        case .uploadFinderFiles(let urls):
+            requestFinderUpload(urls)
+        case .pasteInternalClipboard:
+            requestPaste()
+        case .nothing:
+            VoiceOver.announce(String(localized: "Rien à coller."), category: .result)
+        }
+    }
+
+    private func requestFinderUpload(_ urls: [URL]) {
+        guard vm.canUpload else {
+            VoiceOver.announce(
+                String(localized: "Impossible d’envoyer ici."),
+                category: .error,
+                priority: .high
+            )
+            return
+        }
+        guard !vm.hasActiveTransfers else {
+            VoiceOver.announce(
+                String(localized: "Attendez la fin des transferts en cours avant de coller des fichiers."),
+                category: .error,
+                priority: .high
+            )
+            return
+        }
+        for url in urls {
+            _ = url.startAccessingSecurityScopedResource()
+        }
+        pendingUploadURLs = urls
+        showingUploadOptions = true
     }
 
     private func requestPaste() {
@@ -764,11 +821,22 @@ struct FileBrowserView: View {
         }
     }
 
+    private var pendingUploadCounts: (files: Int, folders: Int) {
+        pendingUploadURLs.reduce(into: (files: 0, folders: 0)) { counts, url in
+            let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory
+            if isDirectory == true {
+                counts.folders += 1
+            } else {
+                counts.files += 1
+            }
+        }
+    }
+
     private func startUpload() {
         guard vm.canWrite, !vm.hasActiveTransfers else { return }
         let panel = NSOpenPanel()
         panel.canChooseFiles = true
-        panel.canChooseDirectories = false
+        panel.canChooseDirectories = true
         panel.allowsMultipleSelection = true
         panel.prompt = String(localized: "Envoyer")
         guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
@@ -790,7 +858,7 @@ struct FileBrowserView: View {
         )
         showingTransfers = true
         transferTask = Task {
-            let outcome = await vm.upload(fileURLs: urls, options: options)
+            let outcome = await vm.upload(urls: urls, options: options)
             VoiceOver.announce(outcome, priority: .high)
             transferTask = nil
         }

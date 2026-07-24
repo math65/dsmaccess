@@ -38,6 +38,7 @@ struct FileTableView: NSViewRepresentable {
     var onExtract: (FileStationItem) -> Void
     var onShowInfo: (FileStationItem) -> Void
     var onGoUp: () -> Void
+    var onPaste: () -> Void
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -64,6 +65,8 @@ struct FileTableView: NSViewRepresentable {
         table.onCopy = { [weak coordinator = context.coordinator] in coordinator?.copySelection() }
         table.onCut = { [weak coordinator = context.coordinator] in coordinator?.cutSelection() }
         table.onShowInfo = { [weak coordinator = context.coordinator] in coordinator?.showInfoForSelection() }
+        // Le collage vise le dossier affiché, pas la sélection : pas de logique dans le coordinateur.
+        table.onPaste = { [weak coordinator = context.coordinator] in coordinator?.parent.onPaste() }
         table.menuProvider = { [weak coordinator = context.coordinator] event in
             coordinator?.contextMenu(for: event)
         }
@@ -320,6 +323,7 @@ final class KeyboardTableView: NSTableView {
     var onDelete: (() -> Void)?
     var onCopy: (() -> Void)?
     var onCut: (() -> Void)?
+    var onPaste: (() -> Void)?
     var onShowInfo: (() -> Void)?
     var menuProvider: ((NSEvent) -> NSMenu?)?
     private var selectionBeforeRightMouseDown: IndexSet?
@@ -340,6 +344,8 @@ final class KeyboardTableView: NSTableView {
             onCopy?()
         case 7 where command:
             onCut?()
+        case 9 where command:
+            onPaste?()
         case 2 where command && shift:
             onDownload?()
         case 34 where command:

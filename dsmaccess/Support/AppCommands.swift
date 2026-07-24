@@ -200,7 +200,7 @@ struct DSMCommands: Commands {
                 .help("Déplacer les éléments sélectionnés")
             Button("Coller") { fileActions?.paste() }
                 .disabled(fileActions?.canPaste != true)
-                .help("Coller dans ce dossier")
+                .help("Coller ici les éléments copiés ou les fichiers du Finder")
             Button("Renommer…") { fileActions?.rename() }
                 .disabled(
                     fileActions?.hasSingleSelection != true || fileActions?.canRename != true
