@@ -236,9 +236,10 @@ extension FileStationItem {
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
-    /// Nom du fichier matérialisé côté Mac lors d'un téléchargement ou d'un collage
+    /// Nom du fichier matérialisé côté Mac lors d'un téléchargement ou d'un dépôt
     /// dans le Finder : DSM livre un dossier sous forme d'archive ZIP.
-    var promisedFileName: String {
+    /// `nonisolated` : lu par les délégués de promesses hors du MainActor.
+    nonisolated var promisedFileName: String {
         isdir ? "\(name).zip" : name
     }
 

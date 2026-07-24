@@ -41,6 +41,30 @@ enum FinderPasteboard {
         lastOwnChangeCount = pasteboard.changeCount
     }
 
+    /// Délégués des promesses d'un drag en cours de préparation : la table les
+    /// fabrique ligne par ligne avant que la session de drag ne commence.
+    private static var pendingDragDelegates = [FileStationFilePromiseDelegate]()
+    /// Délégués de la dernière session de drag. Le Finder honore les promesses
+    /// après la fin de la session ; ils ne sont libérés qu'au drag suivant,
+    /// comme les délégués d'un ⌘C le sont à la copie suivante.
+    private static var activeDragDelegates = [FileStationFilePromiseDelegate]()
+
+    /// Promesse de fichier pour une ligne glissée hors de l'app : le
+    /// téléchargement ne démarre que si l'élément est réellement déposé.
+    static func dragProvider(
+        for item: FileStationItem,
+        viewModel: FileBrowserViewModel
+    ) -> NSFilePromiseProvider {
+        let delegate = FileStationFilePromiseDelegate(item: item, viewModel: viewModel)
+        pendingDragDelegates.append(delegate)
+        return NSFilePromiseProvider(fileType: promisedFileType(for: item), delegate: delegate)
+    }
+
+    static func dragSessionWillBegin() {
+        activeDragDelegates = pendingDragDelegates
+        pendingDragDelegates = []
+    }
+
     /// Un couper interne réclame le presse-papiers : sans cela, ⌘V après
     /// « copie dans le Finder puis ⌘X ici » enverrait les fichiers du Finder
     /// au lieu de déplacer les éléments coupés.
@@ -116,7 +140,7 @@ final class FileStationFilePromiseDelegate: NSObject, NSFilePromiseProviderDeleg
             guard let viewModel else {
                 completionHandler(FilePromiseError(
                     message: String(
-                        localized: "Le collage dans le Finder a échoué : la session NAS n’est plus disponible."
+                        localized: "Le transfert vers le Finder a échoué : la session NAS n’est plus disponible."
                     )
                 ))
                 return

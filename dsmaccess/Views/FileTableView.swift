@@ -39,6 +39,7 @@ struct FileTableView: NSViewRepresentable {
     var onShowInfo: (FileStationItem) -> Void
     var onGoUp: () -> Void
     var onPaste: () -> Void
+    var makeDragProvider: (FileStationItem) -> NSFilePromiseProvider?
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -70,6 +71,9 @@ struct FileTableView: NSViewRepresentable {
         table.menuProvider = { [weak coordinator = context.coordinator] event in
             coordinator?.contextMenu(for: event)
         }
+
+        // Glisser vers le Finder : la copie est le seul sens proposé hors de l'app.
+        table.setDraggingSourceOperationMask(.copy, forLocal: false)
 
         table.target = context.coordinator
         table.doubleAction = #selector(Coordinator.tableDoubleClicked(_:))
@@ -139,6 +143,24 @@ struct FileTableView: NSViewRepresentable {
             cell.onExtract = { [weak self] in self?.parent.onExtract(item) }
             cell.onShowInfo = { [weak self] in self?.parent.onShowInfo(item) }
             return cell
+        }
+
+        func tableView(
+            _ tableView: NSTableView,
+            pasteboardWriterForRow row: Int
+        ) -> (any NSPasteboardWriting)? {
+            guard parent.actionAvailability.canDownload,
+                  parent.items.indices.contains(row) else { return nil }
+            return parent.makeDragProvider(parent.items[row])
+        }
+
+        func tableView(
+            _ tableView: NSTableView,
+            draggingSession session: NSDraggingSession,
+            willBeginAt screenPoint: NSPoint,
+            forRowIndexes rowIndexes: IndexSet
+        ) {
+            FinderPasteboard.dragSessionWillBegin()
         }
 
         func tableViewSelectionDidChange(_ notification: Notification) {

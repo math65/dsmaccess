@@ -255,7 +255,8 @@ struct FileBrowserView: View {
                 onExtract: requestExtraction,
                 onShowInfo: { infoItem = $0 },
                 onGoUp: goUp,
-                onPaste: dispatchPaste
+                onPaste: dispatchPaste,
+                makeDragProvider: { FinderPasteboard.dragProvider(for: $0, viewModel: vm) }
             )
             .overlay(alignment: .topTrailing) {
                 if vm.isSearching || vm.isWorking || vm.isDownloading {

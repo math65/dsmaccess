@@ -14672,18 +14672,18 @@
         }
       }
     },
-    "Le collage dans le Finder a échoué : la session NAS n’est plus disponible." : {
+    "Le transfert vers le Finder a échoué : la session NAS n’est plus disponible." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pasting in the Finder failed: the NAS session is no longer available."
+            "value" : "The transfer to the Finder failed: the NAS session is no longer available."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Le collage dans le Finder a échoué : la session NAS n’est plus disponible."
+            "value" : "Le transfert vers le Finder a échoué : la session NAS n’est plus disponible."
           }
         }
       }
