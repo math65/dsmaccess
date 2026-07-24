@@ -2,15 +2,15 @@
 //  FinderPasteboard.swift
 //  dsmaccess
 //
-//  Pont entre le module Fichiers et le presse-papiers système : copie vers le
-//  Finder par promesses de fichiers, détection des fichiers du Finder à coller.
+//  Pont entre le module Fichiers et le presse-papiers système : détection des
+//  fichiers du Finder à coller, promesses de fichiers pour le glisser-déposer.
 //
 
 import AppKit
 import UniformTypeIdentifiers
 
-/// ⌘C alimente à la fois le presse-papiers interne (copie NAS→NAS) et le
-/// presse-papiers système ; `intent` départage ensuite ⌘V selon la règle
+/// ⌘C et ⌘X réclament le presse-papiers système en plus du presse-papiers
+/// interne (copie NAS→NAS) ; `intent` départage ensuite ⌘V selon la règle
 /// « le dernier copier gagne ».
 enum FinderPasteboard {
     /// Ce que Coller doit faire selon le contenu des deux presse-papiers.
@@ -23,23 +23,6 @@ enum FinderPasteboard {
     /// `changeCount` du presse-papiers après notre dernière écriture, pour
     /// distinguer notre propre copie d'une copie faite dans le Finder.
     private static var lastOwnChangeCount: Int?
-    /// `NSFilePromiseProvider` ne retient pas son délégué ; ils sont conservés
-    /// ici jusqu'à la prochaine écriture, le temps que le Finder honore les promesses.
-    private static var activeDelegates = [FileStationFilePromiseDelegate]()
-
-    /// Remplace le presse-papiers système par une promesse de fichier par élément :
-    /// chaque fichier sous son propre nom, chaque dossier en archive ZIP.
-    static func write(items: [FileStationItem], viewModel: FileBrowserViewModel) {
-        let pasteboard = NSPasteboard.general
-        pasteboard.clearContents()
-        let delegates = items.map { FileStationFilePromiseDelegate(item: $0, viewModel: viewModel) }
-        let providers = delegates.map {
-            NSFilePromiseProvider(fileType: promisedFileType(for: $0.item), delegate: $0)
-        }
-        pasteboard.writeObjects(providers)
-        activeDelegates = delegates
-        lastOwnChangeCount = pasteboard.changeCount
-    }
 
     /// Délégués des promesses d'un drag en cours de préparation : la table les
     /// fabrique ligne par ligne avant que la session de drag ne commence.
@@ -65,13 +48,14 @@ enum FinderPasteboard {
         pendingDragDelegates = []
     }
 
-    /// Un couper interne réclame le presse-papiers : sans cela, ⌘V après
-    /// « copie dans le Finder puis ⌘X ici » enverrait les fichiers du Finder
-    /// au lieu de déplacer les éléments coupés.
-    static func claimForInternalCut() {
+    /// Une copie ou un couper interne réclame le presse-papiers : sans cela,
+    /// ⌘V après « copie dans le Finder puis ⌘C ou ⌘X ici » enverrait les
+    /// fichiers du Finder au lieu de coller la sélection interne. Le Finder
+    /// n'honorant pas les promesses au collage, il n'y a rien d'utile à y
+    /// écrire : les promesses ne servent qu'au glisser-déposer.
+    static func claimForInternalClipboard() {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
-        activeDelegates = []
         lastOwnChangeCount = pasteboard.changeCount
     }
 

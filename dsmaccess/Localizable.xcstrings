@@ -14640,22 +14640,6 @@
         }
       }
     },
-    "Collage possible ici ou dans le Finder." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You can paste here or in the Finder."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Collage possible ici ou dans le Finder."
-          }
-        }
-      }
-    },
     "Coller ici les éléments copiés ou les fichiers du Finder" : {
       "localizations" : {
         "en" : {

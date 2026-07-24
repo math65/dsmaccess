@@ -671,16 +671,13 @@ struct FileBrowserView: View {
 
     private func copyItems(_ items: [FileStationItem]) {
         let message = vm.copy(items)
-        FinderPasteboard.write(items: items, viewModel: vm)
-        VoiceOver.announce(
-            "\(message) \(String(localized: "Collage possible ici ou dans le Finder."))",
-            category: .result
-        )
+        FinderPasteboard.claimForInternalClipboard()
+        VoiceOver.announce(message, category: .result)
     }
 
     private func cutItems(_ items: [FileStationItem]) {
         let message = vm.cut(items)
-        FinderPasteboard.claimForInternalCut()
+        FinderPasteboard.claimForInternalClipboard()
         VoiceOver.announce(message, category: .result)
     }
 
