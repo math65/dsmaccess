@@ -1,3 +1,56 @@
+## v1.1-beta.10 (build 11) — 2026-07-25
+
+### Highlights
+
+- Files: copy files in the Finder, then paste them into a folder on the NAS
+  with Command-V. Whole folders come along, with everything inside them.
+- Files: drag an item out of the file list and drop it in the Finder to
+  download it there.
+- Copy and paste now behave the way they do in the Finder: Command-C copies,
+  Command-V pastes a copy, and Command-Option-V moves. There is no longer a
+  Cut command.
+
+### New
+
+- Files: Command-V sends what you copied in the Finder to the folder you are
+  in. Files land in that folder; a folder is recreated on the NAS with its
+  entire tree, empty subfolders included. Finder's hidden .DS_Store files are
+  left out, and if an item on your Mac cannot be read, the transfer reports
+  itself as incomplete rather than pretending everything went through.
+- Files: an item can be dragged out of the list and dropped in the Finder.
+  Nothing is downloaded until you actually drop it, and a folder arrives as a
+  ZIP archive, exactly as it does with Download. Download remains the
+  keyboard route and has not changed.
+- Files: sending items to the NAS now accepts folders as well as files, and
+  the options that appear before a transfer say how many files and how many
+  folders are on their way.
+
+### Changes
+
+- Files: Cut is gone. Command-C copies, Command-V pastes a copy, and
+  Command-Option-V moves what you copied — the choice happens when you paste,
+  as in the Finder. The Files menu now offers Move Here next to Paste, and the
+  confirmation states what a move will do. Moving files that come from your
+  Mac is refused, with an explanation: it would mean deleting your originals.
+- Updates: the app now looks for a new version at every launch. Sparkle's own
+  schedule checks once a day at most, which left a tester a version behind
+  whenever two builds went out on the same day. Nothing appears on screen
+  unless an update is waiting, and the setting in the updates panel still
+  decides whether the check happens at all.
+- Updates: checking automatically is now the app's declared default instead of
+  a preference written on your behalf at first launch — a preference you never
+  chose, which also silenced Sparkle's own question about it. The updates panel
+  remains the one place to change this.
+
+### Requirements
+
+- macOS 14 (Sonoma) or later.
+- A Synology NAS running DSM 7 on your local network.
+
+### Download
+
+[dsmaccess-1.1-beta.10.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.10/dsmaccess-1.1-beta.10.zip)
+
 ## v1.1-beta.9 (build 10) — 2026-07-23
 
 ### Highlights

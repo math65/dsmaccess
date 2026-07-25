@@ -1,3 +1,60 @@
+## v1.1-beta.10 (build 11) — 25 juillet 2026
+
+### En bref
+
+- Fichiers : copiez des fichiers dans le Finder, puis collez-les dans un
+  dossier du NAS avec Commande-V. Les dossiers entiers suivent, avec tout ce
+  qu'ils contiennent.
+- Fichiers : faites glisser un élément hors de la liste et déposez-le dans le
+  Finder pour l'y télécharger.
+- Copier-coller se comporte maintenant comme dans le Finder : Commande-C
+  copie, Commande-V colle une copie, Commande-Option-V déplace. La commande
+  Couper n'existe plus.
+
+### Nouveautés
+
+- Fichiers : Commande-V envoie ce que vous avez copié dans le Finder vers le
+  dossier où vous êtes. Les fichiers y sont déposés ; un dossier est recréé
+  sur le NAS avec toute son arborescence, sous-dossiers vides compris. Les
+  fichiers .DS_Store du Finder sont écartés, et si un élément de votre Mac ne
+  peut pas être lu, le transfert se déclare incomplet au lieu de laisser
+  croire que tout est passé.
+- Fichiers : un élément peut être glissé hors de la liste et déposé dans le
+  Finder. Rien n'est téléchargé avant le dépôt, et un dossier arrive sous
+  forme d'archive ZIP, exactement comme avec Télécharger. Télécharger reste
+  la voie clavier et ne change pas.
+- Fichiers : l'envoi vers le NAS accepte désormais les dossiers autant que
+  les fichiers, et les options affichées avant un transfert indiquent combien
+  de fichiers et combien de dossiers partent.
+
+### Modifications
+
+- Fichiers : Couper disparaît. Commande-C copie, Commande-V colle une copie et
+  Commande-Option-V déplace ce que vous avez copié — le choix se fait au
+  moment de coller, comme dans le Finder. Le menu Fichiers propose maintenant
+  Déplacer ici à côté de Coller, et la confirmation annonce ce qu'un
+  déplacement va faire. Déplacer des fichiers venus de votre Mac est refusé,
+  avec l'explication : cela supprimerait vos originaux.
+- Mises à jour : l'app cherche une nouvelle version à chaque lancement. La
+  planification de Sparkle ne vérifie au mieux qu'une fois par jour, ce qui
+  laissait un testeur une version en retard dès que deux builds sortaient le
+  même jour. Rien ne s'affiche s'il n'y a pas de mise à jour, et le réglage du
+  panneau des mises à jour décide toujours si la vérification a lieu.
+- Mises à jour : la vérification automatique est maintenant le réglage par
+  défaut déclaré par l'app, au lieu d'une préférence écrite à votre place au
+  premier lancement — une préférence que vous n'avez jamais choisie, et qui
+  faisait taire la question que Sparkle pose lui-même. Le panneau des mises à
+  jour reste le seul endroit où changer cela.
+
+### Configuration requise
+
+- macOS 14 (Sonoma) ou version ultérieure.
+- Un NAS Synology sous DSM 7 sur votre réseau local.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.10.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.10/dsmaccess-1.1-beta.10.zip)
+
 ## v1.1-beta.9 (build 10) — 23 juillet 2026
 
 ### En bref
