@@ -15,6 +15,9 @@ final class UsersGroupsViewModel {
     private(set) var groups: [DSMGroup] = []
     private(set) var isLoading = false
     private(set) var busyItems: Set<String> = []
+    /// Règles de mot de passe du NAS, énoncées dans le formulaire de création. Nil tant
+    /// qu'elles n'ont pas été lues, ou si ce NAS ne les expose pas.
+    private(set) var passwordPolicy: DSMPasswordPolicy?
     var errorMessage: String?
 
     private let session: SessionStore
@@ -44,6 +47,9 @@ final class UsersGroupsViewModel {
             guard generation == loadGeneration else { return }
             users = result.0
             groups = result.1
+            // Aide à la saisie : un NAS qui n'expose pas ses règles ne doit pas empêcher
+            // d'administrer les comptes, le formulaire s'affichera simplement sans elles.
+            passwordPolicy = try? await session.withClient { try await $0.passwordPolicy() }
         } catch {
             guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = reason(for: error)
@@ -110,11 +116,17 @@ final class UsersGroupsViewModel {
     }
 
     private func reason(for error: Error) -> String {
+        // Les messages sont des fragments : ils complètent « Échec de l'opération : ».
+        if case DSMError.weakPassword = error {
+            return String(localized: "le mot de passe ne respecte pas les règles du NAS")
+        }
         if case let DSMError.apiError(code) = error {
             switch code {
             case 400: return String(localized: "le nom est invalide ou existe déjà")
             case 402: return String(localized: "permission refusée")
-            case 407: return String(localized: "le mot de passe ne respecte pas la stratégie du NAS")
+            // DSM 7.4 signale un mot de passe trop faible par 3121, traduit en amont ;
+            // 407 reste pour les versions qui utilisent ce code.
+            case 407: return String(localized: "le mot de passe ne respecte pas les règles du NAS")
             default: break
             }
         }

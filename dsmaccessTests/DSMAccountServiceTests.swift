@@ -77,6 +77,65 @@ struct DSMAccountServiceTests {
         #expect(parameters["_sid"] == "session-id")
     }
 
+    @Test func reportsAPasswordRefusedByTheNASPolicy() async throws {
+        // 3121 : le mot de passe ne satisfait pas les règles de force du NAS. Sans ce
+        // mapping, l'app n'affiche qu'un code brut et la création paraît cassée.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":false,"error":{"code":3121}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        await #expect(throws: DSMError.weakPassword) {
+            try await service.createUser(
+                DSMUserDraft(
+                    name: "martine",
+                    password: "abc",
+                    description: "",
+                    email: "",
+                    groups: []
+                )
+            )
+        }
+    }
+
+    @Test func readsTheActivePasswordRules() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"password_must_change":true,"strong_password":{"exclude_common_password":false,"exclude_username":true,"included_numeric_char":true,"included_special_char":false,"min_length":8,"min_length_enable":true,"mixed_case":true}}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let policy = try await service.passwordPolicy()
+
+        #expect(policy.minimumLength == 8)
+        #expect(policy.requiresMixedCase)
+        #expect(policy.requiresDigit)
+        #expect(!policy.requiresSpecialCharacter)
+        #expect(policy.excludesUserName)
+        #expect(policy.requirements.count == 4)
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["api"] == "SYNO.Core.User.PasswordPolicy")
+        #expect(parameters["method"] == "get")
+    }
+
+    @Test func ignoresTheMinimumLengthWhenTheRuleIsOff() async throws {
+        // DSM conserve « min_length » même désactivé : ne pas annoncer une règle inactive.
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"strong_password":{"min_length":8,"min_length_enable":false,"mixed_case":false,"included_numeric_char":false}}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let policy = try await service.passwordPolicy()
+
+        #expect(policy.minimumLength == nil)
+        #expect(!policy.hasRequirements)
+    }
+
     private func makeService(stub: DSMRequestStub) -> DSMAccountService {
         var capabilities = DSMCapabilities()
         capabilities.merge([
@@ -93,6 +152,12 @@ struct DSMAccountServiceTests {
                 requestFormat: "JSON"
             ),
             "SYNO.Core.Group.Member": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.Core.User.PasswordPolicy": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1,

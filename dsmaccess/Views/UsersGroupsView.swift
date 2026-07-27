@@ -35,8 +35,15 @@ struct UsersGroupsView: View {
             .toolbar { toolbar }
             .task { await load(restoresInitialFocus: true) }
             .sheet(isPresented: $showCreateUser) {
-                CreateUserSheet(groups: viewModel.groups) { draft in
-                    Task { await announce(viewModel.createUser(draft)) }
+                CreateUserSheet(
+                    groups: viewModel.groups,
+                    passwordPolicy: viewModel.passwordPolicy
+                ) { draft in
+                    let outcome = await viewModel.createUser(draft)
+                    // Un échec reste dans la feuille, qui conserve la saisie ; seule la
+                    // réussite est annoncée ici, une fois la feuille refermée.
+                    if case .success = outcome { await announce(outcome) }
+                    return outcome
                 }
             }
             .sheet(isPresented: $showCreateGroup) {
@@ -328,7 +335,8 @@ struct UsersGroupsView: View {
 
 private struct CreateUserSheet: View {
     let groups: [DSMGroup]
-    let onCreate: (DSMUserDraft) -> Void
+    let passwordPolicy: DSMPasswordPolicy?
+    let onCreate: (DSMUserDraft) async -> DSMOperationOutcome
 
     @State private var name = ""
     @State private var password = ""
@@ -336,13 +344,17 @@ private struct CreateUserSheet: View {
     @State private var description = ""
     @State private var email = ""
     @State private var selectedGroups: Set<String> = ["users"]
+    @State private var revealsPassword = false
+    @State private var isCreating = false
+    @State private var failureMessage: String?
     @FocusState private var nameFocused: Bool
     @AccessibilityFocusState private var accessibilityFocused: Bool
+    @AccessibilityFocusState private var failureFocused: Bool
     @Environment(\.dismiss) private var dismiss
 
     private var trimmedName: String { name.trimmingCharacters(in: .whitespacesAndNewlines) }
     private var passwordsMatch: Bool { !password.isEmpty && password == passwordConfirmation }
-    private var canCreate: Bool { !trimmedName.isEmpty && passwordsMatch }
+    private var canCreate: Bool { !trimmedName.isEmpty && passwordsMatch && !isCreating }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -352,14 +364,40 @@ private struct CreateUserSheet: View {
                         .focused($nameFocused)
                         .accessibilityFocused($accessibilityFocused)
                         .help("Nom du nouvel utilisateur")
-                    SecureField("Mot de passe", text: $password)
-                        .help("Mot de passe du nouvel utilisateur")
-                    SecureField("Confirmer le mot de passe", text: $passwordConfirmation)
-                        .help("Retaper le mot de passe du nouvel utilisateur")
+                    if revealsPassword {
+                        TextField("Mot de passe", text: $password)
+                            .help("Mot de passe du nouvel utilisateur")
+                        TextField("Confirmer le mot de passe", text: $passwordConfirmation)
+                            .help("Retaper le mot de passe du nouvel utilisateur")
+                    } else {
+                        SecureField("Mot de passe", text: $password)
+                            .help("Mot de passe du nouvel utilisateur")
+                        SecureField("Confirmer le mot de passe", text: $passwordConfirmation)
+                            .help("Retaper le mot de passe du nouvel utilisateur")
+                    }
+                    Toggle("Afficher le mot de passe", isOn: $revealsPassword)
+                        .help("Afficher le mot de passe en clair au lieu de le masquer")
+                    HStack {
+                        Button("Générer un mot de passe", action: generatePassword)
+                            .help("Créer un mot de passe aléatoire conforme aux règles du NAS")
+                        Button("Copier le mot de passe", action: copyPassword)
+                            .disabled(password.isEmpty)
+                            .help("Copier le mot de passe dans le presse-papiers")
+                    }
                     if !passwordConfirmation.isEmpty && !passwordsMatch {
                         Text("Les mots de passe ne correspondent pas.")
                             .foregroundStyle(.readableRed)
                             .accessibilityLabel("Erreur : les mots de passe ne correspondent pas.")
+                    }
+                    if let passwordPolicy, passwordPolicy.hasRequirements {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Le NAS impose les règles suivantes :")
+                            ForEach(passwordPolicy.requirements, id: \.self) { requirement in
+                                Text(requirement)
+                            }
+                        }
+                        .foregroundStyle(.readableSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
                     }
                     TextField("Adresse e-mail (facultative)", text: $email)
                         .help("Adresse e-mail facultative du nouvel utilisateur")
@@ -379,7 +417,21 @@ private struct CreateUserSheet: View {
             .formStyle(.grouped)
 
             Divider()
+            if let failureMessage {
+                Text(failureMessage)
+                    .foregroundStyle(.readableRed)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityFocused($failureFocused)
+                    .padding(.horizontal)
+                    .padding(.top, 8)
+            }
             HStack {
+                if isCreating {
+                    ProgressView()
+                        .controlSize(.small)
+                        .accessibilityLabel("Création en cours")
+                }
                 Spacer()
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
@@ -391,7 +443,7 @@ private struct CreateUserSheet: View {
             }
             .padding()
         }
-        .frame(width: 460, height: 520)
+        .frame(width: 460, height: 580)
         .onAppear {
             nameFocused = true
             accessibilityFocused = true
@@ -410,18 +462,52 @@ private struct CreateUserSheet: View {
         }
     }
 
+    private func generatePassword() {
+        let generated = DSMPasswordPolicy.generatedPassword(for: passwordPolicy)
+        password = generated
+        passwordConfirmation = generated
+        // Sans affichage en clair, un mot de passe qu'on n'a pas choisi est illisible :
+        // il faut pouvoir le relire avant de le transmettre.
+        revealsPassword = true
+        failureMessage = nil
+        VoiceOver.announce(
+            String(localized: "Mot de passe généré et affiché en clair."),
+            category: .result
+        )
+    }
+
+    private func copyPassword() {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(password, forType: .string)
+        VoiceOver.announce(String(localized: "Mot de passe copié."), category: .result)
+    }
+
     private func create() {
         guard canCreate else { return }
-        onCreate(
-            DSMUserDraft(
-                name: trimmedName,
-                password: password,
-                description: description.trimmingCharacters(in: .whitespacesAndNewlines),
-                email: email.trimmingCharacters(in: .whitespacesAndNewlines),
-                groups: selectedGroups.sorted()
-            )
+        let draft = DSMUserDraft(
+            name: trimmedName,
+            password: password,
+            description: description.trimmingCharacters(in: .whitespacesAndNewlines),
+            email: email.trimmingCharacters(in: .whitespacesAndNewlines),
+            groups: selectedGroups.sorted()
         )
-        dismiss()
+        isCreating = true
+        failureMessage = nil
+        Task {
+            let outcome = await onCreate(draft)
+            isCreating = false
+            switch outcome {
+            case .success:
+                dismiss()
+            case .failure(let message):
+                // La feuille reste ouverte : la saisie est conservée et corrigeable.
+                failureMessage = message
+                failureFocused = true
+                VoiceOver.announce(message, category: .error, priority: .high)
+            case .cancelled:
+                break
+            }
+        }
     }
 }
 

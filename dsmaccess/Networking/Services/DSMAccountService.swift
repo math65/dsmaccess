@@ -12,6 +12,9 @@ final class DSMAccountService {
     private static let userAPI = DSMAPI("SYNO.Core.User")
     private static let groupAPI = DSMAPI("SYNO.Core.Group")
     private static let groupMemberAPI = DSMAPI("SYNO.Core.Group.Member")
+    private static let passwordPolicyAPI = DSMAPI("SYNO.Core.User.PasswordPolicy")
+    /// Réponse de DSM quand le mot de passe ne satisfait pas les règles de force du NAS.
+    private static let weakPasswordCode = 3121
 
     private let transport: DSMTransport
 
@@ -72,7 +75,19 @@ final class DSMAccountService {
         if !draft.groups.isEmpty {
             parameters["group"] = try DSMParameter.json(draft.groups)
         }
-        try await transport.perform(api: Self.userAPI, method: "create", parameters: parameters)
+        do {
+            try await transport.perform(api: Self.userAPI, method: "create", parameters: parameters)
+        } catch DSMError.apiError(Self.weakPasswordCode) {
+            throw DSMError.weakPassword
+        }
+    }
+
+    func passwordPolicy() async throws -> DSMPasswordPolicy {
+        try await transport.read(
+            api: Self.passwordPolicyAPI,
+            method: "get",
+            as: DSMPasswordPolicy.self
+        )
     }
 
     func setUser(_ name: String, disabled: Bool) async throws {
