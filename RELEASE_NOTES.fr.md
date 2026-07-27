@@ -1,3 +1,39 @@
+## v1.1-beta.11 (build 12) — 27 juillet 2026
+
+### En bref
+
+- Connexion : les comptes sans droits d'administration peuvent à nouveau se
+  connecter. Toute personne à qui vous avez créé un compte sur votre NAS peut
+  utiliser DSM Access, et pas seulement vous.
+
+### Corrections
+
+- Connexion : un compte qui n'est pas administrateur était refusé avec
+  « Permission refusée pour ce compte », alors que ce même compte entrait sans
+  difficulté dans DSM depuis un navigateur.
+- Utilisateurs et groupes : la création d'un utilisateur échouait sur un simple
+  code d'erreur lorsque le mot de passe ne respectait pas les règles imposées
+  par votre NAS. Le message dit maintenant ce qui s'est passé, et le formulaire
+  énonce ces règles avant même que vous ne saisissiez quoi que ce soit.
+- Utilisateurs et groupes : une création qui échoue ne referme plus la fenêtre
+  en effaçant tout ce que vous aviez saisi. Le message s'affiche sur place et
+  vous corrigez le mot de passe sans tout recommencer.
+
+### Nouveautés
+
+- Connexion : lorsque votre NAS exige un nouveau mot de passe avant d'autoriser
+  un compte, DSM Access vous le demande et vous connecte dans la foulée, au
+  lieu de s'arrêter sur une erreur contre laquelle vous ne pouviez rien.
+- Utilisateurs et groupes : un bouton génère un mot de passe conforme aux
+  règles de votre NAS. Il s'affiche en clair pour que vous puissiez le relire,
+  et un second bouton le copie, afin de le transmettre à la personne concernée.
+  Les caractères qui se ressemblent à l'oreille et à la lecture en sont
+  écartés : il supporte d'être dicté ou recopié.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.11.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.11/dsmaccess-1.1-beta.11.zip)
+
 ## v1.1-beta.10 (build 11) — 25 juillet 2026
 
 ### En bref

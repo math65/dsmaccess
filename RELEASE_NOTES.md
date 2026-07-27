@@ -1,3 +1,37 @@
+## v1.1-beta.11 (build 12) — 2026-07-27
+
+### Highlights
+
+- Sign-in: accounts without administrator rights can sign in again. Anyone you
+  created an account for on your NAS can use DSM Access, not just you.
+
+### Fixes
+
+- Sign-in: an account that is not an administrator was turned away with
+  "Permission denied for this account", even though that same account signed
+  in to DSM in a browser without any trouble.
+- Users and groups: creating a user failed with nothing but an error code when
+  the password did not satisfy the rules your NAS enforces. The message now
+  says what happened, and the form lists those rules before you type anything.
+- Users and groups: a failed creation no longer closes the panel and discards
+  everything you filled in. The message appears in place, and you can correct
+  the password without starting over.
+
+### New
+
+- Sign-in: when your NAS requires a new password before letting an account in,
+  DSM Access asks for it and signs you in, instead of stopping on an error you
+  could do nothing about.
+- Users and groups: a button generates a password that satisfies your NAS
+  rules. It is shown in plain text so you can read it back, and a second
+  button copies it, so you can pass it on to the person it is meant for. The
+  characters that sound and look alike are left out, so it survives being read
+  aloud or written down.
+
+### Download
+
+[dsmaccess-1.1-beta.11.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.11/dsmaccess-1.1-beta.11.zip)
+
 ## v1.1-beta.10 (build 11) — 2026-07-25
 
 ### Highlights
