@@ -306,4 +306,34 @@ struct AdministrationModelsTests {
         )
         #expect(volume.inodePercent == nil)
     }
+
+    @Test func generatesPasswordsThatSatisfyTheNASRules() throws {
+        let policy = try JSONDecoder().decode(
+            DSMPasswordPolicy.self,
+            from: Data(
+                #"{"strong_password":{"min_length":20,"min_length_enable":true,"mixed_case":true,"included_numeric_char":true,"included_special_char":true}}"#.utf8
+            )
+        )
+        // Le tirage est aléatoire : ce sont les invariants qui sont vérifiés, sur assez
+        // d'échantillons pour qu'une classe manquante ressorte.
+        for _ in 0..<50 {
+            let password = DSMPasswordPolicy.generatedPassword(for: policy)
+            #expect(password.count == 20)
+            #expect(password.contains { $0.isLowercase })
+            #expect(password.contains { $0.isUppercase })
+            #expect(password.contains { $0.isNumber })
+            #expect(password.contains { !$0.isLetter && !$0.isNumber })
+            // Caractères écartés parce qu'ils se confondent à la lecture et à la dictée.
+            #expect(!password.contains { "l1IO0".contains($0) })
+        }
+    }
+
+    @Test func generatesASolidPasswordWithoutAnyKnownPolicy() {
+        let password = DSMPasswordPolicy.generatedPassword(for: nil)
+
+        #expect(password.count == 16)
+        #expect(password.contains { $0.isLowercase })
+        #expect(password.contains { $0.isUppercase })
+        #expect(password.contains { $0.isNumber })
+    }
 }

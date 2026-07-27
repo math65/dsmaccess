@@ -13,7 +13,8 @@ final class DSMAuthenticationService {
     // SYNO.Core.User/Group échouent en 402 même pour un administrateur. Le login v7 obtient
     // une session complète ; les NAS plus anciens retombent sur leur version maximale.
     private static let api = DSMAPI("SYNO.API.Auth", preferredVersion: 7, minimumVersion: 3)
-    private static let sessionName = "DSMAccess"
+    // « reset » n'existe pas avant la v6 de SYNO.API.Auth : contrat relevé sur DSM 7.4.
+    private static let resetAPI = DSMAPI("SYNO.API.Auth", preferredVersion: 6, minimumVersion: 6)
 
     private let transport: DSMTransport
 
@@ -28,10 +29,12 @@ final class DSMAuthenticationService {
         deviceID: String?,
         rememberDevice: Bool
     ) async throws -> LoginResult {
+        // Pas de paramètre « session » : DSM le traite comme une application soumise au
+        // contrôle de privilèges. Un nom qui ne correspond à aucune application installée
+        // passe pour un administrateur mais fait échouer tout compte standard en 402.
         var parameters: [String: DSMParameter] = [
             "account": .string(account),
             "passwd": .string(password),
-            "session": .string(Self.sessionName),
             "format": .string("sid"),
             "enable_syno_token": .string("yes"),
         ]
@@ -61,13 +64,24 @@ final class DSMAuthenticationService {
         return result
     }
 
+    /// Nouveau mot de passe exigé par DSM avant l'ouverture de session (login en 410).
+    /// L'appel se fait hors session, avec l'ancien mot de passe comme preuve d'identité.
+    func resetPassword(account: String, currentPassword: String, newPassword: String) async throws {
+        try await transport.perform(
+            api: Self.resetAPI,
+            method: "reset",
+            parameters: [
+                "account": .string(account),
+                "passwd": .string(currentPassword),
+                "new_passwd": .string(newPassword),
+            ],
+            authenticated: false
+        )
+    }
+
     func logout() async {
         defer { transport.clearSession() }
-        try? await transport.perform(
-            api: Self.api,
-            method: "logout",
-            parameters: ["session": .string(Self.sessionName)]
-        )
+        try? await transport.perform(api: Self.api, method: "logout")
     }
 
     private func loginError(code: Int?) -> DSMError {
@@ -78,6 +92,7 @@ final class DSMAuthenticationService {
         case 403: .needsOTP
         case 404: .badOTP
         case 406: .otpEnforced
+        case 410: .passwordMustChange
         case let code?: .apiError(code: code)
         case nil: .invalidResponse
         }

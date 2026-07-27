@@ -21,6 +21,8 @@ protocol DSMClientProtocol: AnyObject {
         deviceID: String?,
         rememberDevice: Bool
     ) async throws -> LoginResult
+    func resetPassword(account: String, currentPassword: String, newPassword: String) async throws
+    func passwordPolicy() async throws -> DSMPasswordPolicy
     func systemInfo() async throws -> SystemInfo
     func fileStationCapabilities() async throws -> FileStationCapabilities
     func listShares() async throws -> [FileStationItem]
@@ -329,6 +331,14 @@ final class DSMClient: DSMClientProtocol {
             otpCode: otpCode,
             deviceID: deviceID,
             rememberDevice: rememberDevice
+        )
+    }
+
+    func resetPassword(account: String, currentPassword: String, newPassword: String) async throws {
+        try await authentication.resetPassword(
+            account: account,
+            currentPassword: currentPassword,
+            newPassword: newPassword
         )
     }
 
@@ -823,6 +833,10 @@ final class DSMClient: DSMClientProtocol {
 
     func createUser(_ draft: DSMUserDraft) async throws {
         try await accounts.createUser(draft)
+    }
+
+    func passwordPolicy() async throws -> DSMPasswordPolicy {
+        try await accounts.passwordPolicy()
     }
 
     func setUser(_ name: String, disabled: Bool) async throws {

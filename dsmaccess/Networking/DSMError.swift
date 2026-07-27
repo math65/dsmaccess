@@ -39,6 +39,11 @@ enum DSMError: Error, LocalizedError, Equatable {
     case badOTP
     /// Double authentification obligatoire à activer côté compte (code 406).
     case otpEnforced
+    /// DSM exige un nouveau mot de passe avant d'ouvrir la session (code 410) : arrive après
+    /// une réinitialisation par l'administrateur quand le NAS impose le changement.
+    case passwordMustChange
+    /// Le mot de passe ne satisfait pas les règles de force configurées sur le NAS.
+    case weakPassword
     /// Autre erreur API renvoyée par DSM.
     case apiError(code: Int)
     /// Le Centre de paquets exige une décision ou un assistant que l'app ne doit pas deviner.
@@ -78,6 +83,10 @@ enum DSMError: Error, LocalizedError, Equatable {
             return String(localized: "Code de vérification incorrect. Réessayez.")
         case .otpEnforced:
             return String(localized: "La double authentification est obligatoire pour ce compte. Activez-la dans DSM.")
+        case .passwordMustChange:
+            return String(localized: "Ce compte doit changer son mot de passe avant de se connecter.")
+        case .weakPassword:
+            return String(localized: "Le mot de passe ne respecte pas les règles de sécurité du NAS.")
         case .apiError(let code):
             return String(localized: "Erreur du NAS (code \(code)).")
         case .packageCenter(let message):

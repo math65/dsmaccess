@@ -112,6 +112,97 @@ struct DSMGroupList: nonisolated Decodable, Sendable {
     }
 }
 
+/// Règles de mot de passe imposées par le NAS (`SYNO.Core.User.PasswordPolicy`).
+/// DSM refuse une création ou un changement non conforme sans dire laquelle est en cause :
+/// l'app les énonce donc avant la saisie.
+struct DSMPasswordPolicy: nonisolated Decodable, Equatable, Sendable {
+    let minimumLength: Int?
+    let requiresMixedCase: Bool
+    let requiresDigit: Bool
+    let requiresSpecialCharacter: Bool
+    let excludesUserName: Bool
+    let excludesCommonPasswords: Bool
+
+    var hasRequirements: Bool { !requirements.isEmpty }
+
+    /// Une phrase complète par règle active, dans l'ordre où DSM les présente.
+    var requirements: [String] {
+        var rules: [String] = []
+        if let minimumLength {
+            rules.append(String(localized: "Au moins \(minimumLength) caractères."))
+        }
+        if requiresMixedCase {
+            rules.append(String(localized: "Des majuscules et des minuscules."))
+        }
+        if requiresDigit {
+            rules.append(String(localized: "Au moins un chiffre."))
+        }
+        if requiresSpecialCharacter {
+            rules.append(String(localized: "Au moins un caractère spécial."))
+        }
+        if excludesUserName {
+            rules.append(String(localized: "Ni le nom ni la description du compte."))
+        }
+        if excludesCommonPasswords {
+            rules.append(String(localized: "Pas un mot de passe courant."))
+        }
+        return rules
+    }
+
+    /// Mot de passe aléatoire respectant les règles connues du NAS, ou des règles saines
+    /// quand il ne les expose pas. Les caractères qui se confondent à la lecture et à
+    /// l'écoute (l, 1, I, O, 0) sont exclus : ce mot de passe est fait pour être relu,
+    /// dicté ou recopié.
+    static func generatedPassword(for policy: DSMPasswordPolicy?) -> String {
+        let lowercase = Array("abcdefghijkmnpqrstuvwxyz")
+        let uppercase = Array("ABCDEFGHJKLMNPQRSTUVWXYZ")
+        let digits = Array("23456789")
+        let specials = Array("!@#$%*-_=+")
+
+        var required: [[Character]] = [lowercase, uppercase, digits]
+        if policy?.requiresSpecialCharacter == true {
+            required.append(specials)
+        }
+        let alphabet = required.flatMap { $0 }
+        let length = max(16, policy?.minimumLength ?? 0)
+
+        // Une occurrence garantie par classe exigée, le reste tiré dans l'alphabet complet.
+        var characters = required.map { $0.randomElement()! }
+        while characters.count < length {
+            characters.append(alphabet.randomElement()!)
+        }
+        return String(characters.shuffled())
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case strongPassword = "strong_password"
+    }
+
+    enum RuleKeys: String, CodingKey {
+        case minLength = "min_length"
+        case minLengthEnable = "min_length_enable"
+        case mixedCase = "mixed_case"
+        case includedNumericChar = "included_numeric_char"
+        case includedSpecialChar = "included_special_char"
+        case excludeUsername = "exclude_username"
+        case excludeCommonPassword = "exclude_common_password"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let rules = try values.nestedContainer(keyedBy: RuleKeys.self, forKey: .strongPassword)
+        // DSM conserve « min_length » même quand la règle est désactivée : c'est le drapeau
+        // qui décide, pas la valeur.
+        let lengthEnabled = rules.flexBool(.minLengthEnable) ?? false
+        minimumLength = lengthEnabled ? rules.flexInt(.minLength) : nil
+        requiresMixedCase = rules.flexBool(.mixedCase) ?? false
+        requiresDigit = rules.flexBool(.includedNumericChar) ?? false
+        requiresSpecialCharacter = rules.flexBool(.includedSpecialChar) ?? false
+        excludesUserName = rules.flexBool(.excludeUsername) ?? false
+        excludesCommonPasswords = rules.flexBool(.excludeCommonPassword) ?? false
+    }
+}
+
 struct DSMUserDraft: Sendable {
     let name: String
     let password: String
