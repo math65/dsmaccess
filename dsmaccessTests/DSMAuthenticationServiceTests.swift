@@ -28,7 +28,67 @@ struct DSMAuthenticationServiceTests {
         #expect(parameters["api"] == "SYNO.API.Auth")
         #expect(parameters["version"] == "7")
         #expect(parameters["method"] == "login")
-        #expect(parameters["session"] == "DSMAccess")
+    }
+
+    @Test func omitsTheSessionNameSoStandardAccountsCanLogIn() async throws {
+        // DSM soumet « session » au contrôle de privilèges d'application : un nom qui ne
+        // correspond à aucune application installée passe pour un administrateur mais
+        // refuse tout compte standard en 402.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"sid":"session-id"}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, maxVersion: 7)
+
+        _ = try await service.login(
+            account: "martine",
+            password: "secret",
+            otpCode: nil,
+            deviceID: nil,
+            rememberDevice: false
+        )
+
+        let request = try #require(await stub.requests.first)
+        #expect(try query(from: request)["session"] == nil)
+    }
+
+    @Test func omitsTheSessionNameOnLogout() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"sid":"session-id"}}"#.utf8)),
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, maxVersion: 7)
+        _ = try await service.login(
+            account: "martine",
+            password: "secret",
+            otpCode: nil,
+            deviceID: nil,
+            rememberDevice: false
+        )
+
+        await service.logout()
+
+        let request = try #require(await stub.requests.last)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "logout")
+        #expect(parameters["session"] == nil)
+    }
+
+    @Test func reportsThatThePasswordMustBeChanged() async throws {
+        // 410 : DSM impose un nouveau mot de passe après réinitialisation par l'administrateur.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":false,"error":{"code":410}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, maxVersion: 7)
+
+        await #expect(throws: DSMError.passwordMustChange) {
+            try await service.login(
+                account: "martine",
+                password: "secret",
+                otpCode: nil,
+                deviceID: nil,
+                rememberDevice: false
+            )
+        }
     }
 
     @Test func fallsBackToTheHighestVersionOfOlderNAS() async throws {

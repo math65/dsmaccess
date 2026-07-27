@@ -13776,6 +13776,246 @@
         }
       }
     },
+    "Changement du mot de passe en cours" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changing password"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changement du mot de passe en cours"
+          }
+        }
+      }
+    },
+    "Changement du mot de passe en cours…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changing password…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changement du mot de passe en cours…"
+          }
+        }
+      }
+    },
+    "Changer le mot de passe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change password"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Changer le mot de passe"
+          }
+        }
+      }
+    },
+    "Choisissez un mot de passe différent de l'actuel." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a password different from the current one."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez un mot de passe différent de l'actuel."
+          }
+        }
+      }
+    },
+    "Confirmer le nouveau mot de passe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirm new password"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmer le nouveau mot de passe"
+          }
+        }
+      }
+    },
+    "DSM demande de changer le mot de passe de ce compte avant de se connecter." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM requires this account's password to be changed before signing in."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM demande de changer le mot de passe de ce compte avant de se connecter."
+          }
+        }
+      }
+    },
+    "Enregistrer le nouveau mot de passe puis se connecter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the new password and sign in"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer le nouveau mot de passe puis se connecter"
+          }
+        }
+      }
+    },
+    "Les deux mots de passe ne correspondent pas." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The two passwords do not match."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les deux mots de passe ne correspondent pas."
+          }
+        }
+      }
+    },
+    "Mot de passe changé." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Password changed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mot de passe changé."
+          }
+        }
+      }
+    },
+    "Nouveau mot de passe requis" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New password required"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nouveau mot de passe requis"
+          }
+        }
+      }
+    },
+    "Renoncer au changement et revenir à la connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel the change and return to sign-in"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renoncer au changement et revenir à la connexion"
+          }
+        }
+      }
+    },
+    "Saisir à nouveau le mot de passe pour confirmation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the password again to confirm"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisir à nouveau le mot de passe pour confirmation"
+          }
+        }
+      }
+    },
+    "Saisir le nouveau mot de passe du compte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the account's new password"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisir le nouveau mot de passe du compte"
+          }
+        }
+      }
+    },
+    "Saisissez le nouveau mot de passe." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enter the new password."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saisissez le nouveau mot de passe."
+          }
+        }
+      }
+    },
+    "Ce compte doit changer son mot de passe avant de se connecter." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This account must change its password before signing in."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce compte doit changer son mot de passe avant de se connecter."
+          }
+        }
+      }
+    },
     "Ce compte est désactivé." : {
       "localizations" : {
         "en" : {

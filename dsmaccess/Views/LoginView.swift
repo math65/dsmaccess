@@ -26,6 +26,8 @@ struct LoginView: View {
                 restoringView
             } else if vm.state == .needsOTP {
                 OTPView(vm: vm)
+            } else if vm.state == .needsPasswordChange {
+                PasswordChangeView(vm: vm)
             } else {
                 credentialsForm(vm: vm)
             }

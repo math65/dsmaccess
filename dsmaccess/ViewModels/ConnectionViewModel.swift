@@ -22,6 +22,7 @@ final class ConnectionViewModel {
         case resolvingQuickConnect
         case connecting   // tentative en cours
         case needsOTP     // DSM réclame un code de vérification
+        case needsPasswordChange // DSM exige un nouveau mot de passe avant d'ouvrir la session
     }
 
     // Champs du formulaire (pré-remplis depuis les préférences si disponibles).
@@ -33,6 +34,8 @@ final class ConnectionViewModel {
     var account: String
     var password: String = ""
     var otpCode: String = ""
+    var newPassword: String = ""
+    var newPasswordConfirmation: String = ""
     var rememberDevice: Bool = true
     /// « Rester connecté » : mémoriser le mot de passe pour la reconnexion automatique.
     var rememberPassword: Bool
@@ -152,7 +155,7 @@ final class ConnectionViewModel {
             String(localized: "Recherche du NAS avec QuickConnect…")
         case .connecting:
             String(localized: "Connexion en cours…")
-        case .editing, .needsOTP:
+        case .editing, .needsOTP, .needsPasswordChange:
             nil
         }
     }
@@ -223,6 +226,9 @@ final class ConnectionViewModel {
             )
         } catch DSMError.needsOTP {
             state = .needsOTP
+            errorMessage = nil
+        } catch DSMError.passwordMustChange {
+            state = .needsPasswordChange
             errorMessage = nil
         } catch DSMError.untrustedCertificate(let fingerprint) {
             state = .editing
@@ -325,6 +331,61 @@ final class ConnectionViewModel {
         }
     }
 
+    /// Changement du mot de passe imposé par DSM après un 410, puis connexion immédiate
+    /// avec le nouveau mot de passe.
+    func submitPasswordChange() async {
+        guard let client else { return }
+        let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !newPassword.isEmpty else {
+            errorMessage = String(localized: "Saisissez le nouveau mot de passe.")
+            return
+        }
+        guard newPassword == newPasswordConfirmation else {
+            errorMessage = String(localized: "Les deux mots de passe ne correspondent pas.")
+            return
+        }
+        guard newPassword != password else {
+            errorMessage = String(localized: "Choisissez un mot de passe différent de l'actuel.")
+            return
+        }
+
+        state = .connecting
+        errorMessage = nil
+
+        do {
+            try await client.resetPassword(
+                account: cleanedAccount,
+                currentPassword: password,
+                newPassword: newPassword
+            )
+        } catch DSMError.untrustedCertificate(let fingerprint) {
+            state = .needsPasswordChange
+            pendingCertificateFingerprint = fingerprint
+            errorMessage = nil
+            return
+        } catch {
+            state = .needsPasswordChange
+            errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return
+        }
+
+        VoiceOver.announce(String(localized: "Mot de passe changé."), category: .result)
+        // Le mot de passe accepté par DSM devient l'identifiant courant : la connexion
+        // reprend le chemin normal, qui sait déjà traiter le code 2FA et le certificat.
+        password = newPassword
+        newPassword = ""
+        newPasswordConfirmation = ""
+        await connect(reusingPendingClient: true)
+    }
+
+    /// Renonce au changement de mot de passe et revient au formulaire d'identifiants.
+    func cancelPasswordChange() {
+        state = .editing
+        newPassword = ""
+        newPasswordConfirmation = ""
+        errorMessage = nil
+    }
+
     /// Annule la saisie du code et revient au formulaire d'identifiants.
     func cancelOTP() {
         state = .editing
@@ -335,16 +396,19 @@ final class ConnectionViewModel {
     func approvePendingCertificate() async {
         guard let fingerprint = pendingCertificateFingerprint,
               let client else { return }
-        let shouldRetryOTP = state == .needsOTP
+        let interruptedStep = state
         guard client.approveServerCertificate(fingerprint: fingerprint) else {
             pendingCertificateFingerprint = nil
             errorMessage = String(localized: "Le certificat n'a pas pu être enregistré dans le trousseau.")
             return
         }
         pendingCertificateFingerprint = nil
-        if shouldRetryOTP {
+        switch interruptedStep {
+        case .needsOTP:
             await submitOTP()
-        } else {
+        case .needsPasswordChange:
+            await submitPasswordChange()
+        default:
             await connect(reusingPendingClient: true)
         }
     }
