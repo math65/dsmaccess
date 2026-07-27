@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dsmaccess-1.1-beta.11.fr</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #6e6e73;
+  --code-bg: #f5f5f7;
+  --link: #0066cc;
+  --link-hover: #0040a0;
+  --rule: #e5e5ea;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #ececec;
+    --muted: #a0a0a0;
+    --code-bg: #2d2d2d;
+    --link: #4eaaff;
+    --link-hover: #82c4ff;
+    --rule: #3a3a3a;
+  }
+}
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+  padding: 1rem 1.25rem 1.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.4em 0 0.5em;
+}
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.15rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 1.02rem; }
+h4 { font-size: 0.95rem; color: var(--muted); }
+p { margin: 0.6em 0; }
+ul, ol { padding-left: 1.4em; margin: 0.6em 0; }
+li { margin: 0.25em 0; }
+li > p { margin: 0.3em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover, a:focus { color: var(--link-hover); text-decoration: underline; }
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; border-radius: 0; }
+blockquote {
+  border-left: 3px solid var(--rule);
+  margin: 0.8em 0;
+  padding: 0.1em 0 0.1em 1em;
+  color: var(--muted);
+}
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<h2 id="v11-beta11-build-12--27-juillet-2026">v1.1-beta.11 (build 12) —
+27 juillet 2026</h2>
+<h3 id="en-bref">En bref</h3>
+<ul>
+<li>Connexion : les comptes sans droits d'administration peuvent à
+nouveau se connecter. Toute personne à qui vous avez créé un compte sur
+votre NAS peut utiliser DSM Access, et pas seulement vous.</li>
+</ul>
+<h3 id="corrections">Corrections</h3>
+<ul>
+<li>Connexion : un compte qui n'est pas administrateur était refusé avec
+« Permission refusée pour ce compte », alors que ce même compte entrait
+sans difficulté dans DSM depuis un navigateur.</li>
+<li>Utilisateurs et groupes : la création d'un utilisateur échouait sur
+un simple code d'erreur lorsque le mot de passe ne respectait pas les
+règles imposées par votre NAS. Le message dit maintenant ce qui s'est
+passé, et le formulaire énonce ces règles avant même que vous ne
+saisissiez quoi que ce soit.</li>
+<li>Utilisateurs et groupes : une création qui échoue ne referme plus la
+fenêtre en effaçant tout ce que vous aviez saisi. Le message s'affiche
+sur place et vous corrigez le mot de passe sans tout recommencer.</li>
+</ul>
+<h3 id="nouveautés">Nouveautés</h3>
+<ul>
+<li>Connexion : lorsque votre NAS exige un nouveau mot de passe avant
+d'autoriser un compte, DSM Access vous le demande et vous connecte dans
+la foulée, au lieu de s'arrêter sur une erreur contre laquelle vous ne
+pouviez rien.</li>
+<li>Utilisateurs et groupes : un bouton génère un mot de passe conforme
+aux règles de votre NAS. Il s'affiche en clair pour que vous puissiez le
+relire, et un second bouton le copie, afin de le transmettre à la
+personne concernée. Les caractères qui se ressemblent à l'oreille et à
+la lecture en sont écartés : il supporte d'être dicté ou recopié.</li>
+</ul>
+<h3 id="téléchargement">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.11/dsmaccess-1.1-beta.11.zip">dsmaccess-1.1-beta.11.zip</a></p>
+<h2 id="v11-beta10-build-11--25-juillet-2026">v1.1-beta.10 (build 11) —
+25 juillet 2026</h2>
+<h3 id="en-bref-1">En bref</h3>
+<ul>
+<li>Fichiers : copiez des fichiers dans le Finder, puis collez-les dans
+un dossier du NAS avec Commande-V. Les dossiers entiers suivent, avec
+tout ce qu'ils contiennent.</li>
+<li>Fichiers : faites glisser un élément hors de la liste et déposez-le
+dans le Finder pour l'y télécharger.</li>
+<li>Copier-coller se comporte maintenant comme dans le Finder :
+Commande-C copie, Commande-V colle une copie, Commande-Option-V déplace.
+La commande Couper n'existe plus.</li>
+</ul>
+<h3 id="nouveautés-1">Nouveautés</h3>
+<ul>
+<li>Fichiers : Commande-V envoie ce que vous avez copié dans le Finder
+vers le dossier où vous êtes. Les fichiers y sont déposés ; un dossier
+est recréé sur le NAS avec toute son arborescence, sous-dossiers vides
+compris. Les fichiers .DS_Store du Finder sont écartés, et si un élément
+de votre Mac ne peut pas être lu, le transfert se déclare incomplet au
+lieu de laisser croire que tout est passé.</li>
+<li>Fichiers : un élément peut être glissé hors de la liste et déposé
+dans le Finder. Rien n'est téléchargé avant le dépôt, et un dossier
+arrive sous forme d'archive ZIP, exactement comme avec Télécharger.
+Télécharger reste la voie clavier et ne change pas.</li>
+<li>Fichiers : l'envoi vers le NAS accepte désormais les dossiers autant
+que les fichiers, et les options affichées avant un transfert indiquent
+combien de fichiers et combien de dossiers partent.</li>
+</ul>
+<h3 id="modifications">Modifications</h3>
+<ul>
+<li>Fichiers : Couper disparaît. Commande-C copie, Commande-V colle une
+copie et Commande-Option-V déplace ce que vous avez copié — le choix se
+fait au moment de coller, comme dans le Finder. Le menu Fichiers propose
+maintenant Déplacer ici à côté de Coller, et la confirmation annonce ce
+qu'un déplacement va faire. Déplacer des fichiers venus de votre Mac est
+refusé, avec l'explication : cela supprimerait vos originaux.</li>
+<li>Mises à jour : l'app cherche une nouvelle version à chaque
+lancement. La planification de Sparkle ne vérifie au mieux qu'une fois
+par jour, ce qui laissait un testeur une version en retard dès que deux
+builds sortaient le même jour. Rien ne s'affiche s'il n'y a pas de mise
+à jour, et le réglage du panneau des mises à jour décide toujours si la
+vérification a lieu.</li>
+<li>Mises à jour : la vérification automatique est maintenant le réglage
+par défaut déclaré par l'app, au lieu d'une préférence écrite à votre
+place au premier lancement — une préférence que vous n'avez jamais
+choisie, et qui faisait taire la question que Sparkle pose lui-même. Le
+panneau des mises à jour reste le seul endroit où changer cela.</li>
+</ul>
+<h3 id="configuration-requise">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-1">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.10/dsmaccess-1.1-beta.10.zip">dsmaccess-1.1-beta.10.zip</a></p>
+<h2 id="v11-beta9-build-10--23-juillet-2026">v1.1-beta.9 (build 10) — 23
+juillet 2026</h2>
+<h3 id="en-bref-2">En bref</h3>
+<ul>
+<li>Nouveau module USB Copy : configurez et lancez vos copies USB
+entièrement depuis l'app — les sélecteurs de l'interface web de DSM sont
+inutilisables au lecteur d'écran, il fallait jusqu'ici une aide voyante.
+Une contribution d'Ashley Cox.</li>
+<li>Fichiers : l'envoi de fichiers vers le NAS fonctionne à nouveau. Une
+mise à jour de DSM avait discrètement cassé tous les envois.</li>
+<li>DSM Access a désormais sa propre icône, dessinée elle aussi par
+Ashley Cox.</li>
+</ul>
+<h3 id="nouveautés-2">Nouveautés</h3>
+<ul>
+<li>USB Copy : chaque tâche s'affiche avec son sens de copie, ses
+dossiers et son état ; créez des tâches d'import ou d'export avec de
+vrais sélecteurs de dossiers accessibles pour la source et la
+destination ; choisissez le mode de copie, la rotation des versions, les
+filtres de fichiers et la planification ; exécutez, annulez, activez,
+désactivez ou supprimez une tâche ; consultez le journal du paquet et
+réglez ses paramètres généraux. Les opérations risquées expliquent leur
+conséquence et demandent confirmation — une tâche miroir prévient
+qu'elle supprime à destination, et la suppression d'une tâche la nomme.
+Le module n'apparaît que si le paquet USB Copy est installé sur le
+NAS.</li>
+</ul>
+<h3 id="corrections-1">Corrections</h3>
+<ul>
+<li>Fichiers : l'envoi d'un fichier se soldait par une erreur depuis le
+passage du NAS à la dernière mise à jour de DSM 7.4, qui a changé la
+façon dont DSM attend les envois. L'app suit désormais la même
+convention que le File Station de DSM et les envois fonctionnent à
+nouveau — y compris le choix entre remplacer ou ignorer un fichier
+existant.</li>
+</ul>
+<h3 id="configuration-requise-1">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-2">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.9/dsmaccess-1.1-beta.9.zip">dsmaccess-1.1-beta.9.zip</a></p>
+<h2 id="v11-beta8-build-9--23-juillet-2026">v1.1-beta.8 (build 9) — 23
+juillet 2026</h2>
+<h3 id="en-bref-3">En bref</h3>
+<ul>
+<li>L'app s'affiche désormais en anglais quand la langue du Mac n'est ni
+le français ni l'anglais — sans rien configurer.</li>
+<li>Centre de paquets : le sélecteur entre paquets installés et
+catalogue officiel fait maintenant partie de l'écran lui-même, là où
+VoiceOver le trouve naturellement.</li>
+</ul>
+<h3 id="corrections-2">Corrections</h3>
+<ul>
+<li>Centre de paquets : le sélecteur Installés / Catalogue officiel se
+trouvait dans la barre d'outils de la fenêtre, une zone que VoiceOver
+traite à part sans jamais signaler qu'un choix s'y trouve. Le sélecteur
+est désormais en tête de l'écran, dans l'ordre de lecture, annoncé comme
+un vrai choix à deux options.</li>
+<li>Centre de paquets : avec un compte sans droits d'administration,
+l'onglet Catalogue affichait un message trompeur « Aucun paquet
+correspondant ». Il explique maintenant que DSM réserve le catalogue aux
+comptes administrateurs.</li>
+<li>Langue : sur un Mac réglé dans une langue que l'app ne propose pas
+(le hongrois, par exemple), l'app s'affichait en français. Elle
+s'affiche désormais en anglais, et le choix d'une langue pour l'app dans
+Réglages Système fonctionne comme prévu.</li>
+<li>VoiceOver : les listes principales se présentent désormais — «
+Fichiers et dossiers », « Dossiers partagés », « Utilisateurs », «
+Groupes », « Services de fichiers », « Paquets installés », « Pools,
+volumes et disques » — au lieu d'annoncer un tableau anonyme. Les lignes
+des Dossiers partagés annoncent aussi correctement leur nature.</li>
+<li>VoiceOver : le sélecteur du Centre de paquets n'annonce plus son nom
+deux fois.</li>
+<li>Lisibilité : les textes d'état et de détail dans toute l'app — état
+des paquets, versions, santé des disques, détails des journaux, résumés
+en bas d'écran — sont nettement plus foncés et respectent le contraste
+recommandé pour les petits textes, en mode clair comme en mode sombre.
+Un vrai plus en cas de basse vision.</li>
+</ul>
+<h3 id="configuration-requise-2">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-3">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.8/dsmaccess-1.1-beta.8.zip">dsmaccess-1.1-beta.8.zip</a></p>
+<h2 id="v11-beta7-build-8--22-juillet-2026">v1.1-beta.7 (build 8) — 22
+juillet 2026</h2>
+<h3 id="en-bref-4">En bref</h3>
+<ul>
+<li>L'installation d'un fichier de paquet (.spk) fonctionne désormais :
+elle échouait systématiquement avec une erreur du NAS (code 101).</li>
+<li>L'app vérifie elle-même les mises à jour au lancement, et un nouveau
+panneau de réglages permet de les installer automatiquement, sans
+dialogue.</li>
+</ul>
+<h3 id="nouveautés-3">Nouveautés</h3>
+<ul>
+<li>Réglages &gt; Mises à jour : la vérification au lancement est
+désormais active d'office (désactivable), et une option « Télécharger et
+installer automatiquement » installe la nouvelle version à la fermeture
+de l'app — plus besoin de répondre à un dialogue à chaque mise à jour.
+Le panneau affiche aussi la version installée et un bouton de
+vérification immédiate.</li>
+</ul>
+<h3 id="corrections-3">Corrections</h3>
+<ul>
+<li>Paquets : installer ou mettre à jour un paquet depuis un fichier
+.spk téléchargé par vos soins aboutit maintenant, au lieu d'échouer
+aussitôt avec une erreur du NAS (code 101). L'app dialogue désormais
+avec le Centre de paquets exactement comme DSM lui-même, vérifié sous
+DSM 7.4.</li>
+</ul>
+<h3 id="configuration-requise-3">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-4">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.7/dsmaccess-1.1-beta.7.zip">dsmaccess-1.1-beta.7.zip</a></p>
+<h2 id="v11-beta6-build-7--21-juillet-2026">v1.1-beta.6 (build 7) — 21
+juillet 2026</h2>
+<h3 id="en-bref-5">En bref</h3>
+<ul>
+<li>Connectez-vous avec QuickConnect : saisissez votre identifiant
+QuickConnect au lieu d'une adresse et d'un port, et l'app trouve
+elle-même le meilleur chemin vers votre NAS.</li>
+<li>Le Centre de paquets devient un module complet : parcourez le
+catalogue officiel Synology et installez, mettez à jour, réparez ou
+désinstallez vos paquets sans quitter l'app — et l'installation
+fonctionne désormais de façon fiable sous DSM 7.4.</li>
+<li>Fichiers gagne les fonctions qui manquaient encore : informations
+détaillées, recherche avancée, favoris, liens de partage, exploration
+d'archives et progression des transferts.</li>
+<li>La création d'utilisateurs fonctionne à nouveau sous DSM 7.4, et le
+nombre de membres des groupes est correct.</li>
+</ul>
+<h3 id="nouveautés-4">Nouveautés</h3>
+<ul>
+<li>Connexion par QuickConnect : choisissez « QuickConnect » sur l'écran
+de connexion, saisissez votre identifiant QuickConnect et votre compte
+DSM habituel. L'app privilégie une route directe et vérifiée vers votre
+NAS, et ne passe par le relais Synology qu'en dernier recours — toujours
+en HTTPS. À savoir : QuickConnect n'a pas d'interface publique
+officielle, Synology peut donc faire évoluer ce service sans
+préavis.</li>
+<li>Paquets : parcourez le catalogue officiel, installez un paquet en
+une action, ou installez un fichier de paquet (.spk) téléchargé par vos
+soins. Mises à jour, réparations et désinstallations se font depuis la
+même liste, avec une confirmation claire avant chaque opération.</li>
+<li>Paquets : gérez les sources de paquets et les réglages du Centre de
+paquets depuis l'app.</li>
+<li>Fichiers : consultez les informations complètes d'un fichier ou d'un
+dossier, cherchez selon des critères avancés (nom, type, taille, dates,
+propriétaire) et gérez vos favoris.</li>
+<li>Fichiers : créez et gérez des liens de partage, mot de passe et date
+d'expiration compris.</li>
+<li>Fichiers : explorez le contenu d'une archive et n'extrayez que ce
+dont vous avez besoin.</li>
+<li>Fichiers : les envois et téléchargements affichent leur progression,
+et les copies ou déplacements vous demandent votre avis avant d'écraser
+quoi que ce soit.</li>
+<li>Un formulaire de contact dans le menu Aide vous permet d'écrire au
+développeur directement depuis l'app ; des annonces ponctuelles peuvent
+s'afficher au lancement.</li>
+</ul>
+<h3 id="corrections-4">Corrections</h3>
+<ul>
+<li>Comptes : la création d'un utilisateur sous DSM 7.4 n'échoue plus
+avec une erreur de permission, le nombre de membres des groupes est
+exact, et en cas de problème l'app vous le dit clairement au lieu
+d'échouer en silence.</li>
+<li>Paquets : installer ou mettre à jour un paquet sous DSM 7.4 ne se
+solde plus par une erreur du NAS.</li>
+<li>VoiceOver : à l'ouverture de Fichiers, plus d'annonce « Dossier vide
+» pendant le chargement — vous entendez directement le vrai nombre
+d'éléments.</li>
+<li>VoiceOver : si votre session expire et que l'app se reconnecte
+automatiquement, un avis vous explique désormais que l'opération en
+cours a été interrompue, au lieu de vous ramener à la vue d'ensemble
+sans un mot.</li>
+</ul>
+<h3 id="remerciements">Remerciements</h3>
+<ul>
+<li>Merci à Ashley Cox pour le travail sur QuickConnect, File Station et
+le Centre de paquets, au cœur de cette version.</li>
+</ul>
+<h3 id="configuration-requise-4">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-5">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.6/dsmaccess-1.1-beta.6.zip">dsmaccess-1.1-beta.6.zip</a></p>
+<h2 id="v11-beta5-build-6--19-juillet-2026">v1.1-beta.5 (build 6) — 19
+juillet 2026</h2>
+<h3 id="en-bref-6">En bref</h3>
+<ul>
+<li>Corrige un problème de connexion apparu dans la beta.4 :
+l'approbation du certificat de votre NAS fonctionne à nouveau, au lieu
+de voir la demande de confiance revenir sans arrêt.</li>
+</ul>
+<h3 id="corrections-5">Corrections</h3>
+<ul>
+<li>Lorsque macOS ne reconnaît pas le certificat de votre NAS,
+l'approuver une fois vous connecte désormais du premier coup, et le
+choix est retenu pour ce serveur. Dans la beta.4, l'approbation n'était
+pas prise en compte : la demande de confiance revenait en boucle et vous
+restiez bloqué sur l'écran de connexion.</li>
+</ul>
+<h3 id="remerciements-1">Remerciements</h3>
+<ul>
+<li>Merci à Ashley Cox, qui a identifié et corrigé ce problème.</li>
+</ul>
+<h3 id="configuration-requise-5">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-6">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.5/dsmaccess-1.1-beta.5.zip">dsmaccess-1.1-beta.5.zip</a></p>
+</body>
+</html>
