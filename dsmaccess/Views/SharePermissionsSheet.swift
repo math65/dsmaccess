@@ -16,7 +16,7 @@ struct SharePermissionsSheet: View {
     private let onFinish: (DSMOperationOutcome) -> Void
 
     init(
-        holder: DSMShareHolder,
+        holder: DSMPermissionHolder,
         session: SessionStore,
         onFinish: @escaping (DSMOperationOutcome) -> Void
     ) {
@@ -31,13 +31,6 @@ struct SharePermissionsSheet: View {
                 .accessibilityAddTraits(.isHeader)
 
             content
-
-            if viewModel.holder.inheritsFromGroups {
-                Text("Entre le droit du compte et celui de ses groupes : un aucun accès l’emporte sur tout, sinon c’est le droit le plus large qui s’applique. Un compte en lecture/écriture dans un groupe en lecture seule peut donc écrire.")
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
 
             HStack {
                 if viewModel.isSaving {
@@ -68,7 +61,7 @@ struct SharePermissionsSheet: View {
             }
         }
         .padding(20)
-        .frame(width: 720, height: 520)
+        .frame(width: 760, height: 560)
         .task {
             await viewModel.load()
             contentFocused = true
@@ -109,6 +102,17 @@ struct SharePermissionsSheet: View {
             )
             .accessibilityFocused($contentFocused)
         } else {
+            TabView {
+                shareTab
+                    .tabItem { Text("Dossiers partagés") }
+                applicationTab
+                    .tabItem { Text("Applications") }
+            }
+        }
+    }
+
+    private var shareTab: some View {
+        VStack(alignment: .leading, spacing: 8) {
             SharePermissionTableView(
                 permissions: viewModel.permissions,
                 holder: viewModel.holder,
@@ -117,6 +121,43 @@ struct SharePermissionsSheet: View {
                 viewModel.setLevel(level, for: share)
             }
             .accessibilityFocused($contentFocused)
+
+            if viewModel.holder.inheritsFromGroups {
+                Text("Entre le droit du compte et celui de ses groupes : un aucun accès l’emporte sur tout, sinon c’est le droit le plus large qui s’applique. Un compte en lecture/écriture dans un groupe en lecture seule peut donc écrire.")
+                    .font(.caption)
+                    .foregroundStyle(.readableSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
+        .padding(12)
+    }
+
+    @ViewBuilder
+    private var applicationTab: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            if let applicationsUnavailable = viewModel.applicationsUnavailable {
+                ModuleErrorView(message: applicationsUnavailable) {
+                    Task { await viewModel.load() }
+                }
+            } else if viewModel.applications.isEmpty {
+                EmptyModuleView(
+                    title: "Aucune application",
+                    systemImage: "square.grid.2x2",
+                    description: "Ce NAS n’expose aucune application soumise à autorisation."
+                )
+            } else {
+                ApplicationPrivilegeTableView(
+                    privileges: viewModel.applications,
+                    isEnabled: !viewModel.isSaving
+                ) { application, decision in
+                    viewModel.setDecision(decision, for: application)
+                }
+                Text("Un refus l’emporte sur toute autorisation, y compris celle d’un groupe. Une application laissée sur « par défaut » suit le réglage du NAS.")
+                    .font(.caption)
+                    .foregroundStyle(.readableSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(12)
     }
 }

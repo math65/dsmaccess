@@ -11,7 +11,7 @@ import SwiftUI
 
 struct SharePermissionTableView: NSViewRepresentable {
     let permissions: [DSMSharePermission]
-    let holder: DSMShareHolder
+    let holder: DSMPermissionHolder
     let isEnabled: Bool
     let onChange: (DSMSharePermission, DSMSharePermissionLevel?) -> Void
 

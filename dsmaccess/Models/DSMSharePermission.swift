@@ -9,7 +9,7 @@ import Foundation
 
 /// Ce à quoi des droits sont accordés. DSM lit les deux cas par des méthodes distinctes mais
 /// les écrit par la même, en distinguant l'un de l'autre par `user_group_type`.
-enum DSMShareHolder: Sendable, Hashable, Identifiable {
+enum DSMPermissionHolder: Sendable, Hashable, Identifiable {
     case user(String)
     case group(String)
 
@@ -32,6 +32,14 @@ enum DSMShareHolder: Sendable, Hashable, Identifiable {
         switch self {
         case .user: return "list_by_user"
         case .group: return "list_by_group"
+        }
+    }
+
+    /// SYNO.Core.AppPriv nomme les mêmes entités autrement que SYNO.Core.Share.Permission.
+    var entityType: String {
+        switch self {
+        case .user: return "user"
+        case .group: return "group"
         }
     }
 

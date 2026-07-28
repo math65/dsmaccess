@@ -26856,6 +26856,22 @@
         }
       }
     },
+    "Application" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Application"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Application"
+          }
+        }
+      }
+    },
     "Aucun accès" : {
       "localizations" : {
         "en" : {
@@ -26888,6 +26904,22 @@
         }
       }
     },
+    "Aucune application" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No application"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune application"
+          }
+        }
+      }
+    },
     "Aucune modification à enregistrer." : {
       "localizations" : {
         "en" : {
@@ -26900,6 +26932,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune modification à enregistrer."
+          }
+        }
+      }
+    },
+    "Autorisations par application" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions per application"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autorisations par application"
+          }
+        }
+      }
+    },
+    "Autoriser" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Autoriser"
           }
         }
       }
@@ -26920,6 +26984,22 @@
         }
       }
     },
+    "Ce NAS n’expose aucune application soumise à autorisation." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This NAS exposes no application subject to permission."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce NAS n’expose aucune application soumise à autorisation."
+          }
+        }
+      }
+    },
     "Cet identifiant QuickConnect est introuvable." : {
       "localizations" : {
         "en" : {
@@ -26932,6 +27012,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cet identifiant QuickConnect est introuvable."
+          }
+        }
+      }
+    },
+    "Cette règle vise des adresses précises et se modifie dans DSM." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This rule targets specific addresses and is edited in DSM."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette règle vise des adresses précises et se modifie dans DSM."
           }
         }
       }
@@ -27336,6 +27432,22 @@
         }
       }
     },
+    "Par défaut" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Default"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Par défaut"
+          }
+        }
+      }
+    },
     "Permissions" : {
       "localizations" : {
         "en" : {
@@ -27380,6 +27492,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permissions du groupe %@"
+          }
+        }
+      }
+    },
+    "Permissions enregistrées : %lld applications modifiées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions saved: %lld applications changed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions enregistrées : %lld applications modifiées."
+          }
+        }
+      }
+    },
+    "Permissions enregistrées : %lld dossiers et %lld applications modifiés." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions saved: %lld shared folders and %lld applications changed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions enregistrées : %lld dossiers et %lld applications modifiés."
           }
         }
       }
@@ -27483,6 +27627,22 @@
         }
       }
     },
+    "Refuser" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deny"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refuser"
+          }
+        }
+      }
+    },
     "Un refus accordé à un groupe s’applique à tous ses membres et ne peut pas être levé compte par compte." : {
       "localizations" : {
         "en" : {
@@ -27495,6 +27655,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Un refus accordé à un groupe s’applique à tous ses membres et ne peut pas être levé compte par compte."
+          }
+        }
+      }
+    },
+    "Un refus l’emporte sur toute autorisation, y compris celle d’un groupe. Une application laissée sur « par défaut » suit le réglage du NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A denial wins over any permission, including one granted by a group. An application left on “default” follows the NAS setting."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un refus l’emporte sur toute autorisation, y compris celle d’un groupe. Une application laissée sur « par défaut » suit le réglage du NAS."
           }
         }
       }
@@ -27527,6 +27703,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Veuillez renseigner le nom d’utilisateur et le mot de passe."
+          }
+        }
+      }
+    },
+    "autorisée par défaut" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "allowed by default"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "autorisée par défaut"
+          }
+        }
+      }
+    },
+    "refusée par défaut" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "denied by default"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "refusée par défaut"
           }
         }
       }

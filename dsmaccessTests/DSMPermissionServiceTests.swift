@@ -126,10 +126,103 @@ struct DSMPermissionServiceTests {
         #expect(nothing.effective == .noAccess)
     }
 
+    @Test func mergesTheApplicationCatalogWithTheRulesOfTheHolder() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"applications":[{"app_id":"SYNO.Desktop","name":"DSM","grant_by_default":true},{"app_id":"SYNO.Finder.Application","name":"Universal Search","grant_by_default":false},{"app_id":"SYNO.FTP","name":"FTP","grant_by_default":true}]}}"#.utf8
+            )),
+            .response(Data(
+                #"{"success":true,"data":{"rules":[{"app_id":"SYNO.Desktop","allow_ip":[],"deny_ip":["0.0.0.0"],"entity_name":"martine","entity_type":"user"},{"app_id":"SYNO.FTP","allow_ip":["192.168.1.10"],"deny_ip":[],"entity_name":"martine","entity_type":"user"}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let privileges = try await service.applicationPrivileges(for: .user("martine"))
+
+        #expect(privileges.map(\.appID) == ["SYNO.Desktop", "SYNO.Finder.Application", "SYNO.FTP"])
+        #expect(privileges[0].decision == .deny)
+        // Sans règle, l'application relève du défaut : ce n'est pas un refus.
+        #expect(privileges[1].decision == nil)
+        #expect(!privileges[1].isGrantedByDefault)
+        // Une règle limitée à une adresse ne doit pas être réécrite en « toutes ».
+        #expect(privileges[2].decision == .allow)
+        #expect(privileges[2].restrictsAddresses)
+        #expect(!privileges[0].restrictsAddresses)
+
+        let requests = await stub.requests
+        #expect(requests.count == 2)
+        #expect(try query(from: requests[0])["api"] == "SYNO.Core.AppPriv.App")
+        let ruleQuery = try query(from: requests[1])
+        #expect(ruleQuery["api"] == "SYNO.Core.AppPriv.Rule")
+        #expect(ruleQuery["method"] == "get")
+        #expect(ruleQuery["entity_type"] == #""user""#)
+        #expect(ruleQuery["entity_name"] == #""martine""#)
+    }
+
+    @Test func deletesTheRuleWhenAnApplicationReturnsToItsDefault() async throws {
+        // DSM n'a pas de valeur « aucune règle » : seul le retrait de la règle rend le défaut.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.setApplicationPrivileges(
+            [
+                DSMApplicationPrivilege(
+                    appID: "SYNO.Desktop",
+                    name: "DSM",
+                    isGrantedByDefault: true,
+                    decision: nil,
+                    restrictsAddresses: false
+                ),
+                DSMApplicationPrivilege(
+                    appID: "SYNO.FTP",
+                    name: "FTP",
+                    isGrantedByDefault: true,
+                    decision: .deny,
+                    restrictsAddresses: false
+                ),
+            ],
+            for: .group("famille")
+        )
+
+        let requests = await stub.requests
+        #expect(requests.count == 2)
+        let removal = try query(from: requests[0])
+        #expect(removal["method"] == "delete")
+        let removed = try JSONSerialization.jsonObject(with: Data(try #require(removal["rules"]).utf8))
+        let removedEntries = try #require(removed as? [[String: Any]])
+        #expect(removedEntries.count == 1)
+        #expect(removedEntries[0]["app_id"] as? String == "SYNO.Desktop")
+        #expect(removedEntries[0]["entity_type"] as? String == "group")
+
+        let change = try query(from: requests[1])
+        #expect(change["method"] == "set")
+        let sent = try JSONSerialization.jsonObject(with: Data(try #require(change["rules"]).utf8))
+        let entries = try #require(sent as? [[String: Any]])
+        #expect(entries.count == 1)
+        #expect(entries[0]["app_id"] as? String == "SYNO.FTP")
+        #expect(entries[0]["deny_ip"] as? [String] == ["0.0.0.0"])
+        #expect(entries[0]["allow_ip"] as? [String] == [])
+    }
+
     private func makeService(stub: DSMRequestStub) -> DSMPermissionService {
         var capabilities = DSMCapabilities()
         capabilities.merge([
             "SYNO.Core.Share.Permission": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.Core.AppPriv.App": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 3,
+                requestFormat: "JSON"
+            ),
+            "SYNO.Core.AppPriv.Rule": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1,

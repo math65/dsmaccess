@@ -219,8 +219,13 @@ protocol DSMClientProtocol: AnyObject {
     func deleteUser(_ name: String) async throws
     func createGroup(_ draft: DSMGroupDraft) async throws
     func deleteGroup(_ name: String) async throws
-    func sharePermissions(for holder: DSMShareHolder) async throws -> [DSMSharePermission]
-    func setSharePermissions(_ permissions: [DSMSharePermission], for holder: DSMShareHolder) async throws
+    func sharePermissions(for holder: DSMPermissionHolder) async throws -> [DSMSharePermission]
+    func setSharePermissions(_ permissions: [DSMSharePermission], for holder: DSMPermissionHolder) async throws
+    func applicationPrivileges(for holder: DSMPermissionHolder) async throws -> [DSMApplicationPrivilege]
+    func setApplicationPrivileges(
+        _ privileges: [DSMApplicationPrivilege],
+        for holder: DSMPermissionHolder
+    ) async throws
     func listDownloadTasks() async throws -> [DownloadTask]
     func downloadStatistic() async throws -> DownloadStatistic
     func createDownload(uri: String, destination: String?) async throws
@@ -859,15 +864,28 @@ final class DSMClient: DSMClientProtocol {
         try await accounts.deleteGroup(name)
     }
 
-    func sharePermissions(for holder: DSMShareHolder) async throws -> [DSMSharePermission] {
+    func sharePermissions(for holder: DSMPermissionHolder) async throws -> [DSMSharePermission] {
         try await permissions.sharePermissions(for: holder)
     }
 
     func setSharePermissions(
         _ permissions: [DSMSharePermission],
-        for holder: DSMShareHolder
+        for holder: DSMPermissionHolder
     ) async throws {
         try await self.permissions.setSharePermissions(permissions, for: holder)
+    }
+
+    func applicationPrivileges(
+        for holder: DSMPermissionHolder
+    ) async throws -> [DSMApplicationPrivilege] {
+        try await permissions.applicationPrivileges(for: holder)
+    }
+
+    func setApplicationPrivileges(
+        _ privileges: [DSMApplicationPrivilege],
+        for holder: DSMPermissionHolder
+    ) async throws {
+        try await permissions.setApplicationPrivileges(privileges, for: holder)
     }
 
     func listDownloadTasks() async throws -> [DownloadTask] {
