@@ -22,8 +22,10 @@ struct UsersGroupsView: View {
     @State private var showCreateGroup = false
     @State private var userToDelete: DSMUser?
     @State private var groupToDelete: DSMGroup?
-    @State private var userToConfigure: DSMUser?
-    @State private var groupToConfigure: DSMGroup?
+    @State private var holderToConfigure: DSMPermissionHolder?
+    /// Compte dont les permissions s'ouvriront une fois la feuille de création refermée :
+    /// deux feuilles ne peuvent pas se succéder sans attendre la fermeture de la première.
+    @State private var userAwaitingPermissions: String?
     @State private var operationFailure: String?
     @AccessibilityFocusState private var contentFocused: Bool
 
@@ -40,29 +42,30 @@ struct UsersGroupsView: View {
             .toolbar { toolbar }
             .task { await load(restoresInitialFocus: true) }
             .sheet(isPresented: $showCreateUser) {
+                guard let name = userAwaitingPermissions else { return }
+                userAwaitingPermissions = nil
+                holderToConfigure = .user(name)
+            } content: {
                 CreateUserSheet(
                     groups: viewModel.groups,
-                    passwordPolicy: viewModel.passwordPolicy
-                ) { draft in
-                    let outcome = await viewModel.createUser(draft)
-                    // Un échec reste dans la feuille, qui conserve la saisie ; seule la
-                    // réussite est annoncée ici, une fois la feuille refermée.
-                    if case .success = outcome { await announce(outcome) }
-                    return outcome
-                }
+                    passwordPolicy: viewModel.passwordPolicy,
+                    onCreate: { draft in
+                        let outcome = await viewModel.createUser(draft)
+                        // Un échec reste dans la feuille, qui conserve la saisie ; seule la
+                        // réussite est annoncée ici, une fois la feuille refermée.
+                        if case .success = outcome { await announce(outcome) }
+                        return outcome
+                    },
+                    onConfigurePermissions: { userAwaitingPermissions = $0 }
+                )
             }
             .sheet(isPresented: $showCreateGroup) {
                 CreateGroupSheet { draft in
                     Task { await announce(viewModel.createGroup(draft)) }
                 }
             }
-            .sheet(item: $userToConfigure) { user in
-                SharePermissionsSheet(holder: .user(user.name), session: session) { outcome in
-                    Task { await announce(outcome) }
-                }
-            }
-            .sheet(item: $groupToConfigure) { group in
-                SharePermissionsSheet(holder: .group(group.name), session: session) { outcome in
+            .sheet(item: $holderToConfigure) { holder in
+                SharePermissionsSheet(holder: holder, session: session) { outcome in
                     Task { await announce(outcome) }
                 }
             }
@@ -148,7 +151,7 @@ struct UsersGroupsView: View {
                 groupRow(group)
                     .tag(group.id)
                     .contextMenu {
-                        Button("Permissions…") { groupToConfigure = group }
+                        Button("Permissions…") { holderToConfigure = .group(group.name) }
                             .help("Modifier les permissions de ce groupe sur les dossiers partagés")
                         Divider()
                         Button("Supprimer le groupe…", role: .destructive) { groupToDelete = group }
@@ -177,7 +180,7 @@ struct UsersGroupsView: View {
         if selectedTab == .users, let user = selectedUser {
             ToolbarItem {
                 Button {
-                    userToConfigure = user
+                    holderToConfigure = .user(user.name)
                 } label: {
                     Label("Permissions", systemImage: "folder.badge.person.crop")
                 }
@@ -200,7 +203,7 @@ struct UsersGroupsView: View {
         if selectedTab == .groups, let group = selectedGroup {
             ToolbarItem {
                 Button {
-                    groupToConfigure = group
+                    holderToConfigure = .group(group.name)
                 } label: {
                     Label("Permissions", systemImage: "folder.badge.person.crop")
                 }
@@ -237,7 +240,7 @@ struct UsersGroupsView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(userAccessibilityLabel(user))
         .accessibilityActions {
-            Button("Permissions…") { userToConfigure = user }
+            Button("Permissions…") { holderToConfigure = .user(user.name) }
                 .help("Modifier les permissions de ce compte sur les dossiers partagés")
             if !isProtected(user), !isBusy(user) {
                 Button(user.isDisabled ? "Activer" : "Désactiver") {
@@ -266,7 +269,7 @@ struct UsersGroupsView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(group.name), \(groupSummary(group))")
         .accessibilityActions {
-            Button("Permissions…") { groupToConfigure = group }
+            Button("Permissions…") { holderToConfigure = .group(group.name) }
                 .help("Modifier les permissions de ce groupe sur les dossiers partagés")
             if !isProtected(group) {
                 Button("Supprimer le groupe…", role: .destructive) {
@@ -279,7 +282,7 @@ struct UsersGroupsView: View {
 
     @ViewBuilder
     private func userActions(_ user: DSMUser) -> some View {
-        Button("Permissions…") { userToConfigure = user }
+        Button("Permissions…") { holderToConfigure = .user(user.name) }
             .help("Modifier les permissions de ce compte sur les dossiers partagés")
         Divider()
         Button(user.isDisabled ? "Activer" : "Désactiver") {
@@ -385,6 +388,9 @@ private struct CreateUserSheet: View {
     let groups: [DSMGroup]
     let passwordPolicy: DSMPasswordPolicy?
     let onCreate: (DSMUserDraft) async -> DSMOperationOutcome
+    /// Enchaîne sur les permissions du compte créé : sans cette suite, il faut le retrouver
+    /// dans la liste pour lui donner le moindre accès, et rien ne dit que c'est possible.
+    let onConfigurePermissions: (String) -> Void
 
     @State private var name = ""
     @State private var password = ""
@@ -484,7 +490,12 @@ private struct CreateUserSheet: View {
                 Button("Annuler", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .help("Annuler la création de l’utilisateur")
-                Button("Créer", action: create)
+                Button("Créer et définir les permissions…") {
+                    create(thenConfiguringPermissions: true)
+                }
+                .disabled(!canCreate)
+                .help("Créer l’utilisateur puis ouvrir ses permissions")
+                Button("Créer") { create(thenConfiguringPermissions: false) }
                     .keyboardShortcut(.defaultAction)
                     .disabled(!canCreate)
                     .help("Créer l’utilisateur")
@@ -530,7 +541,7 @@ private struct CreateUserSheet: View {
         VoiceOver.announce(String(localized: "Mot de passe copié."), category: .result)
     }
 
-    private func create() {
+    private func create(thenConfiguringPermissions configuresPermissions: Bool) {
         guard canCreate else { return }
         let draft = DSMUserDraft(
             name: trimmedName,
@@ -546,6 +557,7 @@ private struct CreateUserSheet: View {
             isCreating = false
             switch outcome {
             case .success:
+                if configuresPermissions { onConfigurePermissions(draft.name) }
                 dismiss()
             case .failure(let message):
                 // La feuille reste ouverte : la saisie est conservée et corrigeable.

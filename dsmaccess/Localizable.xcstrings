@@ -27096,6 +27096,38 @@
         }
       }
     },
+    "Créer et définir les permissions…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create and set permissions…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créer et définir les permissions…"
+          }
+        }
+      }
+    },
+    "Créer l’utilisateur puis ouvrir ses permissions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create the user, then open its permissions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créer l’utilisateur puis ouvrir ses permissions"
+          }
+        }
+      }
+    },
     "Dossier partagé" : {
       "localizations" : {
         "en" : {
