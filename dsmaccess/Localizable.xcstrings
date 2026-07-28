@@ -26760,6 +26760,70 @@
         }
       }
     },
+    "%@, appliqué : %@, aucun droit de groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, applied: %@, no group right"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, appliqué : %@, aucun droit de groupe"
+          }
+        }
+      }
+    },
+    "%@, appliqué : %@, droit de groupe : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, applied: %@, group right: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, appliqué : %@, droit de groupe : %@"
+          }
+        }
+      }
+    },
+    "Abandonner" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discard"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abandonner"
+          }
+        }
+      }
+    },
+    "Abandonner les modifications ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Discard the changes?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abandonner les modifications ?"
+          }
+        }
+      }
+    },
     "Adresse directe" : {
       "localizations" : {
         "en" : {
@@ -26776,6 +26840,70 @@
         }
       }
     },
+    "Appliqué" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Applied"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appliqué"
+          }
+        }
+      }
+    },
+    "Aucun accès" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No access"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun accès"
+          }
+        }
+      }
+    },
+    "Aucune modification à enregistrer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No changes to save."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune modification à enregistrer."
+          }
+        }
+      }
+    },
+    "Ce NAS n’expose aucun dossier partagé à autoriser." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This NAS exposes no shared folder to grant access to."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce NAS n’expose aucun dossier partagé à autoriser."
+          }
+        }
+      }
+    },
     "Cet identifiant QuickConnect est introuvable." : {
       "localizations" : {
         "en" : {
@@ -26788,6 +26916,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cet identifiant QuickConnect est introuvable."
+          }
+        }
+      }
+    },
+    "Chargement des permissions…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading permissions…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des permissions…"
           }
         }
       }
@@ -26820,6 +26964,118 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Compatibilité non officielle : Synology peut modifier ce service sans préavis."
+          }
+        }
+      }
+    },
+    "Continuer la modification" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep editing"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continuer la modification"
+          }
+        }
+      }
+    },
+    "Dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shared folder"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dossier partagé"
+          }
+        }
+      }
+    },
+    "Droit de groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Group right"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Droit de groupe"
+          }
+        }
+      }
+    },
+    "En cas de conflit entre les droits du compte et ceux de ses groupes, DSM retient le plus restrictif : aucun accès l’emporte sur lecture/écriture, qui l’emporte sur lecture seule." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When an account's own rights conflict with those of its groups, DSM keeps the most restrictive one: no access wins over read/write, which wins over read only."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En cas de conflit entre les droits du compte et ceux de ses groupes, DSM retient le plus restrictif : aucun accès l’emporte sur lecture/écriture, qui l’emporte sur lecture seule."
+          }
+        }
+      }
+    },
+    "Enregistrement en cours" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saving"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement en cours"
+          }
+        }
+      }
+    },
+    "Enregistrer les permissions modifiées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the changed permissions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer les permissions modifiées"
+          }
+        }
+      }
+    },
+    "Fermer sans enregistrer les modifications" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close without saving the changes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer sans enregistrer les modifications"
           }
         }
       }
@@ -26952,6 +27208,54 @@
         }
       }
     },
+    "Lecture/écriture" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read/write"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lecture/écriture"
+          }
+        }
+      }
+    },
+    "Les permissions modifiées ne seront pas enregistrées sur le NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The changed permissions will not be saved to the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les permissions modifiées ne seront pas enregistrées sur le NAS."
+          }
+        }
+      }
+    },
+    "Modifier les permissions de ce compte sur les dossiers partagés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change this account's permissions on shared folders"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier les permissions de ce compte sur les dossiers partagés"
+          }
+        }
+      }
+    },
     "Méthode de connexion" : {
       "localizations" : {
         "en" : {
@@ -26980,6 +27284,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "MonNAS"
+          }
+        }
+      }
+    },
+    "Permissions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions"
+          }
+        }
+      }
+    },
+    "Permissions de %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions for %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions de %@"
+          }
+        }
+      }
+    },
+    "Permissions enregistrées : %lld dossiers modifiés." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions saved: %lld shared folders changed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions enregistrées : %lld dossiers modifiés."
+          }
+        }
+      }
+    },
+    "Permissions…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions…"
           }
         }
       }
@@ -27063,6 +27431,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Veuillez renseigner le nom d’utilisateur et le mot de passe."
+          }
+        }
+      }
+    },
+    "Échec de l’enregistrement : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saving failed: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de l’enregistrement : %@"
           }
         }
       }

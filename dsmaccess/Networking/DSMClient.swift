@@ -219,6 +219,8 @@ protocol DSMClientProtocol: AnyObject {
     func deleteUser(_ name: String) async throws
     func createGroup(_ draft: DSMGroupDraft) async throws
     func deleteGroup(_ name: String) async throws
+    func sharePermissions(forUser name: String) async throws -> [DSMSharePermission]
+    func setSharePermissions(_ permissions: [DSMSharePermission], forUser name: String) async throws
     func listDownloadTasks() async throws -> [DownloadTask]
     func downloadStatistic() async throws -> DownloadStatistic
     func createDownload(uri: String, destination: String?) async throws
@@ -276,6 +278,7 @@ final class DSMClient: DSMClientProtocol {
     let fileServiceSettings: DSMFileServiceSettingsService
     let packages: DSMPackageService
     let accounts: DSMAccountService
+    let permissions: DSMPermissionService
     let downloadStation: DSMDownloadStationService
     let usbCopy: DSMUSBCopyService
     let virtualMachines: DSMVirtualMachineService
@@ -295,6 +298,7 @@ final class DSMClient: DSMClientProtocol {
         fileServiceSettings = DSMFileServiceSettingsService(transport: transport)
         packages = DSMPackageService(transport: transport)
         accounts = DSMAccountService(transport: transport)
+        permissions = DSMPermissionService(transport: transport)
         downloadStation = DSMDownloadStationService(transport: transport)
         usbCopy = DSMUSBCopyService(transport: transport)
         virtualMachines = DSMVirtualMachineService(transport: transport)
@@ -853,6 +857,17 @@ final class DSMClient: DSMClientProtocol {
 
     func deleteGroup(_ name: String) async throws {
         try await accounts.deleteGroup(name)
+    }
+
+    func sharePermissions(forUser name: String) async throws -> [DSMSharePermission] {
+        try await permissions.sharePermissions(forUser: name)
+    }
+
+    func setSharePermissions(
+        _ permissions: [DSMSharePermission],
+        forUser name: String
+    ) async throws {
+        try await self.permissions.setSharePermissions(permissions, forUser: name)
     }
 
     func listDownloadTasks() async throws -> [DownloadTask] {

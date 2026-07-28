@@ -22,10 +22,14 @@ struct UsersGroupsView: View {
     @State private var showCreateGroup = false
     @State private var userToDelete: DSMUser?
     @State private var groupToDelete: DSMGroup?
+    @State private var userToConfigure: DSMUser?
     @State private var operationFailure: String?
     @AccessibilityFocusState private var contentFocused: Bool
 
+    private let session: SessionStore
+
     init(session: SessionStore) {
+        self.session = session
         _viewModel = State(initialValue: UsersGroupsViewModel(session: session))
     }
 
@@ -49,6 +53,11 @@ struct UsersGroupsView: View {
             .sheet(isPresented: $showCreateGroup) {
                 CreateGroupSheet { draft in
                     Task { await announce(viewModel.createGroup(draft)) }
+                }
+            }
+            .sheet(item: $userToConfigure) { user in
+                SharePermissionsSheet(userName: user.name, session: session) { outcome in
+                    Task { await announce(outcome) }
                 }
             }
             .sheet(item: $userToDelete) { user in
@@ -159,6 +168,14 @@ struct UsersGroupsView: View {
         if selectedTab == .users, let user = selectedUser {
             ToolbarItem {
                 Button {
+                    userToConfigure = user
+                } label: {
+                    Label("Permissions", systemImage: "folder.badge.person.crop")
+                }
+                .help("Modifier les permissions de ce compte sur les dossiers partagés")
+            }
+            ToolbarItem {
+                Button {
                     Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
                 } label: {
                     Label(
@@ -200,6 +217,8 @@ struct UsersGroupsView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(userAccessibilityLabel(user))
         .accessibilityActions {
+            Button("Permissions…") { userToConfigure = user }
+                .help("Modifier les permissions de ce compte sur les dossiers partagés")
             if !isProtected(user), !isBusy(user) {
                 Button(user.isDisabled ? "Activer" : "Désactiver") {
                     Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
@@ -238,6 +257,9 @@ struct UsersGroupsView: View {
 
     @ViewBuilder
     private func userActions(_ user: DSMUser) -> some View {
+        Button("Permissions…") { userToConfigure = user }
+            .help("Modifier les permissions de ce compte sur les dossiers partagés")
+        Divider()
         Button(user.isDisabled ? "Activer" : "Désactiver") {
             Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
         }
