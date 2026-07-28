@@ -3,6 +3,7 @@ import Foundation
 actor DSMRequestStub {
     enum Result: Sendable {
         case timeout
+        case cancelled
         case response(Data)
         case responseAtURL(Data, URL)
         case HTTPResponse(data: Data, statusCode: Int, contentType: String)
@@ -27,6 +28,8 @@ actor DSMRequestStub {
         switch results.removeFirst() {
         case .timeout:
             throw URLError(.timedOut)
+        case .cancelled:
+            throw URLError(.cancelled)
         case .response(let data):
             return try response(data: data, statusCode: 200, contentType: "application/json", for: request)
         case .responseAtURL(let data, let url):

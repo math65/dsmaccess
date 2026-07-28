@@ -8769,6 +8769,22 @@
         }
       }
     },
+    "L’opération vient d’être lancée : arrêtez-la depuis les tâches File Station." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The operation has just started: stop it from the File Station tasks."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’opération vient d’être lancée : arrêtez-la depuis les tâches File Station."
+          }
+        }
+      }
+    },
     "Aucune tâche File Station" : {
       "localizations" : {
         "en" : {
@@ -8817,6 +8833,22 @@
         }
       }
     },
+    "Calcul MD5 terminé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MD5 calculation finished"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calcul MD5 terminé"
+          }
+        }
+      }
+    },
     "Calcul de taille" : {
       "localizations" : {
         "en" : {
@@ -8861,6 +8893,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Calculer l’empreinte MD5 du fichier"
+          }
+        }
+      }
+    },
+    "Calcul de taille terminé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Size calculation finished"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Calcul de taille terminé"
           }
         }
       }
@@ -9229,6 +9277,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Du"
+          }
+        }
+      }
+    },
+    "Échec de l’arrêt de l’opération : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not stop the operation: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de l’arrêt de l’opération : %@"
           }
         }
       }
@@ -14192,6 +14256,22 @@
         }
       }
     },
+    "Copie ou déplacement terminé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy or move finished"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copie ou déplacement terminé"
+          }
+        }
+      }
+    },
     "Copier le mot de passe" : {
       "localizations" : {
         "en" : {
@@ -15276,6 +15356,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Comportement"
+          }
+        }
+      }
+    },
+    "Compression terminée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compression finished"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compression terminée"
           }
         }
       }
@@ -17871,6 +17967,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Extraction en cours…"
+          }
+        }
+      }
+    },
+    "Extraction terminée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extraction finished"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Extraction terminée"
           }
         }
       }
@@ -21174,6 +21286,22 @@
         }
       }
     },
+    "Opération arrêtée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Operation stopped"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opération arrêtée"
+          }
+        }
+      }
+    },
     "Opération en cours pour %@" : {
       "localizations" : {
         "en" : {
@@ -21186,6 +21314,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Opération en cours pour %@"
+          }
+        }
+      }
+    },
+    "Opération en cours sur le NAS : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Operation running on the NAS: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opération en cours sur le NAS : %@"
           }
         }
       }
@@ -26372,6 +26516,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Suivi arrêté dans l’app. L’opération déjà envoyée au NAS peut continuer dans DSM."
+          }
+        }
+      }
+    },
+    "Suppression terminée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deletion finished"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Suppression terminée"
           }
         }
       }

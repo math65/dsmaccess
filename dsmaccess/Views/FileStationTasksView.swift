@@ -181,14 +181,6 @@ private extension FileStationBackgroundTask {
     }
 
     var operationLabel: String {
-        switch FileOperationKind(rawValue: api) {
-        case .copyMove: String(localized: "Copie ou déplacement")
-        case .delete: String(localized: "Suppression")
-        case .extract: String(localized: "Extraction")
-        case .compress: String(localized: "Compression")
-        case .directorySize: String(localized: "Calcul de taille")
-        case .checksum: String(localized: "Calcul MD5")
-        case nil: api
-        }
+        FileOperationKind(rawValue: api)?.label ?? api
     }
 }
