@@ -179,6 +179,28 @@ struct DSMFileStationServiceTests {
         #expect(try query(from: requests[1])["method"] == "status")
     }
 
+    @Test func listsAFolderHoldingAFileNameStoredInLatin1() async throws {
+        // Un nom resté encodé en latin-1 sur le volume : l'octet 0xE8 du « è » n'est pas de
+        // l'UTF-8 valide et faisait échouer le listing entier, un seul fichier suffisant à
+        // rendre le dossier inaccessible alors que DSM l'affiche.
+        var payload = Data(#"{"success":true,"data":{"total":2,"offset":0,"files":[{"name":"P"#.utf8)
+        payload.append(0xE8)
+        payload.append(Data(#"re.mp4","path":"/video/Films/P"#.utf8))
+        payload.append(0xE8)
+        payload.append(Data(#"re.mp4","isdir":false},{"name":"Autre.mp4","path":"/video/Films/Autre.mp4","isdir":false}]}}"#.utf8))
+        let stub = DSMRequestStub(results: [.response(payload)])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.List": entry(maxVersion: 2)]
+        )
+
+        let items = try await service.items(in: "/video/Films")
+
+        #expect(items.count == 2)
+        #expect(items.first?.name == "P\u{FFFD}re.mp4")
+        #expect(items.last?.name == "Autre.mp4")
+    }
+
     @Test func calculatesDirectorySizeWithoutInventingMissingValues() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"taskid":"size-1"}}"#.utf8)),

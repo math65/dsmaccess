@@ -474,8 +474,25 @@ final class DSMTransport {
         do {
             return try JSONDecoder().decode(DSMResponse<Value>.self, from: data)
         } catch {
-            throw DSMError.decoding
+            guard let repaired = Self.replacingInvalidUTF8(in: data) else {
+                throw DSMError.decoding
+            }
+            do {
+                return try JSONDecoder().decode(DSMResponse<Value>.self, from: repaired)
+            } catch {
+                throw DSMError.decoding
+            }
         }
+    }
+
+    /// Un seul fichier dont le nom est resté encodé en latin-1 sur le volume suffit à rendre
+    /// toute la réponse illisible : `JSONDecoder` exige de l'UTF-8 valide, là où les
+    /// navigateurs remplacent l'octet fautif et affichent le reste. Ce repli fait le même
+    /// choix — mieux vaut un caractère de remplacement dans un nom qu'un dossier inaccessible.
+    /// Renvoie `nil` quand la donnée est déjà valide, pour ne pas masquer une autre erreur.
+    nonisolated static func replacingInvalidUTF8(in data: Data) -> Data? {
+        guard String(data: data, encoding: .utf8) == nil else { return nil }
+        return Data(String(decoding: data, as: UTF8.self).utf8)
     }
 
     private func mappedNetworkError(_ error: URLError) -> DSMError {
