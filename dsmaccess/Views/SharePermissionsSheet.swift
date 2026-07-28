@@ -33,7 +33,7 @@ struct SharePermissionsSheet: View {
             content
 
             if viewModel.holder.inheritsFromGroups {
-                Text("En cas de conflit entre les droits du compte et ceux de ses groupes, DSM retient le plus restrictif : aucun accès l’emporte sur lecture/écriture, qui l’emporte sur lecture seule.")
+                Text("Entre le droit du compte et celui de ses groupes : un aucun accès l’emporte sur tout, sinon c’est le droit le plus large qui s’applique. Un compte en lecture/écriture dans un groupe en lecture seule peut donc écrire.")
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)
                     .fixedSize(horizontal: false, vertical: true)

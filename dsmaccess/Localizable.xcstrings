@@ -27032,22 +27032,6 @@
         }
       }
     },
-    "En cas de conflit entre les droits du compte et ceux de ses groupes, DSM retient le plus restrictif : aucun accès l’emporte sur lecture/écriture, qui l’emporte sur lecture seule." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "When an account's own rights conflict with those of its groups, DSM keeps the most restrictive one: no access wins over read/write, which wins over read only."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "En cas de conflit entre les droits du compte et ceux de ses groupes, DSM retient le plus restrictif : aucun accès l’emporte sur lecture/écriture, qui l’emporte sur lecture seule."
-          }
-        }
-      }
-    },
     "Enregistrement en cours" : {
       "localizations" : {
         "en" : {
@@ -27076,6 +27060,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Enregistrer les permissions modifiées"
+          }
+        }
+      }
+    },
+    "Entre le droit du compte et celui de ses groupes : un aucun accès l’emporte sur tout, sinon c’est le droit le plus large qui s’applique. Un compte en lecture/écriture dans un groupe en lecture seule peut donc écrire." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Between an account's own right and those of its groups: a no-access denial wins over everything, otherwise the widest right applies. An account set to read/write inside a read-only group can therefore write."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entre le droit du compte et celui de ses groupes : un aucun accès l’emporte sur tout, sinon c’est le droit le plus large qui s’applique. Un compte en lecture/écriture dans un groupe en lecture seule peut donc écrire."
           }
         }
       }
