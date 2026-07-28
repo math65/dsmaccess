@@ -109,15 +109,113 @@ struct DSMAuthenticationServiceTests {
         #expect(try query(from: request)["version"] == "6")
     }
 
-    private func makeService(stub: DSMRequestStub, maxVersion: Int) -> DSMAuthenticationService {
+    @Test func asksForApprovalWithoutSendingAnyPassword() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"request_id":"req-1","request_status":"waiting"}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub, maxVersion: 7, secureSignIn: true)
+
+        let request = try await service.requestSecureSignIn(account: "martine", rememberDevice: false)
+
+        #expect(request.requestID == "req-1")
+        // Le NAS ne joint pas toujours le chiffre : ne rien inventer quand il est absent.
+        #expect(request.verifyNumber == nil)
+        let sent = try #require(await stub.requests.first)
+        #expect(sent.httpMethod == "POST")
+        let parameters = try body(from: sent)
+        #expect(parameters["type"] == "authenticator")
+        #expect(parameters["action"] == "get_status")
+        #expect(parameters["application"] == "DSM")
+        #expect(parameters["passwd"] == "")
+        #expect(parameters["authenticator_token"] == "")
+    }
+
+    @Test func reportsAnExpiredApprovalRatherThanRejectedCredentials() async throws {
+        // Sur ce chemin, 400 signale une demande périmée. Le traduire en « identifiants
+        // incorrects » accuserait l'utilisateur d'une faute de mot de passe qu'il n'a
+        // même pas saisi.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":false,"error":{"code":400}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, maxVersion: 7, secureSignIn: true)
+
+        await #expect(throws: SecureSignInExpired.self) {
+            _ = try await service.requestSecureSignIn(account: "martine", rememberDevice: false)
+        }
+    }
+
+    @Test func readsTheApprovalVerdictAndItsVerifyNumber() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"status":"waiting","verify_number":42}}"#.utf8)),
+            .response(Data(
+                #"{"success":true,"data":{"status":"approved","token":"approval-token","verify_number":42}}"#.utf8
+            )),
+            .response(Data(#"{"success":true,"data":{"status":"denied"}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, maxVersion: 7, secureSignIn: true)
+
+        let waiting = try await service.secureSignInStatus(account: "martine", requestID: "req-1")
+        let approved = try await service.secureSignInStatus(account: "martine", requestID: "req-1")
+        let denied = try await service.secureSignInStatus(account: "martine", requestID: "req-1")
+
+        #expect(waiting == .waiting(verifyNumber: 42))
+        #expect(approved == .approved(token: "approval-token"))
+        #expect(denied == .denied)
+    }
+
+    @Test func opensTheSessionWithTheApprovalToken() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"sid":"session-id","synotoken":"csrf-token"}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub, maxVersion: 7, secureSignIn: true)
+
+        let result = try await service.completeSecureSignIn(
+            account: "martine",
+            requestID: "req-1",
+            token: "approval-token",
+            rememberDevice: false
+        )
+
+        #expect(result.sid == "session-id")
+        let parameters = try body(from: try #require(await stub.requests.first))
+        #expect(parameters["action"] == "approved")
+        #expect(parameters["request_id"] == "req-1")
+        #expect(parameters["authenticator_token"] == "approval-token")
+        #expect(parameters["passwd"] == "")
+    }
+
+    @Test func hidesSecureSignInWhenTheNASDoesNotExposeIt() async throws {
+        let stub = DSMRequestStub(results: [])
+
+        #expect(!makeService(stub: stub, maxVersion: 7).supportsSecureSignIn)
+        #expect(makeService(stub: stub, maxVersion: 7, secureSignIn: true).supportsSecureSignIn)
+    }
+
+    private func makeService(
+        stub: DSMRequestStub,
+        maxVersion: Int,
+        secureSignIn: Bool = false
+    ) -> DSMAuthenticationService {
         var capabilities = DSMCapabilities()
-        capabilities.merge([
+        var entries = [
             "SYNO.API.Auth": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: maxVersion
             ),
-        ])
+        ]
+        if secureSignIn {
+            entries["SYNO.SecureSignIn.Authenticator.Request"] = APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1
+            )
+        }
+        capabilities.merge(entries)
         let transport = DSMTransport(
             endpoint: DSMEndpoint(useHTTPS: true, host: "nas.local", port: 5001),
             session: .shared,
@@ -125,6 +223,17 @@ struct DSMAuthenticationServiceTests {
             requestData: { try await stub.data(for: $0) }
         )
         return DSMAuthenticationService(transport: transport)
+    }
+
+    /// Le login Secure SignIn part en POST : ses paramètres sont dans le corps.
+    private func body(from request: URLRequest) throws -> [String: String] {
+        let data = try #require(request.httpBody)
+        var components = URLComponents()
+        components.percentEncodedQuery = String(decoding: data, as: UTF8.self)
+        let items = try #require(components.queryItems)
+        return Dictionary(uniqueKeysWithValues: items.compactMap { item in
+            item.value.map { (item.name, $0) }
+        })
     }
 
     private func query(from request: URLRequest) throws -> [String: String] {

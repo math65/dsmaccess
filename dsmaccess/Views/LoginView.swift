@@ -28,6 +28,8 @@ struct LoginView: View {
                 OTPView(vm: vm)
             } else if vm.state == .needsPasswordChange {
                 PasswordChangeView(vm: vm)
+            } else if vm.state == .awaitingApproval {
+                SecureSignInApprovalView(vm: vm)
             } else {
                 credentialsForm(vm: vm)
             }
@@ -146,16 +148,31 @@ struct LoginView: View {
                             .accessibilityIdentifier("login.account")
                             .help("Nom du compte DSM")
                     }
-                    LabeledField(label: "Mot de passe") {
-                        SecureField("", text: $vm.password)
-                            .textContentType(.password)
-                            .accessibilityIdentifier("login.password")
-                            .help("Mot de passe du compte DSM")
+                    Picker("Authentification", selection: $vm.authenticationMethod) {
+                        Text("Mot de passe").tag(ConnectionViewModel.AuthenticationMethod.password)
+                        Text("Sans mot de passe").tag(ConnectionViewModel.AuthenticationMethod.secureSignIn)
                     }
-                    Toggle("Rester connecté", isOn: $vm.rememberPassword)
-                        .accessibilityHint("Mémorise le mot de passe pour la prochaine ouverture de l'app")
-                        .accessibilityIdentifier("login.remember-password")
-                        .help("Mémoriser le mot de passe dans le Trousseau pour les prochaines ouvertures")
+                    .pickerStyle(.menu)
+                    .accessibilityIdentifier("login.authentication-method")
+                    .help("Choisir comment prouver votre identité auprès du NAS")
+
+                    if vm.authenticationMethod == .password {
+                        LabeledField(label: "Mot de passe") {
+                            SecureField("", text: $vm.password)
+                                .textContentType(.password)
+                                .accessibilityIdentifier("login.password")
+                                .help("Mot de passe du compte DSM")
+                        }
+                        Toggle("Rester connecté", isOn: $vm.rememberPassword)
+                            .accessibilityHint("Mémorise le mot de passe pour la prochaine ouverture de l'app")
+                            .accessibilityIdentifier("login.remember-password")
+                            .help("Mémoriser le mot de passe dans le Trousseau pour les prochaines ouvertures")
+                    } else {
+                        Text("Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile. La session devra être approuvée de nouveau à chaque ouverture de l'app.")
+                            .font(.callout)
+                            .foregroundStyle(.readableSecondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
                 .disabled(vm.state != .editing)
 
@@ -176,12 +193,14 @@ struct LoginView: View {
                     }
                     Spacer()
                     Button("Se connecter") {
-                        Task { await vm.connect() }
+                        Task { await vm.submit() }
                     }
                     .keyboardShortcut(.defaultAction)
                     .disabled(!vm.canSubmit)
                     .accessibilityIdentifier("login.submit")
-                    .help("Se connecter au NAS avec les informations saisies")
+                    .help(vm.authenticationMethod == .password
+                          ? "Se connecter au NAS avec les informations saisies"
+                          : "Envoyer une demande d'approbation à l'app Synology Secure SignIn")
                 }
             }
             .padding(28)

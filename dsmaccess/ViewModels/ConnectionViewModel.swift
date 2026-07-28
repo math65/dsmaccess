@@ -17,16 +17,25 @@ final class ConnectionViewModel {
         case quickConnect
     }
 
+    /// Comment le compte prouve son identité. Le choix conditionne le formulaire : la
+    /// connexion approuvée sur le mobile ne demande aucun mot de passe.
+    enum AuthenticationMethod: Hashable {
+        case password
+        case secureSignIn
+    }
+
     enum State: Equatable {
         case editing      // saisie des identifiants
         case resolvingQuickConnect
         case connecting   // tentative en cours
         case needsOTP     // DSM réclame un code de vérification
         case needsPasswordChange // DSM exige un nouveau mot de passe avant d'ouvrir la session
+        case awaitingApproval    // connexion sans mot de passe : décision attendue sur le mobile
     }
 
     // Champs du formulaire (pré-remplis depuis les préférences si disponibles).
     var connectionMethod: ConnectionMethod
+    var authenticationMethod: AuthenticationMethod = .password
     var host: String
     var quickConnectID: String
     var useHTTPS: Bool
@@ -41,6 +50,9 @@ final class ConnectionViewModel {
     var rememberPassword: Bool
 
     private(set) var state: State = .editing
+    /// Demande d'approbation en cours ; porte le chiffre à confirmer quand le NAS en joint un.
+    private(set) var secureSignInRequest: SecureSignInRequest?
+    private var approvalTask: Task<Void, Never>?
     /// Reconnexion automatique en cours au lancement (masque le formulaire).
     private(set) var isRestoring: Bool
     /// Message d'erreur à afficher et à annoncer (nil si aucun).
@@ -123,8 +135,17 @@ final class ConnectionViewModel {
     var canSubmit: Bool {
         connectionTarget != nil
             && !account.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && !password.isEmpty
             && state == .editing
+            // La connexion approuvée sur le mobile ne demande que le nom d'utilisateur.
+            && (authenticationMethod == .secureSignIn || !password.isEmpty)
+    }
+
+    /// Aiguillage du bouton unique de connexion.
+    func submit() async {
+        switch authenticationMethod {
+        case .password: await connect()
+        case .secureSignIn: startSecureSignIn()
+        }
     }
 
     var portValidationMessage: String? {
@@ -155,7 +176,7 @@ final class ConnectionViewModel {
             String(localized: "Recherche du NAS avec QuickConnect…")
         case .connecting:
             String(localized: "Connexion en cours…")
-        case .editing, .needsOTP, .needsPasswordChange:
+        case .editing, .needsOTP, .needsPasswordChange, .awaitingApproval:
             nil
         }
     }
@@ -291,6 +312,148 @@ final class ConnectionViewModel {
         }
     }
 
+    /// Connexion sans mot de passe : le NAS envoie une demande d'approbation à l'app
+    /// mobile Synology, puis l'app attend la décision. Aucun mot de passe n'est saisi ni
+    /// transmis, ce qui en fait souvent le chemin le plus praticable avec VoiceOver.
+    func startSecureSignIn() {
+        let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanedAccount.isEmpty else {
+            errorMessage = String(localized: "Veuillez renseigner le nom d’utilisateur.")
+            return
+        }
+        guard let target = connectionTarget else {
+            errorMessage = connectionValidationMessage
+            return
+        }
+        approvalTask?.cancel()
+        approvalTask = Task { await runSecureSignIn(account: cleanedAccount, target: target) }
+    }
+
+    /// Abandon demandé par l'utilisateur : la demande est révoquée sur le NAS pour ne pas
+    /// laisser une approbation valable derrière soi.
+    func cancelSecureSignIn() async {
+        approvalTask?.cancel()
+        approvalTask = nil
+        await revokePendingSecureSignIn()
+        secureSignInRequest = nil
+        state = .editing
+        errorMessage = nil
+    }
+
+    private func runSecureSignIn(account: String, target: NASConnectionTarget) async {
+        state = connectionMethod == .quickConnect ? .resolvingQuickConnect : .connecting
+        errorMessage = nil
+        lastError = nil
+        secureSignInRequest = nil
+
+        do {
+            let endpoint = try await resolvedEndpoint(for: target)
+            try Task.checkCancellation()
+            let activeClient = DSMClient(endpoint: endpoint)
+            client = activeClient
+            pendingEndpoint = endpoint
+            pendingTarget = target
+
+            _ = try? await activeClient.apiInfo(for: ["SYNO.SecureSignIn.Authenticator.Request"])
+            guard activeClient.supportsSecureSignIn else {
+                state = .editing
+                errorMessage = String(
+                    localized: "Ce NAS ne propose pas la connexion sans mot de passe."
+                )
+                return
+            }
+
+            let request = try await activeClient.requestSecureSignIn(
+                account: account,
+                rememberDevice: rememberDevice
+            )
+            try Task.checkCancellation()
+            secureSignInRequest = request
+            state = .awaitingApproval
+
+            let token = try await awaitApproval(client: activeClient, account: account, request: request)
+            let result = try await activeClient.completeSecureSignIn(
+                account: account,
+                requestID: request.requestID,
+                token: token,
+                rememberDevice: rememberDevice
+            )
+            try await finish(
+                with: result,
+                account: account,
+                target: target,
+                endpoint: endpoint,
+                storesPassword: false
+            )
+            secureSignInRequest = nil
+        } catch is SecureSignInExpired {
+            await failSecureSignIn(SecureSignInRefusal.expired.message)
+        } catch let refusal as SecureSignInRefusal {
+            await failSecureSignIn(refusal.message)
+        } catch DSMError.untrustedCertificate(let fingerprint) {
+            approvalTask = nil
+            state = .editing
+            secureSignInRequest = nil
+            pendingCertificateFingerprint = fingerprint
+            errorMessage = nil
+        } catch where DSMError.isCancellation(error) {
+            approvalTask = nil
+        } catch {
+            lastError = error as? DSMError
+            await failSecureSignIn(
+                (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            )
+        }
+    }
+
+    /// Interroge la décision toutes les cinq secondes, comme le fait DSM lui-même.
+    private func awaitApproval(
+        client: DSMClient,
+        account: String,
+        request: SecureSignInRequest
+    ) async throws -> String {
+        while true {
+            let status = try await client.secureSignInStatus(
+                account: account,
+                requestID: request.requestID
+            )
+            switch status {
+            case .approved(let token):
+                return token
+            case .waiting(let verifyNumber):
+                // Le NAS ne joint pas toujours le chiffre au premier appel : le reprendre
+                // ici évite un écran d'attente muet alors que le mobile en affiche un.
+                if let verifyNumber, secureSignInRequest?.verifyNumber != verifyNumber {
+                    secureSignInRequest = SecureSignInRequest(
+                        requestID: request.requestID,
+                        verifyNumber: verifyNumber
+                    )
+                }
+            case .denied:
+                throw SecureSignInRefusal.denied
+            case .expired:
+                throw SecureSignInRefusal.expired
+            case .revoked:
+                throw SecureSignInRefusal.revoked
+            }
+            try await Task.sleep(for: .seconds(5))
+        }
+    }
+
+    private func failSecureSignIn(_ message: String) async {
+        await revokePendingSecureSignIn()
+        approvalTask = nil
+        secureSignInRequest = nil
+        state = .editing
+        errorMessage = message
+    }
+
+    private func revokePendingSecureSignIn() async {
+        guard let client, let request = secureSignInRequest else { return }
+        let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
+        await client.revokeSecureSignIn(account: cleanedAccount, requestID: request.requestID)
+    }
+
     /// Soumission du code de vérification après un 403.
     func submitOTP() async {
         guard let client,
@@ -423,11 +586,15 @@ final class ConnectionViewModel {
 
     // MARK: - Interne
 
+    /// `storesPassword` est faux quand la session a été ouverte sans mot de passe : il n'y
+    /// a rien à mémoriser, et écrire la chaîne vide dans le trousseau condamnerait la
+    /// reconnexion automatique du prochain lancement.
     private func finish(
         with result: LoginResult,
         account: String,
         target: NASConnectionTarget,
-        endpoint: DSMEndpoint
+        endpoint: DSMEndpoint,
+        storesPassword: Bool = true
     ) async throws {
         guard let client else { return }
         let capabilities: DSMCapabilities
@@ -442,7 +609,11 @@ final class ConnectionViewModel {
         }
         // Mémoriser (ou oublier) le mot de passe selon le choix « Rester connecté ».
         let remembersPassword: Bool
-        if rememberPassword {
+        if !storesPassword {
+            // Une connexion approuvée sur le mobile ne dit rien du mot de passe : celui
+            // qui était déjà mémorisé le reste, aucun n'est créé.
+            remembersPassword = CredentialStore.password(account: account, target: target) != nil
+        } else if rememberPassword {
             remembersPassword = CredentialStore.remember(
                 password: password,
                 account: account,

@@ -1153,6 +1153,22 @@
         }
       }
     },
+    "En attente de votre approbation…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for your approval…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "En attente de votre approbation…"
+          }
+        }
+      }
+    },
     "En cas de conflit" : {
       "localizations" : {
         "en" : {
@@ -1597,6 +1613,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Jusqu’à"
+          }
+        }
+      }
+    },
+    "La demande d’approbation a été annulée." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The approval request was cancelled."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La demande d’approbation a été annulée."
+          }
+        }
+      }
+    },
+    "La demande d’approbation a expiré. Relancez la connexion." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The approval request expired. Start the sign-in again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La demande d’approbation a expiré. Relancez la connexion."
           }
         }
       }
@@ -5249,6 +5297,22 @@
         }
       }
     },
+    "Ce NAS ne propose pas la connexion sans mot de passe." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This NAS does not offer passwordless sign-in."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce NAS ne propose pas la connexion sans mot de passe."
+          }
+        }
+      }
+    },
     "Ce NAS n’annonce aucun montage NFS, CIFS ou ISO pris en charge." : {
       "localizations" : {
         "en" : {
@@ -7633,6 +7697,38 @@
         }
       }
     },
+    "Approuvez la connexion dans l’app Synology Secure SignIn." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approve the sign-in in the Synology Secure SignIn app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approuvez la connexion dans l’app Synology Secure SignIn."
+          }
+        }
+      }
+    },
+    "Approuvez la connexion dans l’app Synology Secure SignIn. Chiffre à confirmer : %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approve the sign-in in the Synology Secure SignIn app. Number to confirm: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Approuvez la connexion dans l’app Synology Secure SignIn. Chiffre à confirmer : %lld"
+          }
+        }
+      }
+    },
     "Archive" : {
       "localizations" : {
         "en" : {
@@ -7677,6 +7773,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Arrêter l’opération en cours sur le NAS"
+          }
+        }
+      }
+    },
+    "Chiffre à confirmer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Number to confirm"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiffre à confirmer"
+          }
+        }
+      }
+    },
+    "Chiffre à confirmer : %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Number to confirm: %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chiffre à confirmer : %lld"
           }
         }
       }
@@ -12816,6 +12944,22 @@
         }
       }
     },
+    "Annuler la demande d'approbation et revenir à la connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel the approval request and go back to sign-in"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Annuler la demande d'approbation et revenir à la connexion"
+          }
+        }
+      }
+    },
     "Annuler la suppression" : {
       "localizations" : {
         "en" : {
@@ -13196,6 +13340,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Arrêtés"
+          }
+        }
+      }
+    },
+    "Attente de l'approbation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Waiting for approval"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attente de l'approbation"
           }
         }
       }
@@ -13612,6 +13772,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Aucune vidéo"
+          }
+        }
+      }
+    },
+    "Authentification" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authentication"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Authentification"
           }
         }
       }
@@ -15696,6 +15872,38 @@
         }
       }
     },
+    "Connexion refusée depuis l’app Synology Secure SignIn." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sign-in denied from the Synology Secure SignIn app."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion refusée depuis l’app Synology Secure SignIn."
+          }
+        }
+      }
+    },
+    "Connexion sans mot de passe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passwordless sign-in"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion sans mot de passe"
+          }
+        }
+      }
+    },
     "Conserver ce paquet" : {
       "localizations" : {
         "en" : {
@@ -17775,6 +17983,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Envoyer des fichiers…"
+          }
+        }
+      }
+    },
+    "Envoyer une demande d'approbation à l'app Synology Secure SignIn" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send an approval request to the Synology Secure SignIn app"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer une demande d'approbation à l'app Synology Secure SignIn"
           }
         }
       }
@@ -23094,6 +23318,22 @@
         }
       }
     },
+    "Sans mot de passe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Passwordless"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sans mot de passe"
+          }
+        }
+      }
+    },
     "Santé" : {
       "localizations" : {
         "en" : {
@@ -26648,6 +26888,38 @@
         }
       }
     },
+    "Une demande a été envoyée à l'app Synology Secure SignIn. Approuvez-la sur votre appareil mobile pour ouvrir la session." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A request was sent to the Synology Secure SignIn app. Approve it on your phone to open the session."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une demande a été envoyée à l'app Synology Secure SignIn. Approuvez-la sur votre appareil mobile pour ouvrir la session."
+          }
+        }
+      }
+    },
+    "Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile. La session devra être approuvée de nouveau à chaque ouverture de l'app." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An approval request will be sent to the Synology Secure SignIn app on your phone. The session must be approved again every time the app is opened."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile. La session devra être approuvée de nouveau à chaque ouverture de l'app."
+          }
+        }
+      }
+    },
     "Une installation manuelle est déjà en cours." : {
       "localizations" : {
         "en" : {
@@ -27364,6 +27636,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chargement des permissions…"
+          }
+        }
+      }
+    },
+    "Choisir comment prouver votre identité auprès du NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose how to prove your identity to the NAS"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir comment prouver votre identité auprès du NAS"
           }
         }
       }
@@ -28711,6 +28999,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Version du NAS inconnue."
+          }
+        }
+      }
+    },
+    "Veuillez renseigner le nom d’utilisateur." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Please enter the user name."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Veuillez renseigner le nom d’utilisateur."
           }
         }
       }

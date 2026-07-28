@@ -3,10 +3,11 @@
 //  dsmaccess
 //
 //  Saisie du code de vérification à deux facteurs. Affiché uniquement quand DSM le
-//  réclame. Le focus VoiceOver est placé sur le champ dès l'apparition.
+//  réclame après une connexion par mot de passe. Le focus VoiceOver est placé sur le
+//  champ dès l'apparition.
 //
-//  Note : l'approbation « push » de l'app Synology n'est pas déclenchable par une app
-//  tierce — d'où la saisie manuelle du code à 6 chiffres.
+//  L'approbation « push » de Secure SignIn suit un autre chemin, sans mot de passe :
+//  voir SecureSignInApprovalView.
 //
 
 import SwiftUI
