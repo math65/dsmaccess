@@ -44,6 +44,9 @@ enum DSMError: Error, LocalizedError, Equatable {
     case passwordMustChange
     /// Le mot de passe ne satisfait pas les règles de force configurées sur le NAS.
     case weakPassword
+    /// Le compte a bien été créé, mais son ajout aux groupes demandés a échoué : l'opération
+    /// ne peut être ni présentée comme réussie, ni retentée à l'identique.
+    case userCreatedWithoutGroups(name: String)
     /// Autre erreur API renvoyée par DSM.
     case apiError(code: Int)
     /// Le Centre de paquets exige une décision ou un assistant que l'app ne doit pas deviner.
@@ -87,6 +90,8 @@ enum DSMError: Error, LocalizedError, Equatable {
             return String(localized: "Ce compte doit changer son mot de passe avant de se connecter.")
         case .weakPassword:
             return String(localized: "Le mot de passe ne respecte pas les règles de sécurité du NAS.")
+        case .userCreatedWithoutGroups(let name):
+            return String(localized: "Le compte \(name) a été créé, mais son ajout aux groupes a échoué.")
         case .apiError(let code):
             return String(localized: "Erreur du NAS (code \(code)).")
         case .packageCenter(let message):

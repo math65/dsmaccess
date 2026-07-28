@@ -62,8 +62,12 @@ final class DSMAccountService {
         return groups
     }
 
+    /// DSM 7.4 accepte le paramètre « group » de SYNO.Core.User.create et répond `success`,
+    /// mais n'ajoute le compte à aucun de ces groupes : l'appartenance ne s'obtient qu'en
+    /// second appel, via SYNO.Core.Group.Member. Le compte existe dès la première étape,
+    /// d'où l'erreur dédiée si la seconde échoue.
     func createUser(_ draft: DSMUserDraft) async throws {
-        var parameters: [String: DSMParameter] = [
+        let parameters: [String: DSMParameter] = [
             "name": .string(draft.name),
             "password": .string(draft.password),
             "description": .string(draft.description),
@@ -72,13 +76,27 @@ final class DSMAccountService {
             "cannot_chg_passwd": .boolean(false),
             "password_never_expire": .boolean(true),
         ]
-        if !draft.groups.isEmpty {
-            parameters["group"] = try DSMParameter.json(draft.groups)
-        }
         do {
             try await transport.perform(api: Self.userAPI, method: "create", parameters: parameters)
         } catch DSMError.apiError(Self.weakPasswordCode) {
             throw DSMError.weakPassword
+        }
+
+        guard !draft.groups.isEmpty else { return }
+        do {
+            for group in draft.groups {
+                try await transport.perform(
+                    api: Self.groupMemberAPI,
+                    method: "change",
+                    parameters: [
+                        "group": .string(group),
+                        "add_member": try DSMParameter.json([draft.name]),
+                    ]
+                )
+            }
+        } catch {
+            guard !DSMError.isCancellation(error) else { throw error }
+            throw DSMError.userCreatedWithoutGroups(name: draft.name)
         }
     }
 

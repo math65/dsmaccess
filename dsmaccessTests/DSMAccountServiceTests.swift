@@ -54,6 +54,8 @@ struct DSMAccountServiceTests {
     @Test func sendsTheVerifiedUserCreationContract() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"name":"martine","uid":1031}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
         ])
         let service = makeService(stub: stub)
 
@@ -63,18 +65,65 @@ struct DSMAccountServiceTests {
                 password: "secret",
                 description: "Compte invité",
                 email: "",
-                groups: ["users"]
+                groups: ["users", "photo"]
             )
         )
 
-        let request = try #require(await stub.requests.first)
-        let parameters = try query(from: request)
-        #expect(parameters["api"] == "SYNO.Core.User")
-        #expect(parameters["method"] == "create")
-        #expect(parameters["name"] == #""martine""#)
-        #expect(parameters["password"] == #""secret""#)
-        #expect(parameters["group"] == #"["users"]"#)
-        #expect(parameters["_sid"] == "session-id")
+        let requests = await stub.requests
+        #expect(requests.count == 3)
+        let creation = try query(from: requests[0])
+        #expect(creation["api"] == "SYNO.Core.User")
+        #expect(creation["method"] == "create")
+        #expect(creation["name"] == #""martine""#)
+        #expect(creation["password"] == #""secret""#)
+        #expect(creation["_sid"] == "session-id")
+        // DSM 7.4 ignore « group » ici : l'envoyer laisserait croire que l'appartenance
+        // est appliquée alors qu'elle ne l'est pas.
+        #expect(creation["group"] == nil)
+
+        let firstGroup = try query(from: requests[1])
+        #expect(firstGroup["api"] == "SYNO.Core.Group.Member")
+        #expect(firstGroup["method"] == "change")
+        #expect(firstGroup["group"] == #""users""#)
+        #expect(firstGroup["add_member"] == #"["martine"]"#)
+        let secondGroup = try query(from: requests[2])
+        #expect(secondGroup["group"] == #""photo""#)
+    }
+
+    @Test func createsNoGroupCallWhenTheDraftHasNoGroup() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"name":"martine","uid":1031}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.createUser(
+            DSMUserDraft(name: "martine", password: "secret", description: "", email: "", groups: [])
+        )
+
+        #expect(await stub.requests.count == 1)
+    }
+
+    @Test func reportsAnAccountCreatedWithoutItsGroups() async throws {
+        // Le compte existe dès le premier appel : présenter un échec simple pousserait à
+        // resoumettre le formulaire, qui buterait alors sur un nom déjà pris.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"name":"martine","uid":1031}}"#.utf8)),
+            .response(Data(#"{"success":false,"error":{"code":402}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        await #expect(throws: DSMError.userCreatedWithoutGroups(name: "martine")) {
+            try await service.createUser(
+                DSMUserDraft(
+                    name: "martine",
+                    password: "secret",
+                    description: "",
+                    email: "",
+                    groups: ["users"]
+                )
+            )
+        }
+        #expect(await stub.requests.count == 2)
     }
 
     @Test func reportsAPasswordRefusedByTheNASPolicy() async throws {

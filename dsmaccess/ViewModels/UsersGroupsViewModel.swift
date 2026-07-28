@@ -58,8 +58,16 @@ final class UsersGroupsViewModel {
 
     func createUser(_ draft: DSMUserDraft) async -> DSMOperationOutcome {
         await perform(key: "user:\(draft.name)") { client in
-            try await client.createUser(draft)
-            return String(localized: "Utilisateur créé : \(draft.name)")
+            do {
+                try await client.createUser(draft)
+                return String(localized: "Utilisateur créé : \(draft.name)")
+            } catch DSMError.userCreatedWithoutGroups {
+                // Le compte existe : resoumettre le formulaire ne ferait qu'échouer sur un
+                // nom déjà pris. L'opération se termine donc, en énonçant ce qui reste à faire.
+                return String(
+                    localized: "Utilisateur créé : \(draft.name). Son ajout aux groupes a échoué, attribuez-les depuis la liste des groupes."
+                )
+            }
         }
     }
 
