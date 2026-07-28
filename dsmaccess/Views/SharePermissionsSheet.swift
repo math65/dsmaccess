@@ -100,67 +100,13 @@ struct SharePermissionsSheet: View {
             )
             .accessibilityFocused($contentFocused)
         } else {
-            grid
-        }
-    }
-
-    private var grid: some View {
-        ScrollView {
-            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
-                GridRow {
-                    Text("Dossier partagé").accessibilityAddTraits(.isHeader)
-                    Text("Appliqué").accessibilityAddTraits(.isHeader)
-                    Text("Droit de groupe").accessibilityAddTraits(.isHeader)
-                    ForEach(DSMSharePermissionLevel.allCases) { level in
-                        Text(level.label).accessibilityAddTraits(.isHeader)
-                    }
-                }
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-
-                Divider().gridCellUnsizedAxes(.horizontal)
-
-                ForEach(viewModel.permissions) { share in
-                    GridRow {
-                        Text(share.name)
-                            .accessibilityLabel(rowLabel(share))
-                            .accessibilityFocused($contentFocused, equals: share.id == viewModel.permissions.first?.id)
-                        Text(share.effective.label)
-                            .foregroundStyle(.readableSecondary)
-                            .accessibilityHidden(true)
-                        Text(share.inherited?.label ?? String(localized: "Aucun"))
-                            .foregroundStyle(.readableSecondary)
-                            .accessibilityHidden(true)
-                        ForEach(DSMSharePermissionLevel.allCases) { level in
-                            Toggle(level.label, isOn: binding(for: share, level: level))
-                                .labelsHidden()
-                                .disabled(viewModel.isSaving)
-                                .accessibilityLabel("\(share.name), \(level.label)")
-                        }
-                    }
-                }
+            SharePermissionTableView(
+                permissions: viewModel.permissions,
+                isEnabled: !viewModel.isSaving
+            ) { share, level in
+                viewModel.setLevel(level, for: share)
             }
+            .accessibilityFocused($contentFocused)
         }
-    }
-
-    /// Une ligne se lit d'un coup : le dossier, le droit qui s'applique vraiment, et d'où il vient.
-    private func rowLabel(_ share: DSMSharePermission) -> String {
-        if let inherited = share.inherited {
-            return String(
-                localized: "\(share.name), appliqué : \(share.effective.label), droit de groupe : \(inherited.label)"
-            )
-        }
-        return String(localized: "\(share.name), appliqué : \(share.effective.label), aucun droit de groupe")
-    }
-
-    private func binding(
-        for share: DSMSharePermission,
-        level: DSMSharePermissionLevel
-    ) -> Binding<Bool> {
-        Binding(
-            get: { viewModel.permissions.first { $0.id == share.id }?.granted == level },
-            // Décocher la case active ramène le dossier au seul droit hérité, comme dans DSM.
-            set: { isOn in viewModel.setLevel(isOn ? level : nil, for: share) }
-        )
     }
 }

@@ -27320,6 +27320,22 @@
         }
       }
     },
+    "Permissions par dossier partagé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions per shared folder"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions par dossier partagé"
+          }
+        }
+      }
+    },
     "Permissions enregistrées : %lld dossiers modifiés." : {
       "localizations" : {
         "en" : {
