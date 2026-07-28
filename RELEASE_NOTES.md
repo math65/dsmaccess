@@ -1,3 +1,20 @@
+## v1.1-beta.13 (build 14) — 2026-07-28
+
+### Highlights
+
+- Users and groups: the groups an account belongs to can now be changed after
+  the account exists, not only while creating it.
+
+### New
+
+- Users and groups: the permissions panel gains a Groups tab, next to shared
+  folders and applications, listing every group on the NAS with the ones the
+  account belongs to ticked. Changes are saved along with the rest.
+
+### Download
+
+[dsmaccess-1.1-beta.13.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.13/dsmaccess-1.1-beta.13.zip)
+
 ## v1.1-beta.12 (build 13) — 2026-07-28
 
 ### Highlights

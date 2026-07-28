@@ -1,3 +1,21 @@
+## v1.1-beta.13 (build 14) — 28 juillet 2026
+
+### En bref
+
+- Utilisateurs et groupes : les groupes auxquels un compte appartient peuvent
+  désormais être modifiés après coup, et plus seulement à la création.
+
+### Nouveautés
+
+- Utilisateurs et groupes : l'écran des permissions gagne un onglet Groupes, à
+  côté des dossiers partagés et des applications. Il présente tous les groupes
+  du NAS, cochés pour ceux auxquels le compte appartient, et s'enregistre avec
+  le reste.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.13.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.13/dsmaccess-1.1-beta.13.zip)
+
 ## v1.1-beta.12 (build 13) — 28 juillet 2026
 
 ### En bref
