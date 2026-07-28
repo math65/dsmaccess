@@ -27128,6 +27128,22 @@
         }
       }
     },
+    "Créez un groupe pour donner les mêmes accès à plusieurs comptes." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create a group to give the same access to several accounts."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Créez un groupe pour donner les mêmes accès à plusieurs comptes."
+          }
+        }
+      }
+    },
     "Dossier partagé" : {
       "localizations" : {
         "en" : {
@@ -27204,6 +27220,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entre le droit du compte et celui de ses groupes : un aucun accès l’emporte sur tout, sinon c’est le droit le plus large qui s’applique. Un compte en lecture/écriture dans un groupe en lecture seule peut donc écrire."
+          }
+        }
+      }
+    },
+    "Faire appartenir ce compte au groupe %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Make this account a member of the %@ group"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faire appartenir ce compte au groupe %@"
           }
         }
       }
@@ -27604,6 +27636,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permissions enregistrées : %lld dossiers modifiés."
+          }
+        }
+      }
+    },
+    "Permissions enregistrées : %lld dossiers, %lld applications et %lld groupes modifiés." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions saved: %lld shared folders, %lld applications and %lld groups changed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions enregistrées : %lld dossiers, %lld applications et %lld groupes modifiés."
+          }
+        }
+      }
+    },
+    "Permissions enregistrées : %lld groupes modifiés." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions saved: %lld groups changed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions enregistrées : %lld groupes modifiés."
           }
         }
       }

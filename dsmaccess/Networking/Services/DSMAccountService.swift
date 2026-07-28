@@ -85,19 +85,35 @@ final class DSMAccountService {
         guard !draft.groups.isEmpty else { return }
         do {
             for group in draft.groups {
-                try await transport.perform(
-                    api: Self.groupMemberAPI,
-                    method: "change",
-                    parameters: [
-                        "group": .string(group),
-                        "add_member": try DSMParameter.json([draft.name]),
-                    ]
-                )
+                try await changeMembership(of: draft.name, in: group, joins: true)
             }
         } catch {
             guard !DSMError.isCancellation(error) else { throw error }
             throw DSMError.userCreatedWithoutGroups(name: draft.name)
         }
+    }
+
+    /// Applique l'appartenance d'un compte à un ensemble de groupes. DSM ne sait modifier
+    /// qu'un groupe à la fois : c'est le groupe qui porte ses membres, pas l'inverse.
+    func setMemberships(of user: String, joining: [String], leaving: [String]) async throws {
+        for group in joining {
+            try await changeMembership(of: user, in: group, joins: true)
+        }
+        for group in leaving {
+            try await changeMembership(of: user, in: group, joins: false)
+        }
+    }
+
+    private func changeMembership(of user: String, in group: String, joins: Bool) async throws {
+        try await transport.perform(
+            api: Self.groupMemberAPI,
+            method: "change",
+            parameters: [
+                "group": .string(group),
+                // Le paramètre est au singulier, et « add » répond succès sans rien faire.
+                joins ? "add_member" : "remove_member": try DSMParameter.json([user]),
+            ]
+        )
     }
 
     func passwordPolicy() async throws -> DSMPasswordPolicy {

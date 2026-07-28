@@ -15,6 +15,10 @@ final class SharePermissionsViewModel {
     let holder: DSMPermissionHolder
     private(set) var permissions: [DSMSharePermission] = []
     private(set) var applications: [DSMApplicationPrivilege] = []
+    /// Groupes du NAS et appartenance du compte. Vide pour un groupe : un groupe n'appartient
+    /// à rien, et DSM ne lui propose pas non plus cet onglet.
+    private(set) var groups: [DSMGroup] = []
+    private(set) var memberships: Set<String> = []
     private(set) var isLoading = false
     private(set) var isSaving = false
     /// Le NAS peut exposer les dossiers sans exposer les applications : le volet dit alors
@@ -26,13 +30,21 @@ final class SharePermissionsViewModel {
     /// État tel que le NAS l'a renvoyé, pour n'envoyer que les lignes réellement changées.
     private var loadedShares: [String: DSMSharePermissionLevel?] = [:]
     private var loadedApplications: [String: DSMApplicationDecision?] = [:]
+    private var loadedMemberships: Set<String> = []
 
     init(holder: DSMPermissionHolder, session: SessionStore) {
         self.holder = holder
         self.session = session
     }
 
-    var hasChanges: Bool { !changedShares.isEmpty || !changedApplications.isEmpty }
+    var hasChanges: Bool {
+        !changedShares.isEmpty || !changedApplications.isEmpty || memberships != loadedMemberships
+    }
+
+    var editsMemberships: Bool {
+        if case .user = holder { return true }
+        return false
+    }
 
     var summary: String {
         if let errorMessage { return errorMessage }
@@ -59,6 +71,23 @@ final class SharePermissionsViewModel {
             return
         }
 
+        if editsMemberships {
+            do {
+                let all = try await session.withClient { client in
+                    try await client.listGroups().sorted {
+                        $0.name.localizedStandardCompare($1.name) == .orderedAscending
+                    }
+                }
+                groups = all
+                memberships = Set(all.filter { $0.members.contains(holder.name) }.map(\.name))
+                loadedMemberships = memberships
+            } catch {
+                guard !DSMError.isCancellation(error) else { return }
+                errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+                return
+            }
+        }
+
         do {
             let privileges = try await session.withClient { client in
                 try await client.applicationPrivileges(for: holder).sorted {
@@ -80,6 +109,10 @@ final class SharePermissionsViewModel {
         permissions[index].granted = level
     }
 
+    func setMembership(_ isMember: Bool, of group: DSMGroup) {
+        if isMember { memberships.insert(group.name) } else { memberships.remove(group.name) }
+    }
+
     func setDecision(
         _ decision: DSMApplicationDecision?,
         for application: DSMApplicationPrivilege
@@ -91,7 +124,9 @@ final class SharePermissionsViewModel {
     func save() async -> DSMOperationOutcome {
         let shares = changedShares
         let privileges = changedApplications
-        guard !shares.isEmpty || !privileges.isEmpty else {
+        let joining = memberships.subtracting(loadedMemberships).sorted()
+        let leaving = loadedMemberships.subtracting(memberships).sorted()
+        guard !shares.isEmpty || !privileges.isEmpty || !joining.isEmpty || !leaving.isEmpty else {
             return .success(String(localized: "Aucune modification à enregistrer."))
         }
         isSaving = true
@@ -105,10 +140,24 @@ final class SharePermissionsViewModel {
                 if !privileges.isEmpty {
                     try await client.setApplicationPrivileges(privileges, for: holder)
                 }
+                if !joining.isEmpty || !leaving.isEmpty {
+                    try await client.setMemberships(
+                        of: holder.name,
+                        joining: joining,
+                        leaving: leaving
+                    )
+                }
             }
             loadedShares = Dictionary(uniqueKeysWithValues: permissions.map { ($0.name, $0.granted) })
             loadedApplications = Dictionary(uniqueKeysWithValues: applications.map { ($0.appID, $0.decision) })
-            return .success(savedSummary(shares: shares.count, applications: privileges.count))
+            loadedMemberships = memberships
+            return .success(
+                savedSummary(
+                    shares: shares.count,
+                    applications: privileges.count,
+                    groups: joining.count + leaving.count
+                )
+            )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
@@ -116,7 +165,15 @@ final class SharePermissionsViewModel {
         }
     }
 
-    private func savedSummary(shares: Int, applications: Int) -> String {
+    private func savedSummary(shares: Int, applications: Int, groups: Int) -> String {
+        if groups > 0, shares == 0, applications == 0 {
+            return String(localized: "Permissions enregistrées : \(groups) groupes modifiés.")
+        }
+        if groups > 0 {
+            return String(
+                localized: "Permissions enregistrées : \(shares) dossiers, \(applications) applications et \(groups) groupes modifiés."
+            )
+        }
         if shares > 0, applications > 0 {
             return String(
                 localized: "Permissions enregistrées : \(shares) dossiers et \(applications) applications modifiés."

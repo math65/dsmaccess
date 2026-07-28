@@ -109,6 +109,10 @@ struct SharePermissionsSheet: View {
                     .tabItem { Text("Dossiers partagés") }
                 applicationTab
                     .tabItem { Text("Applications") }
+                if viewModel.editsMemberships {
+                    groupTab
+                        .tabItem { Text("Groupes") }
+                }
             }
         }
     }
@@ -132,6 +136,37 @@ struct SharePermissionsSheet: View {
             }
         }
         .padding(12)
+    }
+
+    /// Même présentation que la liste de groupes du formulaire de création : une case par
+    /// groupe, cochée quand le compte en fait partie.
+    @ViewBuilder
+    private var groupTab: some View {
+        if viewModel.groups.isEmpty {
+            EmptyModuleView(
+                title: "Aucun groupe",
+                systemImage: "person.3",
+                description: "Créez un groupe pour donner les mêmes accès à plusieurs comptes."
+            )
+        } else {
+            Form {
+                Section("Groupes") {
+                    ForEach(viewModel.groups) { group in
+                        Toggle(group.name, isOn: membershipBinding(group))
+                            .disabled(viewModel.isSaving)
+                            .help("Faire appartenir ce compte au groupe \(group.name)")
+                    }
+                }
+            }
+            .formStyle(.grouped)
+        }
+    }
+
+    private func membershipBinding(_ group: DSMGroup) -> Binding<Bool> {
+        Binding(
+            get: { viewModel.memberships.contains(group.name) },
+            set: { viewModel.setMembership($0, of: group) }
+        )
     }
 
     @ViewBuilder
