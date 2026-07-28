@@ -39,30 +39,27 @@ struct SharePermissionsSheet: View {
                         .accessibilityLabel("Enregistrement en cours")
                 }
                 Spacer()
-                Button("Annuler", role: .cancel) {
-                    if viewModel.hasChanges {
-                        showsDiscardConfirmation = true
-                    } else {
-                        dismiss()
+                // Sans modification, « Annuler » laisserait croire qu'on revient sur quelque
+                // chose — la création du compte, quand l'écran s'ouvre juste après elle.
+                if viewModel.hasChanges {
+                    Button("Annuler", role: .cancel) { showsDiscardConfirmation = true }
+                        .keyboardShortcut(.cancelAction)
+                        .help("Fermer sans enregistrer les modifications")
+                    Button("Enregistrer") {
+                        Task {
+                            let outcome = await viewModel.save()
+                            onFinish(outcome)
+                            if case .success = outcome { dismiss() }
+                        }
                     }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(viewModel.isSaving)
+                    .help("Enregistrer les permissions modifiées")
+                } else {
+                    Button("Fermer", role: .cancel) { dismiss() }
+                        .keyboardShortcut(.cancelAction)
+                        .help("Fermer les permissions")
                 }
-                .keyboardShortcut(.cancelAction)
-                .help("Fermer sans enregistrer les modifications")
-                Button("Enregistrer") {
-                    Task {
-                        let outcome = await viewModel.save()
-                        onFinish(outcome)
-                        if case .success = outcome { dismiss() }
-                    }
-                }
-                .keyboardShortcut(.defaultAction)
-                .disabled(!viewModel.hasChanges || viewModel.isSaving)
-                // Un bouton estompé s'annonce sans sa raison : l'aide dit ce qui manque.
-                .help(
-                    viewModel.hasChanges
-                        ? "Enregistrer les permissions modifiées"
-                        : "Aucune permission modifiée pour l’instant"
-                )
             }
         }
         .padding(20)

@@ -26936,22 +26936,6 @@
         }
       }
     },
-    "Aucune permission modifiée pour l’instant" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No permission changed yet"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucune permission modifiée pour l’instant"
-          }
-        }
-      }
-    },
     "Autorisations par application" : {
       "localizations" : {
         "en" : {
@@ -27220,6 +27204,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Entre le droit du compte et celui de ses groupes : un aucun accès l’emporte sur tout, sinon c’est le droit le plus large qui s’applique. Un compte en lecture/écriture dans un groupe en lecture seule peut donc écrire."
+          }
+        }
+      }
+    },
+    "Fermer les permissions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close the permissions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer les permissions"
           }
         }
       }
