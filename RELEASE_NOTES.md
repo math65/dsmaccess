@@ -1,3 +1,50 @@
+## v1.1-beta.12 (build 13) — 2026-07-28
+
+### Highlights
+
+- Users and groups: you can now give an account access to your shared folders
+  and to the applications on your NAS, without leaving DSM Access. Creating
+  someone an account and letting them actually use it is one task again.
+
+### New
+
+- Users and groups: a Permissions panel lists every shared folder with the
+  access granted to the account, the access it inherits from its groups, and
+  the four choices DSM offers. It reads as a table, one row per folder, so you
+  can go through it with the arrow keys.
+- Users and groups: a second tab does the same for applications. Whether
+  someone may open DSM, File Station, Synology Photos or connect over SMB is
+  set here. Nothing is sent to the NAS until you save, and only what you
+  changed is sent.
+- Users and groups: the same panel works on a group. Give the rights once to a
+  group, add people to it, and each of them inherits without you repeating
+  anything. This is the practical way to set up a household.
+- Users and groups: the creation panel offers to open the permissions of the
+  account it just created, so you do not have to find it again in the list to
+  give it any access at all.
+
+### Fixes
+
+- Users and groups: the groups you picked when creating an account were
+  silently dropped. The account was created, but it belonged to none of them.
+  It now lands in the groups you chose.
+
+### Accessibility
+
+- Users and groups: an application already restricted to specific addresses is
+  left read-only, with an explanation, rather than being quietly rewritten as
+  "from anywhere".
+- Users and groups: when a group is denied access to a folder, the panel says
+  so on the row concerned, because that denial overrides whatever the account
+  itself was given.
+- Users and groups: the panel shows a single Close button until something is
+  actually modified, instead of a Cancel that suggests undoing work and a
+  dimmed Save that does not say why.
+
+### Download
+
+[dsmaccess-1.1-beta.12.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.12/dsmaccess-1.1-beta.12.zip)
+
 ## v1.1-beta.11 (build 12) — 2026-07-27
 
 ### Highlights

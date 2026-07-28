@@ -1,3 +1,52 @@
+## v1.1-beta.12 (build 13) — 28 juillet 2026
+
+### En bref
+
+- Utilisateurs et groupes : vous pouvez désormais donner à un compte l'accès à
+  vos dossiers partagés et aux applications de votre NAS, sans quitter DSM
+  Access. Créer un compte à quelqu'un et lui permettre de s'en servir
+  redeviennent une seule et même tâche.
+
+### Nouveautés
+
+- Utilisateurs et groupes : un écran Permissions présente chaque dossier
+  partagé avec l'accès accordé au compte, celui dont il hérite de ses groupes,
+  et les quatre choix proposés par DSM. Il se lit comme un tableau, une ligne
+  par dossier, et se parcourt aux flèches.
+- Utilisateurs et groupes : un second onglet fait de même pour les
+  applications. C'est là que se décide si quelqu'un peut ouvrir DSM, File
+  Station, Synology Photos ou se connecter en SMB. Rien n'est envoyé au NAS
+  avant l'enregistrement, et seul ce que vous avez modifié part.
+- Utilisateurs et groupes : le même écran fonctionne sur un groupe. Donnez les
+  droits une fois au groupe, ajoutez-y des personnes, et chacune en hérite sans
+  que vous ayez à recommencer. C'est la façon commode d'organiser les accès
+  d'une famille.
+- Utilisateurs et groupes : la fenêtre de création propose d'ouvrir les
+  permissions du compte qu'elle vient de créer, pour ne plus avoir à le
+  retrouver dans la liste avant de lui donner le moindre accès.
+
+### Corrections
+
+- Utilisateurs et groupes : les groupes choisis à la création d'un compte
+  étaient perdus en silence. Le compte était bien créé, mais n'appartenait à
+  aucun d'eux. Il arrive maintenant dans les groupes que vous avez cochés.
+
+### Accessibilité
+
+- Utilisateurs et groupes : une application déjà restreinte à des adresses
+  précises reste en lecture, avec une explication, plutôt que d'être réécrite
+  sans prévenir en « depuis n'importe où ».
+- Utilisateurs et groupes : lorsqu'un groupe se voit refuser un dossier,
+  l'écran le signale sur la ligne concernée, car ce refus l'emporte sur ce que
+  le compte a reçu par ailleurs.
+- Utilisateurs et groupes : l'écran n'affiche qu'un bouton Fermer tant que rien
+  n'a été modifié, au lieu d'un Annuler qui laisse croire qu'on revient sur
+  quelque chose et d'un Enregistrer estompé sans explication.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.12.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.12/dsmaccess-1.1-beta.12.zip)
+
 ## v1.1-beta.11 (build 12) — 27 juillet 2026
 
 ### En bref
