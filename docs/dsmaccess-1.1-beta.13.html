@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dsmaccess-1.1-beta.13</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #6e6e73;
+  --code-bg: #f5f5f7;
+  --link: #0066cc;
+  --link-hover: #0040a0;
+  --rule: #e5e5ea;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #ececec;
+    --muted: #a0a0a0;
+    --code-bg: #2d2d2d;
+    --link: #4eaaff;
+    --link-hover: #82c4ff;
+    --rule: #3a3a3a;
+  }
+}
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+  padding: 1rem 1.25rem 1.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.4em 0 0.5em;
+}
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.15rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 1.02rem; }
+h4 { font-size: 0.95rem; color: var(--muted); }
+p { margin: 0.6em 0; }
+ul, ol { padding-left: 1.4em; margin: 0.6em 0; }
+li { margin: 0.25em 0; }
+li > p { margin: 0.3em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover, a:focus { color: var(--link-hover); text-decoration: underline; }
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; border-radius: 0; }
+blockquote {
+  border-left: 3px solid var(--rule);
+  margin: 0.8em 0;
+  padding: 0.1em 0 0.1em 1em;
+  color: var(--muted);
+}
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<h2 id="v11-beta13-build-14--2026-07-28">v1.1-beta.13 (build 14) —
+2026-07-28</h2>
+<h3 id="highlights">Highlights</h3>
+<ul>
+<li>Users and groups: the groups an account belongs to can now be
+changed after the account exists, not only while creating it.</li>
+</ul>
+<h3 id="new">New</h3>
+<ul>
+<li>Users and groups: the permissions panel gains a Groups tab, next to
+shared folders and applications, listing every group on the NAS with the
+ones the account belongs to ticked. Changes are saved along with the
+rest.</li>
+</ul>
+<h3 id="download">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.13/dsmaccess-1.1-beta.13.zip">dsmaccess-1.1-beta.13.zip</a></p>
+<h2 id="v11-beta12-build-13--2026-07-28">v1.1-beta.12 (build 13) —
+2026-07-28</h2>
+<h3 id="highlights-1">Highlights</h3>
+<ul>
+<li>Users and groups: you can now give an account access to your shared
+folders and to the applications on your NAS, without leaving DSM Access.
+Creating someone an account and letting them actually use it is one task
+again.</li>
+</ul>
+<h3 id="new-1">New</h3>
+<ul>
+<li>Users and groups: a Permissions panel lists every shared folder with
+the access granted to the account, the access it inherits from its
+groups, and the four choices DSM offers. It reads as a table, one row
+per folder, so you can go through it with the arrow keys.</li>
+<li>Users and groups: a second tab does the same for applications.
+Whether someone may open DSM, File Station, Synology Photos or connect
+over SMB is set here. Nothing is sent to the NAS until you save, and
+only what you changed is sent.</li>
+<li>Users and groups: the same panel works on a group. Give the rights
+once to a group, add people to it, and each of them inherits without you
+repeating anything. This is the practical way to set up a
+household.</li>
+<li>Users and groups: the creation panel offers to open the permissions
+of the account it just created, so you do not have to find it again in
+the list to give it any access at all.</li>
+</ul>
+<h3 id="fixes">Fixes</h3>
+<ul>
+<li>Users and groups: the groups you picked when creating an account
+were silently dropped. The account was created, but it belonged to none
+of them. It now lands in the groups you chose.</li>
+</ul>
+<h3 id="accessibility">Accessibility</h3>
+<ul>
+<li>Users and groups: an application already restricted to specific
+addresses is left read-only, with an explanation, rather than being
+quietly rewritten as "from anywhere".</li>
+<li>Users and groups: when a group is denied access to a folder, the
+panel says so on the row concerned, because that denial overrides
+whatever the account itself was given.</li>
+<li>Users and groups: the panel shows a single Close button until
+something is actually modified, instead of a Cancel that suggests
+undoing work and a dimmed Save that does not say why.</li>
+</ul>
+<h3 id="download-1">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.12/dsmaccess-1.1-beta.12.zip">dsmaccess-1.1-beta.12.zip</a></p>
+<h2 id="v11-beta11-build-12--2026-07-27">v1.1-beta.11 (build 12) —
+2026-07-27</h2>
+<h3 id="highlights-2">Highlights</h3>
+<ul>
+<li>Sign-in: accounts without administrator rights can sign in again.
+Anyone you created an account for on your NAS can use DSM Access, not
+just you.</li>
+</ul>
+<h3 id="fixes-1">Fixes</h3>
+<ul>
+<li>Sign-in: an account that is not an administrator was turned away
+with "Permission denied for this account", even though that same account
+signed in to DSM in a browser without any trouble.</li>
+<li>Users and groups: creating a user failed with nothing but an error
+code when the password did not satisfy the rules your NAS enforces. The
+message now says what happened, and the form lists those rules before
+you type anything.</li>
+<li>Users and groups: a failed creation no longer closes the panel and
+discards everything you filled in. The message appears in place, and you
+can correct the password without starting over.</li>
+</ul>
+<h3 id="new-2">New</h3>
+<ul>
+<li>Sign-in: when your NAS requires a new password before letting an
+account in, DSM Access asks for it and signs you in, instead of stopping
+on an error you could do nothing about.</li>
+<li>Users and groups: a button generates a password that satisfies your
+NAS rules. It is shown in plain text so you can read it back, and a
+second button copies it, so you can pass it on to the person it is meant
+for. The characters that sound and look alike are left out, so it
+survives being read aloud or written down.</li>
+</ul>
+<h3 id="download-2">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.11/dsmaccess-1.1-beta.11.zip">dsmaccess-1.1-beta.11.zip</a></p>
+<h2 id="v11-beta10-build-11--2026-07-25">v1.1-beta.10 (build 11) —
+2026-07-25</h2>
+<h3 id="highlights-3">Highlights</h3>
+<ul>
+<li>Files: copy files in the Finder, then paste them into a folder on
+the NAS with Command-V. Whole folders come along, with everything inside
+them.</li>
+<li>Files: drag an item out of the file list and drop it in the Finder
+to download it there.</li>
+<li>Copy and paste now behave the way they do in the Finder: Command-C
+copies, Command-V pastes a copy, and Command-Option-V moves. There is no
+longer a Cut command.</li>
+</ul>
+<h3 id="new-3">New</h3>
+<ul>
+<li>Files: Command-V sends what you copied in the Finder to the folder
+you are in. Files land in that folder; a folder is recreated on the NAS
+with its entire tree, empty subfolders included. Finder's hidden
+.DS_Store files are left out, and if an item on your Mac cannot be read,
+the transfer reports itself as incomplete rather than pretending
+everything went through.</li>
+<li>Files: an item can be dragged out of the list and dropped in the
+Finder. Nothing is downloaded until you actually drop it, and a folder
+arrives as a ZIP archive, exactly as it does with Download. Download
+remains the keyboard route and has not changed.</li>
+<li>Files: sending items to the NAS now accepts folders as well as
+files, and the options that appear before a transfer say how many files
+and how many folders are on their way.</li>
+</ul>
+<h3 id="changes">Changes</h3>
+<ul>
+<li>Files: Cut is gone. Command-C copies, Command-V pastes a copy, and
+Command-Option-V moves what you copied — the choice happens when you
+paste, as in the Finder. The Files menu now offers Move Here next to
+Paste, and the confirmation states what a move will do. Moving files
+that come from your Mac is refused, with an explanation: it would mean
+deleting your originals.</li>
+<li>Updates: the app now looks for a new version at every launch.
+Sparkle's own schedule checks once a day at most, which left a tester a
+version behind whenever two builds went out on the same day. Nothing
+appears on screen unless an update is waiting, and the setting in the
+updates panel still decides whether the check happens at all.</li>
+<li>Updates: checking automatically is now the app's declared default
+instead of a preference written on your behalf at first launch — a
+preference you never chose, which also silenced Sparkle's own question
+about it. The updates panel remains the one place to change this.</li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-3">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.10/dsmaccess-1.1-beta.10.zip">dsmaccess-1.1-beta.10.zip</a></p>
+<h2 id="v11-beta9-build-10--2026-07-23">v1.1-beta.9 (build 10) —
+2026-07-23</h2>
+<h3 id="highlights-4">Highlights</h3>
+<ul>
+<li>New USB Copy module: set up and run your USB copy tasks entirely
+from the app — the selectors in DSM's web interface are unusable with a
+screen reader, so this was until now a job for sighted help. Contributed
+by Ashley Cox.</li>
+<li>Files: sending files to the NAS works again. A DSM update had
+quietly broken every upload.</li>
+<li>DSM Access now has its own app icon, also designed by Ashley
+Cox.</li>
+</ul>
+<h3 id="new-4">New</h3>
+<ul>
+<li>USB Copy: see every task with its direction, folders, and current
+state; create import and export tasks with accessible folder choosers
+for the source and destination; choose the copy mode, version rotation,
+file filters, and schedule; run, cancel, enable, disable, or delete a
+task; read the package's log; adjust its general settings. Risky
+operations explain their consequence and ask first — a mirror task warns
+that it deletes from the destination, and deleting a task names it. The
+module appears only when the USB Copy package is installed on the
+NAS.</li>
+</ul>
+<h3 id="fixes-2">Fixes</h3>
+<ul>
+<li>Files: uploading a file ended in an error ever since the NAS moved
+to the latest DSM 7.4 update, which changed how DSM expects uploads to
+be sent. Uploads now follow the same convention as DSM's own File
+Station and work again — including the choice between replacing or
+skipping an existing file.</li>
+</ul>
+<h3 id="requirements-1">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-4">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.9/dsmaccess-1.1-beta.9.zip">dsmaccess-1.1-beta.9.zip</a></p>
+<h2 id="v11-beta8-build-9--2026-07-23">v1.1-beta.8 (build 9) —
+2026-07-23</h2>
+<h3 id="highlights-5">Highlights</h3>
+<ul>
+<li>The app now shows up in English when your Mac's language is neither
+French nor English — nothing to configure.</li>
+<li>Package Center: the switch between installed packages and the
+official catalog is now part of the screen itself, where VoiceOver finds
+it naturally.</li>
+</ul>
+<h3 id="fixes-3">Fixes</h3>
+<ul>
+<li>Package Center: the Installed / Official catalog switch lived in the
+window toolbar, an area VoiceOver treats separately without ever hinting
+that a choice exists there. The switch now sits at the top of the
+screen, in normal reading order, announced as a proper two-option
+choice.</li>
+<li>Package Center: with an account that has no administrator rights,
+the catalog tab showed a misleading "no matching packages" message. It
+now explains that DSM only provides the catalog to administrator
+accounts.</li>
+<li>Language: on a Mac set to a language the app doesn't ship
+(Hungarian, for example), the app appeared in French. It now appears in
+English, and picking a language for the app in System Settings works as
+expected.</li>
+<li>VoiceOver: the main lists now introduce themselves — "Files and
+folders", "Shared folders", "Users", "Groups", "File services",
+"Installed packages", "Pools, volumes, and disks" — instead of
+announcing an anonymous table. Rows in Shared Folders also announce
+their nature properly.</li>
+<li>VoiceOver: the Package Center switch no longer announces its name
+twice.</li>
+<li>Legibility: status and detail text across the app — package states,
+versions, disk health, log details, the summaries at the bottom of a
+screen — is now noticeably darker and meets the recommended contrast for
+small text, in both light and dark mode. A welcome change with low
+vision.</li>
+</ul>
+<h3 id="requirements-2">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-5">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.8/dsmaccess-1.1-beta.8.zip">dsmaccess-1.1-beta.8.zip</a></p>
+<h2 id="v11-beta7-build-8--2026-07-22">v1.1-beta.7 (build 8) —
+2026-07-22</h2>
+<h3 id="highlights-6">Highlights</h3>
+<ul>
+<li>Installing a package file (.spk) now works: it used to fail every
+time with a NAS error (code 101).</li>
+<li>The app now checks for its own updates at launch, and a new settings
+pane can install them automatically, with no dialog to answer.</li>
+</ul>
+<h3 id="new-5">New</h3>
+<ul>
+<li>Settings &gt; Updates: checking at launch is now on by default (you
+can turn it off), and a "Download and install automatically" option
+installs the new version when the app quits — no more answering a dialog
+for every update. The pane also shows the installed version and a
+check-now button.</li>
+</ul>
+<h3 id="fixes-4">Fixes</h3>
+<ul>
+<li>Packages: installing or updating a package from an .spk file you
+downloaded yourself now goes through, instead of failing right away with
+a NAS error (code 101). The app now talks to the Package Center exactly
+the way DSM itself does, verified on DSM 7.4.</li>
+</ul>
+<h3 id="requirements-3">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-6">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.7/dsmaccess-1.1-beta.7.zip">dsmaccess-1.1-beta.7.zip</a></p>
+<h2 id="v11-beta6-build-7--2026-07-21">v1.1-beta.6 (build 7) —
+2026-07-21</h2>
+<h3 id="highlights-7">Highlights</h3>
+<ul>
+<li>Connect with QuickConnect: enter your QuickConnect ID instead of an
+address and port, and the app finds the best route to your NAS by
+itself.</li>
+<li>The Package Center becomes a full module: browse the official
+Synology catalog and install, update, repair or uninstall packages
+without leaving the app — and package installs now work reliably on DSM
+7.4.</li>
+<li>Files gains the features that were still missing: detailed file
+information, advanced search, favorites, share link management, archive
+browsing and transfer progress.</li>
+<li>Creating users works again on DSM 7.4, and group members are counted
+correctly.</li>
+</ul>
+<h3 id="new-6">New</h3>
+<ul>
+<li>Sign in with QuickConnect: pick "QuickConnect" on the sign-in
+screen, enter your QuickConnect ID and your usual DSM account. The app
+prefers a direct, verified route to your NAS and only falls back to the
+Synology relay when needed — always over HTTPS. Note that QuickConnect
+has no official public interface, so Synology may change this service
+without notice.</li>
+<li>Packages: browse the official catalog, install a package with one
+action, or install a package file (.spk) you downloaded yourself.
+Updates, repairs and uninstalls are handled from the same list, with
+clear confirmations before anything runs.</li>
+<li>Packages: manage package sources and Package Center settings from
+the app.</li>
+<li>Files: see full details for any file or folder, search with advanced
+criteria (name, type, size, dates, owner), and manage your
+favorites.</li>
+<li>Files: create and manage share links, including passwords and expiry
+dates.</li>
+<li>Files: look inside an archive and extract only the items you
+need.</li>
+<li>Files: uploads and downloads now show their progress, and copy or
+move operations ask you before overwriting anything.</li>
+<li>A contact form in the Help menu lets you write to the developer
+directly from the app; occasional announcements may appear at
+launch.</li>
+</ul>
+<h3 id="fixes-5">Fixes</h3>
+<ul>
+<li>Accounts: creating a user on DSM 7.4 no longer fails with a
+permission error, group member counts are correct, and when something
+does go wrong the app now tells you instead of failing silently.</li>
+<li>Packages: installing or updating a package on DSM 7.4 no longer
+fails with a NAS error.</li>
+<li>VoiceOver: opening Files no longer announces "Empty folder" while
+the content is still loading — you now hear the real item count straight
+away.</li>
+<li>VoiceOver: if your session expires and the app reconnects
+automatically, a notice now explains that the operation in progress was
+interrupted, instead of returning you to the overview without a
+word.</li>
+</ul>
+<h3 id="thanks">Thanks</h3>
+<ul>
+<li>Thanks to Ashley Cox for the QuickConnect, File Station and Package
+Center work at the heart of this release.</li>
+</ul>
+<h3 id="requirements-4">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-7">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.6/dsmaccess-1.1-beta.6.zip">dsmaccess-1.1-beta.6.zip</a></p>
+<h2 id="v11-beta5-build-6--2026-07-19">v1.1-beta.5 (build 6) —
+2026-07-19</h2>
+<h3 id="highlights-8">Highlights</h3>
+<ul>
+<li>Fixes a sign-in problem introduced in beta.4: approving your NAS
+certificate now works, instead of the trust prompt coming back again and
+again.</li>
+</ul>
+<h3 id="fixes-6">Fixes</h3>
+<ul>
+<li>When macOS does not recognise your NAS certificate, approving it
+once now signs you in on the first try, and the choice is remembered for
+that server. In beta.4 the approval did not take, so the trust prompt
+kept reappearing and left you stuck on the sign-in screen.</li>
+</ul>
+<h3 id="thanks-1">Thanks</h3>
+<ul>
+<li>Thanks to Ashley Cox, who tracked this down and fixed it.</li>
+</ul>
+<h3 id="requirements-5">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-8">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.5/dsmaccess-1.1-beta.5.zip">dsmaccess-1.1-beta.5.zip</a></p>
+</body>
+</html>
