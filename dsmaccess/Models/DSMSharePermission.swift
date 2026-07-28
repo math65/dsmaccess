@@ -7,6 +7,42 @@
 
 import Foundation
 
+/// Ce à quoi des droits sont accordés. DSM lit les deux cas par des méthodes distinctes mais
+/// les écrit par la même, en distinguant l'un de l'autre par `user_group_type`.
+enum DSMShareHolder: Sendable, Hashable, Identifiable {
+    case user(String)
+    case group(String)
+
+    var name: String {
+        switch self {
+        case .user(let name), .group(let name): return name
+        }
+    }
+
+    var id: String { apiType + ":" + name }
+
+    var apiType: String {
+        switch self {
+        case .user: return "local_user"
+        case .group: return "local_group"
+        }
+    }
+
+    var listMethod: String {
+        switch self {
+        case .user: return "list_by_user"
+        case .group: return "list_by_group"
+        }
+    }
+
+    /// Un groupe n'hérite de rien : DSM omet le droit hérité dans sa réponse, et l'écran n'a
+    /// donc ni colonne d'héritage ni choix « hériter ».
+    var inheritsFromGroups: Bool {
+        if case .user = self { return true }
+        return false
+    }
+}
+
 /// Niveau d'accès à un dossier partagé, dans l'ordre où DSM présente ses colonnes.
 enum DSMSharePermissionLevel: String, Sendable, Hashable, CaseIterable, Identifiable {
     case noAccess

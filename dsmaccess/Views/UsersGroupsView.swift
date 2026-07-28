@@ -23,6 +23,7 @@ struct UsersGroupsView: View {
     @State private var userToDelete: DSMUser?
     @State private var groupToDelete: DSMGroup?
     @State private var userToConfigure: DSMUser?
+    @State private var groupToConfigure: DSMGroup?
     @State private var operationFailure: String?
     @AccessibilityFocusState private var contentFocused: Bool
 
@@ -56,7 +57,12 @@ struct UsersGroupsView: View {
                 }
             }
             .sheet(item: $userToConfigure) { user in
-                SharePermissionsSheet(userName: user.name, session: session) { outcome in
+                SharePermissionsSheet(holder: .user(user.name), session: session) { outcome in
+                    Task { await announce(outcome) }
+                }
+            }
+            .sheet(item: $groupToConfigure) { group in
+                SharePermissionsSheet(holder: .group(group.name), session: session) { outcome in
                     Task { await announce(outcome) }
                 }
             }
@@ -142,6 +148,9 @@ struct UsersGroupsView: View {
                 groupRow(group)
                     .tag(group.id)
                     .contextMenu {
+                        Button("Permissions…") { groupToConfigure = group }
+                            .help("Modifier les permissions de ce groupe sur les dossiers partagés")
+                        Divider()
                         Button("Supprimer le groupe…", role: .destructive) { groupToDelete = group }
                             .disabled(isProtected(group))
                             .help("Supprimer ce groupe")
@@ -185,6 +194,17 @@ struct UsersGroupsView: View {
                 }
                 .disabled(isProtected(user) || isBusy(user))
                 .help(user.isDisabled ? "Activer l’utilisateur" : "Désactiver l’utilisateur")
+            }
+        }
+
+        if selectedTab == .groups, let group = selectedGroup {
+            ToolbarItem {
+                Button {
+                    groupToConfigure = group
+                } label: {
+                    Label("Permissions", systemImage: "folder.badge.person.crop")
+                }
+                .help("Modifier les permissions de ce groupe sur les dossiers partagés")
             }
         }
 
@@ -246,6 +266,8 @@ struct UsersGroupsView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(group.name), \(groupSummary(group))")
         .accessibilityActions {
+            Button("Permissions…") { groupToConfigure = group }
+                .help("Modifier les permissions de ce groupe sur les dossiers partagés")
             if !isProtected(group) {
                 Button("Supprimer le groupe…", role: .destructive) {
                     groupToDelete = group
@@ -292,6 +314,10 @@ struct UsersGroupsView: View {
 
     private var selectedUser: DSMUser? {
         viewModel.users.first { $0.id == selectedUserID }
+    }
+
+    private var selectedGroup: DSMGroup? {
+        viewModel.groups.first { $0.id == selectedGroupID }
     }
 
     private func isProtected(_ user: DSMUser) -> Bool {

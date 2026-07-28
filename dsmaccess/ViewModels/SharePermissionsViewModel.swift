@@ -11,7 +11,7 @@ import Observation
 @MainActor
 @Observable
 final class SharePermissionsViewModel {
-    let userName: String
+    let holder: DSMShareHolder
     private(set) var permissions: [DSMSharePermission] = []
     private(set) var isLoading = false
     private(set) var isSaving = false
@@ -21,8 +21,8 @@ final class SharePermissionsViewModel {
     /// État tel que le NAS l'a renvoyé, pour n'envoyer que les lignes réellement changées.
     private var loaded: [String: DSMSharePermissionLevel?] = [:]
 
-    init(userName: String, session: SessionStore) {
-        self.userName = userName
+    init(holder: DSMShareHolder, session: SessionStore) {
+        self.holder = holder
         self.session = session
     }
 
@@ -40,7 +40,7 @@ final class SharePermissionsViewModel {
 
         do {
             let shares = try await session.withClient { client in
-                try await client.sharePermissions(forUser: userName).sorted {
+                try await client.sharePermissions(for: holder).sorted {
                     $0.name.localizedStandardCompare($1.name) == .orderedAscending
                 }
             }
@@ -67,7 +67,7 @@ final class SharePermissionsViewModel {
 
         do {
             try await session.withClient { client in
-                try await client.setSharePermissions(changes, forUser: userName)
+                try await client.setSharePermissions(changes, for: holder)
             }
             loaded = Dictionary(uniqueKeysWithValues: permissions.map { ($0.name, $0.granted) })
             return .success(

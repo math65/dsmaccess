@@ -27272,6 +27272,22 @@
         }
       }
     },
+    "Modifier les permissions de ce groupe sur les dossiers partagés" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Change this group's permissions on shared folders"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier les permissions de ce groupe sur les dossiers partagés"
+          }
+        }
+      }
+    },
     "Méthode de connexion" : {
       "localizations" : {
         "en" : {
@@ -27304,6 +27320,22 @@
         }
       }
     },
+    "Ne rien accorder" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grant nothing"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne rien accorder"
+          }
+        }
+      }
+    },
     "Permissions" : {
       "localizations" : {
         "en" : {
@@ -27332,6 +27364,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Permissions de %@"
+          }
+        }
+      }
+    },
+    "Permissions du groupe %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions for the %@ group"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions du groupe %@"
           }
         }
       }

@@ -16,26 +16,28 @@ struct SharePermissionsSheet: View {
     private let onFinish: (DSMOperationOutcome) -> Void
 
     init(
-        userName: String,
+        holder: DSMShareHolder,
         session: SessionStore,
         onFinish: @escaping (DSMOperationOutcome) -> Void
     ) {
-        _viewModel = State(initialValue: SharePermissionsViewModel(userName: userName, session: session))
+        _viewModel = State(initialValue: SharePermissionsViewModel(holder: holder, session: session))
         self.onFinish = onFinish
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Permissions de \(viewModel.userName)")
+            Text(title)
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
 
             content
 
-            Text("En cas de conflit entre les droits du compte et ceux de ses groupes, DSM retient le plus restrictif : aucun accès l’emporte sur lecture/écriture, qui l’emporte sur lecture seule.")
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-                .fixedSize(horizontal: false, vertical: true)
+            if viewModel.holder.inheritsFromGroups {
+                Text("En cas de conflit entre les droits du compte et ceux de ses groupes, DSM retient le plus restrictif : aucun accès l’emporte sur lecture/écriture, qui l’emporte sur lecture seule.")
+                    .font(.caption)
+                    .foregroundStyle(.readableSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             HStack {
                 if viewModel.isSaving {
@@ -82,6 +84,13 @@ struct SharePermissionsSheet: View {
         }
     }
 
+    private var title: String {
+        switch viewModel.holder {
+        case .user(let name): return String(localized: "Permissions de \(name)")
+        case .group(let name): return String(localized: "Permissions du groupe \(name)")
+        }
+    }
+
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading {
@@ -102,6 +111,7 @@ struct SharePermissionsSheet: View {
         } else {
             SharePermissionTableView(
                 permissions: viewModel.permissions,
+                holder: viewModel.holder,
                 isEnabled: !viewModel.isSaving
             ) { share, level in
                 viewModel.setLevel(level, for: share)

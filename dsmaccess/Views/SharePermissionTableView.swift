@@ -11,6 +11,7 @@ import SwiftUI
 
 struct SharePermissionTableView: NSViewRepresentable {
     let permissions: [DSMSharePermission]
+    let holder: DSMShareHolder
     let isEnabled: Bool
     let onChange: (DSMSharePermission, DSMSharePermissionLevel?) -> Void
 
@@ -33,11 +34,13 @@ struct SharePermissionTableView: NSViewRepresentable {
         table.delegate = context.coordinator
 
         addColumn(to: table, identifier: "name", title: String(localized: "Dossier partagé"), width: 170)
-        addColumn(to: table, identifier: "group", title: String(localized: "Droit de groupe"), width: 150)
+        if holder.inheritsFromGroups {
+            addColumn(to: table, identifier: "group", title: String(localized: "Droit de groupe"), width: 150)
+        }
         addColumn(
             to: table,
             identifier: Self.inheritColumn,
-            title: String(localized: "Hériter du groupe"),
+            title: noRightTitle,
             width: 130
         )
         for level in DSMSharePermissionLevel.allCases {
@@ -74,6 +77,14 @@ struct SharePermissionTableView: NSViewRepresentable {
             forRowIndexes: changed,
             columnIndexes: IndexSet(integersIn: 0..<table.numberOfColumns)
         )
+    }
+
+    /// Sans héritage possible, « hériter » n'a pas de sens : pour un groupe, la première
+    /// colonne dit simplement que le groupe n'accorde rien sur ce dossier.
+    private var noRightTitle: String {
+        holder.inheritsFromGroups
+            ? String(localized: "Hériter du groupe")
+            : String(localized: "Ne rien accorder")
     }
 
     private func addColumn(
@@ -125,9 +136,7 @@ struct SharePermissionTableView: NSViewRepresentable {
             cell.configure(
                 isOn: permission.granted == level,
                 isEnabled: parent.isEnabled,
-                label: String(
-                    localized: "\(permission.name), \(level?.label ?? String(localized: "Hériter du groupe"))"
-                ),
+                label: String(localized: "\(permission.name), \(level?.label ?? parent.noRightTitle)"),
                 target: self,
                 action: #selector(choiceChanged(_:))
             )
@@ -139,7 +148,7 @@ struct SharePermissionTableView: NSViewRepresentable {
             guard parent.permissions.indices.contains(row) else { return nil }
             let permission = parent.permissions[row]
             let rowView = NSTableRowView()
-            rowView.setAccessibilityLabel(Self.rowLabel(permission))
+            rowView.setAccessibilityLabel(rowLabel(permission))
             return rowView
         }
 
@@ -164,11 +173,12 @@ struct SharePermissionTableView: NSViewRepresentable {
             return String(localized: "\(inherited.label) — l’emporte")
         }
 
-        private static func rowLabel(_ permission: DSMSharePermission) -> String {
+        private func rowLabel(_ permission: DSMSharePermission) -> String {
+            guard parent.holder.inheritsFromGroups else { return permission.name }
             guard permission.inherited != nil else {
                 return String(localized: "\(permission.name), aucun droit de groupe")
             }
-            return String(localized: "\(permission.name), droit de groupe : \(groupText(permission))")
+            return String(localized: "\(permission.name), droit de groupe : \(Self.groupText(permission))")
         }
 
         private static func makeTextCell(identifier: NSUserInterfaceItemIdentifier) -> NSTableCellView {

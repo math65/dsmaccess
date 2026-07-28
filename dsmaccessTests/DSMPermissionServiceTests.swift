@@ -12,7 +12,7 @@ struct DSMPermissionServiceTests {
         ])
         let service = makeService(stub: stub)
 
-        let permissions = try await service.sharePermissions(forUser: "martine")
+        let permissions = try await service.sharePermissions(for: .user("martine"))
 
         #expect(permissions.map(\.name) == ["photo", "docker"])
         #expect(permissions[0].inherited == .readOnly)
@@ -41,7 +41,7 @@ struct DSMPermissionServiceTests {
                 DSMSharePermission(name: "photo", granted: .readOnly),
                 DSMSharePermission(name: "docker", granted: nil, isCustom: true),
             ],
-            forUser: "martine"
+            for: .user("martine")
         )
 
         let request = try #require(await stub.requests.first)
@@ -61,11 +61,52 @@ struct DSMPermissionServiceTests {
         #expect(entries[1]["is_readonly"] as? Bool == false)
     }
 
+    @Test func readsSharePermissionsOfAGroup() async throws {
+        // Un groupe n'hérite de rien : DSM change de méthode et omet « inherit ».
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"shares":[{"name":"photo","share_path":"/volume1/photo","is_readonly":true,"is_writable":false,"is_deny":false,"is_custom":false}],"total":1}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let permissions = try await service.sharePermissions(for: .group("famille"))
+
+        #expect(permissions.map(\.granted) == [.readOnly])
+        #expect(permissions[0].inherited == nil)
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "list_by_group")
+        #expect(parameters["name"] == #""famille""#)
+        #expect(parameters["user_group_type"] == #""local_group""#)
+    }
+
+    @Test func writesGroupPermissionsThroughTheSharedMethod() async throws {
+        // La lecture a deux méthodes, l'écriture une seule : c'est user_group_type qui
+        // distingue le groupe du compte.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.setSharePermissions(
+            [DSMSharePermission(name: "photo", granted: .noAccess)],
+            for: .group("famille")
+        )
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "set_by_user_group")
+        #expect(parameters["name"] == #""famille""#)
+        #expect(parameters["user_group_type"] == #""local_group""#)
+    }
+
     @Test func sendsNothingWhenNoShareChanged() async throws {
         let stub = DSMRequestStub(results: [])
         let service = makeService(stub: stub)
 
-        try await service.setSharePermissions([], forUser: "martine")
+        try await service.setSharePermissions([], for: .group("famille"))
 
         #expect(await stub.requests.isEmpty)
     }

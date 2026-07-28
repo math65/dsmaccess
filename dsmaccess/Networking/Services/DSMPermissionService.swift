@@ -17,14 +17,14 @@ final class DSMPermissionService {
         self.transport = transport
     }
 
-    func sharePermissions(forUser name: String) async throws -> [DSMSharePermission] {
+    func sharePermissions(for holder: DSMShareHolder) async throws -> [DSMSharePermission] {
         let result = try await transport.read(
             api: Self.sharePermissionAPI,
-            method: "list_by_user",
+            method: holder.listMethod,
             parameters: [
-                "name": .string(name),
+                "name": .string(holder.name),
                 // Sans ce paramètre, DSM refuse la requête (403) au lieu de choisir un défaut.
-                "user_group_type": .string("local_user"),
+                "user_group_type": .string(holder.apiType),
             ],
             as: DSMSharePermissionList.self
         )
@@ -35,15 +35,15 @@ final class DSMPermissionService {
     /// correctif et laisse les autres dossiers inchangés.
     func setSharePermissions(
         _ permissions: [DSMSharePermission],
-        forUser name: String
+        for holder: DSMShareHolder
     ) async throws {
         guard !permissions.isEmpty else { return }
         try await transport.perform(
             api: Self.sharePermissionAPI,
             method: "set_by_user_group",
             parameters: [
-                "name": .string(name),
-                "user_group_type": .string("local_user"),
+                "name": .string(holder.name),
+                "user_group_type": .string(holder.apiType),
                 "permissions": try DSMParameter.json(permissions.map(SharePermissionChange.init)),
             ]
         )
