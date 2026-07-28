@@ -14,7 +14,10 @@ struct SharePermissionTableView: NSViewRepresentable {
     let isEnabled: Bool
     let onChange: (DSMSharePermission, DSMSharePermissionLevel?) -> Void
 
-    private static let textColumns = ["name", "effective", "inherited"]
+    /// Colonne du choix « aucun droit propre », que DSM obtient en décochant ses cases.
+    /// Des boutons radio ne se décochant pas, l'héritage devient un choix à part entière.
+    private static let inheritColumn = "inherit"
+    private static let textColumns = ["name", "group"]
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -30,8 +33,13 @@ struct SharePermissionTableView: NSViewRepresentable {
         table.delegate = context.coordinator
 
         addColumn(to: table, identifier: "name", title: String(localized: "Dossier partagé"), width: 170)
-        addColumn(to: table, identifier: "effective", title: String(localized: "Appliqué"), width: 110)
-        addColumn(to: table, identifier: "inherited", title: String(localized: "Droit de groupe"), width: 120)
+        addColumn(to: table, identifier: "group", title: String(localized: "Droit de groupe"), width: 150)
+        addColumn(
+            to: table,
+            identifier: Self.inheritColumn,
+            title: String(localized: "Hériter du groupe"),
+            width: 130
+        )
         for level in DSMSharePermissionLevel.allCases {
             addColumn(to: table, identifier: level.rawValue, title: level.label, width: 110)
         }
@@ -51,9 +59,21 @@ struct SharePermissionTableView: NSViewRepresentable {
         let keys = permissions.map {
             "\($0.name)|\($0.granted?.rawValue ?? "-")|\($0.inherited?.rawValue ?? "-")|\(isEnabled)"
         }
-        guard context.coordinator.rowPresentationKeys != keys else { return }
+        let previous = context.coordinator.rowPresentationKeys
+        guard previous != keys else { return }
         context.coordinator.rowPresentationKeys = keys
-        table.reloadData()
+
+        // Cocher un choix en décoche un autre sur la même ligne : recharger cette seule ligne
+        // évite de déplacer le curseur VoiceOver hors de la case que l'on vient d'activer.
+        guard previous.count == keys.count else {
+            table.reloadData()
+            return
+        }
+        let changed = IndexSet(keys.indices.filter { previous[$0] != keys[$0] })
+        table.reloadData(
+            forRowIndexes: changed,
+            columnIndexes: IndexSet(integersIn: 0..<table.numberOfColumns)
+        )
     }
 
     private func addColumn(
@@ -90,19 +110,26 @@ struct SharePermissionTableView: NSViewRepresentable {
             if SharePermissionTableView.textColumns.contains(identifier.rawValue) {
                 let cell = tableView.makeView(withIdentifier: identifier, owner: self) as? NSTableCellView
                     ?? Self.makeTextCell(identifier: identifier)
-                cell.textField?.stringValue = text(for: identifier.rawValue, permission: permission)
+                cell.textField?.stringValue = identifier.rawValue == "name"
+                    ? permission.name
+                    : Self.groupText(permission)
                 return cell
             }
 
-            guard let level = DSMSharePermissionLevel(rawValue: identifier.rawValue) else { return nil }
-            let cell = tableView.makeView(withIdentifier: identifier, owner: self) as? PermissionCheckboxCell
-                ?? PermissionCheckboxCell(identifier: identifier)
+            let level = DSMSharePermissionLevel(rawValue: identifier.rawValue)
+            guard level != nil || identifier.rawValue == SharePermissionTableView.inheritColumn else {
+                return nil
+            }
+            let cell = tableView.makeView(withIdentifier: identifier, owner: self) as? PermissionChoiceCell
+                ?? PermissionChoiceCell(identifier: identifier)
             cell.configure(
                 isOn: permission.granted == level,
                 isEnabled: parent.isEnabled,
-                label: String(localized: "\(permission.name), \(level.label)"),
+                label: String(
+                    localized: "\(permission.name), \(level?.label ?? String(localized: "Hériter du groupe"))"
+                ),
                 target: self,
-                action: #selector(toggleChanged(_:))
+                action: #selector(choiceChanged(_:))
             )
             return cell
         }
@@ -116,34 +143,32 @@ struct SharePermissionTableView: NSViewRepresentable {
             return rowView
         }
 
-        @objc private func toggleChanged(_ sender: NSButton) {
-            guard let tableView,
-                  let level = DSMSharePermissionLevel(rawValue: sender.identifier?.rawValue ?? "")
-            else { return }
+        @objc private func choiceChanged(_ sender: NSButton) {
+            guard let tableView else { return }
             let row = tableView.row(for: sender)
             guard parent.permissions.indices.contains(row) else { return }
-            let permission = parent.permissions[row]
-            // Décocher la case active ramène le dossier au seul droit hérité, comme dans DSM.
-            parent.onChange(permission, sender.state == .on ? level : nil)
+            // La colonne d'héritage n'a pas de niveau : elle efface le droit propre.
+            let level = DSMSharePermissionLevel(rawValue: sender.identifier?.rawValue ?? "")
+            parent.onChange(parent.permissions[row], level)
         }
 
-        private func text(for column: String, permission: DSMSharePermission) -> String {
-            switch column {
-            case "name": return permission.name
-            case "effective": return permission.effective.label
-            default: return permission.inherited?.label ?? String(localized: "Aucun")
+        /// Le droit de groupe se lit seul, sauf quand il prive le choix du compte de tout
+        /// effet : la règle NA > RW > RO doit alors se voir sur la ligne concernée.
+        private static func groupText(_ permission: DSMSharePermission) -> String {
+            guard let inherited = permission.inherited else {
+                return String(localized: "Aucun")
             }
+            guard permission.granted != nil, permission.effective != permission.granted else {
+                return inherited.label
+            }
+            return String(localized: "\(inherited.label) — l’emporte")
         }
 
         private static func rowLabel(_ permission: DSMSharePermission) -> String {
-            if let inherited = permission.inherited {
-                return String(
-                    localized: "\(permission.name), appliqué : \(permission.effective.label), droit de groupe : \(inherited.label)"
-                )
+            guard permission.inherited != nil else {
+                return String(localized: "\(permission.name), aucun droit de groupe")
             }
-            return String(
-                localized: "\(permission.name), appliqué : \(permission.effective.label), aucun droit de groupe"
-            )
+            return String(localized: "\(permission.name), droit de groupe : \(groupText(permission))")
         }
 
         private static func makeTextCell(identifier: NSUserInterfaceItemIdentifier) -> NSTableCellView {
@@ -164,18 +189,18 @@ struct SharePermissionTableView: NSViewRepresentable {
     }
 }
 
-private final class PermissionCheckboxCell: NSTableCellView {
-    private let checkbox = NSButton(checkboxWithTitle: "", target: nil, action: nil)
+private final class PermissionChoiceCell: NSTableCellView {
+    private let choice = NSButton(radioButtonWithTitle: "", target: nil, action: nil)
 
     init(identifier: NSUserInterfaceItemIdentifier) {
         super.init(frame: .zero)
         self.identifier = identifier
-        checkbox.identifier = identifier
-        checkbox.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(checkbox)
+        choice.identifier = identifier
+        choice.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(choice)
         NSLayoutConstraint.activate([
-            checkbox.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-            checkbox.centerYAnchor.constraint(equalTo: centerYAnchor),
+            choice.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            choice.centerYAnchor.constraint(equalTo: centerYAnchor),
         ])
     }
 
@@ -189,10 +214,10 @@ private final class PermissionCheckboxCell: NSTableCellView {
         target: AnyObject,
         action: Selector
     ) {
-        checkbox.state = isOn ? .on : .off
-        checkbox.isEnabled = isEnabled
-        checkbox.target = target
-        checkbox.action = action
-        checkbox.setAccessibilityLabel(label)
+        choice.state = isOn ? .on : .off
+        choice.isEnabled = isEnabled
+        choice.target = target
+        choice.action = action
+        choice.setAccessibilityLabel(label)
     }
 }

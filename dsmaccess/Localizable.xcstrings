@@ -26760,34 +26760,50 @@
         }
       }
     },
-    "%@, appliqué : %@, aucun droit de groupe" : {
+    "%@ — l’emporte" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, applied: %@, no group right"
+            "value" : "%@ — takes precedence"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, appliqué : %@, aucun droit de groupe"
+            "value" : "%@ — l’emporte"
           }
         }
       }
     },
-    "%@, appliqué : %@, droit de groupe : %@" : {
+    "%@, aucun droit de groupe" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, applied: %@, group right: %@"
+            "value" : "%@, no group right"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%@, appliqué : %@, droit de groupe : %@"
+            "value" : "%@, aucun droit de groupe"
+          }
+        }
+      }
+    },
+    "%@, droit de groupe : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, group right: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, droit de groupe : %@"
           }
         }
       }
@@ -26836,22 +26852,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Adresse directe"
-          }
-        }
-      }
-    },
-    "Appliqué" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Applied"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appliqué"
           }
         }
       }
@@ -27076,6 +27076,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fermer sans enregistrer les modifications"
+          }
+        }
+      }
+    },
+    "Hériter du groupe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inherit from the group"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hériter du groupe"
           }
         }
       }
