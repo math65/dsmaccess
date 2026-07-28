@@ -26872,6 +26872,22 @@
         }
       }
     },
+    "Aucun droit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No right"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun droit"
+          }
+        }
+      }
+    },
     "Aucune modification à enregistrer." : {
       "localizations" : {
         "en" : {
@@ -27320,22 +27336,6 @@
         }
       }
     },
-    "Ne rien accorder" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Grant nothing"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ne rien accorder"
-          }
-        }
-      }
-    },
     "Permissions" : {
       "localizations" : {
         "en" : {
@@ -27479,6 +27479,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recherche du NAS avec QuickConnect…"
+          }
+        }
+      }
+    },
+    "Un refus accordé à un groupe s’applique à tous ses membres et ne peut pas être levé compte par compte." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A denial set on a group applies to every member and cannot be lifted account by account."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un refus accordé à un groupe s’applique à tous ses membres et ne peut pas être levé compte par compte."
           }
         }
       }

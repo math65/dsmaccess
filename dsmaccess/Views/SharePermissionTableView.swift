@@ -44,7 +44,13 @@ struct SharePermissionTableView: NSViewRepresentable {
             width: 130
         )
         for level in DSMSharePermissionLevel.allCases {
-            addColumn(to: table, identifier: level.rawValue, title: level.label, width: 110)
+            addColumn(
+                to: table,
+                identifier: level.rawValue,
+                title: level.label,
+                width: 110,
+                help: level == .noAccess ? denialHelp : nil
+            )
         }
 
         context.coordinator.tableView = table
@@ -84,19 +90,30 @@ struct SharePermissionTableView: NSViewRepresentable {
     private var noRightTitle: String {
         holder.inheritsFromGroups
             ? String(localized: "Hériter du groupe")
-            : String(localized: "Ne rien accorder")
+            : String(localized: "Aucun droit")
+    }
+
+    /// Un refus posé sur un groupe l'emporte sur le droit propre de chaque membre : c'est
+    /// la seule colonne dont la portée dépasse ce que la ligne montre.
+    private var denialHelp: String? {
+        guard !holder.inheritsFromGroups else { return nil }
+        return String(
+            localized: "Un refus accordé à un groupe s’applique à tous ses membres et ne peut pas être levé compte par compte."
+        )
     }
 
     private func addColumn(
         to table: NSTableView,
         identifier: String,
         title: String,
-        width: CGFloat
+        width: CGFloat,
+        help: String? = nil
     ) {
         let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier(identifier))
         column.title = title
         column.width = width
         column.minWidth = 80
+        column.headerToolTip = help
         table.addTableColumn(column)
     }
 
@@ -137,6 +154,7 @@ struct SharePermissionTableView: NSViewRepresentable {
                 isOn: permission.granted == level,
                 isEnabled: parent.isEnabled,
                 label: String(localized: "\(permission.name), \(level?.label ?? parent.noRightTitle)"),
+                help: level == .noAccess ? parent.denialHelp : nil,
                 target: self,
                 action: #selector(choiceChanged(_:))
             )
@@ -221,6 +239,7 @@ private final class PermissionChoiceCell: NSTableCellView {
         isOn: Bool,
         isEnabled: Bool,
         label: String,
+        help: String?,
         target: AnyObject,
         action: Selector
     ) {
@@ -229,5 +248,7 @@ private final class PermissionChoiceCell: NSTableCellView {
         choice.target = target
         choice.action = action
         choice.setAccessibilityLabel(label)
+        choice.setAccessibilityHelp(help)
+        choice.toolTip = help
     }
 }
