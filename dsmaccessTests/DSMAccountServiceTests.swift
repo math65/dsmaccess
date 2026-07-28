@@ -126,6 +126,30 @@ struct DSMAccountServiceTests {
         #expect(await stub.requests.count == 2)
     }
 
+    @Test func addsAndRemovesGroupsOfAnExistingAccount() async throws {
+        // DSM ne modifie qu'un groupe à la fois : c'est le groupe qui porte ses membres.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.setMemberships(of: "martine", joining: ["photo"], leaving: ["users"])
+
+        let requests = await stub.requests
+        #expect(requests.count == 2)
+        let joined = try query(from: requests[0])
+        #expect(joined["api"] == "SYNO.Core.Group.Member")
+        #expect(joined["method"] == "change")
+        #expect(joined["group"] == #""photo""#)
+        #expect(joined["add_member"] == #"["martine"]"#)
+        #expect(joined["remove_member"] == nil)
+        let left = try query(from: requests[1])
+        #expect(left["group"] == #""users""#)
+        #expect(left["remove_member"] == #"["martine"]"#)
+        #expect(left["add_member"] == nil)
+    }
+
     @Test func reportsAPasswordRefusedByTheNASPolicy() async throws {
         // 3121 : le mot de passe ne satisfait pas les règles de force du NAS. Sans ce
         // mapping, l'app n'affiche qu'un code brut et la création paraît cassée.

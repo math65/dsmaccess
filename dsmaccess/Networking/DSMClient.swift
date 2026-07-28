@@ -216,6 +216,7 @@ protocol DSMClientProtocol: AnyObject {
     func listGroups() async throws -> [DSMGroup]
     func createUser(_ draft: DSMUserDraft) async throws
     func setUser(_ name: String, disabled: Bool) async throws
+    func setMemberships(of user: String, joining: [String], leaving: [String]) async throws
     func deleteUser(_ name: String) async throws
     func createGroup(_ draft: DSMGroupDraft) async throws
     func deleteGroup(_ name: String) async throws
@@ -850,6 +851,10 @@ final class DSMClient: DSMClientProtocol {
 
     func setUser(_ name: String, disabled: Bool) async throws {
         try await accounts.setUser(name, disabled: disabled)
+    }
+
+    func setMemberships(of user: String, joining: [String], leaving: [String]) async throws {
+        try await accounts.setMemberships(of: user, joining: joining, leaving: leaving)
     }
 
     func deleteUser(_ name: String) async throws {
