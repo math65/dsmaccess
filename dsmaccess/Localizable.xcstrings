@@ -26904,6 +26904,22 @@
         }
       }
     },
+    "Aucun fichier de mise à jour sélectionné." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No update file selected."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun fichier de mise à jour sélectionné."
+          }
+        }
+      }
+    },
     "Aucune application" : {
       "localizations" : {
         "en" : {
@@ -27000,6 +27016,86 @@
         }
       }
     },
+    "Ce fichier de mise à jour est vide ou illisible." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This update file is empty or unreadable."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce fichier de mise à jour est vide ou illisible."
+          }
+        }
+      }
+    },
+    "Ce fichier n’est pas accessible." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This file cannot be read."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce fichier n’est pas accessible."
+          }
+        }
+      }
+    },
+    "Ce fichier n’est pas une mise à jour DSM. Choisissez un fichier .pat." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This file is not a DSM update. Choose a .pat file."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce fichier n’est pas une mise à jour DSM. Choisissez un fichier .pat."
+          }
+        }
+      }
+    },
+    "Ce que le NAS annonce" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What the NAS reports"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce que le NAS annonce"
+          }
+        }
+      }
+    },
+    "Ces paquets ne seront plus pris en charge après la mise à jour : %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These packages will no longer be supported after the update: %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces paquets ne seront plus pris en charge après la mise à jour : %@."
+          }
+        }
+      }
+    },
     "Cet identifiant QuickConnect est introuvable." : {
       "localizations" : {
         "en" : {
@@ -27012,6 +27108,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Cet identifiant QuickConnect est introuvable."
+          }
+        }
+      }
+    },
+    "Cette fonction est une première version, publiée sans avoir pu être essayée sur un NAS qui attendait une mise à jour. Vérifiez que vous disposez d’une sauvegarde et signalez ce que vous observez." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This feature is a first version, released without having been tried on a NAS that had an update waiting. Make sure you have a backup, and report what you see."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette fonction est une première version, publiée sans avoir pu être essayée sur un NAS qui attendait une mise à jour. Vérifiez que vous disposez d’une sauvegarde et signalez ce que vous observez."
           }
         }
       }
@@ -27060,6 +27172,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Choisir comment rechercher le NAS"
+          }
+        }
+      }
+    },
+    "Choisir le fichier de mise à jour téléchargé depuis Synology" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the update file downloaded from Synology"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir le fichier de mise à jour téléchargé depuis Synology"
+          }
+        }
+      }
+    },
+    "Choisir un fichier .pat…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose a .pat file…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir un fichier .pat…"
           }
         }
       }
@@ -27176,6 +27320,22 @@
         }
       }
     },
+    "Démarrage de l’installation." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starting the installation."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Démarrage de l’installation."
+          }
+        }
+      }
+    },
     "Enregistrement en cours" : {
       "localizations" : {
         "en" : {
@@ -27224,6 +27384,102 @@
         }
       }
     },
+    "Envoi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoi"
+          }
+        }
+      }
+    },
+    "Envoi du fichier au NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending the file to the NAS"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoi du fichier au NAS"
+          }
+        }
+      }
+    },
+    "Envoi du fichier au NAS, %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending the file to the NAS, %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoi du fichier au NAS, %@."
+          }
+        }
+      }
+    },
+    "Envoi du fichier au NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending the file to the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoi du fichier au NAS."
+          }
+        }
+      }
+    },
+    "Envoyer au NAS et vérifier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send to the NAS and check"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer au NAS et vérifier"
+          }
+        }
+      }
+    },
+    "Envoyer le fichier puis demander au NAS ce qu’il en pense" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Send the file, then ask the NAS what it makes of it"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoyer le fichier puis demander au NAS ce qu’il en pense"
+          }
+        }
+      }
+    },
     "Faire appartenir ce compte au groupe %@" : {
       "localizations" : {
         "en" : {
@@ -27268,6 +27524,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fermer sans enregistrer les modifications"
+          }
+        }
+      }
+    },
+    "Fichier de mise à jour" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update file"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fichier de mise à jour"
+          }
+        }
+      }
+    },
+    "Fichier envoyé et vérifié par le NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File sent and checked by the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fichier envoyé et vérifié par le NAS."
+          }
+        }
+      }
+    },
+    "Fichier prêt : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File ready: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fichier prêt : %@"
           }
         }
       }
@@ -27336,6 +27640,134 @@
         }
       }
     },
+    "Installation en cours sur le NAS, %lld %." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation under way on the NAS, %lld %."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation en cours sur le NAS, %lld %."
+          }
+        }
+      }
+    },
+    "Installation en cours sur le NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation under way on the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation en cours sur le NAS."
+          }
+        }
+      }
+    },
+    "Installation lancée. Le NAS va redémarrer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation started. The NAS is about to restart."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installation lancée. Le NAS va redémarrer."
+          }
+        }
+      }
+    },
+    "Installer cette mise à jour ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install this update?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installer cette mise à jour ?"
+          }
+        }
+      }
+    },
+    "Installer et redémarrer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install and restart"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installer et redémarrer"
+          }
+        }
+      }
+    },
+    "Installer et redémarrer le NAS…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install and restart the NAS…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installer et redémarrer le NAS…"
+          }
+        }
+      }
+    },
+    "Installer une mise à jour de DSM depuis un fichier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Install a DSM update from a file"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Installer une mise à jour de DSM depuis un fichier"
+          }
+        }
+      }
+    },
+    "J’ai pris connaissance des conséquences" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "I have read the consequences"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "J’ai pris connaissance des conséquences"
+          }
+        }
+      }
+    },
     "L’accès à DSM par QuickConnect n’est pas activé sur ce NAS." : {
       "localizations" : {
         "en" : {
@@ -27384,6 +27816,38 @@
         }
       }
     },
+    "Lancer l’installation et redémarrer le NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start the installation and restart the NAS"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lancer l’installation et redémarrer le NAS"
+          }
+        }
+      }
+    },
+    "Le NAS a accepté le fichier, mais l’app n’a pas su lire le détail de sa réponse. Ouvrez DSM pour vérifier les conséquences avant d’installer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS accepted the file, but the app could not read the details of its answer. Open DSM to check the consequences before installing."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS a accepté le fichier, mais l’app n’a pas su lire le détail de sa réponse. Ouvrez DSM pour vérifier les conséquences avant d’installer."
+          }
+        }
+      }
+    },
     "Le NAS associé à cet identifiant QuickConnect est hors ligne." : {
       "localizations" : {
         "en" : {
@@ -27400,6 +27864,150 @@
         }
       }
     },
+    "Le NAS n’a pas répondu dans le temps prévu. Vérifiez-le directement avant de relancer quoi que ce soit." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS did not answer within the expected time. Check it directly before starting anything again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS n’a pas répondu dans le temps prévu. Vérifiez-le directement avant de relancer quoi que ce soit."
+          }
+        }
+      }
+    },
+    "Le NAS n’annonce aucun paquet abandonné par cette mise à jour." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS reports no package dropped by this update."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS n’annonce aucun paquet abandonné par cette mise à jour."
+          }
+        }
+      }
+    },
+    "Le NAS passera de la version %@ à celle du fichier %@. Ces paquets ne seront plus pris en charge : %@. L’installation dure 10 à 20 minutes, pendant lesquelles le NAS est inutilisable et tous ses services s’arrêtent. Il n’est pas possible de revenir à la version précédente." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS will move from version %@ to the one in the file %@. These packages will no longer be supported: %@. The installation takes 10 to 20 minutes, during which the NAS is unusable and all its services stop. Going back to the previous version is not possible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS passera de la version %@ à celle du fichier %@. Ces paquets ne seront plus pris en charge : %@. L’installation dure 10 à 20 minutes, pendant lesquelles le NAS est inutilisable et tous ses services s’arrêtent. Il n’est pas possible de revenir à la version précédente."
+          }
+        }
+      }
+    },
+    "Le NAS passera de la version %@ à celle du fichier %@. L’installation dure 10 à 20 minutes, pendant lesquelles le NAS est inutilisable et tous ses services s’arrêtent. Il n’est pas possible de revenir à la version précédente." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS will move from version %@ to the one in the file %@. The installation takes 10 to 20 minutes, during which the NAS is unusable and all its services stop. Going back to the previous version is not possible."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS passera de la version %@ à celle du fichier %@. L’installation dure 10 à 20 minutes, pendant lesquelles le NAS est inutilisable et tous ses services s’arrêtent. Il n’est pas possible de revenir à la version précédente."
+          }
+        }
+      }
+    },
+    "Le NAS redémarre. Cela prend 10 à 20 minutes." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS is restarting. This takes 10 to 20 minutes."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS redémarre. Cela prend 10 à 20 minutes."
+          }
+        }
+      }
+    },
+    "Le NAS répond à nouveau. Reconnectez-vous pour vérifier la version." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS is answering again. Sign in again to check the version."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS répond à nouveau. Reconnectez-vous pour vérifier la version."
+          }
+        }
+      }
+    },
+    "Le NAS vérifie le fichier de mise à jour." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS is checking the update file."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS vérifie le fichier de mise à jour."
+          }
+        }
+      }
+    },
+    "Le fichier de mise à jour doit avoir l’extension .pat." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The update file must have the .pat extension."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier de mise à jour doit avoir l’extension .pat."
+          }
+        }
+      }
+    },
+    "Le fichier est accepté. Confirmez pour installer." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The file is accepted. Confirm to install."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le fichier est accepté. Confirmez pour installer."
+          }
+        }
+      }
+    },
     "Le relais QuickConnect n’est pas activé sur ce NAS." : {
       "localizations" : {
         "en" : {
@@ -27412,6 +28020,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Le relais QuickConnect n’est pas activé sur ce NAS."
+          }
+        }
+      }
+    },
+    "Lecture de la version installée…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reading the installed version…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lecture de la version installée…"
           }
         }
       }
@@ -27444,6 +28068,54 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Les permissions modifiées ne seront pas enregistrées sur le NAS."
+          }
+        }
+      }
+    },
+    "Lire les conséquences puis lancer l’installation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read the consequences, then start the installation"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lire les conséquences puis lancer l’installation"
+          }
+        }
+      }
+    },
+    "Mise à jour de DSM" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM update"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mise à jour de DSM"
+          }
+        }
+      }
+    },
+    "Mise à jour terminée." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Update finished."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mise à jour terminée."
           }
         }
       }
@@ -27508,6 +28180,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "MonNAS"
+          }
+        }
+      }
+    },
+    "Ne pas installer cette mise à jour" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Do not install this update"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ne pas installer cette mise à jour"
           }
         }
       }
@@ -27755,6 +28443,22 @@
         }
       }
     },
+    "Relire la version installée sur le NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Read the installed version again"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Relire la version installée sur le NAS"
+          }
+        }
+      }
+    },
     "Un refus accordé à un groupe s’applique à tous ses membres et ne peut pas être levé compte par compte." : {
       "localizations" : {
         "en" : {
@@ -27783,6 +28487,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Un refus l’emporte sur toute autorisation, y compris celle d’un groupe. Une application laissée sur « par défaut » suit le réglage du NAS."
+          }
+        }
+      }
+    },
+    "Version du NAS inconnue." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS version is unknown."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version du NAS inconnue."
           }
         }
       }
@@ -27835,6 +28555,22 @@
         }
       }
     },
+    "inconnue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unknown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "inconnue"
+          }
+        }
+      }
+    },
     "refusée par défaut" : {
       "localizations" : {
         "en" : {
@@ -27851,6 +28587,22 @@
         }
       }
     },
+    "À cocher pour pouvoir lancer l’installation" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tick this to be able to start the installation"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "À cocher pour pouvoir lancer l’installation"
+          }
+        }
+      }
+    },
     "Échec de l’enregistrement : %@" : {
       "localizations" : {
         "en" : {
@@ -27863,6 +28615,38 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Échec de l’enregistrement : %@"
+          }
+        }
+      }
+    },
+    "Échec de l’envoi : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sending failed: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de l’envoi : %@"
+          }
+        }
+      }
+    },
+    "Échec du lancement : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Starting failed: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du lancement : %@"
           }
         }
       }

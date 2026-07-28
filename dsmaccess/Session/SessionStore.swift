@@ -107,6 +107,14 @@ final class SessionStore {
         }
     }
 
+    /// Demande à l'hôte s'il a fini de démarrer, sans passer par `withClient` : pendant un
+    /// redémarrage il n'y a plus de session, et la garde de génération rejetterait la réponse.
+    /// Répond faux si le NAS est injoignable — c'est le cas attendu tant qu'il redémarre.
+    func isNASBackOnline() async -> Bool {
+        guard let client else { return false }
+        return await client.isNASBackOnline()
+    }
+
     func logout() async {
         let activeClient = client
         clear()
