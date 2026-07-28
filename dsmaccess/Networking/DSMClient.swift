@@ -22,6 +22,16 @@ protocol DSMClientProtocol: AnyObject {
         rememberDevice: Bool
     ) async throws -> LoginResult
     func resetPassword(account: String, currentPassword: String, newPassword: String) async throws
+    var supportsSecureSignIn: Bool { get }
+    func requestSecureSignIn(account: String, rememberDevice: Bool) async throws -> SecureSignInRequest
+    func secureSignInStatus(account: String, requestID: String) async throws -> SecureSignInStatus
+    func completeSecureSignIn(
+        account: String,
+        requestID: String,
+        token: String,
+        rememberDevice: Bool
+    ) async throws -> LoginResult
+    func revokeSecureSignIn(account: String, requestID: String) async
     func passwordPolicy() async throws -> DSMPasswordPolicy
     func systemInfo() async throws -> SystemInfo
     func fileStationCapabilities() async throws -> FileStationCapabilities
@@ -362,6 +372,42 @@ final class DSMClient: DSMClientProtocol {
             currentPassword: currentPassword,
             newPassword: newPassword
         )
+    }
+
+    var supportsSecureSignIn: Bool {
+        authentication.supportsSecureSignIn
+    }
+
+    func requestSecureSignIn(
+        account: String,
+        rememberDevice: Bool
+    ) async throws -> SecureSignInRequest {
+        try await authentication.requestSecureSignIn(
+            account: account,
+            rememberDevice: rememberDevice
+        )
+    }
+
+    func secureSignInStatus(account: String, requestID: String) async throws -> SecureSignInStatus {
+        try await authentication.secureSignInStatus(account: account, requestID: requestID)
+    }
+
+    func completeSecureSignIn(
+        account: String,
+        requestID: String,
+        token: String,
+        rememberDevice: Bool
+    ) async throws -> LoginResult {
+        try await authentication.completeSecureSignIn(
+            account: account,
+            requestID: requestID,
+            token: token,
+            rememberDevice: rememberDevice
+        )
+    }
+
+    func revokeSecureSignIn(account: String, requestID: String) async {
+        await authentication.revokeSecureSignIn(account: account, requestID: requestID)
     }
 
     func systemInfo() async throws -> SystemInfo {
