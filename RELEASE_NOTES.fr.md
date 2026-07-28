@@ -1,3 +1,47 @@
+## v1.1-beta.14 (build 15) — 28 juillet 2026
+
+### En bref
+
+- Connexion : vous pouvez désormais ouvrir une session sans saisir le moindre
+  mot de passe, en approuvant la demande dans l'app Synology Secure SignIn sur
+  votre téléphone.
+- Fichiers : une copie longue n'est plus abandonnée au bout de cinq minutes, et
+  quitter l'écran Fichiers ne l'interrompt plus.
+
+### Nouveautés
+
+- Connexion : un menu Authentification, sur l'écran de connexion, choisit entre
+  votre mot de passe et l'approbation envoyée sur votre téléphone. Avec la
+  seconde, le champ du mot de passe s'efface et un écran d'attente vous indique
+  quoi faire, en annonçant le chiffre à confirmer quand votre NAS en demande un.
+  La session ainsi ouverte devra être approuvée de nouveau à la prochaine
+  ouverture de l'app, ce que l'écran précise.
+- Mise à jour DSM : un nouvel écran présente la mise à jour proposée par votre
+  NAS et l'installe, en annonçant la progression au fil de l'opération.
+
+### Corrections
+
+- Fichiers : copier, déplacer, supprimer, compresser ou extraire était
+  abandonné au bout de cinq minutes exactement, et présenté comme un échec,
+  alors que le NAS poursuivait sans rien dire. Une copie de plusieurs heures est
+  désormais suivie jusqu'au bout.
+- Fichiers : passer à un autre écran pendant une copie l'arrêtait pour de bon
+  sur le NAS. Elle continue maintenant, et revenir dans Fichiers en reprend le
+  suivi, même après avoir quitté et rouvert l'app. Seul le bouton Annuler
+  interrompt une tâche.
+- Fichiers : le résultat d'une opération longue reste affiché jusqu'à ce que
+  vous le masquiez. Une annonce vocale émise pendant que l'app est en
+  arrière-plan n'est jamais entendue, et ne laissait aucune trace de ce qui
+  s'était passé.
+- Fichiers : un dossier contenant un fichier dont le nom n'était pas enregistré
+  en Unicode ne s'ouvrait pas du tout — un seul nom sur trois mille rendait le
+  dossier entier inaccessible. Il s'ouvre désormais, ce nom-là affichant un
+  caractère de remplacement, comme le fait DSM lui-même.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.14.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.14/dsmaccess-1.1-beta.14.zip)
+
 ## v1.1-beta.13 (build 14) — 28 juillet 2026
 
 ### En bref

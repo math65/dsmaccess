@@ -1,3 +1,43 @@
+## v1.1-beta.14 (build 15) — 2026-07-28
+
+### Highlights
+
+- Sign-in: you can now open a session without typing a password at all, by
+  approving the request in the Synology Secure SignIn app on your phone.
+- Files: a long copy is no longer abandoned after five minutes, and leaving the
+  Files screen no longer stops it.
+
+### New
+
+- Sign-in: an Authentication menu on the connection screen chooses between your
+  password and the approval sent to your phone. With the second, the password
+  field steps aside and a waiting screen tells you what to do, reading out the
+  number to confirm when your NAS asks for one. The session opened this way has
+  to be approved again the next time you open the app, which the screen says.
+- DSM update: a new screen shows the update your NAS offers and installs it,
+  with the progress announced along the way.
+
+### Fixes
+
+- Files: copying, moving, deleting, compressing or extracting used to be given
+  up after exactly five minutes, reported as a failure, while the NAS quietly
+  carried on. A copy of several hours is now followed to its end.
+- Files: switching to another screen while a copy was running silently stopped
+  it on the NAS. It now keeps going, and coming back to Files picks the
+  progress up again -- even after quitting and reopening the app. Only the
+  Cancel button stops a task.
+- Files: the result of a long operation stays on screen until you dismiss it. A
+  spoken announcement made while the app sits in the background is never heard,
+  which left no trace of what happened.
+- Files: a folder holding a file whose name was not stored in Unicode could not
+  be opened at all -- one such name among three thousand made the whole folder
+  unreachable. It now opens, that one name showing a replacement character, as
+  DSM itself does.
+
+### Download
+
+[dsmaccess-1.1-beta.14.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.14/dsmaccess-1.1-beta.14.zip)
+
 ## v1.1-beta.13 (build 14) — 2026-07-28
 
 ### Highlights
