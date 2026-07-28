@@ -33,6 +33,15 @@ struct FileOperationProgress: Equatable, Sendable {
     }
 }
 
+/// Le suivi d'une tâche s'est interrompu alors que le NAS la traite toujours : la demande
+/// a été acceptée, seule la progression est perdue. À distinguer d'un échec, sinon
+/// l'utilisateur relance une copie déjà en cours.
+struct FileOperationTrackingInterrupted: Error {
+    let kind: FileOperationKind
+    let taskID: String
+    let underlying: Error
+}
+
 struct FileOperationStatus: nonisolated Decodable, Sendable {
     let finished: Bool
     let progress: Double?

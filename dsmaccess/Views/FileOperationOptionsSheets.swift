@@ -400,6 +400,33 @@ struct FileOperationProgressBanner: View {
     }
 }
 
+/// Le résultat d'une opération longue ne peut pas reposer sur la seule annonce VoiceOver :
+/// émise pendant que l'app est en arrière-plan, elle n'est jamais entendue. Le bandeau
+/// reste affiché jusqu'à ce que l'utilisateur le masque ou change de dossier.
+struct FileOperationSummaryBanner: View {
+    let summary: FileBrowserViewModel.OperationSummary
+    let showBackgroundTasks: () -> Void
+    let dismiss: () -> Void
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(summary.message)
+                .font(.callout)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            if summary.continuesInBackground {
+                Button("Tâches File Station", action: showBackgroundTasks)
+                    .help("Afficher et gérer les opérations exécutées par le NAS")
+            }
+            Button("Masquer", action: dismiss)
+                .help("Masquer le résultat de l’opération")
+        }
+        .padding(12)
+        .background(.bar)
+        .accessibilityElement(children: .contain)
+        .accessibilityLabel("Résultat de l’opération")
+    }
+}
+
 private struct ConflictPolicyPicker: View {
     @Binding var selection: FileConflictPolicy
 

@@ -14080,6 +14080,22 @@
         }
       }
     },
+    "Le suivi de l’opération s’est interrompu : %@ Elle continue sur le NAS ; ouvrez les tâches File Station pour connaître son avancement." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The operation is no longer being tracked: %@ It is still running on the NAS; open File Station tasks to check its progress."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le suivi de l’opération s’est interrompu : %@ Elle continue sur le NAS ; ouvrez les tâches File Station pour connaître son avancement."
+          }
+        }
+      }
+    },
     "Le mot de passe ne respecte pas les règles de sécurité du NAS." : {
       "localizations" : {
         "en" : {
@@ -16911,22 +16927,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Dégradé"
-          }
-        }
-      }
-    },
-    "Délai dépassé." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Timed out."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Délai dépassé."
           }
         }
       }
@@ -19828,6 +19828,22 @@
         }
       }
     },
+    "Masquer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer"
+          }
+        }
+      }
+    },
     "Masquer automatiquement les fonctionnalités indisponibles sur le NAS connecté" : {
       "localizations" : {
         "en" : {
@@ -19840,6 +19856,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Masquer automatiquement les fonctionnalités indisponibles sur le NAS connecté"
+          }
+        }
+      }
+    },
+    "Masquer le résultat de l’opération" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide the result of the operation"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer le résultat de l’opération"
           }
         }
       }
@@ -22786,6 +22818,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Résolution"
+          }
+        }
+      }
+    },
+    "Résultat de l’opération" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Operation result"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Résultat de l’opération"
           }
         }
       }

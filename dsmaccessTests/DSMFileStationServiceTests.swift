@@ -65,6 +65,74 @@ struct DSMFileStationServiceTests {
         #expect(updates.last?.processedSize == 100)
     }
 
+    @Test func tracksAnOperationLongerThanTheOldFiveMinuteBudget() async throws {
+        let unfinished = DSMRequestStub.Result.response(Data(
+            #"{"success":true,"data":{"finished":false,"processed_size":"1","total":"100"}}"#.utf8
+        ))
+        let stub = DSMRequestStub(
+            results: [.response(Data(#"{"success":true,"data":{"taskid":"copy-1"}}"#.utf8))]
+                + Array(repeating: unfinished, count: 650)
+                + [.response(Data(
+                    #"{"success":true,"data":{"finished":true,"processed_size":"100","total":"100"}}"#.utf8
+                ))]
+        )
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.CopyMove": entry(maxVersion: 3)]
+        )
+        var updates: [FileOperationProgress] = []
+
+        try await service.copyMove(
+            path: "/source/folder",
+            to: "/target",
+            removeSource: false,
+            progress: { updates.append($0) }
+        )
+
+        #expect(updates.count == 651)
+        #expect(updates.last?.isFinished == true)
+    }
+
+    @Test func keepsTrackingAfterATransientStatusFailure() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"taskid":"copy-1"}}"#.utf8)),
+            // Les deux tentatives de la lecture idempotente échouent : l'incident est
+            // passager, le suivi doit repartir plutôt que d'abandonner la tâche.
+            .timeout,
+            .timeout,
+            .response(Data(#"{"success":true,"data":{"finished":true,"progress":1}}"#.utf8)),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.CopyMove": entry(maxVersion: 3)]
+        )
+
+        try await service.copyMove(path: "/source/folder", to: "/target", removeSource: false)
+
+        #expect(await stub.requestCount == 4)
+    }
+
+    @Test func reportsInterruptedTrackingWithoutStoppingTheTask() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"taskid":"copy-1"}}"#.utf8)),
+            .response(Data(#"{"success":false,"error":{"code":105}}"#.utf8)),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.CopyMove": entry(maxVersion: 3)]
+        )
+
+        await #expect(throws: FileOperationTrackingInterrupted.self) {
+            try await service.copyMove(path: "/source/folder", to: "/target", removeSource: false)
+        }
+
+        // Ni nouvelle tentative sur un refus définitif, ni demande d'arrêt : la tâche
+        // reste en cours sur le NAS, visible dans les tâches en arrière-plan.
+        let requests = await stub.requests
+        #expect(requests.count == 2)
+        #expect(try query(from: requests[1])["method"] == "status")
+    }
+
     @Test func calculatesDirectorySizeWithoutInventingMissingValues() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"taskid":"size-1"}}"#.utf8)),
@@ -599,7 +667,7 @@ struct DSMFileStationServiceTests {
         return DSMFileStationService(
             transport: transport,
             operationPollInterval: .zero,
-            operationPollLimit: 4
+            operationPollCeiling: .zero
         )
     }
 

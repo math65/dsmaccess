@@ -43,7 +43,11 @@ final class DSMFileStationService {
 
     private let transport: DSMTransport
     private let operationPollInterval: Duration
-    private let operationPollLimit: Int
+    private let operationPollCeiling: Duration
+
+    /// Une copie de plusieurs dizaines de gigaoctets tient des heures : un incident réseau
+    /// passager ne doit pas faire perdre le suivi d'une tâche que le NAS traite toujours.
+    private static let toleratedPollFailures = 3
 
     private static let fileAdditionalFields = [
         "real_path", "size", "owner", "time", "perm", "type", "mount_point_type",
@@ -55,11 +59,11 @@ final class DSMFileStationService {
     init(
         transport: DSMTransport,
         operationPollInterval: Duration = .milliseconds(500),
-        operationPollLimit: Int = 600
+        operationPollCeiling: Duration = .seconds(2)
     ) {
         self.transport = transport
         self.operationPollInterval = operationPollInterval
-        self.operationPollLimit = operationPollLimit
+        self.operationPollCeiling = operationPollCeiling
     }
 
     func capabilities() async throws -> FileStationCapabilities {
@@ -543,7 +547,9 @@ final class DSMFileStationService {
         guard !criteria.folderPaths.isEmpty else { return [] }
         let taskID = try await startSearch(criteria: criteria)
         do {
-            for _ in 0..<operationPollLimit {
+            var interval = Duration.zero
+            while true {
+                try await Task.sleep(for: interval)
                 try Task.checkCancellation()
                 let result = try await searchResults(taskID: taskID, options: resultOptions)
                 progress(
@@ -558,9 +564,8 @@ final class DSMFileStationService {
                     try await cleanSearch(taskIDs: [taskID])
                     return result.files
                 }
-                try await Task.sleep(for: operationPollInterval)
+                interval = nextPollInterval(after: interval)
             }
-            throw DSMError.network(String(localized: "Délai dépassé."))
         } catch {
             await discardSearchTask(taskID: taskID)
             throw error
@@ -825,7 +830,9 @@ final class DSMFileStationService {
         )
 
         do {
-            for _ in 0..<operationPollLimit {
+            var interval = Duration.zero
+            while true {
+                try await Task.sleep(for: interval)
                 try Task.checkCancellation()
                 let status = try await transport.read(
                     api: Self.directorySizeAPI,
@@ -859,9 +866,8 @@ final class DSMFileStationService {
                         totalSize: totalSize
                     )
                 }
-                try await Task.sleep(for: operationPollInterval)
+                interval = nextPollInterval(after: interval)
             }
-            throw DSMError.network(String(localized: "Délai dépassé."))
         } catch {
             if DSMError.isCancellation(error) {
                 await stopAfterCancellation(api: Self.directorySizeAPI, taskID: task.taskid)
@@ -882,7 +888,9 @@ final class DSMFileStationService {
         )
 
         do {
-            for _ in 0..<operationPollLimit {
+            var interval = Duration.zero
+            while true {
+                try await Task.sleep(for: interval)
                 try Task.checkCancellation()
                 let status = try await transport.read(
                     api: Self.checksumAPI,
@@ -910,9 +918,8 @@ final class DSMFileStationService {
                     }
                     return checksum
                 }
-                try await Task.sleep(for: operationPollInterval)
+                interval = nextPollInterval(after: interval)
             }
-            throw DSMError.network(String(localized: "Délai dépassé."))
         } catch {
             if DSMError.isCancellation(error) {
                 await stopAfterCancellation(api: Self.checksumAPI, taskID: task.taskid)
@@ -985,14 +992,21 @@ final class DSMFileStationService {
         }
     }
 
+    /// Suit une tâche jusqu'à son terme, sans limite de durée : DSM traite une copie de
+    /// plusieurs dizaines de gigaoctets pendant des heures, et l'utilisateur garde le
+    /// bouton d'annulation. Une interruption du suivi n'arrête pas la tâche côté NAS :
+    /// elle est signalée à part pour ne pas la présenter comme un échec.
     private func waitForOperation(
         api: DSMAPI,
         kind: FileOperationKind,
         taskID: String,
         progress: (FileOperationProgress) -> Void
     ) async throws -> FileOperationProgress {
-        do {
-            for _ in 0..<operationPollLimit {
+        var interval = Duration.zero
+        var failures = 0
+        while true {
+            do {
+                try await Task.sleep(for: interval)
                 try Task.checkCancellation()
                 let status = try await transport.read(
                     api: api,
@@ -1000,17 +1014,40 @@ final class DSMFileStationService {
                     parameters: ["taskid": .string(taskID)],
                     as: FileOperationStatus.self
                 )
+                failures = 0
                 let update = operationProgress(kind: kind, taskID: taskID, status: status)
                 progress(update)
                 if status.finished { return update }
-                try await Task.sleep(for: operationPollInterval)
+            } catch {
+                if DSMError.isCancellation(error) {
+                    await stopAfterCancellation(api: api, taskID: taskID)
+                    throw error
+                }
+                failures += 1
+                guard failures <= Self.toleratedPollFailures, isTransientPollFailure(error) else {
+                    throw FileOperationTrackingInterrupted(
+                        kind: kind,
+                        taskID: taskID,
+                        underlying: error
+                    )
+                }
             }
-            throw DSMError.network(String(localized: "Délai dépassé."))
-        } catch {
-            if DSMError.isCancellation(error) {
-                await stopAfterCancellation(api: api, taskID: taskID)
-            }
-            throw error
+            interval = nextPollInterval(after: interval)
+        }
+    }
+
+    /// La première interrogation part sans délai, puis l'intervalle double jusqu'à son
+    /// plafond : inutile d'interroger le NAS deux fois par seconde pendant des heures.
+    private func nextPollInterval(after interval: Duration) -> Duration {
+        min(max(interval * 2, operationPollInterval), operationPollCeiling)
+    }
+
+    /// Seul un incident de transport peut se résorber d'une interrogation à l'autre ;
+    /// une session expirée ou un refus de DSM se reproduira à l'identique.
+    private func isTransientPollFailure(_ error: Error) -> Bool {
+        switch error as? DSMError {
+        case .network, .decoding, .invalidResponse: true
+        default: false
         }
     }
 
