@@ -803,6 +803,68 @@ final class FileBrowserViewModel {
         }
     }
 
+    /// Reprend le suivi d'une opération que le NAS traite encore. Quitter le module
+    /// détruit l'écran et son état, jamais la tâche : BackgroundTask en garde la trace,
+    /// y compris après un redémarrage de l'app.
+    func resumeUnfinishedOperation() async -> DSMOperationOutcome? {
+        guard supports(.backgroundTasks), !isWorking else { return nil }
+        let tasks: [FileStationBackgroundTask]
+        do {
+            tasks = try await session.withClient { try await $0.fileStationBackgroundTasks() }
+        } catch {
+            // Reprise opportuniste : l'échec de cette lecture ne doit pas se substituer
+            // à l'erreur de chargement du dossier, seule information utile ici.
+            return nil
+        }
+        let unfinished = tasks
+            .filter { !$0.finished }
+            .min { ($0.creationTime ?? 0) < ($1.creationTime ?? 0) }
+        guard let unfinished, let kind = FileOperationKind(rawValue: unfinished.api) else {
+            return nil
+        }
+        VoiceOver.announce(
+            String(localized: "Opération en cours sur le NAS : \(kind.label)"),
+            category: .progress,
+            priority: .low
+        )
+        return await performProgressOperation(label: kind.label) { progress in
+            try await self.session.withClient {
+                try await $0.followFileStationOperation(
+                    kind: kind,
+                    taskID: unfinished.taskID,
+                    progress: progress
+                )
+            }
+            return kind.completionMessage
+        }
+    }
+
+    /// Arrêt demandé explicitement par l'utilisateur : c'est la seule action qui
+    /// interrompt la tâche sur le NAS. Quitter l'écran n'arrête que son suivi.
+    func stopActiveOperation() async -> DSMOperationOutcome {
+        guard let progress = operationProgress else {
+            // Le NAS n'a pas encore renvoyé d'identifiant de tâche : il n'y a rien à
+            // arrêter à cet instant, mais l'opération, elle, est bien partie.
+            return .failure(
+                String(localized: "L’opération vient d’être lancée : arrêtez-la depuis les tâches File Station.")
+            )
+        }
+        do {
+            try await session.withClient {
+                try await $0.stopFileStationOperation(
+                    kind: progress.kind,
+                    taskID: progress.taskID
+                )
+            }
+            return .success(String(localized: "Opération arrêtée"))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(
+                String(localized: "Échec de l’arrêt de l’opération : \(errorMessage(for: error))")
+            )
+        }
+    }
+
     func stopBackgroundTask(_ task: FileStationBackgroundTask) async -> DSMOperationOutcome {
         guard let kind = FileOperationKind(rawValue: task.api) else {
             return .failure(String(localized: "Ce type de tâche ne peut pas être arrêté depuis l’application."))

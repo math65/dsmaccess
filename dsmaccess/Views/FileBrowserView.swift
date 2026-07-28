@@ -32,6 +32,7 @@ struct FileBrowserView: View {
     @State private var transferTask: Task<Void, Never>?
     @State private var advancedSearchTask: Task<Void, Never>?
     @State private var operationTask: Task<Void, Never>?
+    @State private var stopTask: Task<Void, Never>?
     @State private var tableFocusRequestID = 0
     @AccessibilityFocusState private var focusEmptyState: Bool
 
@@ -96,6 +97,7 @@ struct FileBrowserView: View {
                 await vm.loadFavorites()
                 await VoiceOver.restoreFocusIfCapturedByToolbar(restoreInitialContentFocus)
                 announceSummary()
+                resumeUnfinishedOperation()
             }
             .task(id: searchText) {
                 // Au premier affichage cette tâche part avec un champ vide, avant la fin
@@ -911,13 +913,36 @@ struct FileBrowserView: View {
         }
     }
 
+    /// L'arrêt part au NAS avant que le suivi ne soit annulé : l'interrompre d'abord
+    /// effacerait la progression, donc l'identifiant de la tâche à arrêter.
     private func cancelOperation() {
-        operationTask?.cancel()
+        guard stopTask == nil else { return }
         VoiceOver.announce(
             String(localized: "Annulation de l’opération demandée"),
             category: .progress,
             priority: .high
         )
+        stopTask = Task {
+            let outcome = await vm.stopActiveOperation()
+            operationTask?.cancel()
+            VoiceOver.announce(outcome, priority: .high)
+            stopTask = nil
+        }
+    }
+
+    /// Une opération lancée avant de quitter le module tourne toujours sur le NAS :
+    /// le bandeau de progression la reprend au retour.
+    private func resumeUnfinishedOperation() {
+        guard operationTask == nil else { return }
+        operationTask = Task {
+            let outcome = await vm.resumeUnfinishedOperation()
+            guard !Task.isCancelled, let outcome else {
+                operationTask = nil
+                return
+            }
+            VoiceOver.announce(outcome, priority: .high)
+            operationTask = nil
+        }
     }
 
     private func suggestedArchiveName(for items: [FileStationItem]) -> String {

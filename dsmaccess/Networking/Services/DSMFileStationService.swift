@@ -971,6 +971,21 @@ final class DSMFileStationService {
         )
     }
 
+    /// Reprend le suivi d'une tâche déjà lancée, retrouvée dans BackgroundTask après un
+    /// changement de module ou un redémarrage de l'app.
+    func followOperation(
+        kind: FileOperationKind,
+        taskID: String,
+        progress: (FileOperationProgress) -> Void = { _ in }
+    ) async throws {
+        _ = try await waitForOperation(
+            api: api(for: kind),
+            kind: kind,
+            taskID: taskID,
+            progress: progress
+        )
+    }
+
     func stopOperation(kind: FileOperationKind, taskID: String) async throws {
         try await transport.perform(
             api: api(for: kind),
@@ -994,14 +1009,30 @@ final class DSMFileStationService {
 
     /// Suit une tâche jusqu'à son terme, sans limite de durée : DSM traite une copie de
     /// plusieurs dizaines de gigaoctets pendant des heures, et l'utilisateur garde le
-    /// bouton d'annulation. Une interruption du suivi n'arrête pas la tâche côté NAS :
-    /// elle est signalée à part pour ne pas la présenter comme un échec.
+    /// bouton d'annulation. Ni l'annulation du suivi ni son interruption n'arrêtent la
+    /// tâche côté NAS : elle reste listée dans BackgroundTask, où l'app la reprend.
     private func waitForOperation(
         api: DSMAPI,
         kind: FileOperationKind,
         taskID: String,
         progress: (FileOperationProgress) -> Void
     ) async throws -> FileOperationProgress {
+        // Le premier état part avant toute interrogation : l'appelant a besoin de
+        // l'identifiant de tâche dès maintenant pour pouvoir l'arrêter.
+        progress(
+            FileOperationProgress(
+                kind: kind,
+                taskID: taskID,
+                isFinished: false,
+                fractionCompleted: nil,
+                processedSize: nil,
+                totalSize: nil,
+                processedItemCount: nil,
+                totalItemCount: nil,
+                currentPath: nil,
+                destinationPath: nil
+            )
+        )
         var interval = Duration.zero
         var failures = 0
         while true {
@@ -1019,10 +1050,7 @@ final class DSMFileStationService {
                 progress(update)
                 if status.finished { return update }
             } catch {
-                if DSMError.isCancellation(error) {
-                    await stopAfterCancellation(api: api, taskID: taskID)
-                    throw error
-                }
+                if DSMError.isCancellation(error) { throw error }
                 failures += 1
                 guard failures <= Self.toleratedPollFailures, isTransientPollFailure(error) else {
                     throw FileOperationTrackingInterrupted(

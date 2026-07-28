@@ -14,6 +14,32 @@ enum FileOperationKind: String, Codable, Sendable {
     case compress = "SYNO.FileStation.Compress"
     case directorySize = "SYNO.FileStation.DirSize"
     case checksum = "SYNO.FileStation.MD5"
+
+    /// Nom de l'opération repris tel quel dans la liste des tâches et dans le bandeau de
+    /// progression. DSM ne distingue pas la copie du déplacement une fois la tâche lancée.
+    var label: String {
+        switch self {
+        case .copyMove: String(localized: "Copie ou déplacement")
+        case .delete: String(localized: "Suppression")
+        case .extract: String(localized: "Extraction")
+        case .compress: String(localized: "Compression")
+        case .directorySize: String(localized: "Calcul de taille")
+        case .checksum: String(localized: "Calcul MD5")
+        }
+    }
+
+    /// Résultat annoncé quand l'app reprend une tâche déjà lancée : le NAS ne dit pas
+    /// combien d'éléments elle a traités, seulement qu'elle est terminée.
+    var completionMessage: String {
+        switch self {
+        case .copyMove: String(localized: "Copie ou déplacement terminé")
+        case .delete: String(localized: "Suppression terminée")
+        case .extract: String(localized: "Extraction terminée")
+        case .compress: String(localized: "Compression terminée")
+        case .directorySize: String(localized: "Calcul de taille terminé")
+        case .checksum: String(localized: "Calcul MD5 terminé")
+        }
+    }
 }
 
 struct FileOperationProgress: Equatable, Sendable {

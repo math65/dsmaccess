@@ -155,6 +155,11 @@ protocol DSMClientProtocol: AnyObject {
         options: FileStationBackgroundTaskListOptions
     ) async throws -> FileStationPage<FileStationBackgroundTask>
     func clearFinishedFileStationBackgroundTasks(taskIDs: [String]) async throws
+    func followFileStationOperation(
+        kind: FileOperationKind,
+        taskID: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws
     func stopFileStationOperation(kind: FileOperationKind, taskID: String) async throws
     func createShareLink(
         path: String,
@@ -671,6 +676,14 @@ final class DSMClient: DSMClientProtocol {
 
     func clearFinishedFileStationBackgroundTasks(taskIDs: [String]) async throws {
         try await fileStation.clearFinishedBackgroundTasks(taskIDs: taskIDs)
+    }
+
+    func followFileStationOperation(
+        kind: FileOperationKind,
+        taskID: String,
+        progress: (FileOperationProgress) -> Void
+    ) async throws {
+        try await fileStation.followOperation(kind: kind, taskID: taskID, progress: progress)
     }
 
     func stopFileStationOperation(kind: FileOperationKind, taskID: String) async throws {

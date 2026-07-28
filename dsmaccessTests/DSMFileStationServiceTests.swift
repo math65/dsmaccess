@@ -60,9 +60,55 @@ struct DSMFileStationServiceTests {
         #expect(start["method"] == "start")
         #expect(start["overwrite"] == "true")
         #expect(start["accurate_progress"] == "true")
-        #expect(updates.map(\.normalizedFraction) == [0.25, 1])
+        // Le premier état est émis dès le démarrage, avant toute interrogation : il porte
+        // l'identifiant de tâche dont l'appelant a besoin pour pouvoir l'arrêter.
+        #expect(updates.map(\.normalizedFraction) == [nil, 0.25, 1])
+        #expect(updates.allSatisfy { $0.taskID == "copy-1" })
         #expect(updates.last?.isFinished == true)
         #expect(updates.last?.processedSize == 100)
+    }
+
+    @Test func resumesTrackingAnAlreadyRunningTaskFromItsIdentifier() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"finished":false,"progress":"0.5"}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"finished":true,"progress":1}}"#.utf8)),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.CopyMove": entry(maxVersion: 3)]
+        )
+        var updates: [FileOperationProgress] = []
+
+        try await service.followOperation(
+            kind: .copyMove,
+            taskID: "copy-7",
+            progress: { updates.append($0) }
+        )
+
+        #expect(updates.map(\.normalizedFraction) == [nil, 0.5, 1])
+        let requests = await stub.requests
+        #expect(try query(from: requests[0])["taskid"] == "copy-7")
+        #expect(try query(from: requests[0])["method"] == "status")
+    }
+
+    @Test func leavesTheTaskRunningWhenTrackingIsCancelled() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"taskid":"copy-1"}}"#.utf8)),
+            .cancelled,
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.CopyMove": entry(maxVersion: 3)]
+        )
+
+        await #expect(throws: DSMError.cancelled) {
+            try await service.copyMove(path: "/source/folder", to: "/target", removeSource: false)
+        }
+
+        // Quitter l'écran annule le suivi, pas la copie : aucune demande d'arrêt ne part
+        // au NAS, seul le bouton d'annulation en envoie une.
+        let requests = await stub.requests
+        #expect(requests.count == 2)
     }
 
     @Test func tracksAnOperationLongerThanTheOldFiveMinuteBudget() async throws {
@@ -89,7 +135,7 @@ struct DSMFileStationServiceTests {
             progress: { updates.append($0) }
         )
 
-        #expect(updates.count == 651)
+        #expect(updates.count == 652)
         #expect(updates.last?.isFinished == true)
     }
 
