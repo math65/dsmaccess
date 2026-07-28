@@ -72,6 +72,13 @@ struct FileBrowserView: View {
                     cancel: cancelOperation
                 )
             }
+            if let summary = vm.operationSummary {
+                FileOperationSummaryBanner(
+                    summary: summary,
+                    showBackgroundTasks: { showingBackgroundTasks = true },
+                    dismiss: vm.dismissOperationSummary
+                )
+            }
             content
         }
             .navigationTitle(vm.title)

@@ -27,6 +27,17 @@ final class FileBrowserViewModel {
         let items: [FileStationItem]
     }
 
+    /// Résultat d'une opération longue, conservé à l'écran jusqu'à ce que l'utilisateur
+    /// le masque : une annonce VoiceOver émise pendant que l'app est en arrière-plan
+    /// n'est jamais entendue, et une copie de plusieurs heures se termine souvent hors
+    /// de la vue de l'utilisateur.
+    struct OperationSummary: Equatable {
+        let message: String
+        /// Le NAS poursuit la tâche sans que l'app puisse la suivre : l'écran des tâches
+        /// File Station est le seul endroit où en connaître l'avancement.
+        let continuesInBackground: Bool
+    }
+
     enum SortMode: String, CaseIterable, Identifiable {
         case name
         case modificationDate
@@ -58,6 +69,7 @@ final class FileBrowserViewModel {
     private(set) var searchProgress: FileStationSearchProgress?
     private(set) var operationProgress: FileOperationProgress?
     private(set) var activeOperationLabel: String?
+    private(set) var operationSummary: OperationSummary?
     private(set) var clipboard: Clipboard?
     private(set) var shareLinks: [SharingLink] = []
     private(set) var isLoadingShareLinks = false
@@ -398,6 +410,7 @@ final class FileBrowserViewModel {
         advancedSearchCriteria = nil
         searchProgress = nil
         searchQuery = ""
+        operationSummary = nil
         stack.append(
             Level(
                 name: item.name,
@@ -414,6 +427,7 @@ final class FileBrowserViewModel {
         advancedSearchCriteria = nil
         searchProgress = nil
         searchQuery = ""
+        operationSummary = nil
         stack = [
             Level(name: String(localized: "Fichiers"), path: nil),
             Level(
@@ -431,6 +445,7 @@ final class FileBrowserViewModel {
         advancedSearchCriteria = nil
         searchProgress = nil
         searchQuery = ""
+        operationSummary = nil
         stack = [
             Level(name: String(localized: "Fichiers"), path: nil),
             Level(
@@ -448,6 +463,7 @@ final class FileBrowserViewModel {
         advancedSearchCriteria = nil
         searchProgress = nil
         searchQuery = ""
+        operationSummary = nil
         stack.removeLast()
         currentFolderIsWritable = currentLevel.writePermissionHint
         await loadCurrent()
@@ -1341,6 +1357,7 @@ final class FileBrowserViewModel {
         isWorking = true
         activeOperationLabel = label
         operationProgress = nil
+        operationSummary = nil
         defer {
             isWorking = false
             activeOperationLabel = nil
@@ -1358,11 +1375,42 @@ final class FileBrowserViewModel {
             } else if !query.isEmpty {
                 await search(query)
             }
+            operationSummary = OperationSummary(message: message, continuesInBackground: false)
             return .success(message)
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
-            return .failure(String(localized: "Échec de l’opération : \(errorMessage(for: error))"))
+            let summary = operationSummary(for: error)
+            if summary.continuesInBackground {
+                // La tâche avance encore côté NAS : montrer le contenu réel du dossier
+                // plutôt que la liste figée à l'instant où l'opération a été lancée.
+                await loadCurrent()
+            }
+            operationSummary = summary
+            return .failure(summary.message)
         }
+    }
+
+    /// Sépare l'échec réel de la simple perte de suivi : dans le second cas le NAS
+    /// poursuit la tâche, et l'annoncer comme un échec pousserait l'utilisateur à
+    /// relancer une copie déjà en cours.
+    func operationSummary(for error: Error) -> OperationSummary {
+        guard let interruption = error as? FileOperationTrackingInterrupted else {
+            return OperationSummary(
+                message: String(localized: "Échec de l’opération : \(errorMessage(for: error))"),
+                continuesInBackground: false
+            )
+        }
+        let detail = errorMessage(for: interruption.underlying)
+        return OperationSummary(
+            message: String(
+                localized: "Le suivi de l’opération s’est interrompu : \(detail) Elle continue sur le NAS ; ouvrez les tâches File Station pour connaître son avancement."
+            ),
+            continuesInBackground: true
+        )
+    }
+
+    func dismissOperationSummary() {
+        operationSummary = nil
     }
 
     private func loadWritePermission(for level: Level, generation: Int) async {
