@@ -54,6 +54,8 @@ struct ControlPanelView: View {
                 switch section {
                 case .network:
                     NetworkSettingsView(session: session)
+                case .dsmUpdate:
+                    DSMUpdateView(session: session)
                 }
             }
         }

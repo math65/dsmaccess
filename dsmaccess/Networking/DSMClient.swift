@@ -222,6 +222,11 @@ protocol DSMClientProtocol: AnyObject {
     func deleteGroup(_ name: String) async throws
     func sharePermissions(for holder: DSMPermissionHolder) async throws -> [DSMSharePermission]
     func setSharePermissions(_ permissions: [DSMSharePermission], for holder: DSMPermissionHolder) async throws
+    func uploadDSMPatch(at fileURL: URL, progress: @escaping DSMTransferProgressHandler) async throws
+    func dsmUpgradePreCheck() async throws -> DSMUpgradePreCheck
+    func startDSMUpgrade() async throws
+    func dsmUpgradeProgress() async throws -> DSMUpgradeProgress
+    func isNASBackOnline() async -> Bool
     func applicationPrivileges(for holder: DSMPermissionHolder) async throws -> [DSMApplicationPrivilege]
     func setApplicationPrivileges(
         _ privileges: [DSMApplicationPrivilege],
@@ -285,6 +290,7 @@ final class DSMClient: DSMClientProtocol {
     let packages: DSMPackageService
     let accounts: DSMAccountService
     let permissions: DSMPermissionService
+    let upgrade: DSMUpgradeService
     let downloadStation: DSMDownloadStationService
     let usbCopy: DSMUSBCopyService
     let virtualMachines: DSMVirtualMachineService
@@ -305,6 +311,7 @@ final class DSMClient: DSMClientProtocol {
         packages = DSMPackageService(transport: transport)
         accounts = DSMAccountService(transport: transport)
         permissions = DSMPermissionService(transport: transport)
+        upgrade = DSMUpgradeService(transport: transport)
         downloadStation = DSMDownloadStationService(transport: transport)
         usbCopy = DSMUSBCopyService(transport: transport)
         virtualMachines = DSMVirtualMachineService(transport: transport)
@@ -878,6 +885,29 @@ final class DSMClient: DSMClientProtocol {
         for holder: DSMPermissionHolder
     ) async throws {
         try await self.permissions.setSharePermissions(permissions, for: holder)
+    }
+
+    func uploadDSMPatch(
+        at fileURL: URL,
+        progress: @escaping DSMTransferProgressHandler
+    ) async throws {
+        try await upgrade.uploadPatch(at: fileURL, progress: progress)
+    }
+
+    func dsmUpgradePreCheck() async throws -> DSMUpgradePreCheck {
+        try await upgrade.preCheck()
+    }
+
+    func startDSMUpgrade() async throws {
+        try await upgrade.start()
+    }
+
+    func dsmUpgradeProgress() async throws -> DSMUpgradeProgress {
+        try await upgrade.progress()
+    }
+
+    func isNASBackOnline() async -> Bool {
+        await upgrade.isBackOnline()
     }
 
     func applicationPrivileges(
