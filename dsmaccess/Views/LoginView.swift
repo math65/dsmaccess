@@ -58,6 +58,19 @@ struct LoginView: View {
                 Text("DSM utilise un certificat qui n'est pas reconnu par macOS. Vérifiez cette empreinte SHA-256 avant de l'approuver : \(fingerprint)")
             }
         }
+        .alert(
+            "Connexion sans mot de passe",
+            isPresented: Binding(
+                get: { vm.secureSignInFailure != nil },
+                set: { if !$0 { vm.secureSignInFailure = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { vm.secureSignInFailure = nil }
+        } message: {
+            if let failure = vm.secureSignInFailure {
+                Text(verbatim: failure)
+            }
+        }
     }
 
     /// Écran plein affiché pendant la reconnexion automatique au lancement.

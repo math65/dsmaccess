@@ -52,6 +52,8 @@ final class ConnectionViewModel {
     private(set) var state: State = .editing
     /// Demande d'approbation en cours ; porte le chiffre à confirmer quand le NAS en joint un.
     private(set) var secureSignInRequest: SecureSignInRequest?
+    /// Issue d'une demande d'approbation qui n'a pas abouti, présentée en alerte.
+    var secureSignInFailure: String?
     private var approvalTask: Task<Void, Never>?
     /// Reconnexion automatique en cours au lancement (masque le formulaire).
     private(set) var isRestoring: Bool
@@ -325,8 +327,21 @@ final class ConnectionViewModel {
             errorMessage = connectionValidationMessage
             return
         }
+        // Une demande laissée en suspens par une tentative précédente doit être révoquée
+        // avant d'en ouvrir une autre, sinon elle reste approuvable sur le téléphone. La
+        // révocation part depuis la nouvelle tâche : lancée depuis l'ancienne, qu'on vient
+        // d'annuler, la requête serait interrompue avant d'atteindre le NAS.
+        let abandoned = secureSignInRequest
         approvalTask?.cancel()
-        approvalTask = Task { await runSecureSignIn(account: cleanedAccount, target: target) }
+        approvalTask = Task {
+            if let abandoned {
+                await client?.revokeSecureSignIn(
+                    account: cleanedAccount,
+                    requestID: abandoned.requestID
+                )
+            }
+            await runSecureSignIn(account: cleanedAccount, target: target)
+        }
     }
 
     /// Abandon demandé par l'utilisateur : la demande est révoquée sur le NAS pour ne pas
@@ -387,9 +402,9 @@ final class ConnectionViewModel {
             )
             secureSignInRequest = nil
         } catch is SecureSignInExpired {
-            await failSecureSignIn(SecureSignInRefusal.expired.message)
+            await failSecureSignIn(SecureSignInRefusal.expired.message, asAlert: true)
         } catch let refusal as SecureSignInRefusal {
-            await failSecureSignIn(refusal.message)
+            await failSecureSignIn(refusal.message, asAlert: true)
         } catch DSMError.untrustedCertificate(let fingerprint) {
             approvalTask = nil
             state = .editing
@@ -397,11 +412,14 @@ final class ConnectionViewModel {
             pendingCertificateFingerprint = fingerprint
             errorMessage = nil
         } catch where DSMError.isCancellation(error) {
+            // La demande reste connue de `secureSignInRequest` : elle sera révoquée par
+            // l'abandon explicite ou par la tentative suivante, dans une tâche vivante.
             approvalTask = nil
         } catch {
             lastError = error as? DSMError
             await failSecureSignIn(
-                (error as? DSMError)?.errorDescription ?? error.localizedDescription
+                (error as? DSMError)?.errorDescription ?? error.localizedDescription,
+                asAlert: false
             )
         }
     }
@@ -440,12 +458,21 @@ final class ConnectionViewModel {
         }
     }
 
-    private func failSecureSignIn(_ message: String) async {
+    /// L'issue d'une demande tranchée sur le mobile passe par une alerte : à cet instant
+    /// l'écran d'attente est déjà démonté et le formulaire pas encore monté, si bien
+    /// qu'aucune vue n'est là pour l'annoncer. L'alerte, elle, prend le focus et est lue
+    /// par le système. Un incident technique reste dans le message du formulaire, comme
+    /// sur le chemin de connexion classique.
+    private func failSecureSignIn(_ message: String, asAlert: Bool) async {
         await revokePendingSecureSignIn()
         approvalTask = nil
         secureSignInRequest = nil
         state = .editing
-        errorMessage = message
+        if asAlert {
+            secureSignInFailure = message
+        } else {
+            errorMessage = message
+        }
     }
 
     private func revokePendingSecureSignIn() async {
