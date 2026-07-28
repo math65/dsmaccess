@@ -14096,6 +14096,22 @@
         }
       }
     },
+    "Le compte %@ a été créé, mais son ajout aux groupes a échoué." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The account %@ was created, but adding it to the groups failed."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le compte %@ a été créé, mais son ajout aux groupes a échoué."
+          }
+        }
+      }
+    },
     "Ni le nom ni la description du compte." : {
       "localizations" : {
         "en" : {
@@ -24212,6 +24228,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilisateur créé : %@"
+          }
+        }
+      }
+    },
+    "Utilisateur créé : %@. Son ajout aux groupes a échoué, attribuez-les depuis la liste des groupes." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "User created: %@. Adding it to the groups failed; assign them from the group list."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisateur créé : %@. Son ajout aux groupes a échoué, attribuez-les depuis la liste des groupes."
           }
         }
       }
