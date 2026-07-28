@@ -26936,6 +26936,22 @@
         }
       }
     },
+    "Aucune permission modifiée pour l’instant" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No permission changed yet"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune permission modifiée pour l’instant"
+          }
+        }
+      }
+    },
     "Autorisations par application" : {
       "localizations" : {
         "en" : {

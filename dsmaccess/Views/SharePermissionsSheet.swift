@@ -57,7 +57,12 @@ struct SharePermissionsSheet: View {
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(!viewModel.hasChanges || viewModel.isSaving)
-                .help("Enregistrer les permissions modifiées")
+                // Un bouton estompé s'annonce sans sa raison : l'aide dit ce qui manque.
+                .help(
+                    viewModel.hasChanges
+                        ? "Enregistrer les permissions modifiées"
+                        : "Aucune permission modifiée pour l’instant"
+                )
             }
         }
         .padding(20)
