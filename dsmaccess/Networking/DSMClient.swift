@@ -219,6 +219,13 @@ protocol DSMClientProtocol: AnyObject {
     func deleteUser(_ name: String) async throws
     func createGroup(_ draft: DSMGroupDraft) async throws
     func deleteGroup(_ name: String) async throws
+    func sharePermissions(for holder: DSMPermissionHolder) async throws -> [DSMSharePermission]
+    func setSharePermissions(_ permissions: [DSMSharePermission], for holder: DSMPermissionHolder) async throws
+    func applicationPrivileges(for holder: DSMPermissionHolder) async throws -> [DSMApplicationPrivilege]
+    func setApplicationPrivileges(
+        _ privileges: [DSMApplicationPrivilege],
+        for holder: DSMPermissionHolder
+    ) async throws
     func listDownloadTasks() async throws -> [DownloadTask]
     func downloadStatistic() async throws -> DownloadStatistic
     func createDownload(uri: String, destination: String?) async throws
@@ -276,6 +283,7 @@ final class DSMClient: DSMClientProtocol {
     let fileServiceSettings: DSMFileServiceSettingsService
     let packages: DSMPackageService
     let accounts: DSMAccountService
+    let permissions: DSMPermissionService
     let downloadStation: DSMDownloadStationService
     let usbCopy: DSMUSBCopyService
     let virtualMachines: DSMVirtualMachineService
@@ -295,6 +303,7 @@ final class DSMClient: DSMClientProtocol {
         fileServiceSettings = DSMFileServiceSettingsService(transport: transport)
         packages = DSMPackageService(transport: transport)
         accounts = DSMAccountService(transport: transport)
+        permissions = DSMPermissionService(transport: transport)
         downloadStation = DSMDownloadStationService(transport: transport)
         usbCopy = DSMUSBCopyService(transport: transport)
         virtualMachines = DSMVirtualMachineService(transport: transport)
@@ -853,6 +862,30 @@ final class DSMClient: DSMClientProtocol {
 
     func deleteGroup(_ name: String) async throws {
         try await accounts.deleteGroup(name)
+    }
+
+    func sharePermissions(for holder: DSMPermissionHolder) async throws -> [DSMSharePermission] {
+        try await permissions.sharePermissions(for: holder)
+    }
+
+    func setSharePermissions(
+        _ permissions: [DSMSharePermission],
+        for holder: DSMPermissionHolder
+    ) async throws {
+        try await self.permissions.setSharePermissions(permissions, for: holder)
+    }
+
+    func applicationPrivileges(
+        for holder: DSMPermissionHolder
+    ) async throws -> [DSMApplicationPrivilege] {
+        try await permissions.applicationPrivileges(for: holder)
+    }
+
+    func setApplicationPrivileges(
+        _ privileges: [DSMApplicationPrivilege],
+        for holder: DSMPermissionHolder
+    ) async throws {
+        try await permissions.setApplicationPrivileges(privileges, for: holder)
     }
 
     func listDownloadTasks() async throws -> [DownloadTask] {
