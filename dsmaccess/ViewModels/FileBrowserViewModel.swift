@@ -803,6 +803,26 @@ final class FileBrowserViewModel {
         }
     }
 
+    /// Relit la liste pendant qu'une tâche avance, sans afficher l'état de chargement ni
+    /// effacer les tâches déjà présentes : la fenêtre doit se mettre à jour en place, sans
+    /// clignoter et sans déplacer VoiceOver. Retourne `false` quand la relecture a échoué,
+    /// pour que l'écran le signale au lieu de laisser croire à des valeurs à jour.
+    func refreshBackgroundTasksQuietly() async -> Bool {
+        guard supports(.backgroundTasks) else { return false }
+        backgroundTasksGeneration += 1
+        let generation = backgroundTasksGeneration
+        do {
+            let result = try await session.withClient {
+                try await $0.fileStationBackgroundTasks()
+            }
+            guard generation == backgroundTasksGeneration else { return true }
+            backgroundTasks = result
+            return true
+        } catch {
+            return DSMError.isCancellation(error)
+        }
+    }
+
     /// Reprend le suivi d'une opération que le NAS traite encore. Quitter le module
     /// détruit l'écran et son état, jamais la tâche : BackgroundTask en garde la trace,
     /// y compris après un redémarrage de l'app.

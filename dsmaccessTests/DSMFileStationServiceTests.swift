@@ -179,6 +179,39 @@ struct DSMFileStationServiceTests {
         #expect(try query(from: requests[1])["method"] == "status")
     }
 
+    /// Une compression longue se termine parfois sans jamais renvoyer `finished` : DSM retire
+    /// la tâche et `status` répond 599. Conclure à une interruption de suivi annoncerait une
+    /// compression réussie comme un incident, et renverrait l'utilisateur vers une liste de
+    /// tâches où la sienne n'existe plus.
+    @Test func endsTrackingWhenTheNASHasAlreadyRetiredTheTask() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"taskid":"compress-1"}}"#.utf8)),
+            .response(Data(
+                #"{"success":true,"data":{"finished":false,"progress":0.99,"total":27256751462}}"#.utf8
+            )),
+            .response(Data(#"{"success":false,"error":{"code":599}}"#.utf8)),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.Compress": entry(maxVersion: 3)]
+        )
+
+        var updates: [FileOperationProgress] = []
+        try await service.compress(
+            paths: ["/documents/docs"],
+            to: "/documents/archive.zip"
+        ) { updates.append($0) }
+
+        let final = try #require(updates.last)
+        #expect(final.isFinished)
+        #expect(final.fractionCompleted == 1)
+        #expect(final.kind == .compress)
+        // Aucune demande d'arrêt sur une tâche que le NAS ne connaît plus.
+        let requests = await stub.requests
+        #expect(requests.count == 3)
+        #expect(try query(from: requests[2])["method"] == "status")
+    }
+
     @Test func listsAFolderHoldingAFileNameStoredInLatin1() async throws {
         // Un nom resté encodé en latin-1 sur le volume : l'octet 0xE8 du « è » n'est pas de
         // l'UTF-8 valide et faisait échouer le listing entier, un seul fichier suffisant à
@@ -242,6 +275,30 @@ struct DSMFileStationServiceTests {
         #expect(clear["method"] == "clear_finished")
         let encodedIDs = try #require(clear["taskid"])
         #expect(try JSONDecoder().decode([String].self, from: Data(encodedIDs.utf8)) == ["delete-1"])
+    }
+
+    /// Une compression en cours n'expose aucun volume traité : DSM répond `total: -1` et ne
+    /// transmet l'avancement que par `progress`. La liste des tâches doit conserver cette
+    /// fraction telle quelle, un pourcentage déduit du total étant impossible.
+    @Test func decodesRunningCompressionProgressDespiteAnUnknownTotal() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"total":1,"offset":0,"tasks":[{"api":"SYNO.FileStation.Compress","version":3,"method":"start","taskid":"compress-1","finished":false,"crtime":1710000000,"progress":0.53,"total":-1}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.BackgroundTask": entry(maxVersion: 3)]
+        )
+
+        let tasks = try await service.backgroundTasks()
+
+        let task = try #require(tasks.first)
+        #expect(FileOperationKind(rawValue: task.api) == .compress)
+        #expect(!task.finished)
+        #expect(task.progress == 0.53)
+        #expect(task.total == -1)
+        #expect(task.processedSize == nil)
     }
 
     @Test func preservesPerItemErrorDetails() async throws {
@@ -539,6 +596,7 @@ struct DSMFileStationServiceTests {
                 level: .best,
                 mode: .synchronize,
                 format: .sevenZip,
+                codepage: .french,
                 password: "secret"
             )
         )
@@ -565,6 +623,7 @@ struct DSMFileStationServiceTests {
         #expect(compress["level"] == "best")
         #expect(compress["mode"] == "synchronize")
         #expect(compress["format"] == "7z")
+        #expect(compress["codepage"] == "fre")
         let extract = try query(from: requests[3])
         #expect(extract["overwrite"] == "true")
         #expect(extract["keep_dir"] == "false")

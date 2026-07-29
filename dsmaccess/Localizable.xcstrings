@@ -65,6 +65,38 @@
         }
       }
     },
+    "Le suivi automatique des tâches s’est interrompu." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic task updates stopped."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le suivi automatique des tâches s’est interrompu."
+          }
+        }
+      }
+    },
+    "Le suivi automatique s’est interrompu : les valeurs affichées datent de la dernière lecture réussie." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Automatic updates stopped: the values shown are from the last successful read."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le suivi automatique s’est interrompu : les valeurs affichées datent de la dernière lecture réussie."
+          }
+        }
+      }
+    },
     "Saisissez une date de référence valide au format AAAA/MM/JJ." : {
       "localizations" : {
         "en" : {
@@ -2829,6 +2861,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Tout inclure dans %@"
+          }
+        }
+      }
+    },
+    "Toutes les tâches File Station sont terminées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All File Station tasks have finished."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toutes les tâches File Station sont terminées."
           }
         }
       }

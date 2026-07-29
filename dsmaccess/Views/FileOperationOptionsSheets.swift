@@ -161,6 +161,8 @@ struct FileCompressionOptionsSheet: View {
     @State private var format = FileStationArchiveFormat.zip
     @State private var level = FileStationCompressionLevel.moderate
     @State private var mode = FileStationCompressionMode.add
+    @State private var usesCodepage = false
+    @State private var codepage = FileStationArchiveCodepage.french
     @State private var password = ""
     @State private var validationMessage: String?
     @FocusState private var nameIsFocused: Bool
@@ -202,6 +204,14 @@ struct FileCompressionOptionsSheet: View {
                         Text("7z").tag(FileStationArchiveFormat.sevenZip)
                     }
                     SecureField("Mot de passe facultatif", text: $password)
+                    Toggle("Choisir l’encodage des noms", isOn: $usesCodepage)
+                    if usesCodepage {
+                        Picker("Encodage", selection: $codepage) {
+                            ForEach(FileStationArchiveCodepage.allCases) { value in
+                                Text(value.localizedTitle).tag(value)
+                            }
+                        }
+                    }
                 }
 
                 Section("Compression") {
@@ -252,6 +262,7 @@ struct FileCompressionOptionsSheet: View {
                 level: level,
                 mode: mode,
                 format: format,
+                codepage: usesCodepage ? codepage : nil,
                 password: password.isEmpty ? nil : password
             )
         )
