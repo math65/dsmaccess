@@ -48,6 +48,13 @@ struct ConnectionsView: View {
                                         .font(.callout)
                                         .foregroundStyle(.readableSecondary)
                                 }
+                                // Écrit, pas seulement annoncé : reconnaître sa propre
+                                // session doit être possible à l'œil comme à l'oreille.
+                                if connection.isCurrent {
+                                    Text("Session courante")
+                                        .font(.callout)
+                                        .foregroundStyle(.readableGreen)
+                                }
                             }
                         }
                         // Sans cette étiquette, VoiceOver lit deux textes empilés sans

@@ -56,7 +56,9 @@ struct ProcessGroupPage: nonisolated Decodable, Sendable {
 /// la liste de ses processus. C'est la vue lisible du gestionnaire des tâches.
 struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     let name: String?
-    /// Nom traduit par DSM. Souvent vide, d'où le repli sur `name`.
+    /// Malgré son nom, ce champ ne contient pas une traduction : quand DSM n'a pas de nom
+    /// courant à donner, il y met une **clé de son catalogue** (« storage_pool:raid_process »)
+    /// et laisse `name` vide. Les deux ne sont jamais renseignés en même temps.
     let localizedName: String?
     let unitName: String?
     let cpuPercent: Double?
@@ -71,9 +73,20 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     var id: String { unitName ?? name ?? "" }
 
     var displayName: String {
-        if let localizedName, !localizedName.isEmpty { return localizedName }
-        if let name, !name.isEmpty { return name }
-        return unitName ?? ""
+        let candidates = [name, localizedName, unitName].compactMap { $0 }
+        guard let raw = candidates.first(where: { !$0.isEmpty }) else { return "" }
+        return Self.readable(raw)
+    }
+
+    /// Quand DSM ne traduit pas, il laisse une clé de son propre catalogue :
+    /// « service:desktop_service », « storage_pool:raid_process ». Son client web la
+    /// résout, ce que nous ne pouvons pas faire. La clé est donc rendue lisible plutôt
+    /// qu'affichée brute — seule sa ponctuation change, rien n'est deviné.
+    private static func readable(_ raw: String) -> String {
+        guard raw.contains(":") || raw.contains("_") else { return raw }
+        let tail = raw.split(separator: ":").last.map(String.init) ?? raw
+        let words = tail.replacingOccurrences(of: "_", with: " ")
+        return words.prefix(1).uppercased() + words.dropFirst()
     }
 
     enum CodingKeys: String, CodingKey {

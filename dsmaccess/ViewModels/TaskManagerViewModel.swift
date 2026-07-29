@@ -52,11 +52,15 @@ final class TaskManagerViewModel {
             async let loadedProcesses = session.withClient { try await $0.processes() }
             let (fetchedGroups, fetchedProcesses) = try await (loadedGroups, loadedProcesses)
             guard generation == loadGeneration else { return }
+            // Tri par mémoire et non par processeur : sur un NAS au repos tous les
+            // services affichent « 0,0 % », et un tri sur des écarts invisibles donne une
+            // liste qui paraît aléatoire — et qui se réordonne à chaque actualisation,
+            // ce qui rend le parcours au lecteur d'écran impraticable.
             groups = fetchedGroups.sorted { lhs, rhs in
-                let leftCPU = lhs.cpuPercent ?? -1
-                let rightCPU = rhs.cpuPercent ?? -1
-                if leftCPU != rightCPU { return leftCPU > rightCPU }
-                return (lhs.memoryBytes ?? -1) > (rhs.memoryBytes ?? -1)
+                let leftMemory = lhs.memoryBytes ?? -1
+                let rightMemory = rhs.memoryBytes ?? -1
+                if leftMemory != rightMemory { return leftMemory > rightMemory }
+                return lhs.displayName.localizedStandardCompare(rhs.displayName) == .orderedAscending
             }
             totalProcessCount = fetchedProcesses.count
             processes = Array(

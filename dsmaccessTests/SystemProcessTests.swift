@@ -46,27 +46,34 @@ struct SystemProcessTests {
         #expect(group.readBytesPerSecond == 0)
     }
 
-    /// `name_i18n` est vide sur la moitié des groupes du NAS : sans repli, la moitié de la
-    /// liste s'afficherait sans nom.
-    @Test func fallsBackToTheRawNameWhenNoTranslationIsGiven() throws {
+    /// Les deux formes réellement observées, et elles s'excluent : soit `name` porte un nom
+    /// courant et `name_i18n` est vide, soit l'inverse — et alors `name_i18n` contient une
+    /// clé du catalogue DSM, pas une traduction. Affichée telle quelle, cette clé donnerait
+    /// « storage_pool:raid_process » au milieu de « SNMP » et « Plex Media Server ». Faute
+    /// de pouvoir la résoudre, on la rend lisible : seule sa ponctuation change.
+    @Test func namesAGroupFromWhicheverFieldTheNASFilledIn() throws {
         let payload = Data(#"""
         {"slices":[
           {"cpu_time":218.77,"cpu_utilization":0,"memory":4033536,"name":"SNMP",
            "name_i18n":"","process":[{}],"unit_name":"snmp.slice",
            "byte_read_per_sec":0,"byte_write_per_sec":0},
-          {"cpu_time":12.5,"cpu_utilization":1.5,"memory":41231872,"name":"PlexMediaServer",
-           "name_i18n":"Plex Media Server","process":[{},{}],"unit_name":"plex.slice",
-           "byte_read_per_sec":1024,"byte_write_per_sec":2048}]}
+          {"cpu_time":1,"cpu_utilization":0,"memory":2048,"name":"",
+           "name_i18n":"storage_pool:raid_process","process":[{},{}],"unit_name":"raid.slice",
+           "byte_read_per_sec":0,"byte_write_per_sec":0},
+          {"name":"","name_i18n":"service:desktop_service","unit_name":"d.slice","process":[]},
+          {"name":"Plex Media Server","name_i18n":"","unit_name":"plex.slice","process":[]}]}
         """#.utf8)
 
         let groups = try JSONDecoder().decode(ProcessGroupPage.self, from: payload).slices
 
         #expect(groups[0].displayName == "SNMP")
+        #expect(groups[0].id == "snmp.slice")
         #expect(groups[0].memoryBytes == 4_033_536)
         #expect(groups[0].processCount == 1)
-        // Quand DSM traduit, c'est sa traduction qui prime sur le nom technique.
-        #expect(groups[1].displayName == "Plex Media Server")
+        #expect(groups[1].displayName == "Raid process")
         #expect(groups[1].processCount == 2)
-        #expect(groups[1].cpuPercent == 1.5)
+        #expect(groups[2].displayName == "Desktop service")
+        // Un nom déjà présentable n'est pas touché.
+        #expect(groups[3].displayName == "Plex Media Server")
     }
 }
