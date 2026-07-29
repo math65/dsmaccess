@@ -101,14 +101,14 @@ struct FileOperationRate: Equatable, Sendable {
         return rate > 0 ? rate : nil
     }
 
-    /// Temps restant pour l'avancement donné. `nil` sous la minute : égrener des secondes
-    /// n'apporte rien à qui écoute, et l'opération se termine avant d'avoir été lue.
+    /// Temps restant pour l'avancement donné, quand le NAS rapporte une taille totale.
+    /// Une durée très courte est rendue telle quelle : c'est à l'affichage de dire
+    /// « moins d'une minute » plutôt que d'égrener des secondes.
     func remaining(for progress: FileOperationProgress) -> Duration? {
         guard let rate = bytesPerSecond,
               let processed = progress.processedSize,
               let total = progress.totalSize, total > processed else { return nil }
-        let seconds = Double(total - processed) / rate
-        return seconds >= 60 ? .seconds(seconds) : nil
+        return .seconds(Double(total - processed) / rate)
     }
 }
 

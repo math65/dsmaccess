@@ -83,9 +83,10 @@ struct FileOperationRateTests {
         #expect(rate.bytesPerSecond == nil)
     }
 
-    /// Sous la minute, le compte à rebours n'a plus d'utilité : l'opération se termine
-    /// avant d'avoir été lue à voix haute.
-    @Test func hidesTheEstimateWhenTheEndIsSeconds() {
+    /// Une fin proche reste une information : l'estimation est rendue telle quelle, à
+    /// charge pour l'affichage de dire « moins d'une minute » plutôt que d'égrener des
+    /// secondes.
+    @Test func stillEstimatesWhenTheEndIsSeconds() throws {
         var rate = FileOperationRate()
         for step in 0..<5 {
             rate.record(
@@ -95,6 +96,21 @@ struct FileOperationRateTests {
         }
 
         let almostDone = progress(processed: 40_000_000, total: 60_000_000)
-        #expect(rate.remaining(for: almostDone) == nil)
+        let left = try #require(rate.remaining(for: almostDone))
+        #expect(left < .seconds(60))
+        #expect(left > .zero)
+    }
+
+    /// Sans taille totale — le cas d'une compression — il n'y a rien à estimer.
+    @Test func estimatesNothingWithoutATotalSize() {
+        var rate = FileOperationRate()
+        for step in 0..<5 {
+            rate.record(
+                progress(processed: Int64(step) * 10_000_000, total: nil),
+                at: start.addingTimeInterval(Double(step))
+            )
+        }
+        #expect(rate.bytesPerSecond != nil)
+        #expect(rate.remaining(for: progress(processed: 40_000_000, total: nil)) == nil)
     }
 }

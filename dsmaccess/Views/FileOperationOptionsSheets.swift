@@ -421,6 +421,11 @@ struct FileOperationProgressBanner: View {
         guard let timeRemaining else {
             return String(localized: "\(speed)/s")
         }
+        // Sous la minute, annoncer des secondes qui défilent n'aide personne ; dire que
+        // la fin est proche, si.
+        guard timeRemaining >= .seconds(60) else {
+            return String(localized: "\(speed)/s, il reste moins d’une minute")
+        }
         let left = timeRemaining.formatted(
             .units(allowed: [.hours, .minutes], width: .wide, maximumUnitCount: 2)
         )

@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "%@/s, il reste moins d’une minute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/s, less than a minute left"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/s, il reste moins d’une minute"
+          }
+        }
+      }
+    },
     "Notifier la fin des opérations longues" : {
       "localizations" : {
         "en" : {
