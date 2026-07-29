@@ -372,6 +372,8 @@ struct FileExtractionOptionsSheet: View {
 struct FileOperationProgressBanner: View {
     let label: String
     let progress: FileOperationProgress?
+    var bytesPerSecond: Double?
+    var timeRemaining: Duration?
     let cancel: () -> Void
 
     var body: some View {
@@ -396,13 +398,33 @@ struct FileOperationProgressBanner: View {
             if let detail {
                 Text(detail)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .lineLimit(2)
+            }
+
+            // Débit et temps restant ne sont jamais annoncés : ils changent à chaque
+            // relevé et couvriraient tout le reste. Ils restent lisibles à la demande.
+            if let throughput {
+                Text(throughput)
+                    .font(.caption)
+                    .foregroundStyle(.readableSecondary)
             }
         }
         .padding(12)
         .background(.bar)
         .accessibilityElement(children: .contain)
+    }
+
+    private var throughput: String? {
+        guard let bytesPerSecond else { return nil }
+        let speed = Int64(bytesPerSecond).formatted(.byteCount(style: .file))
+        guard let timeRemaining else {
+            return String(localized: "\(speed)/s")
+        }
+        let left = timeRemaining.formatted(
+            .units(allowed: [.hours, .minutes], width: .wide, maximumUnitCount: 2)
+        )
+        return String(localized: "\(speed)/s, il reste environ \(left)")
     }
 
     private var detail: String? {

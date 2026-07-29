@@ -73,6 +73,8 @@ struct FileBrowserView: View {
                 FileOperationProgressBanner(
                     label: label,
                     progress: vm.operationProgress,
+                    bytesPerSecond: vm.operationBytesPerSecond,
+                    timeRemaining: vm.operationTimeRemaining,
                     cancel: cancelOperation
                 )
             }

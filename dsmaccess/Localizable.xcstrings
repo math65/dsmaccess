@@ -1,6 +1,38 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "%@/s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/s"
+          }
+        }
+      }
+    },
+    "%1$@/s, il reste environ %2$@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@/s, about %2$@ left"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@/s, il reste environ %2$@"
+          }
+        }
+      }
+    },
     "Une réponse du NAS n’a pas pu être lue" : {
       "localizations" : {
         "en" : {
