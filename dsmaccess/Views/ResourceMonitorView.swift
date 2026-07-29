@@ -17,6 +17,7 @@ struct ResourceMonitorView: View {
     var body: some View {
         Section {
             content
+                .labeledContentStyle(.readable)
             Toggle("Actualisation automatique", isOn: $vm.autoRefresh)
                 .accessibilityHint("Met à jour les valeurs toutes les 5 secondes")
                 .help("Actualiser automatiquement les ressources toutes les cinq secondes")
@@ -60,8 +61,23 @@ struct ResourceMonitorView: View {
             if let swap = vm.swapText {
                 LabeledContent("Fichier d’échange", value: swap)
             }
+            if let load = vm.loadAverageText {
+                LabeledContent("Charge moyenne", value: load)
+            }
             LabeledContent("Réception réseau", value: vm.networkDownText)
             LabeledContent("Envoi réseau", value: vm.networkUpText)
+
+            ForEach(vm.disks) { disk in
+                LabeledContent(disk.name, value: vm.activityText(for: disk))
+                    .accessibilityLabel(Text("Disque \(disk.name)"))
+            }
+            if vm.disks.count > 1, let total = vm.diskTotal {
+                LabeledContent("Tous les disques", value: vm.activityText(for: total))
+            }
+            ForEach(vm.volumes) { volume in
+                LabeledContent(volume.name, value: vm.activityText(for: volume))
+                    .accessibilityLabel(Text("Volume \(volume.name)"))
+            }
         }
     }
 }

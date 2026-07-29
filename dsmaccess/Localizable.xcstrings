@@ -1,6 +1,118 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Charge moyenne" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load average"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge moyenne"
+          }
+        }
+      }
+    },
+    "%1$@ sur 1 minute, %2$@ sur 5 minutes, %3$@ sur 15 minutes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ over 1 minute, %2$@ over 5 minutes, %3$@ over 15 minutes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ sur 1 minute, %2$@ sur 5 minutes, %3$@ sur 15 minutes"
+          }
+        }
+      }
+    },
+    "%1$@ en lecture, %2$@ en écriture" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ read, %2$@ written"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ en lecture, %2$@ en écriture"
+          }
+        }
+      }
+    },
+    "%1$lld %%, %2$@ en lecture, %3$@ en écriture" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld%%, %2$@ read, %3$@ written"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld %%, %2$@ en lecture, %3$@ en écriture"
+          }
+        }
+      }
+    },
+    "Tous les disques" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All disks"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tous les disques"
+          }
+        }
+      }
+    },
+    "Disque %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disk %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disque %@"
+          }
+        }
+      }
+    },
+    "Volume %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volume %@"
+          }
+        }
+      }
+    },
     "Secure SignIn (sans mot de passe)" : {
       "localizations" : {
         "en" : {

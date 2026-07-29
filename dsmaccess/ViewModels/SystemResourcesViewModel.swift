@@ -151,6 +151,35 @@ final class SystemResourcesViewModel {
         return String(localized: "\(formatted)/s")
     }
 
+    /// Moyennes de charge sur une, cinq et quinze minutes. Absentes tant que DSM n'en
+    /// renvoie aucune plutôt qu'affichées à zéro, qui se lirait comme une mesure.
+    var loadAverageText: String? {
+        guard let cpu = usage?.cpu,
+              let one = cpu.oneMinuteLoad,
+              let five = cpu.fiveMinuteLoad,
+              let fifteen = cpu.fifteenMinuteLoad else { return nil }
+        let format = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(2))
+        return String(
+            localized: "\(one.formatted(format)) sur 1 minute, \(five.formatted(format)) sur 5 minutes, \(fifteen.formatted(format)) sur 15 minutes"
+        )
+    }
+
+    /// Disques physiques, hors entrée cumulée que DSM range à part.
+    var disks: [ResourceUsage.Device] { usage?.disk?.devices ?? [] }
+    var diskTotal: ResourceUsage.Device? { usage?.disk?.total }
+    var volumes: [ResourceUsage.Device] { usage?.space?.devices ?? [] }
+
+    /// « 14 %, 859 Ko/s en lecture, 16 Ko/s en écriture ». Le taux d'utilisation seul ne
+    /// dit pas si le disque peine sur des lectures ou des écritures.
+    func activityText(for device: ResourceUsage.Device) -> String {
+        let read = rateText(device.readBytesPerSecond)
+        let write = rateText(device.writeBytesPerSecond)
+        guard let utilization = device.utilization, (0...100).contains(utilization) else {
+            return String(localized: "\(read) en lecture, \(write) en écriture")
+        }
+        return String(localized: "\(utilization) %, \(read) en lecture, \(write) en écriture")
+    }
+
     /// Résumé annoncé à VoiceOver après une actualisation manuelle.
     var summary: String {
         if let errorMessage { return errorMessage }
