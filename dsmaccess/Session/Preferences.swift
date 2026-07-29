@@ -24,6 +24,7 @@ enum Preferences {
         static let selectedNASProfileID = "selectedNASProfileID"
         static let enabledAnnouncementCategories = "enabledAnnouncementCategories"
         static let queueAnnouncements = "queueAnnouncements"
+        static let notifiesFinishedOperations = "notifiesFinishedOperations"
         static let sidebarOrder = "sidebarOrder"
         static let enabledSidebarModules = "enabledSidebarModules"
         static let knownSidebarModules = "knownSidebarModules"
@@ -106,6 +107,16 @@ enum Preferences {
             return defaults.bool(forKey: Key.queueAnnouncements)
         }
         set { defaults.set(newValue, forKey: Key.queueAnnouncements) }
+    }
+
+    /// Notification système à la fin d'une opération longue. Active par défaut : elle ne
+    /// se déclenche que hors premier plan, et macOS garde la main via son propre réglage.
+    static var notifiesFinishedOperations: Bool {
+        get {
+            guard defaults.object(forKey: Key.notifiesFinishedOperations) != nil else { return true }
+            return defaults.bool(forKey: Key.notifiesFinishedOperations)
+        }
+        set { defaults.set(newValue, forKey: Key.notifiesFinishedOperations) }
     }
 
     static var sidebarOrder: [AppModule] {

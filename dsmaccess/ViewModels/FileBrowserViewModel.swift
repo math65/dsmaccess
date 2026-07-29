@@ -1455,6 +1455,7 @@ final class FileBrowserViewModel {
             operationProgress = nil
             operationRate = FileOperationRate()
         }
+        await OperationNotifier.prepare()
         do {
             let message = try await operation { [weak self] progress in
                 self?.operationProgress = progress
@@ -1469,6 +1470,7 @@ final class FileBrowserViewModel {
                 await search(query)
             }
             operationSummary = OperationSummary(message: message, continuesInBackground: false)
+            await OperationNotifier.postIfInBackground(title: label, body: message)
             return .success(message)
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
@@ -1479,6 +1481,7 @@ final class FileBrowserViewModel {
                 await loadCurrent()
             }
             operationSummary = summary
+            await OperationNotifier.postIfInBackground(title: label, body: summary.message)
             return .failure(summary.message)
         }
     }

@@ -19,6 +19,10 @@ final class AppSettings {
         didSet { Preferences.queueAnnouncements = queueAnnouncements }
     }
 
+    var notifiesFinishedOperations: Bool {
+        didSet { Preferences.notifiesFinishedOperations = notifiesFinishedOperations }
+    }
+
     private(set) var sidebarOrder: [AppModule] {
         didSet { Preferences.sidebarOrder = sidebarOrder }
     }
@@ -36,6 +40,7 @@ final class AppSettings {
     init() {
         enabledAnnouncementCategories = Preferences.enabledAnnouncementCategories
         queueAnnouncements = Preferences.queueAnnouncements
+        notifiesFinishedOperations = Preferences.notifiesFinishedOperations
         sidebarOrder = Preferences.sidebarOrder
         enabledSidebarModules = Preferences.enabledSidebarModules
         automaticallyHideUnavailableModules = Preferences.automaticallyHideUnavailableModules
