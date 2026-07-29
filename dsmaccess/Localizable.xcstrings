@@ -1,6 +1,70 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An approval request will be sent to the Synology Secure SignIn app on your phone."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile."
+          }
+        }
+      }
+    },
+    "Garde la session ouverte pour les prochaines ouvertures de l’app" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keeps the session open for the next time you open the app"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garde la session ouverte pour les prochaines ouvertures de l’app"
+          }
+        }
+      }
+    },
+    "Conserver la session dans le Trousseau pour rouvrir l’app sans se reconnecter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keep the session in the Keychain to reopen the app without signing in again"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conserver la session dans le Trousseau pour rouvrir l’app sans se reconnecter"
+          }
+        }
+      }
+    },
+    "La session enregistrée n’est plus valide. Connectez-vous à nouveau." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The saved session is no longer valid. Please sign in again."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La session enregistrée n’est plus valide. Connectez-vous à nouveau."
+          }
+        }
+      }
+    },
     "%@/s, il reste moins d’une minute" : {
       "localizations" : {
         "en" : {
@@ -21076,22 +21140,6 @@
         }
       }
     },
-    "Mémorise le mot de passe pour la prochaine ouverture de l'app" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Saves your password for the next time you open the app"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mémorise le mot de passe pour la prochaine ouverture de l'app"
-          }
-        }
-      }
-    },
     "Mémoriser ce Mac comme appareil approuvé" : {
       "localizations" : {
         "en" : {
@@ -21104,22 +21152,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Mémoriser ce Mac comme appareil approuvé"
-          }
-        }
-      }
-    },
-    "Mémoriser le mot de passe dans le Trousseau pour les prochaines ouvertures" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Save the password in Keychain for future launches"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Mémoriser le mot de passe dans le Trousseau pour les prochaines ouvertures"
           }
         }
       }
@@ -27156,22 +27188,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Une demande a été envoyée à l'app Synology Secure SignIn. Approuvez-la sur votre appareil mobile pour ouvrir la session."
-          }
-        }
-      }
-    },
-    "Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile. La session devra être approuvée de nouveau à chaque ouverture de l'app." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "An approval request will be sent to the Synology Secure SignIn app on your phone. The session must be approved again every time the app is opened."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile. La session devra être approuvée de nouveau à chaque ouverture de l'app."
           }
         }
       }

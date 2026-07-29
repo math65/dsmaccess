@@ -17,6 +17,9 @@ enum KeychainStore {
     nonisolated static let passwordService = "math65.dsmaccess.password"
     /// Service utilisé pour les empreintes des certificats explicitement approuvés.
     nonisolated static let serverTrustService = "math65.dsmaccess.serverTrust"
+    /// Service utilisé pour la session DSM conservée entre deux lancements. Un identifiant
+    /// de session ouvre le NAS à qui le détient : il est protégé comme un mot de passe.
+    nonisolated static let sessionService = "math65.dsmaccess.session"
 
     /// Enregistre (ou remplace) une valeur pour un couple service/compte.
     @discardableResult

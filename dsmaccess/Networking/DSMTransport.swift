@@ -87,8 +87,14 @@ final class DSMTransport {
     }
 
     func establishSession(_ result: LoginResult) {
-        sessionID = result.sid
-        synoToken = result.synotoken
+        adoptSession(sid: result.sid, synoToken: result.synotoken)
+    }
+
+    /// Réinstalle une session ouverte lors d'un lancement précédent. Le transport reste le
+    /// seul détenteur du SID : rien d'autre dans l'app ne le manipule.
+    func adoptSession(sid: String, synoToken: String?) {
+        sessionID = sid
+        self.synoToken = synoToken
     }
 
     func clearSession() {

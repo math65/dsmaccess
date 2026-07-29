@@ -105,16 +105,20 @@ final class ConnectionViewModel {
         let disconnectionMessage = session.consumeDisconnectionMessage()
         self.expiredSessionMessage = disconnectionMessage
         self.errorMessage = disconnectionMessage
-        // Reconnexion possible au lancement si un mot de passe est mémorisé pour ce NAS.
-        if Preferences.rememberPassword,
-           !account.isEmpty,
+        // Reprise possible au lancement : une session mémorisée d'abord, à défaut un mot
+        // de passe. La session ne dépend pas de `rememberPassword`, une connexion sans mot
+        // de passe n'en enregistrant aucun.
+        if !account.isEmpty,
            !Self.isRunningHostedTests,
            let target = savedTarget ?? Self.directTarget(
                host: host,
                useHTTPS: https,
                port: effectivePort
            ) {
-            self.isRestoring = CredentialStore.password(account: account, target: target) != nil
+            let hasSession = CredentialStore.session(account: account, target: target) != nil
+            let hasPassword = Preferences.rememberPassword
+                && CredentialStore.password(account: account, target: target) != nil
+            self.isRestoring = hasSession || hasPassword
         } else {
             self.isRestoring = false
         }
@@ -279,6 +283,14 @@ final class ConnectionViewModel {
             errorMessage = connectionValidationMessage
             return
         }
+        if await resumeStoredSession(account: cleanedAccount, target: target) {
+            isRestoring = false
+            if expiredSessionMessage != nil {
+                session.publishAutomaticReconnectionNotice()
+            }
+            return
+        }
+
         guard let saved = CredentialStore.password(account: cleanedAccount, target: target) else {
             isRestoring = false
             return
@@ -311,6 +323,73 @@ final class ConnectionViewModel {
             CredentialStore.forget(account: cleanedAccount, target: target)
             rememberPassword = false
             password = ""
+        }
+    }
+
+    /// Rouvre la session mémorisée sans rien redemander à l'utilisateur. Vrai si elle est
+    /// encore valide et que l'app est entrée.
+    ///
+    /// La découverte des API ne prouve rien : `SYNO.API.Info` répond sans session. Il faut
+    /// un appel authentifié — d'où la sonde — sinon une session morte passerait pour bonne
+    /// jusqu'à la première vraie opération, qui échouerait sans explication.
+    private func resumeStoredSession(
+        account: String,
+        target: NASConnectionTarget
+    ) async -> Bool {
+        guard let stored = CredentialStore.session(account: account, target: target) else {
+            return false
+        }
+        do {
+            let endpoint = try await resolvedEndpoint(for: target)
+            try Task.checkCancellation()
+            let activeClient = DSMClient(endpoint: endpoint)
+            client = activeClient
+            pendingEndpoint = endpoint
+            pendingTarget = target
+            activeClient.adoptSession(stored)
+            let capabilities = try await activeClient.discoverCapabilities()
+            _ = try await activeClient.systemInfo()
+            enterSession(
+                account: account,
+                target: target,
+                endpoint: endpoint,
+                capabilities: capabilities,
+                remembersPassword: CredentialStore.password(
+                    account: account,
+                    target: target
+                ) != nil
+            )
+            return true
+        } catch DSMError.sessionExpired {
+            // Seul cas où la session est réellement en cause : ne pas la réessayer au
+            // prochain lancement, et laisser le chemin habituel reprendre la main.
+            CredentialStore.forgetSession(account: account, target: target)
+            client = nil
+            errorMessage = String(
+                localized: "La session enregistrée n’est plus valide. Connectez-vous à nouveau."
+            )
+            return false
+        } catch let error as DSMError where error.provesSessionIsAlive {
+            // Le NAS nous a authentifiés puis refusé cette API : la session est bonne,
+            // c'est le compte qui n'a pas le droit d'y accéder.
+            let capabilities = client?.capabilities ?? DSMCapabilities()
+            guard let endpoint = pendingEndpoint else { return false }
+            enterSession(
+                account: account,
+                target: target,
+                endpoint: endpoint,
+                capabilities: capabilities,
+                remembersPassword: CredentialStore.password(
+                    account: account,
+                    target: target
+                ) != nil
+            )
+            return true
+        } catch {
+            // Réseau injoignable, certificat refusé : la session mémorisée n'est pas en
+            // cause et doit survivre. Le chemin habituel affichera l'incident.
+            client = nil
+            return false
         }
     }
 
@@ -651,6 +730,31 @@ final class ConnectionViewModel {
             CredentialStore.forget(account: account, target: target)
             remembersPassword = false
         }
+        // « Rester connecté » conserve la session elle-même : c'est ce qui évite, à la
+        // prochaine ouverture, un login complet ou une nouvelle approbation sur le mobile.
+        if rememberPassword, let stored = StoredDSMSession(result) {
+            CredentialStore.rememberSession(stored, account: account, target: target)
+        } else {
+            CredentialStore.forgetSession(account: account, target: target)
+        }
+        enterSession(
+            account: account,
+            target: target,
+            endpoint: endpoint,
+            capabilities: capabilities,
+            remembersPassword: remembersPassword
+        )
+    }
+
+    /// Dernière étape commune au login et à la reprise d'une session mémorisée.
+    private func enterSession(
+        account: String,
+        target: NASConnectionTarget,
+        endpoint: DSMEndpoint,
+        capabilities: DSMCapabilities,
+        remembersPassword: Bool
+    ) {
+        guard let client else { return }
         persistPreferences(account: account, target: target)
         session.establish(
             target: target,

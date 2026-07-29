@@ -39,6 +39,33 @@ enum CredentialStore {
         Preferences.rememberPassword = false
     }
 
+    /// Mémorise la session ouverte pour la reprendre au prochain lancement. Le jeton CSRF
+    /// accompagne le SID : sans lui, une session reprise se ferait refuser en 119.
+    @discardableResult
+    static func rememberSession(
+        _ session: StoredDSMSession,
+        account: String,
+        target: NASConnectionTarget
+    ) -> Bool {
+        guard let data = try? JSONEncoder().encode(session),
+              let encoded = String(data: data, encoding: .utf8) else { return false }
+        return save(encoded, service: KeychainStore.sessionService,
+                    account: account, target: target)
+    }
+
+    /// Session mémorisée pour ce NAS, si elle existe. Sa validité ne se sait qu'en
+    /// l'essayant : DSM n'annonce aucune date d'expiration.
+    static func session(account: String, target: NASConnectionTarget) -> StoredDSMSession? {
+        guard let stored = load(service: KeychainStore.sessionService,
+                                account: account, target: target),
+              let data = stored.data(using: .utf8) else { return nil }
+        return try? JSONDecoder().decode(StoredDSMSession.self, from: data)
+    }
+
+    static func forgetSession(account: String, target: NASConnectionTarget) {
+        delete(service: KeychainStore.sessionService, account: account, target: target)
+    }
+
     static func deviceID(account: String, target: NASConnectionTarget) -> String? {
         load(service: KeychainStore.deviceTokenService, account: account, target: target)
     }

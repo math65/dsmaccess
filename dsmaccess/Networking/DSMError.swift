@@ -55,6 +55,18 @@ enum DSMError: Error, LocalizedError, Equatable {
     /// Échec d'une opération groupée avec le détail du premier élément refusé par DSM.
     case itemOperationFailed(code: Int, item: String?, itemCode: Int)
 
+    /// Une session reprise n'est validée que par un appel authentifié. Ces refus-là
+    /// viennent du NAS **après** nous avoir identifiés : ils prouvent que la session vit,
+    /// contrairement à un incident réseau, qui ne prouve rien.
+    var provesSessionIsAlive: Bool {
+        switch self {
+        case .permissionDenied, .unsupportedAPI, .unsupportedAPIVersion, .apiError:
+            true
+        default:
+            false
+        }
+    }
+
     var errorDescription: String? {
         switch self {
         case .invalidEndpoint:
