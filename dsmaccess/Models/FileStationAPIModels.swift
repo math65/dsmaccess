@@ -325,17 +325,23 @@ struct FileStationCompressionOptions: Equatable, Sendable {
     var level: FileStationCompressionLevel
     var mode: FileStationCompressionMode
     var format: FileStationArchiveFormat
+    /// Page de code employée pour les noms de fichiers écrits dans l'archive. DSM applique
+    /// son propre défaut quand rien n'est transmis ; le client web, lui, envoie toujours la
+    /// langue de l'interface.
+    var codepage: FileStationArchiveCodepage?
     var password: String?
 
     nonisolated init(
         level: FileStationCompressionLevel = .moderate,
         mode: FileStationCompressionMode = .add,
         format: FileStationArchiveFormat = .zip,
+        codepage: FileStationArchiveCodepage? = nil,
         password: String? = nil
     ) {
         self.level = level
         self.mode = mode
         self.format = format
+        self.codepage = codepage
         self.password = password
     }
 }

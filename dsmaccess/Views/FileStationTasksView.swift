@@ -11,6 +11,7 @@ struct FileStationTasksView: View {
     @Bindable var vm: FileBrowserViewModel
 
     @State private var operationError: String?
+    @State private var automaticFollowStopped = false
     @Environment(\.dismiss) private var dismiss
     @AccessibilityFocusState private var focusHeading: Bool
     @AccessibilityFocusState private var focusStatus: Bool
@@ -26,6 +27,12 @@ struct FileStationTasksView: View {
                 Text(operationError)
                     .foregroundStyle(.red)
                     .accessibilityFocused($focusStatus)
+            }
+
+            if automaticFollowStopped {
+                Text("Le suivi automatique s’est interrompu : les valeurs affichées datent de la dernière lecture réussie.")
+                    .font(.callout)
+                    .foregroundStyle(.readableOrange)
             }
 
             content
@@ -55,6 +62,7 @@ struct FileStationTasksView: View {
         .task {
             focusHeading = true
             await loadTasks()
+            await followRunningTasks()
         }
     }
 
@@ -133,8 +141,47 @@ struct FileStationTasksView: View {
         .accessibilityElement(children: .contain)
     }
 
+    /// Le NAS ne signale rien de lui-même : sans relecture, la fenêtre garde la progression
+    /// figée à l'instant de son ouverture. La relecture reste silencieuse et ne déplace pas
+    /// le curseur VoiceOver, qui serait sinon ramené en haut de la fenêtre toutes les
+    /// trois secondes.
+    private func followRunningTasks() async {
+        while !Task.isCancelled {
+            do {
+                try await Task.sleep(for: .seconds(3))
+            } catch {
+                return
+            }
+            guard !automaticFollowStopped,
+                  vm.backgroundTasksError == nil,
+                  vm.backgroundTasks.contains(where: { !$0.finished })
+            else { continue }
+            guard await vm.refreshBackgroundTasksQuietly() else {
+                // Une seule annonce : le suivi ne reprendra qu'après « Actualiser », donc
+                // le message ne se répétera pas d'un tour à l'autre. La boucle doit
+                // continuer de tourner à vide : c'est elle qui repart quand « Actualiser »
+                // remet le drapeau à zéro. La quitter ici rendrait le bouton trompeur,
+                // l'alerte disparaissant sans que le suivi reprenne.
+                automaticFollowStopped = true
+                VoiceOver.announce(
+                    String(localized: "Le suivi automatique des tâches s’est interrompu."),
+                    category: .error,
+                    priority: .high
+                )
+                continue
+            }
+            if !vm.backgroundTasks.contains(where: { !$0.finished }) {
+                VoiceOver.announce(
+                    String(localized: "Toutes les tâches File Station sont terminées."),
+                    category: .result
+                )
+            }
+        }
+    }
+
     private func loadTasks() async {
         operationError = nil
+        automaticFollowStopped = false
         await vm.loadBackgroundTasks()
         guard !Task.isCancelled else { return }
         if vm.backgroundTasksError == nil {

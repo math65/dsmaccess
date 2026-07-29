@@ -49,6 +49,9 @@ final class DSMFileStationService {
     /// passager ne doit pas faire perdre le suivi d'une tâche que le NAS traite toujours.
     private static let toleratedPollFailures = 3
 
+    /// Code DSM « tâche inconnue » : la tâche interrogée n'existe plus côté NAS.
+    private static let unknownTaskErrorCode = 599
+
     private static let fileAdditionalFields = [
         "real_path", "size", "owner", "time", "perm", "type", "mount_point_type",
     ]
@@ -716,6 +719,9 @@ final class DSMFileStationService {
             "mode": .string(options.mode.rawValue),
             "format": .string(options.format.rawValue),
         ]
+        if let codepage = options.codepage {
+            parameters["codepage"] = .string(codepage.rawValue)
+        }
         addNonempty(options.password, key: "password", to: &parameters)
         let task = try await transport.value(
             api: Self.compressAPI,
@@ -1035,6 +1041,7 @@ final class DSMFileStationService {
         )
         var interval = Duration.zero
         var failures = 0
+        var latest: FileOperationProgress?
         while true {
             do {
                 try await Task.sleep(for: interval)
@@ -1047,10 +1054,16 @@ final class DSMFileStationService {
                 )
                 failures = 0
                 let update = operationProgress(kind: kind, taskID: taskID, status: status)
+                latest = update
                 progress(update)
                 if status.finished { return update }
             } catch {
                 if DSMError.isCancellation(error) { throw error }
+                if isRetiredTaskFailure(error) {
+                    let completed = completedProgress(kind: kind, taskID: taskID, latest: latest)
+                    progress(completed)
+                    return completed
+                }
                 failures += 1
                 guard failures <= Self.toleratedPollFailures, isTransientPollFailure(error) else {
                     throw FileOperationTrackingInterrupted(
@@ -1068,6 +1081,38 @@ final class DSMFileStationService {
     /// plafond : inutile d'interroger le NAS deux fois par seconde pendant des heures.
     private func nextPollInterval(after interval: Duration) -> Duration {
         min(max(interval * 2, operationPollInterval), operationPollCeiling)
+    }
+
+    /// DSM ne garde pas une tâche achevée : à la fin d'une compression longue, `status`
+    /// répond 599 « tâche inconnue » et la tâche disparaît de BackgroundTask, parfois sans
+    /// avoir jamais renvoyé `finished`. Le suivi doit alors conclure comme le client web —
+    /// l'opération est finie, pas perdue — sinon l'app annonce une interruption pour une
+    /// compression réussie.
+    private func isRetiredTaskFailure(_ error: Error) -> Bool {
+        guard case .apiError(Self.unknownTaskErrorCode) = error as? DSMError else { return false }
+        return true
+    }
+
+    /// La dernière progression connue reste la seule information vérifiée ; seul l'achèvement
+    /// est ajouté. Rien n'est inventé sur le volume traité, que DSM ne donne pas pour une
+    /// compression.
+    private func completedProgress(
+        kind: FileOperationKind,
+        taskID: String,
+        latest: FileOperationProgress?
+    ) -> FileOperationProgress {
+        FileOperationProgress(
+            kind: kind,
+            taskID: taskID,
+            isFinished: true,
+            fractionCompleted: 1,
+            processedSize: latest?.processedSize,
+            totalSize: latest?.totalSize,
+            processedItemCount: latest?.processedItemCount,
+            totalItemCount: latest?.totalItemCount,
+            currentPath: nil,
+            destinationPath: latest?.destinationPath
+        )
     }
 
     /// Seul un incident de transport peut se résorber d'une interrogation à l'autre ;
