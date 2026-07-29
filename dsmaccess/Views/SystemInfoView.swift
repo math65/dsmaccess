@@ -38,8 +38,6 @@ struct SystemInfoView: View {
                         LabeledContent("Temps de fonctionnement", value: vm.uptimeText)
                         LabeledContent("Température", value: vm.temperatureText)
                     }
-
-                    ResourceMonitorView(session: session)
                 }
                 .formStyle(.grouped)
                 .accessibilityFocused($focusContent)

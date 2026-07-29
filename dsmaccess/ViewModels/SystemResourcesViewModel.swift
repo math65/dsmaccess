@@ -116,17 +116,18 @@ final class SystemResourcesViewModel {
         memoryPercent.map { String(localized: "\($0) %") } ?? "—"
     }
 
-    /// « 3,2 Go sur 8 Go » (les tailles DSM sont en Kio → conversion en octets).
+    /// « 0,64 Go sur 3,68 Go » (les tailles DSM sont en Kio → conversion en octets). Le
+    /// volume affiché exclut le cache, comme le pourcentage juste au-dessus : les deux
+    /// lignes doivent raconter la même chose.
     var memoryDetailText: String? {
         guard let mem = usage?.memory,
               let total = mem.totalReal,
               total >= 0,
-              let totalKiB = Int64(exactly: total) else { return nil }
-        let available = mem.availReal ?? 0
-        guard (0...total).contains(available),
-              let availableKiB = Int64(exactly: available) else { return nil }
-        let (usedBytes, usedOverflow) = (totalKiB - availableKiB)
-            .multipliedReportingOverflow(by: 1024)
+              let totalKiB = Int64(exactly: total),
+              let used = mem.usedReal,
+              (0...total).contains(used),
+              let usedKiB = Int64(exactly: used) else { return nil }
+        let (usedBytes, usedOverflow) = usedKiB.multipliedReportingOverflow(by: 1024)
         let (totalBytes, totalOverflow) = totalKiB.multipliedReportingOverflow(by: 1024)
         guard !usedOverflow, !totalOverflow else { return nil }
         return String(localized: "\(usedBytes.formatted(.byteCount(style: .memory))) sur \(totalBytes.formatted(.byteCount(style: .memory)))")
@@ -145,10 +146,48 @@ final class SystemResourcesViewModel {
     var networkDownText: String { rateText(totalInterface?.rx) }
     var networkUpText: String { rateText(totalInterface?.tx) }
 
+    /// `spellsOutZero` désactivé : le style par défaut écrit « Zéro ko », ce qui se lit mal
+    /// dans une ligne de mesures et s'entend encore plus mal.
     private func rateText(_ bytesPerSecond: Int?) -> String {
         guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
-        let formatted = Int64(bytesPerSecond).formatted(.byteCount(style: .memory))
+        let formatted = Int64(bytesPerSecond)
+            .formatted(.byteCount(style: .memory, spellsOutZero: false))
         return String(localized: "\(formatted)/s")
+    }
+
+    /// Moyennes de charge sur une, cinq et quinze minutes. Absentes tant que DSM n'en
+    /// renvoie aucune plutôt qu'affichées à zéro, qui se lirait comme une mesure.
+    var loadAverageText: String? {
+        guard let cpu = usage?.cpu,
+              let one = cpu.oneMinuteLoad,
+              let five = cpu.fiveMinuteLoad,
+              let fifteen = cpu.fifteenMinuteLoad else { return nil }
+        let format = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(2))
+        return String(
+            localized: "\(one.formatted(format)) sur 1 minute, \(five.formatted(format)) sur 5 minutes, \(fifteen.formatted(format)) sur 15 minutes"
+        )
+    }
+
+    /// Disques physiques, hors entrée cumulée que DSM range à part. Triés par nom : le NAS
+    /// les renvoie dans un ordre qui lui est propre (Drive 4, 3, 1, 2), déroutant à lire
+    /// comme à parcourir au clavier.
+    var disks: [ResourceUsage.Device] {
+        (usage?.disk?.devices ?? []).sorted {
+            $0.name.localizedStandardCompare($1.name) == .orderedAscending
+        }
+    }
+    var diskTotal: ResourceUsage.Device? { usage?.disk?.total }
+    var volumes: [ResourceUsage.Device] { usage?.space?.devices ?? [] }
+
+    /// « 14 %, 859 Ko/s en lecture, 16 Ko/s en écriture ». Le taux d'utilisation seul ne
+    /// dit pas si le disque peine sur des lectures ou des écritures.
+    func activityText(for device: ResourceUsage.Device) -> String {
+        let read = rateText(device.readBytesPerSecond)
+        let write = rateText(device.writeBytesPerSecond)
+        guard let utilization = device.utilization, (0...100).contains(utilization) else {
+            return String(localized: "\(read) en lecture, \(write) en écriture")
+        }
+        return String(localized: "\(utilization) %, \(read) en lecture, \(write) en écriture")
     }
 
     /// Résumé annoncé à VoiceOver après une actualisation manuelle.
