@@ -14,6 +14,9 @@ final class FeedbackViewModel {
     var contactType: AppBackendClient.ContactType = .bug
     var email = Preferences.feedbackEmail
     var message = ""
+    /// Réponse illisible que l'utilisateur a choisi de signaler : jointe au rapport,
+    /// et rappelée à l'écran pour qu'il sache ce qu'il envoie avant de valider.
+    private(set) var incident: DSMResponseIncident?
     private(set) var isSending = false
     private(set) var errorMessage: String?
     private(set) var didSucceed = false
@@ -43,6 +46,20 @@ final class FeedbackViewModel {
         !isSending && emailLooksPlausible && !trimmedMessage.isEmpty
     }
 
+    /// Reprend l'incident accepté dans l'alerte et prépare un rapport à compléter.
+    /// Le message de départ reste modifiable : c'est l'utilisateur qui décrit ce
+    /// qu'il faisait, la partie technique est jointe séparément.
+    func adoptPendingIncident() {
+        guard incident == nil, let accepted = DSMResponseIncidents.shared.consumeAccepted() else {
+            return
+        }
+        incident = accepted
+        contactType = .bug
+        if trimmedMessage.isEmpty {
+            message = String(localized: "DSM Access n’a pas su lire une réponse du NAS.")
+        }
+    }
+
     func send(sessionConnected: Bool, settings: AppSettings) async {
         guard canSend else { return }
         isSending = true
@@ -54,7 +71,8 @@ final class FeedbackViewModel {
                 let sections = FeedbackDiagnostics.sections(
                     sessionConnected: sessionConnected,
                     profileCount: Preferences.nasProfiles.count,
-                    settings: settings
+                    settings: settings,
+                    incident: incident
                 )
                 try await client.sendReport(
                     email: trimmedEmail,

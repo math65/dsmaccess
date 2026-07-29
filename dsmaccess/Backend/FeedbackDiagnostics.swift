@@ -11,7 +11,12 @@
 import AppKit
 
 enum FeedbackDiagnostics {
-    static func sections(sessionConnected: Bool, profileCount: Int, settings: AppSettings) -> [AppBackendClient.ReportSection] {
+    static func sections(
+        sessionConnected: Bool,
+        profileCount: Int,
+        settings: AppSettings,
+        incident: DSMResponseIncident? = nil
+    ) -> [AppBackendClient.ReportSection] {
         let bundle = Bundle.main
         let build = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "inconnu"
         let language = bundle.preferredLocalizations.first ?? "inconnue"
@@ -20,7 +25,7 @@ enum FeedbackDiagnostics {
         let announcementCategories = AnnouncementCategory.allCases
             .filter { settings.enabledAnnouncementCategories.contains($0) }
 
-        return [
+        var sections = [
             AppBackendClient.ReportSection(title: "Application", rows: [
                 .init(label: "Version", value: AppBackendClient.appVersion),
                 .init(label: "Build", value: build),
@@ -44,5 +49,19 @@ enum FeedbackDiagnostics {
                     : hiddenModules.map(\.rawValue).joined(separator: ", ")),
             ]),
         ]
+
+        if let incident {
+            sections.append(
+                AppBackendClient.ReportSection(title: "Réponse illisible", rows: [
+                    .init(label: "API", value: incident.api),
+                    .init(label: "Méthode", value: incident.method),
+                    .init(label: "Version", value: incident.version),
+                    .init(label: "Échec", value: incident.failure),
+                ] + incident.receivedFields.enumerated().map { index, fields in
+                    .init(label: "Champs reçus \(index + 1)", value: fields)
+                })
+            )
+        }
+        return sections
     }
 }

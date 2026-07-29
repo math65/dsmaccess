@@ -410,12 +410,12 @@ final class DSMTransport {
             timeoutInterval: timeoutInterval
         )
         do {
-            return try await sendOnce(request)
+            return try await sendOnce(request, parameters: parameters)
         } catch let error as URLError
             where requestPolicy == .idempotent && error.code == .timedOut {
             try await Task.sleep(for: .milliseconds(500))
             do {
-                return try await sendOnce(request)
+                return try await sendOnce(request, parameters: parameters)
             } catch let retryError as URLError {
                 throw mappedNetworkError(retryError)
             }
@@ -456,14 +456,30 @@ final class DSMTransport {
     }
 
     private func sendOnce<Value: Decodable & Sendable>(
-        _ request: URLRequest
+        _ request: URLRequest,
+        parameters: [String: String]
     ) async throws -> DSMResponse<Value> {
         let (data, response) = try await requestData(request)
         guard let httpResponse = response as? HTTPURLResponse,
               (200..<300).contains(httpResponse.statusCode) else {
             throw DSMError.invalidResponse
         }
-        return try await Self.decodeResponse(Value.self, from: data)
+        do {
+            return try await Self.decodeResponse(Value.self, from: data)
+        } catch DSMError.decoding(let detail) {
+            // Seul endroit qui connaisse à la fois l'appel émis et la réponse reçue :
+            // sans cette trace, un signalement d'utilisateur ne dit pas quoi corriger.
+            DSMResponseIncidents.shared.record(
+                DSMResponseIncident(
+                    api: parameters["api"] ?? "inconnue",
+                    method: parameters["method"] ?? "inconnue",
+                    version: parameters["version"] ?? "inconnue",
+                    receivedFields: DSMResponseIncident.fields(in: data),
+                    failure: detail ?? "réponse illisible"
+                )
+            )
+            throw DSMError.decoding(detail: detail)
+        }
     }
 
     @concurrent
@@ -475,12 +491,12 @@ final class DSMTransport {
             return try JSONDecoder().decode(DSMResponse<Value>.self, from: data)
         } catch {
             guard let repaired = Self.replacingInvalidUTF8(in: data) else {
-                throw DSMError.decoding
+                throw DSMError.decoding(detail: DSMResponseIncident.summary(of: error))
             }
             do {
                 return try JSONDecoder().decode(DSMResponse<Value>.self, from: repaired)
             } catch {
-                throw DSMError.decoding
+                throw DSMError.decoding(detail: DSMResponseIncident.summary(of: error))
             }
         }
     }
