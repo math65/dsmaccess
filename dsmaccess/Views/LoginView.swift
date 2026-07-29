@@ -163,7 +163,10 @@ struct LoginView: View {
                     }
                     Picker("Authentification", selection: $vm.authenticationMethod) {
                         Text("Mot de passe").tag(ConnectionViewModel.AuthenticationMethod.password)
-                        Text("Sans mot de passe").tag(ConnectionViewModel.AuthenticationMethod.secureSignIn)
+                        // Le nom du service Synology d'abord : c'est celui que l'utilisateur
+                        // voit dans DSM et dans l'app mobile qui lui demandera d'approuver.
+                        Text("Secure SignIn (sans mot de passe)")
+                            .tag(ConnectionViewModel.AuthenticationMethod.secureSignIn)
                     }
                     .pickerStyle(.menu)
                     .accessibilityIdentifier("login.authentication-method")
@@ -176,16 +179,17 @@ struct LoginView: View {
                                 .accessibilityIdentifier("login.password")
                                 .help("Mot de passe du compte DSM")
                         }
-                        Toggle("Rester connecté", isOn: $vm.rememberPassword)
-                            .accessibilityHint("Mémorise le mot de passe pour la prochaine ouverture de l'app")
-                            .accessibilityIdentifier("login.remember-password")
-                            .help("Mémoriser le mot de passe dans le Trousseau pour les prochaines ouvertures")
                     } else {
-                        Text("Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile. La session devra être approuvée de nouveau à chaque ouverture de l'app.")
+                        Text("Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile.")
                             .font(.callout)
                             .foregroundStyle(.readableSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
+
+                    Toggle("Rester connecté", isOn: $vm.rememberPassword)
+                        .accessibilityHint("Garde la session ouverte pour les prochaines ouvertures de l’app")
+                        .accessibilityIdentifier("login.remember-password")
+                        .help("Conserver la session dans le Trousseau pour rouvrir l’app sans se reconnecter")
                 }
                 .disabled(vm.state != .editing)
 

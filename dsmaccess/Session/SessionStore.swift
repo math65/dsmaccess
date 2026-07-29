@@ -117,8 +117,16 @@ final class SessionStore {
 
     func logout() async {
         let activeClient = client
+        forgetStoredSession()
         clear()
         try? await activeClient?.logout()
+    }
+
+    /// Une session fermée ou invalidée par le NAS ne doit pas être réessayée au prochain
+    /// lancement : l'app y perdrait un aller-retour et l'utilisateur, une explication.
+    private func forgetStoredSession() {
+        guard let profile = activeProfile else { return }
+        CredentialStore.forgetSession(account: profile.account, target: profile.connection)
     }
 
     func prepareConnection(to profileID: UUID) {
@@ -178,6 +186,7 @@ final class SessionStore {
               let index = profiles.firstIndex(where: { $0.id == activeProfileID }) else { return }
         let profile = profiles[index]
         CredentialStore.forget(account: profile.account, target: profile.connection)
+        CredentialStore.forgetSession(account: profile.account, target: profile.connection)
         profiles[index].remembersPassword = false
         Preferences.rememberPassword = false
         persistProfiles()
@@ -213,6 +222,7 @@ final class SessionStore {
 
     private func expireSession() {
         disconnectionMessage = DSMError.sessionExpired.errorDescription
+        forgetStoredSession()
         clear()
     }
 

@@ -12,6 +12,8 @@ import Foundation
 @MainActor
 protocol DSMClientProtocol: AnyObject {
     var capabilities: DSMCapabilities { get }
+    /// Réinstalle une session conservée d'un lancement précédent, avant tout appel.
+    func adoptSession(_ session: StoredDSMSession)
     func discoverCapabilities() async throws -> DSMCapabilities
     func apiInfo(for apis: [String]) async throws -> [String: APIInfoEntry]
     func login(
@@ -340,6 +342,10 @@ final class DSMClient: DSMClientProtocol {
 
     func approveServerCertificate(fingerprint: String) -> Bool {
         transport.approveServerCertificate(fingerprint: fingerprint)
+    }
+
+    func adoptSession(_ session: StoredDSMSession) {
+        transport.adoptSession(sid: session.sid, synoToken: session.synoToken)
     }
 
     func discoverCapabilities() async throws -> DSMCapabilities {
