@@ -41,23 +41,18 @@ struct ResourceMonitorView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            Picker("Affichage", selection: $pane) {
-                ForEach(Pane.allCases) { pane in
-                    Text(pane.title).tag(pane)
-                }
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
-            .accessibilityLabel("Affichage du moniteur")
-            .padding(.horizontal, 12)
-            .padding(.top, 8)
-
-            switch pane {
-            case .performance: performance
-            case .tasks: TaskManagerView(vm: tasks)
-            case .connections: ConnectionsView(vm: connections)
-            }
+        // Un TabView et non un sélecteur segmenté : celui-ci s'annonce en boutons radio,
+        // là où des onglets se présentent comme tels et se parcourent comme tels.
+        TabView(selection: $pane) {
+            performance
+                .tabItem { Text("Performances") }
+                .tag(Pane.performance)
+            TaskManagerView(vm: tasks)
+                .tabItem { Text("Tâches") }
+                .tag(Pane.tasks)
+            ConnectionsView(vm: connections)
+                .tabItem { Text("Connexions") }
+                .tag(Pane.connections)
         }
         .toolbar {
             ToolbarItem {
