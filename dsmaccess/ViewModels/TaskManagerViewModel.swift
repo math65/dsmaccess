@@ -108,27 +108,31 @@ final class TaskManagerViewModel {
 
     // MARK: - Affichage formaté
 
-    /// « 12,4 %, 39,3 Mo, 3 processus ». Une mesure absente s'écrit « — » : DSM renvoie
-    /// littéralement « - » pour les groupes qu'il ne mesure pas, et écrire zéro à la place
-    /// ferait passer une absence pour une valeur.
-    func activityText(for group: ProcessGroup) -> String {
-        let cpu = group.cpuPercent
-            .map { $0.formatted(.number.precision(.fractionLength(1))) + " %" } ?? "—"
-        let memory = group.memoryBytes
-            .map { $0.formatted(.byteCount(style: .memory, spellsOutZero: false)) } ?? "—"
-        return String(localized: "\(cpu), \(memory), \(group.processCount) processus")
+    /// Une mesure absente s'écrit « — » : DSM renvoie littéralement « - » pour les groupes
+    /// qu'il ne mesure pas, et écrire zéro à la place ferait passer une absence de mesure
+    /// pour un service au repos.
+    func cpuText(for group: ProcessGroup) -> String {
+        guard let cpu = group.cpuPercent else { return "—" }
+        return String(localized: "\(cpu.formatted(.number.precision(.fractionLength(1)))) %")
     }
 
-    /// « 75 %, 1,4 Mo » — la mémoire des processus arrive en Kio, pas en octets.
-    func activityText(for process: SystemProcess) -> String {
-        let cpu = process.cpuPercent.map { String(localized: "\($0) %") } ?? "—"
-        guard let memoryKiB = process.memoryKiB,
-              let bytes = Int64(exactly: memoryKiB)?.multipliedReportingOverflow(by: 1024).partialValue,
-              memoryKiB >= 0 else {
-            return cpu
-        }
-        let memory = bytes.formatted(.byteCount(style: .memory, spellsOutZero: false))
-        return String(localized: "\(cpu), \(memory)")
+    func memoryText(for group: ProcessGroup) -> String {
+        guard let bytes = group.memoryBytes else { return "—" }
+        return bytes.formatted(.byteCount(style: .memory, spellsOutZero: false))
+    }
+
+    func cpuText(for process: SystemProcess) -> String {
+        guard let cpu = process.cpuPercent else { return "—" }
+        return String(localized: "\(cpu) %")
+    }
+
+    /// La mémoire des processus arrive en Kio, pas en octets comme celle des groupes.
+    func memoryText(for process: SystemProcess) -> String {
+        guard let memoryKiB = process.memoryKiB, memoryKiB >= 0,
+              let kib = Int64(exactly: memoryKiB) else { return "—" }
+        let (bytes, overflow) = kib.multipliedReportingOverflow(by: 1024)
+        guard !overflow else { return "—" }
+        return bytes.formatted(.byteCount(style: .memory, spellsOutZero: false))
     }
 
     var summary: String {

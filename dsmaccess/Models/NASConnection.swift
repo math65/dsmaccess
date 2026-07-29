@@ -32,6 +32,14 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
 
     var id: String { [account, address, type, rawTime].compactMap { $0 }.joined(separator: "|") }
 
+    /// Clés de tri non optionnelles : une valeur absente se range en tête plutôt que
+    /// d'empêcher le tri de sa colonne.
+    var sortableAccount: String { account ?? "" }
+    var sortableAddress: String { address ?? "" }
+    var sortableType: String { type ?? "" }
+    var sortableDescription: String { descriptionText ?? "" }
+    var sortableDate: Date { openedAt ?? .distantPast }
+
     /// Horodatage rendu dans la langue et le fuseau du Mac. DSM n'indiquant pas le fuseau
     /// de sa valeur, elle est lue comme locale — juste tant que le NAS et le Mac partagent
     /// le même, ce qui est le cas courant. La chaîne brute est conservée en repli plutôt

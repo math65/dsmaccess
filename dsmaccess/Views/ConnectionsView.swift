@@ -2,13 +2,15 @@
 //  ConnectionsView.swift
 //  dsmaccess
 //
-//  Onglet « Connexions » du moniteur de ressources.
+//  Onglet « Connexions » du moniteur de ressources, en tableau triable : chaque valeur
+//  reste dans sa colonne, et les en-têtes trient d'un clic comme partout sur le Mac.
 //
 
 import SwiftUI
 
 struct ConnectionsView: View {
     @Bindable var vm: ConnectionsViewModel
+    @State private var order = [KeyPathComparator(\NASConnection.sortableDate, order: .reverse)]
     @AccessibilityFocusState private var focusContent: Bool
 
     var body: some View {
@@ -34,53 +36,40 @@ struct ConnectionsView: View {
                 description: Text("Le NAS ne signale aucune session ouverte.")
             )
         } else {
-            Form {
-                Section {
-                    ForEach(vm.connections) { connection in
-                        LabeledContent {
-                            Text(vm.detailText(for: connection))
-                        } label: {
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(connection.account ?? String(localized: "Compte inconnu"))
-                                if let description = connection.descriptionText,
-                                   !description.isEmpty {
-                                    Text(description)
-                                        .font(.callout)
-                                        .foregroundStyle(.readableSecondary)
-                                }
-                                // Écrit, pas seulement annoncé : reconnaître sa propre
-                                // session doit être possible à l'œil comme à l'oreille.
-                                if connection.isCurrent {
-                                    Text("Session courante")
-                                        .font(.callout)
-                                        .foregroundStyle(.readableGreen)
-                                }
-                            }
-                        }
-                        // Sans cette étiquette, VoiceOver lit deux textes empilés sans
-                        // dire lequel est le compte et lequel la ressource.
-                        .accessibilityElement(children: .combine)
-                        .accessibilityLabel(accessibilityLabel(for: connection))
-                    }
-                } header: {
-                    Text("Sessions ouvertes")
-                } footer: {
-                    Text("Une même machine peut apparaître plusieurs fois : une ligne par protocole.")
-                }
-            }
-            .formStyle(.grouped)
-            .labeledContentStyle(.readable)
-            .accessibilityFocused($focusContent)
-        }
-    }
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Sessions ouvertes")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 8)
+                    .accessibilityFocused($focusContent)
 
-    private func accessibilityLabel(for connection: NASConnection) -> Text {
-        let account = connection.account ?? String(localized: "Compte inconnu")
-        let detail = vm.detailText(for: connection)
-        guard connection.isCurrent else {
-            return Text("\(account), \(detail)")
+                Table(vm.connections.sorted(using: order), sortOrder: $order) {
+                    TableColumn("Compte", value: \.sortableAccount) { connection in
+                        Text(connection.account ?? String(localized: "Compte inconnu"))
+                    }
+                    TableColumn("Protocole", value: \.sortableType) { connection in
+                        Text(connection.type ?? String(localized: "Protocole inconnu"))
+                    }
+                    TableColumn("Adresse", value: \.sortableAddress) { connection in
+                        Text(connection.address ?? String(localized: "adresse inconnue"))
+                    }
+                    TableColumn("Ressource", value: \.sortableDescription) { connection in
+                        Text(connection.descriptionText ?? "—")
+                    }
+                    TableColumn("Ouverte le", value: \.sortableDate) { connection in
+                        Text(vm.openedAtText(for: connection))
+                    }
+                    // Pas de colonne « session courante » : vérifié sur DSM 7.4, le NAS ne
+                    // lève `is_current_connected` que pour son client web. Interrogé par
+                    // l'app, il ne marque aucune ligne — la colonne n'aurait que des tirets.
+                }
+
+                Text("Une même machine peut apparaître plusieurs fois : une ligne par protocole.")
+                    .font(.callout)
+                    .foregroundStyle(.readableSecondary)
+                    .padding(12)
+            }
         }
-        // Reconnaître sa propre session évite d'agir sur la mauvaise.
-        return Text("\(account), \(detail), session courante")
     }
 }

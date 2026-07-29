@@ -33,11 +33,10 @@ final class ConnectionsViewModel {
         do {
             let result = try await session.withClient { try await $0.connections() }
             guard generation == loadGeneration else { return }
-            // La session courante d'abord : c'est celle que l'utilisateur cherche à
-            // reconnaître avant d'agir sur une autre.
-            connections = result.sorted { lhs, rhs in
-                if lhs.isCurrent != rhs.isCurrent { return lhs.isCurrent }
-                return (lhs.openedAt ?? .distantPast) > (rhs.openedAt ?? .distantPast)
+            // Le tri visible appartient au tableau ; ici, seul un ordre de départ stable
+            // est fixé, de la session la plus récente à la plus ancienne.
+            connections = result.sorted {
+                ($0.openedAt ?? .distantPast) > ($1.openedAt ?? .distantPast)
             }
         } catch {
             if generation == loadGeneration, !DSMError.isCancellation(error) {
@@ -49,16 +48,11 @@ final class ConnectionsViewModel {
         }
     }
 
-    /// « SMB3 depuis 192.168.1.10, ouverte le 29 juillet à 18:02 ». Le protocole d'abord :
-    /// c'est ce qui distingue deux connexions d'une même machine.
-    func detailText(for connection: NASConnection) -> String {
-        let type = connection.type ?? String(localized: "Protocole inconnu")
-        let address = connection.address ?? String(localized: "adresse inconnue")
-        guard let openedAt = connection.openedAt else {
-            return String(localized: "\(type) depuis \(address)")
-        }
-        let moment = openedAt.formatted(date: .abbreviated, time: .shortened)
-        return String(localized: "\(type) depuis \(address), ouverte le \(moment)")
+    /// Horodatage rendu dans la langue du Mac. Un tiret quand DSM a envoyé une forme que
+    /// nous n'avons pas su lire : la connexion reste listée, sans date inventée.
+    func openedAtText(for connection: NASConnection) -> String {
+        guard let openedAt = connection.openedAt else { return "—" }
+        return openedAt.formatted(date: .abbreviated, time: .shortened)
     }
 
     var summary: String {

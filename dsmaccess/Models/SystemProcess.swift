@@ -30,6 +30,11 @@ struct SystemProcess: nonisolated Decodable, Sendable, Identifiable {
     var id: String { pid.map(String.init) ?? command ?? "" }
     var name: String { command ?? String(localized: "Processus sans nom") }
 
+    /// Clés de tri non optionnelles : une mesure absente se range en dernier plutôt que
+    /// d'empêcher le tri de la colonne.
+    var sortableCPU: Int { cpuPercent ?? -1 }
+    var sortableMemory: Int { memoryKiB ?? -1 }
+
     enum CodingKeys: String, CodingKey {
         case pid, command, status
         case cpuPercent = "cpu"
@@ -71,6 +76,11 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     let processCount: Int
 
     var id: String { unitName ?? name ?? "" }
+
+    /// Voir `SystemProcess.sortableCPU` : une mesure que DSM n'a pas fournie ne doit pas
+    /// bloquer le tri, elle se range en fin de liste.
+    var sortableCPU: Double { cpuPercent ?? -1 }
+    var sortableMemory: Int64 { memoryBytes ?? -1 }
 
     var displayName: String {
         let candidates = [name, localizedName, unitName].compactMap { $0 }

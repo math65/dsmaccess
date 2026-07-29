@@ -5,11 +5,17 @@
 //  Onglet « Tâches » du moniteur de ressources : les services tels que DSM les regroupe,
 //  puis les processus les plus actifs.
 //
+//  En tableaux et non en lignes alignées : `Table` s'appuie sur NSTableView, donc les
+//  en-têtes trient d'un clic comme partout ailleurs sur le Mac, et chaque valeur est
+//  rattachée à sa colonne au lieu d'être noyée dans une phrase.
+//
 
 import SwiftUI
 
 struct TaskManagerView: View {
     @Bindable var vm: TaskManagerViewModel
+    @State private var groupOrder = [KeyPathComparator(\ProcessGroup.sortableMemory, order: .reverse)]
+    @State private var processOrder = [KeyPathComparator(\SystemProcess.sortableCPU, order: .reverse)]
     @AccessibilityFocusState private var focusContent: Bool
 
     var body: some View {
@@ -30,42 +36,65 @@ struct TaskManagerView: View {
                 Task { await vm.load(announce: true) }
             }
         } else {
-            Form {
+            VStack(alignment: .leading, spacing: 0) {
                 if let error = vm.errorMessage {
-                    Section {
-                        Text(error).foregroundStyle(.readableRed)
+                    Text(error)
+                        .foregroundStyle(.readableRed)
+                        .padding(.horizontal, 12)
+                        .padding(.top, 8)
+                }
+
+                Text("Services")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 8)
+                    .accessibilityFocused($focusContent)
+
+                Table(vm.groups.sorted(using: groupOrder), sortOrder: $groupOrder) {
+                    TableColumn("Service", value: \.displayName) { group in
+                        Text(group.displayName)
+                    }
+                    TableColumn("Processeur", value: \.sortableCPU) { group in
+                        Text(vm.cpuText(for: group))
+                    }
+                    TableColumn("Mémoire", value: \.sortableMemory) { group in
+                        Text(vm.memoryText(for: group))
+                    }
+                    TableColumn("Processus", value: \.processCount) { group in
+                        Text(group.processCount, format: .number)
                     }
                 }
 
-                Section {
-                    ForEach(vm.groups) { group in
-                        LabeledContent(group.displayName, value: vm.activityText(for: group))
+                Text("Processus les plus actifs")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 12)
+
+                Table(vm.processes.sorted(using: processOrder), sortOrder: $processOrder) {
+                    TableColumn("Processus", value: \.name) { process in
+                        Text(process.name)
                     }
-                } header: {
-                    Text("Services")
-                } footer: {
-                    Text("Processeur, mémoire et nombre de processus, par service. Un tiret signale une mesure que le NAS ne fournit pas.")
+                    TableColumn("Processeur", value: \.sortableCPU) { process in
+                        Text(vm.cpuText(for: process))
+                    }
+                    TableColumn("Mémoire", value: \.sortableMemory) { process in
+                        Text(vm.memoryText(for: process))
+                    }
                 }
 
-                Section {
-                    ForEach(vm.processes) { process in
-                        LabeledContent(process.name, value: vm.activityText(for: process))
-                    }
-                } header: {
-                    Text("Processus les plus actifs")
-                } footer: {
-                    Text("Les \(TaskManagerViewModel.visibleProcessCount) processus consommant le plus de processeur, sur \(vm.totalProcessCount) en cours.")
-                }
+                Text("Les \(TaskManagerViewModel.visibleProcessCount) processus consommant le plus de processeur, sur \(vm.totalProcessCount) en cours.")
+                    .font(.callout)
+                    .foregroundStyle(.readableSecondary)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 4)
 
-                Section {
-                    Toggle("Actualisation automatique", isOn: $vm.autoRefresh)
-                        .accessibilityHint("Met à jour les valeurs toutes les 5 secondes")
-                        .help("Actualiser automatiquement les tâches toutes les cinq secondes")
-                }
+                Toggle("Actualisation automatique", isOn: $vm.autoRefresh)
+                    .accessibilityHint("Met à jour les valeurs toutes les 5 secondes")
+                    .help("Actualiser automatiquement les tâches toutes les cinq secondes")
+                    .padding(12)
             }
-            .formStyle(.grouped)
-            .labeledContentStyle(.readable)
-            .accessibilityFocused($focusContent)
         }
     }
 }
