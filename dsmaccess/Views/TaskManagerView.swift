@@ -6,8 +6,10 @@
 //  puis les processus les plus actifs.
 //
 //  En tableaux et non en lignes alignées : `Table` s'appuie sur NSTableView, donc les
-//  en-têtes trient d'un clic comme partout ailleurs sur le Mac, et chaque valeur est
-//  rattachée à sa colonne au lieu d'être noyée dans une phrase.
+//  en-têtes trient d'un clic comme partout ailleurs sur le Mac, et chaque valeur reste
+//  dans sa colonne. Les deux tableaux sont séparés par un VSplitView : chacun a sa propre
+//  zone de défilement, avec un séparateur déplaçable, plutôt que deux listes empilées où
+//  l'on ne sait plus laquelle défile.
 //
 
 import SwiftUI
@@ -44,51 +46,10 @@ struct TaskManagerView: View {
                         .padding(.top, 8)
                 }
 
-                Text("Services")
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 8)
-                    .accessibilityFocused($focusContent)
-
-                Table(vm.groups.sorted(using: groupOrder), sortOrder: $groupOrder) {
-                    TableColumn("Service", value: \.displayName) { group in
-                        Text(group.displayName)
-                    }
-                    TableColumn("Processeur", value: \.sortableCPU) { group in
-                        Text(vm.cpuText(for: group))
-                    }
-                    TableColumn("Mémoire", value: \.sortableMemory) { group in
-                        Text(vm.memoryText(for: group))
-                    }
-                    TableColumn("Processus", value: \.processCount) { group in
-                        Text(group.processCount, format: .number)
-                    }
+                VSplitView {
+                    servicesTable
+                    processesTable
                 }
-
-                Text("Processus les plus actifs")
-                    .font(.headline)
-                    .accessibilityAddTraits(.isHeader)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 12)
-
-                Table(vm.processes.sorted(using: processOrder), sortOrder: $processOrder) {
-                    TableColumn("Processus", value: \.name) { process in
-                        Text(process.name)
-                    }
-                    TableColumn("Processeur", value: \.sortableCPU) { process in
-                        Text(vm.cpuText(for: process))
-                    }
-                    TableColumn("Mémoire", value: \.sortableMemory) { process in
-                        Text(vm.memoryText(for: process))
-                    }
-                }
-
-                Text("Les \(TaskManagerViewModel.visibleProcessCount) processus consommant le plus de processeur, sur \(vm.totalProcessCount) en cours.")
-                    .font(.callout)
-                    .foregroundStyle(.readableSecondary)
-                    .padding(.horizontal, 12)
-                    .padding(.top, 4)
 
                 Toggle("Actualisation automatique", isOn: $vm.autoRefresh)
                     .accessibilityHint("Met à jour les valeurs toutes les 5 secondes")
@@ -96,5 +57,61 @@ struct TaskManagerView: View {
                     .padding(12)
             }
         }
+    }
+
+    private var servicesTable: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Services")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+                .accessibilityFocused($focusContent)
+
+            Table(vm.groups.sorted(using: groupOrder), sortOrder: $groupOrder) {
+                TableColumn("Service", value: \.displayName) { group in
+                    Text(group.displayName)
+                }
+                TableColumn("Processeur", value: \.sortableCPU) { group in
+                    Text(vm.cpuText(for: group))
+                }
+                TableColumn("Mémoire", value: \.sortableMemory) { group in
+                    Text(vm.memoryText(for: group))
+                }
+                TableColumn("Processus", value: \.processCount) { group in
+                    Text(group.processCount, format: .number)
+                }
+            }
+        }
+        .frame(minHeight: 160)
+    }
+
+    private var processesTable: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Processus les plus actifs")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+
+            Table(vm.processes.sorted(using: processOrder), sortOrder: $processOrder) {
+                TableColumn("Processus", value: \.name) { process in
+                    Text(process.name)
+                }
+                TableColumn("Processeur", value: \.sortableCPU) { process in
+                    Text(vm.cpuText(for: process))
+                }
+                TableColumn("Mémoire", value: \.sortableMemory) { process in
+                    Text(vm.memoryText(for: process))
+                }
+            }
+
+            Text("Les \(TaskManagerViewModel.visibleProcessCount) processus consommant le plus de processeur, sur \(vm.totalProcessCount) en cours.")
+                .font(.callout)
+                .foregroundStyle(.readableSecondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+        }
+        .frame(minHeight: 160)
     }
 }
