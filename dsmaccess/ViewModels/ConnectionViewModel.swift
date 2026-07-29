@@ -19,7 +19,7 @@ final class ConnectionViewModel {
 
     /// Comment le compte prouve son identité. Le choix conditionne le formulaire : la
     /// connexion approuvée sur le mobile ne demande aucun mot de passe.
-    enum AuthenticationMethod: Hashable {
+    enum AuthenticationMethod: String, Hashable {
         case password
         case secureSignIn
     }
@@ -35,7 +35,12 @@ final class ConnectionViewModel {
 
     // Champs du formulaire (pré-remplis depuis les préférences si disponibles).
     var connectionMethod: ConnectionMethod
-    var authenticationMethod: AuthenticationMethod = .password
+    /// Mémorisé d'une ouverture à l'autre : celui qui se connecte par approbation sur son
+    /// mobile le fait à chaque fois, et retrouver « Mot de passe » à chaque lancement
+    /// l'obligerait à rebasculer le sélecteur avant toute chose.
+    var authenticationMethod: AuthenticationMethod = Preferences.authenticationMethod {
+        didSet { Preferences.authenticationMethod = authenticationMethod }
+    }
     var host: String
     var quickConnectID: String
     var useHTTPS: Bool

@@ -25,6 +25,7 @@ enum Preferences {
         static let enabledAnnouncementCategories = "enabledAnnouncementCategories"
         static let queueAnnouncements = "queueAnnouncements"
         static let notifiesFinishedOperations = "notifiesFinishedOperations"
+        static let authenticationMethod = "authenticationMethod"
         static let sidebarOrder = "sidebarOrder"
         static let enabledSidebarModules = "enabledSidebarModules"
         static let knownSidebarModules = "knownSidebarModules"
@@ -117,6 +118,19 @@ enum Preferences {
             return defaults.bool(forKey: Key.notifiesFinishedOperations)
         }
         set { defaults.set(newValue, forKey: Key.notifiesFinishedOperations) }
+    }
+
+    /// Dernier mode d'authentification choisi sur l'écran de connexion. Une valeur inconnue
+    /// (réglage écrit par une version future) retombe sur le mot de passe, toujours proposé.
+    static var authenticationMethod: ConnectionViewModel.AuthenticationMethod {
+        get {
+            guard let raw = defaults.string(forKey: Key.authenticationMethod),
+                  let method = ConnectionViewModel.AuthenticationMethod(rawValue: raw) else {
+                return .password
+            }
+            return method
+        }
+        set { defaults.set(newValue.rawValue, forKey: Key.authenticationMethod) }
     }
 
     static var sidebarOrder: [AppModule] {

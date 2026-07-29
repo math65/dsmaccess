@@ -163,7 +163,10 @@ struct LoginView: View {
                     }
                     Picker("Authentification", selection: $vm.authenticationMethod) {
                         Text("Mot de passe").tag(ConnectionViewModel.AuthenticationMethod.password)
-                        Text("Sans mot de passe").tag(ConnectionViewModel.AuthenticationMethod.secureSignIn)
+                        // Le nom du service Synology d'abord : c'est celui que l'utilisateur
+                        // voit dans DSM et dans l'app mobile qui lui demandera d'approuver.
+                        Text("Secure SignIn (sans mot de passe)")
+                            .tag(ConnectionViewModel.AuthenticationMethod.secureSignIn)
                     }
                     .pickerStyle(.menu)
                     .accessibilityIdentifier("login.authentication-method")

@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Secure SignIn (sans mot de passe)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secure SignIn (no password)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Secure SignIn (sans mot de passe)"
+          }
+        }
+      }
+    },
     "Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile." : {
       "localizations" : {
         "en" : {
@@ -23602,22 +23618,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Saisissez le code de vérification."
-          }
-        }
-      }
-    },
-    "Sans mot de passe" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Passwordless"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sans mot de passe"
           }
         }
       }
