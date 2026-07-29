@@ -1,3 +1,47 @@
+## v1.1-beta.16 (build 17) — 2026-07-29
+
+### Highlights
+
+- Sign-in: the app reopens on the session it already had. Tick "Stay signed
+  in" once and the next launch goes straight in — with no password to
+  replay, and no approval to grant on your phone.
+- A Resource Monitor of its own, with the processor, memory, network, disks
+  and volumes; the services and processes running; and who is connected to
+  the NAS.
+
+### New
+
+- Sign-in: sessions are kept between launches. Only a refusal from the NAS
+  sends you back to the sign-in screen, and it says why. The saved session
+  lives in the Keychain beside your password and is erased when you sign
+  out.
+- Sign-in: the menu now names Secure SignIn rather than describing it as
+  "no password", and remembers which method you chose.
+- Resource Monitor: a new entry in the sidebar, on Command Shift 5, with
+  three tabs. Performance adds each disk and volume, with its own activity,
+  and the load averages. Tasks lists services and the busiest processes.
+  Connections shows who is connected, from where and since when.
+- Resource Monitor: tasks and connections are sortable tables — click a
+  column header to order by it.
+- Files: a running copy now shows its speed and how long is left, or "less
+  than a minute" when the end is near. Neither is ever spoken aloud; they
+  sit in the progress banner for you to read when you want them.
+- Files: when a long operation finishes while the app is in the background,
+  a notification carries the result. macOS asks for permission the first
+  time, and a switch in Settings turns it off.
+
+### Fixes
+
+- Memory was reported twice over and disagreed with itself: 17% in use on
+  one line, 3.54 GB of 3.68 GB on the next. DSM sets disk cache aside, and
+  this NAS was holding 2.89 GB of it.
+- The NAS menu in the toolbar announced the name of its icon —
+  "externaldrive.connected.to.line.below" — instead of what it does.
+
+### Download
+
+[dsmaccess-1.1-beta.16.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.16/dsmaccess-1.1-beta.16.zip)
+
 ## v1.1-beta.15 (build 16) — 2026-07-29
 
 ### Highlights

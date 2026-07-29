@@ -1,3 +1,45 @@
+## v1.1-beta.16 (build 17) — 29 juillet 2026
+
+### En bref
+
+- Connexion : l'app rouvre sur la session qu'elle avait déjà. Cochez « Rester
+  connecté » une fois, et le lancement suivant entre directement — sans mot de
+  passe à rejouer, et sans approbation à donner sur votre téléphone.
+- Un Moniteur de ressources à part entière : processeur, mémoire, réseau,
+  disques et volumes, les services et processus en cours, et qui est connecté
+  au NAS.
+
+### Nouveautés
+
+- Connexion : la session est conservée d'un lancement à l'autre. Seul un refus
+  du NAS vous ramène à l'écran de connexion, et il vous dit pourquoi. La session
+  enregistrée dort dans le Trousseau à côté de votre mot de passe, et disparaît
+  à la déconnexion.
+- Connexion : le menu nomme désormais Secure SignIn au lieu de le décrire comme
+  « sans mot de passe », et retient la méthode que vous avez choisie.
+- Moniteur de ressources : une nouvelle entrée dans la barre latérale, sur
+  Commande Majuscule 5, avec trois onglets. Performances ajoute chaque disque et
+  chaque volume, avec leur activité, ainsi que les charges moyennes. Tâches
+  liste les services et les processus les plus actifs. Connexions montre qui est
+  connecté, depuis où et depuis quand.
+- Moniteur de ressources : les tâches et les connexions sont des tableaux
+  triables — cliquez un en-tête de colonne pour ordonner dessus.
+- Fichiers : une copie en cours affiche sa vitesse et le temps restant, ou
+  « moins d'une minute » quand la fin approche. Ni l'une ni l'autre n'est
+  annoncée à voix haute : elles restent dans le bandeau, à lire quand vous le
+  voulez.
+- Fichiers : quand une opération longue se termine alors que l'app est en
+  arrière-plan, une notification vous en porte le résultat. macOS demande votre
+  autorisation la première fois, et un réglage permet de la couper.
+
+### Corrections
+
+- La mémoire se contredisait d'une ligne à l'autre : 17 % d'utilisation, puis
+  3,54 Go sur 3,68 Go juste en dessous. DSM met le cache disque à part, et ce
+  NAS en gardait 2,89 Go.
+- Le menu du NAS, dans la barre d'outils, annonçait le nom de son icône —
+  « externaldrive.connected.to.line.below » — au lieu de ce qu'il fait.
+
 ## v1.1-beta.15 (build 16) — 29 juillet 2026
 
 ### En bref
