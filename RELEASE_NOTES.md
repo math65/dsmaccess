@@ -1,3 +1,42 @@
+## v1.1-beta.15 (build 16) — 2026-07-29
+
+### Highlights
+
+- Files: creating a share link works again. Since beta.6 it failed every time
+  with "the NAS response could not be read", even though the NAS had created
+  the link. If you tried during that period, those links are sitting in your
+  share link list, waiting to be used or deleted.
+
+### Fixes
+
+- Files: a share link is created and handed back as before. The app had been
+  demanding a piece of information that DSM only sends when something goes
+  wrong, and threw the whole answer away when it was, correctly, absent.
+- Files: on some NAS models the Files screen itself could refuse to open, for
+  the same reason. It no longer depends on details your NAS may not report.
+- Files: the task window follows a running task again. It used to show the
+  progress it had when you opened it and never move, which made a long
+  compression look stuck at one percent.
+- Files: a compression that finished is no longer reported as an interrupted
+  operation. The NAS drops a finished task rather than announcing it, and that
+  silence was being read as a failure.
+
+### New
+
+- Files: pasting or moving now names the folder the items are going into,
+  before you confirm. Selecting a folder in the list does not make it the
+  destination — it has to be open, as in the Finder.
+- Files: when creating an archive you can choose the encoding used for the
+  names inside it, for archives meant to be opened on another system.
+- When the app cannot make sense of an answer from your NAS, it now says so and
+  offers to report it. Reporting opens the contact form, already filled in, and
+  attaches the call that failed and the names of the fields your NAS sent —
+  never their contents, so no file name, path or account leaves your machine.
+
+### Download
+
+[dsmaccess-1.1-beta.15.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.15/dsmaccess-1.1-beta.15.zip)
+
 ## v1.1-beta.14 (build 15) — 2026-07-28
 
 ### Highlights

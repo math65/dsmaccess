@@ -1,3 +1,44 @@
+## v1.1-beta.15 (build 16) — 29 juillet 2026
+
+### En bref
+
+- Fichiers : la création d'un lien de partage fonctionne à nouveau. Depuis la
+  beta.6, elle échouait à chaque fois sur « la réponse du NAS n'a pas pu être
+  lue », alors que le NAS avait bel et bien créé le lien. Si vous avez essayé
+  pendant cette période, ces liens vous attendent dans la liste des liens de
+  partage, à utiliser ou à supprimer.
+
+### Corrections
+
+- Fichiers : un lien de partage est créé et vous est rendu comme avant. L'app
+  exigeait une information que DSM n'envoie qu'en cas d'échec, et jetait la
+  réponse entière quand elle était, à juste titre, absente.
+- Fichiers : sur certains modèles de NAS, l'écran Fichiers lui-même pouvait
+  refuser de s'ouvrir, pour la même raison. Il ne dépend plus de détails que
+  votre NAS n'est pas tenu de fournir.
+- Fichiers : la fenêtre des tâches suit à nouveau une tâche en cours. Elle
+  affichait la progression qu'elle avait à son ouverture et n'en bougeait plus,
+  ce qui donnait l'impression qu'une longue compression restait bloquée à un
+  pour cent.
+- Fichiers : une compression terminée n'est plus présentée comme une opération
+  interrompue. Le NAS retire une tâche achevée au lieu de l'annoncer, et ce
+  silence était pris pour un échec.
+
+### Nouveautés
+
+- Fichiers : coller ou déplacer nomme désormais le dossier dans lequel les
+  éléments vont atterrir, avant que vous validiez. Sélectionner un dossier dans
+  la liste n'en fait pas la destination : il faut l'avoir ouvert, comme dans le
+  Finder.
+- Fichiers : à la création d'une archive, vous pouvez choisir l'encodage des
+  noms qu'elle contient, pour une archive destinée à être ouverte sur un autre
+  système.
+- Quand l'app ne parvient pas à comprendre une réponse de votre NAS, elle le
+  dit et propose de la signaler. Signaler ouvre le formulaire de contact, déjà
+  rempli, en y joignant l'appel qui a échoué et le nom des champs que votre NAS
+  a envoyés — jamais leur contenu, donc aucun nom de fichier, chemin ou compte
+  ne quitte votre machine.
+
 ## v1.1-beta.14 (build 15) — 28 juillet 2026
 
 ### En bref
