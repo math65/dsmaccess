@@ -10,25 +10,69 @@
 import SwiftUI
 
 struct ResourceMonitorView: View {
+    /// Les onglets de DSM, dans le même ordre. Chacun charge et actualise ses propres
+    /// mesures : passer à « Tâches » ne doit pas continuer d'interroger les ressources.
+    private enum Pane: String, CaseIterable, Identifiable {
+        case performance
+        case tasks
+
+        var id: Self { self }
+
+        var title: LocalizedStringKey {
+            switch self {
+            case .performance: "Performances"
+            case .tasks: "Tâches"
+            }
+        }
+    }
+
+    @State private var pane = Pane.performance
     @State private var vm: SystemResourcesViewModel
+    @State private var tasks: TaskManagerViewModel
     @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
         _vm = State(initialValue: SystemResourcesViewModel(session: session))
+        _tasks = State(initialValue: TaskManagerViewModel(session: session))
     }
 
     var body: some View {
-        content
-            .toolbar {
-                ToolbarItem {
-                    Button {
-                        Task { await vm.load(announce: true) }
-                    } label: {
-                        Label("Actualiser", systemImage: "arrow.clockwise")
-                    }
-                    .help("Actualiser les ressources")
+        VStack(spacing: 0) {
+            Picker("Affichage", selection: $pane) {
+                ForEach(Pane.allCases) { pane in
+                    Text(pane.title).tag(pane)
                 }
             }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .accessibilityLabel("Affichage du moniteur")
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
+
+            switch pane {
+            case .performance: performance
+            case .tasks: TaskManagerView(vm: tasks)
+            }
+        }
+        .toolbar {
+            ToolbarItem {
+                Button {
+                    Task {
+                        switch pane {
+                        case .performance: await vm.load(announce: true)
+                        case .tasks: await tasks.load(announce: true)
+                        }
+                    }
+                } label: {
+                    Label("Actualiser", systemImage: "arrow.clockwise")
+                }
+                .help("Actualiser les mesures affichées")
+            }
+        }
+    }
+
+    private var performance: some View {
+        content
             .task {
                 await vm.load()
                 focusContent = true

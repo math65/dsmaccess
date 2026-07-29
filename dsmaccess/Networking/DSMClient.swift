@@ -190,6 +190,8 @@ protocol DSMClientProtocol: AnyObject {
     func clearInvalidShareLinks() async throws
     func storageInfo() async throws -> StorageInfo
     func resourceUsage() async throws -> ResourceUsage
+    func processes() async throws -> [SystemProcess]
+    func processGroups() async throws -> [ProcessGroup]
     func listSharedFolders() async throws -> [SharedFolder]
     func createSharedFolder(
         name: String,
@@ -794,6 +796,14 @@ final class DSMClient: DSMClientProtocol {
 
     func resourceUsage() async throws -> ResourceUsage {
         try await system.resourceUsage()
+    }
+
+    func processes() async throws -> [SystemProcess] {
+        try await system.processes()
+    }
+
+    func processGroups() async throws -> [ProcessGroup] {
+        try await system.processGroups()
     }
 
     func listSharedFolders() async throws -> [SharedFolder] {
