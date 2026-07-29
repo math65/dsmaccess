@@ -13,6 +13,7 @@ final class DSMSystemService {
     private static let utilizationAPI = DSMAPI("SYNO.Core.System.Utilization")
     private static let processAPI = DSMAPI("SYNO.Core.System.Process")
     private static let processGroupAPI = DSMAPI("SYNO.Core.System.ProcessGroup")
+    private static let connectionAPI = DSMAPI("SYNO.Core.CurrentConnection")
 
     private let transport: DSMTransport
 
@@ -51,5 +52,15 @@ final class DSMSystemService {
             method: "list",
             as: ProcessGroupPage.self
         ).slices
+    }
+
+    /// Sessions ouvertes sur le NAS. `get` est la méthode qu'emploie le client web ;
+    /// `list` existe aussi et renvoie la même forme.
+    func connections() async throws -> [NASConnection] {
+        try await transport.read(
+            api: Self.connectionAPI,
+            method: "get",
+            as: NASConnectionPage.self
+        ).items
     }
 }

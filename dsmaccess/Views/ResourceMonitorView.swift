@@ -15,6 +15,7 @@ struct ResourceMonitorView: View {
     private enum Pane: String, CaseIterable, Identifiable {
         case performance
         case tasks
+        case connections
 
         var id: Self { self }
 
@@ -22,6 +23,7 @@ struct ResourceMonitorView: View {
             switch self {
             case .performance: "Performances"
             case .tasks: "Tâches"
+            case .connections: "Connexions"
             }
         }
     }
@@ -29,11 +31,13 @@ struct ResourceMonitorView: View {
     @State private var pane = Pane.performance
     @State private var vm: SystemResourcesViewModel
     @State private var tasks: TaskManagerViewModel
+    @State private var connections: ConnectionsViewModel
     @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
         _vm = State(initialValue: SystemResourcesViewModel(session: session))
         _tasks = State(initialValue: TaskManagerViewModel(session: session))
+        _connections = State(initialValue: ConnectionsViewModel(session: session))
     }
 
     var body: some View {
@@ -52,6 +56,7 @@ struct ResourceMonitorView: View {
             switch pane {
             case .performance: performance
             case .tasks: TaskManagerView(vm: tasks)
+            case .connections: ConnectionsView(vm: connections)
             }
         }
         .toolbar {
@@ -61,6 +66,7 @@ struct ResourceMonitorView: View {
                         switch pane {
                         case .performance: await vm.load(announce: true)
                         case .tasks: await tasks.load(announce: true)
+                        case .connections: await connections.load(announce: true)
                         }
                     }
                 } label: {

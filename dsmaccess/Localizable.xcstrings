@@ -1,6 +1,214 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Connexions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connections"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexions"
+          }
+        }
+      }
+    },
+    "Chargement des connexions…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading connections…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des connexions…"
+          }
+        }
+      }
+    },
+    "Aucune connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No connections"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune connexion"
+          }
+        }
+      }
+    },
+    "Le NAS ne signale aucune session ouverte." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS reports no open sessions."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS ne signale aucune session ouverte."
+          }
+        }
+      }
+    },
+    "Sessions ouvertes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open sessions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sessions ouvertes"
+          }
+        }
+      }
+    },
+    "Une même machine peut apparaître plusieurs fois : une ligne par protocole." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One machine can appear more than once: a row per protocol."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une même machine peut apparaître plusieurs fois : une ligne par protocole."
+          }
+        }
+      }
+    },
+    "Compte inconnu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown account"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compte inconnu"
+          }
+        }
+      }
+    },
+    "Protocole inconnu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown protocol"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Protocole inconnu"
+          }
+        }
+      }
+    },
+    "adresse inconnue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unknown address"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "adresse inconnue"
+          }
+        }
+      }
+    },
+    "%1$@ depuis %2$@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ from %2$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ depuis %2$@"
+          }
+        }
+      }
+    },
+    "%1$@ depuis %2$@, ouverte le %3$@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ from %2$@, opened %3$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ depuis %2$@, ouverte le %3$@"
+          }
+        }
+      }
+    },
+    "%1$@, %2$@, session courante" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@, current session"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, %2$@, session courante"
+          }
+        }
+      }
+    },
+    "%lld connexions ouvertes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld open connections"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld connexions ouvertes"
+          }
+        }
+      }
+    },
     "Tâches" : {
       "localizations" : {
         "en" : {

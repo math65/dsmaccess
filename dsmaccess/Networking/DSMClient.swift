@@ -192,6 +192,7 @@ protocol DSMClientProtocol: AnyObject {
     func resourceUsage() async throws -> ResourceUsage
     func processes() async throws -> [SystemProcess]
     func processGroups() async throws -> [ProcessGroup]
+    func connections() async throws -> [NASConnection]
     func listSharedFolders() async throws -> [SharedFolder]
     func createSharedFolder(
         name: String,
@@ -804,6 +805,10 @@ final class DSMClient: DSMClientProtocol {
 
     func processGroups() async throws -> [ProcessGroup] {
         try await system.processGroups()
+    }
+
+    func connections() async throws -> [NASConnection] {
+        try await system.connections()
     }
 
     func listSharedFolders() async throws -> [SharedFolder] {
