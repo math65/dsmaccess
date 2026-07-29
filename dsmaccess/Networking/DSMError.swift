@@ -15,8 +15,9 @@ enum DSMError: Error, LocalizedError, Equatable {
     case network(String)
     /// Certificat auto-signé ou non approuvé qui nécessite une décision explicite.
     case untrustedCertificate(fingerprint: String)
-    /// Réponse illisible (JSON non décodable).
-    case decoding
+    /// Réponse illisible (JSON non décodable). `detail` décrit l'échec en termes de
+    /// champs et de chemin, sans aucune valeur : il alimente le signalement.
+    case decoding(detail: String?)
     /// Réponse HTTP inattendue.
     case invalidResponse
     /// Requête annulée (vue quittée / requête remplacée) — à ignorer, pas un vrai échec.

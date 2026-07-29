@@ -1,6 +1,102 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Une réponse du NAS n’a pas pu être lue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A reply from the NAS could not be read"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une réponse du NAS n’a pas pu être lue"
+          }
+        }
+      }
+    },
+    "L’opération a échoué : DSM Access n’a pas su lire ce que %@ a répondu. Signaler transmet l’appel concerné et les noms des champs reçus, jamais leur contenu." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The operation failed: DSM Access could not read what %@ replied. Reporting sends the call involved and the names of the fields received, never their contents."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’opération a échoué : DSM Access n’a pas su lire ce que %@ a répondu. Signaler transmet l’appel concerné et les noms des champs reçus, jamais leur contenu."
+          }
+        }
+      }
+    },
+    "Signaler" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Report"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Signaler"
+          }
+        }
+      }
+    },
+    "Ignorer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignore"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ignorer"
+          }
+        }
+      }
+    },
+    "DSM Access n’a pas su lire une réponse du NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM Access could not read a reply from the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM Access n’a pas su lire une réponse du NAS."
+          }
+        }
+      }
+    },
+    "La réponse illisible sera jointe : l’appel %@ %@ et le nom des champs reçus, sans leur contenu." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The unreadable reply will be attached: the %@ %@ call and the names of the fields received, without their contents."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La réponse illisible sera jointe : l’appel %@ %@ et le nom des champs reçus, sans leur contenu."
+          }
+        }
+      }
+    },
     "%lld dossiers disponibles" : {
       "localizations" : {
         "en" : {

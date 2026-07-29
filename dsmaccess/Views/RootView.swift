@@ -5,11 +5,14 @@
 //  Affiche la connexion ou l'interface d'administration selon l'état de la session.
 //
 
+import AppKit
 import SwiftUI
 
 struct RootView: View {
     @Environment(SessionStore.self) private var session
+    @Environment(\.openWindow) private var openWindow
     @State private var announcements = BackendAnnouncementCoordinator()
+    @State private var incidents = DSMResponseIncidents.shared
 
     var body: some View {
         Group {
@@ -23,6 +26,34 @@ struct RootView: View {
         .task {
             await announcements.checkAtLaunch()
             announcements.presentPendingAnnouncement()
+        }
+        .onChange(of: incidents.pending) { _, incident in
+            guard incident != nil else { return }
+            presentPendingIncident()
+        }
+    }
+
+    /// NSAlert et non le modificateur `.alert` de SwiftUI, pour la même raison que les
+    /// annonces du backend : attaché en permanence à la racine, celui-ci fait échouer
+    /// l'audit d'accessibilité de la fenêtre.
+    private func presentPendingIncident() {
+        guard let incident = incidents.pending else { return }
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = String(localized: "Une réponse du NAS n’a pas pu être lue")
+        alert.informativeText = String(
+            localized: "L’opération a échoué : DSM Access n’a pas su lire ce que \(incident.api) a répondu. Signaler transmet l’appel concerné et les noms des champs reçus, jamais leur contenu."
+        )
+        alert.addButton(withTitle: String(localized: "Signaler"))
+        alert.addButton(withTitle: String(localized: "Ignorer"))
+        alert.buttons.last?.keyEquivalent = "\u{1b}"
+        NSApp.activate(ignoringOtherApps: true)
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            incidents.acceptPending()
+            openWindow(id: "feedback")
+        } else {
+            incidents.ignorePending()
         }
     }
 }

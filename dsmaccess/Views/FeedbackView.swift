@@ -66,7 +66,13 @@ struct FeedbackView: View {
             if model.contactType == .bug {
                 Text("Un instantané de diagnostic sera joint : versions de l’app et de macOS, langue et réglages. Aucune donnée de votre NAS n’est transmise.")
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
+            }
+
+            if let incident = model.incident {
+                Text("La réponse illisible sera jointe : l’appel \(incident.api) \(incident.method) et le nom des champs reçus, sans leur contenu.")
+                    .font(.callout)
+                    .foregroundStyle(.readableSecondary)
             }
 
             if let errorMessage = model.errorMessage {
@@ -95,6 +101,7 @@ struct FeedbackView: View {
         }
         .disabled(model.isSending)
         .onAppear {
+            model.adoptPendingIncident()
             typeFocused = true
             typeA11yFocused = true
         }

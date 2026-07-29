@@ -23,7 +23,7 @@ enum DSMParameter: Sendable, ExpressibleByStringLiteral {
     static func json<Value: Encodable>(_ value: Value) throws -> DSMParameter {
         let data = try JSONEncoder().encode(value)
         guard let string = String(data: data, encoding: .utf8) else {
-            throw DSMError.decoding
+            throw DSMError.decoding(detail: nil)
         }
         return .json(string)
     }
@@ -41,7 +41,7 @@ enum DSMParameter: Sendable, ExpressibleByStringLiteral {
         case .string(let value):
             let data = try JSONEncoder().encode(value)
             guard let encoded = String(data: data, encoding: .utf8) else {
-                throw DSMError.decoding
+                throw DSMError.decoding(detail: nil)
             }
             return encoded
         case .integer(let value):
