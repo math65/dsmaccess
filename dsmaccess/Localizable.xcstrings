@@ -1,6 +1,102 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "%@/s, il reste moins d’une minute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/s, less than a minute left"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/s, il reste moins d’une minute"
+          }
+        }
+      }
+    },
+    "Notifier la fin des opérations longues" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notify when a long operation finishes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Notifier la fin des opérations longues"
+          }
+        }
+      }
+    },
+    "Envoie une notification système quand une copie ou une autre opération longue se termine alors que l’app n’est pas au premier plan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sends a system notification when a copy or another long operation finishes while the app is not in front"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoie une notification système quand une copie ou une autre opération longue se termine alors que l’app n’est pas au premier plan"
+          }
+        }
+      }
+    },
+    "Une annonce prononcée pendant que DSM Access est en arrière-plan n’est pas entendue. La notification, elle, vous parvient. macOS demande votre autorisation la première fois." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "An announcement spoken while DSM Access is in the background is not heard. A notification reaches you. macOS asks for your permission the first time."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une annonce prononcée pendant que DSM Access est en arrière-plan n’est pas entendue. La notification, elle, vous parvient. macOS demande votre autorisation la première fois."
+          }
+        }
+      }
+    },
+    "%@/s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@/s"
+          }
+        }
+      }
+    },
+    "%1$@/s, il reste environ %2$@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@/s, about %2$@ left"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@/s, il reste environ %2$@"
+          }
+        }
+      }
+    },
     "Une réponse du NAS n’a pas pu être lue" : {
       "localizations" : {
         "en" : {

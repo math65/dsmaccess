@@ -68,6 +68,14 @@ final class FileBrowserViewModel {
     private(set) var searchQuery = ""
     private(set) var searchProgress: FileStationSearchProgress?
     private(set) var operationProgress: FileOperationProgress?
+    private var operationRate = FileOperationRate()
+
+    /// Débit courant de l'opération suivie, quand DSM rapporte un volume traité.
+    var operationBytesPerSecond: Double? { operationRate.bytesPerSecond }
+    /// Temps restant estimé, absent tant qu'il n'est pas fiable ou sous la minute.
+    var operationTimeRemaining: Duration? {
+        operationProgress.flatMap(operationRate.remaining(for:))
+    }
     private(set) var activeOperationLabel: String?
     private(set) var operationSummary: OperationSummary?
     private(set) var clipboard: Clipboard?
@@ -1439,15 +1447,19 @@ final class FileBrowserViewModel {
         isWorking = true
         activeOperationLabel = label
         operationProgress = nil
+        operationRate = FileOperationRate()
         operationSummary = nil
         defer {
             isWorking = false
             activeOperationLabel = nil
             operationProgress = nil
+            operationRate = FileOperationRate()
         }
+        await OperationNotifier.prepare()
         do {
             let message = try await operation { [weak self] progress in
                 self?.operationProgress = progress
+                self?.operationRate.record(progress)
             }
             let query = searchQuery
             let criteria = advancedSearchCriteria
@@ -1458,6 +1470,7 @@ final class FileBrowserViewModel {
                 await search(query)
             }
             operationSummary = OperationSummary(message: message, continuesInBackground: false)
+            await OperationNotifier.postIfInBackground(title: label, body: message)
             return .success(message)
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
@@ -1468,6 +1481,7 @@ final class FileBrowserViewModel {
                 await loadCurrent()
             }
             operationSummary = summary
+            await OperationNotifier.postIfInBackground(title: label, body: summary.message)
             return .failure(summary.message)
         }
     }

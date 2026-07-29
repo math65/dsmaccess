@@ -18,7 +18,16 @@ struct AnnouncementSettingsView: View {
                 .help("Lit toutes les annonces dans l’ordre sans interrompre l’annonce précédente")
                 Text("Lorsque cette option est activée, les annonces rapides comme « chargement » puis « terminé » sont toutes lues dans l’ordre.")
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
+
+                Toggle(
+                    "Notifier la fin des opérations longues",
+                    isOn: $settings.notifiesFinishedOperations
+                )
+                .help("Envoie une notification système quand une copie ou une autre opération longue se termine alors que l’app n’est pas au premier plan")
+                Text("Une annonce prononcée pendant que DSM Access est en arrière-plan n’est pas entendue. La notification, elle, vous parvient. macOS demande votre autorisation la première fois.")
+                    .font(.callout)
+                    .foregroundStyle(.readableSecondary)
             }
 
             Section {

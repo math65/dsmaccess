@@ -59,6 +59,59 @@ struct FileOperationProgress: Equatable, Sendable {
     }
 }
 
+/// Vitesse et temps restant d'une opération, déduits de relevés successifs : DSM ne les
+/// donne jamais, seul l'écart entre deux `processed_size` les révèle. Une copie les expose
+/// donc, une compression non — elle ne rapporte aucun volume traité.
+struct FileOperationRate: Equatable, Sendable {
+    private struct Sample: Equatable, Sendable {
+        let date: Date
+        let bytes: Int64
+    }
+
+    /// Fenêtre glissante : la vitesse instantanée saute d'un relevé à l'autre, et une
+    /// moyenne depuis le début cesse de suivre quand le débit change en cours de route.
+    private static let windowLength = 8
+    /// Rien n'est estimé avant d'avoir de quoi être stable : une estimation qui passe de
+    /// deux à quarante minutes est plus nuisible qu'une absence d'estimation.
+    private static let minimumSamples = 4
+
+    private var samples: [Sample] = []
+    private var taskID: String?
+
+    mutating func record(_ progress: FileOperationProgress, at date: Date = .now) {
+        guard let bytes = progress.processedSize else { return }
+        // Une nouvelle tâche, ou un volume qui recule, invalide les relevés précédents.
+        if taskID != progress.taskID || bytes < (samples.last?.bytes ?? 0) {
+            samples.removeAll()
+            taskID = progress.taskID
+        }
+        samples.append(Sample(date: date, bytes: bytes))
+        if samples.count > Self.windowLength {
+            samples.removeFirst(samples.count - Self.windowLength)
+        }
+    }
+
+    /// Octets par seconde sur la fenêtre courante, ou `nil` tant qu'elle est trop courte.
+    var bytesPerSecond: Double? {
+        guard samples.count >= Self.minimumSamples,
+              let first = samples.first, let last = samples.last else { return nil }
+        let elapsed = last.date.timeIntervalSince(first.date)
+        guard elapsed > 0 else { return nil }
+        let rate = Double(last.bytes - first.bytes) / elapsed
+        return rate > 0 ? rate : nil
+    }
+
+    /// Temps restant pour l'avancement donné, quand le NAS rapporte une taille totale.
+    /// Une durée très courte est rendue telle quelle : c'est à l'affichage de dire
+    /// « moins d'une minute » plutôt que d'égrener des secondes.
+    func remaining(for progress: FileOperationProgress) -> Duration? {
+        guard let rate = bytesPerSecond,
+              let processed = progress.processedSize,
+              let total = progress.totalSize, total > processed else { return nil }
+        return .seconds(Double(total - processed) / rate)
+    }
+}
+
 /// Le suivi d'une tâche s'est interrompu alors que le NAS la traite toujours : la demande
 /// a été acceptée, seule la progression est perdue. À distinguer d'un échec, sinon
 /// l'utilisateur relance une copie déjà en cours.
