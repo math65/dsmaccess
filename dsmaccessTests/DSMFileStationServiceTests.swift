@@ -31,6 +31,28 @@ struct DSMFileStationServiceTests {
         #expect(capabilities.information?.supportsSharing == true)
     }
 
+    /// Le module Fichiers ne doit pas dépendre des champs facultatifs de `Info`. Les exiger
+    /// rendait tout le navigateur inaccessible sur un NAS qui en omet un, alors que seule
+    /// la liste des protocoles virtuels est réellement utilisée.
+    @Test func loadsCapabilitiesFromAnInfoResponseWithoutOptionalFields() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"support_virtual":"cifs"}}"#.utf8)),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: [
+                "SYNO.FileStation.Info": entry(maxVersion: 2),
+                "SYNO.FileStation.List": entry(maxVersion: 2),
+            ]
+        )
+
+        let capabilities = try await service.capabilities()
+
+        #expect(capabilities.supports(.browsing))
+        #expect(capabilities.information?.supportedVirtualProtocols == ["cifs"])
+        #expect(capabilities.information?.supportsSharing == nil)
+    }
+
     @Test func copyMoveUsesConflictPolicyAndReportsProgress() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"taskid":"copy-1"}}"#.utf8)),
@@ -501,6 +523,30 @@ struct DSMFileStationServiceTests {
         let rename = try query(from: requests[1])
         #expect(rename["search_taskid"] == "search-1")
         #expect(try decodeStrings(rename["path"]) == ["/documents/One", "/documents/Two"])
+    }
+
+    /// Réponse relevée sur DSM 7.4 le 29/07/2026 pour une création réussie : elle ne porte
+    /// aucun champ `error`, que le décodage exigeait pourtant. Toute création de lien
+    /// échouait donc sur « La réponse du NAS n'a pas pu être lue », le lien étant bel et
+    /// bien créé côté NAS. Absent, `error` vaut zéro : DSM ne le renseigne qu'en cas d'échec.
+    @Test func createsAShareLinkFromAResponseWithoutAnErrorField() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"has_folder":true,"links":[{"app":{},"date_available":"0","date_expired":"0","enable_upload":false,"expire_times":0,"has_password":false,"id":"link-9","isFolder":true,"limit_size":0,"link_owner":"math65","name":"notes.txt","path":"/documents/notes.txt","project_name":"","protect_type":"","qrcode":"abc","status":"valid","uid":1026,"url":"https://nas.example/s/link-9"}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.Sharing": entry(maxVersion: 3)]
+        )
+
+        let url = try await service.createShareLink(
+            path: "/documents/notes.txt",
+            password: nil,
+            expirationDate: nil
+        )
+
+        #expect(url == "https://nas.example/s/link-9")
     }
 
     @Test func supportsTheSharingLinkLifecycle() async throws {

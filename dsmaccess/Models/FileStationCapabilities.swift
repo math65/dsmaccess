@@ -7,25 +7,22 @@
 
 import Foundation
 
+/// Décodé sans exiger aucun champ : cette réponse conditionne l'ouverture du module
+/// Fichiers, et un NAS qui en omet un ne doit pas rendre le navigateur inutilisable.
+/// `support_sharing` absent vaut « rien ne s'y oppose », pas « partage interdit ».
 struct FileStationInfo: nonisolated Decodable, Equatable, Sendable {
-    let isManager: Bool
     let supportedVirtualProtocols: Set<String>
-    let supportsSharing: Bool
-    let hostname: String
+    let supportsSharing: Bool?
 
     private enum CodingKeys: String, CodingKey {
-        case isManager = "is_manager"
         case supportedVirtualProtocols = "support_virtual_protocol"
         case legacySupportedVirtualProtocols = "support_virtual"
         case supportsSharing = "support_sharing"
-        case hostname
     }
 
     nonisolated init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        isManager = try container.requiredFlexBool(.isManager)
-        supportsSharing = try container.requiredFlexBool(.supportsSharing)
-        hostname = try container.requiredFlexString(.hostname)
+        supportsSharing = container.flexBool(.supportsSharing)
         let protocols = container.flexString(.supportedVirtualProtocols)
             ?? container.flexString(.legacySupportedVirtualProtocols)
             ?? ""

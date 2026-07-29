@@ -419,7 +419,9 @@ struct FileStationCreatedShareLink: nonisolated Decodable, Sendable {
         url = container.flexString(.url)
         path = container.flexString(.path)
         qrCode = container.flexString(.qrCode)
-        errorCode = try container.requiredFlexInt(.errorCode)
+        // Tous les NAS ne renvoient pas `error` quand la création réussit. L'exiger rendait
+        // la réponse entière illisible et faisait échouer un partage pourtant créé.
+        errorCode = container.flexInt(.errorCode) ?? 0
     }
 }
 
