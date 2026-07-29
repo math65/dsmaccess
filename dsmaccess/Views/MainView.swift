@@ -233,6 +233,10 @@ struct MainView: View {
             )
         }
         .help("Changer de NAS")
+        // La barre d'outils réduit ce menu à son icône : sans étiquette explicite,
+        // VoiceOver annonce le nom du symbole SF à la place du nom du NAS.
+        .accessibilityLabel("Changer de NAS")
+        .accessibilityValue(session.activeProfile?.displayName ?? String(localized: "Aucun NAS"))
     }
 
     private func normalizeSelection() {

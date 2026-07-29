@@ -43,16 +43,21 @@ struct ResourceMonitorView: View {
     var body: some View {
         // Un TabView et non un sélecteur segmenté : celui-ci s'annonce en boutons radio,
         // là où des onglets se présentent comme tels et se parcourent comme tels.
-        TabView(selection: $pane) {
-            performance
-                .tabItem { Text("Performances") }
-                .tag(Pane.performance)
-            TaskManagerView(vm: tasks)
-                .tabItem { Text("Tâches") }
-                .tag(Pane.tasks)
-            ConnectionsView(vm: connections)
-                .tabItem { Text("Connexions") }
-                .tag(Pane.connections)
+        // Encapsulé dans un VStack pour que les onglets restent dans le contenu : posé à
+        // la racine du panneau, macOS les remonte dans la barre d'outils, où ils prennent
+        // la place du titre du module.
+        VStack(spacing: 0) {
+            TabView(selection: $pane) {
+                performance
+                    .tabItem { Text("Performances") }
+                    .tag(Pane.performance)
+                TaskManagerView(vm: tasks)
+                    .tabItem { Text("Tâches") }
+                    .tag(Pane.tasks)
+                ConnectionsView(vm: connections)
+                    .tabItem { Text("Connexions") }
+                    .tag(Pane.connections)
+            }
         }
         .toolbar {
             ToolbarItem {
