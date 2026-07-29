@@ -58,6 +58,31 @@ struct ResourceUsageTests {
         #expect(volume.type == nil)
     }
 
+    /// Relevé sur le NAS : 3,68 Go de mémoire, 0,13 Go libres, 2,89 Go de cache — et DSM
+    /// annonce 17 % d'utilisation. Compter le cache comme occupé donnerait 96 %, en
+    /// contradiction avec le pourcentage affiché juste au-dessus dans le même écran.
+    @Test func excludesCacheFromUsedMemoryLikeDSMDoes() throws {
+        let payload = Data(#"""
+        {"memory":{"avail_real":144700,"buffer":10240,"cached":3024532,
+          "real_usage":17,"total_real":3856560}}
+        """#.utf8)
+
+        let memory = try #require(
+            try JSONDecoder().decode(ResourceUsage.self, from: payload).memory
+        )
+        let used = try #require(memory.usedReal)
+        let total = try #require(memory.totalReal)
+        let available = try #require(memory.availReal)
+
+        #expect(used == 677_088)
+        // Le calcul naïf, cache compris, annoncerait plus de cinq fois cette valeur.
+        #expect(total - available == 3_711_860)
+        // À l'arrondi près, on retrouve le pourcentage que DSM affiche lui-même : les deux
+        // lignes de l'écran mesurent enfin la même chose.
+        let percent = Int((Double(used) / Double(total) * 100).rounded())
+        #expect(abs(percent - (memory.realUsage ?? 0)) <= 1)
+    }
+
     /// Un NAS sans disque exposé, ou une version de DSM qui omettrait ces blocs, ne doit
     /// pas rendre tout l'écran des ressources illisible.
     @Test func survivesAResponseWithoutDisksOrVolumes() throws {

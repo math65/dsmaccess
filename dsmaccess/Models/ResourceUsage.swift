@@ -112,13 +112,26 @@ struct ResourceUsage: nonisolated Decodable, Sendable {
         let realUsage: Int?     // %
         let totalReal: Int?     // Kio
         let availReal: Int?     // Kio
+        let cached: Int?        // Kio
+        let buffer: Int?        // Kio
         let swapUsage: Int?     // %
+
+        /// Mémoire réellement occupée, cache et tampons exclus. C'est la définition de DSM :
+        /// sur un NAS où le cache disque occupe presque toute la mémoire, compter le cache
+        /// donnerait 96 % là où DSM annonce 17 %, et les deux chiffres se contrediraient
+        /// à l'écran. Vérifié sur DSM 7.4 le 29/07/2026.
+        var usedReal: Int? {
+            guard let totalReal, let availReal else { return nil }
+            let used = totalReal - availReal - (cached ?? 0) - (buffer ?? 0)
+            return used >= 0 ? used : nil
+        }
 
         enum CodingKeys: String, CodingKey {
             case realUsage = "real_usage"
             case totalReal = "total_real"
             case availReal = "avail_real"
             case swapUsage = "swap_usage"
+            case cached, buffer
         }
 
         nonisolated init(from decoder: Decoder) throws {
@@ -126,6 +139,8 @@ struct ResourceUsage: nonisolated Decodable, Sendable {
             realUsage = c.flexInt(.realUsage)
             totalReal = c.flexInt(.totalReal)
             availReal = c.flexInt(.availReal)
+            cached = c.flexInt(.cached)
+            buffer = c.flexInt(.buffer)
             swapUsage = c.flexInt(.swapUsage)
         }
     }
