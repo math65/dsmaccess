@@ -7361,6 +7361,22 @@
         }
       }
     },
+    "Éléments" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Items"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Éléments"
+          }
+        }
+      }
+    },
     "Éléments dans ce dossier : %lld" : {
       "localizations" : {
         "en" : {
@@ -8413,38 +8429,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Options d’envoi"
-          }
-        }
-      }
-    },
-    "Options de collage" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Paste options"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Options de collage"
-          }
-        }
-      }
-    },
-    "Options de déplacement" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Move options"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Options de déplacement"
           }
         }
       }
@@ -15472,6 +15456,22 @@
         }
       }
     },
+    "Coller dans %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Paste into %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Coller dans %@"
+          }
+        }
+      }
+    },
     "Coller dans ce dossier" : {
       "localizations" : {
         "en" : {
@@ -17487,6 +17487,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Déplacer"
+          }
+        }
+      }
+    },
+    "Déplacer dans %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move into %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Déplacer dans %@"
           }
         }
       }

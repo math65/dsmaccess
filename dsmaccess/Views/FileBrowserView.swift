@@ -26,6 +26,9 @@ struct FileBrowserView: View {
     @State private var showingAdvancedSearch = false
     @State private var showingPasteOptions = false
     @State private var pasteMovesItems = false
+    /// Retenu au moment du geste : la feuille doit nommer le dossier visé alors, pas celui
+    /// que l'écran afficherait au moment de la validation.
+    @State private var pasteDestination = ""
     @State private var showingUploadOptions = false
     @State private var pendingUploadURLs = [URL]()
     @State private var extractionItem: FileStationItem?
@@ -201,7 +204,10 @@ struct FileBrowserView: View {
             }
             .sheet(isPresented: $showingPasteOptions) {
                 FileConflictPolicySheet(
-                    title: pasteMovesItems ? "Options de déplacement" : "Options de collage",
+                    title: pasteMovesItems
+                        ? String(localized: "Déplacer dans \(pasteDestination)")
+                        : String(localized: "Coller dans \(pasteDestination)"),
+                    itemCount: vm.clipboard?.items.count ?? 0,
                     confirmLabel: pasteMovesItems ? "Déplacer" : "Coller"
                 ) { policy in
                     performPaste(conflictPolicy: policy)
@@ -741,8 +747,9 @@ struct FileBrowserView: View {
     }
 
     private func requestPaste(moving: Bool) {
-        guard vm.canPaste, !vm.isWorking else { return }
+        guard vm.canPaste, !vm.isWorking, let destination = vm.currentLevel.path else { return }
         pasteMovesItems = moving
+        pasteDestination = destination
         showingPasteOptions = true
     }
 

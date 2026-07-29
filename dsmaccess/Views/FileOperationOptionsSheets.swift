@@ -7,8 +7,12 @@
 
 import SwiftUI
 
+/// Le titre nomme le dossier d'arrivée : sélectionner un dossier ne suffit pas à en faire
+/// la destination, il faut l'avoir ouvert. Sans cette mention, un collage réussi peut
+/// déposer les éléments ailleurs que là où l'utilisateur les croit partis.
 struct FileConflictPolicySheet: View {
-    let title: LocalizedStringKey
+    let title: String
+    let itemCount: Int
     let confirmLabel: LocalizedStringKey
     let onSubmit: (FileConflictPolicy) -> Void
 
@@ -22,6 +26,9 @@ struct FileConflictPolicySheet: View {
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusTitle)
+
+            LabeledContent("Éléments") { Text(itemCount, format: .number) }
+                .labeledContentStyle(.readable)
 
             ConflictPolicyPicker(selection: $conflictPolicy)
 
