@@ -32,6 +32,7 @@ struct AppModuleShortcut {
 
 enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
     case systemInfo
+    case resourceMonitor
     case storage
     case logsSecurity
     case files
@@ -50,7 +51,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var section: AppModuleSection {
         switch self {
-        case .systemInfo, .storage, .logsSecurity: .overview
+        case .systemInfo, .resourceMonitor, .storage, .logsSecurity: .overview
         case .files, .shares, .downloads: .files
         case .usersGroups, .fileServices, .packages, .controlPanel: .administration
         case .containers, .virtualMachines, .surveillance, .usbCopy: .applications
@@ -60,6 +61,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
     var title: LocalizedStringKey {
         switch self {
         case .systemInfo: "Votre NAS"
+        case .resourceMonitor: "Moniteur de ressources"
         case .storage: "Stockage"
         case .logsSecurity: "Journaux et sécurité"
         case .files: "Fichiers"
@@ -79,6 +81,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
     var localizedTitle: String {
         switch self {
         case .systemInfo: String(localized: "Votre NAS")
+        case .resourceMonitor: String(localized: "Moniteur de ressources")
         case .storage: String(localized: "Stockage")
         case .logsSecurity: String(localized: "Journaux et sécurité")
         case .files: String(localized: "Fichiers")
@@ -98,6 +101,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
     var systemImage: String {
         switch self {
         case .systemInfo: "server.rack"
+        case .resourceMonitor: "gauge.with.dots.needle.bottom.50percent"
         case .storage: "internaldrive"
         case .logsSecurity: "lock.shield"
         case .files: "folder"
@@ -130,6 +134,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         case .virtualMachines: AppModuleShortcut(key: "2", modifiers: [.command, .shift])
         case .surveillance: AppModuleShortcut(key: "3", modifiers: [.command, .shift])
         case .usbCopy: AppModuleShortcut(key: "4", modifiers: [.command, .shift])
+        case .resourceMonitor: AppModuleShortcut(key: "5", modifiers: [.command, .shift])
         }
     }
 
@@ -137,6 +142,8 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         switch self {
         case .systemInfo:
             capabilities.supports("SYNO.DSM.Info")
+        case .resourceMonitor:
+            capabilities.supports("SYNO.Core.System.Utilization")
         case .storage:
             capabilities.supports("SYNO.Storage.CGI.Storage")
         case .files:
@@ -178,6 +185,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         case .surveillance: "Surveillance Station n’est pas installé ou son API n’est pas disponible."
         case .usersGroups: "L’administration des utilisateurs et groupes n’est pas exposée par ce NAS."
         case .logsSecurity: "Les interfaces de journalisation et de sécurité ne sont pas exposées par ce NAS."
+        case .resourceMonitor: "Ce NAS n’expose pas les mesures de charge du moniteur de ressources."
         default: "Ce module n’est pas disponible sur ce NAS."
         }
     }

@@ -42,7 +42,7 @@ struct AppSettingsTests {
         #expect(settings.moveSidebarModule(.storage, by: -1))
 
         let overview = settings.sidebarOrder.filter { $0.section == .overview }
-        #expect(overview == [.storage, .systemInfo, .logsSecurity])
+        #expect(overview == [.systemInfo, .storage, .resourceMonitor, .logsSecurity])
     }
 
     @Test func doesNotMoveSidebarModulesAcrossSections() {

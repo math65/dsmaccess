@@ -143,6 +143,8 @@ struct MainView: View {
         switch selection {
         case .systemInfo:
             SystemInfoView(session: session)
+        case .resourceMonitor:
+            ResourceMonitorView(session: session)
         case .storage:
             StorageView(session: session)
         case .logsSecurity:

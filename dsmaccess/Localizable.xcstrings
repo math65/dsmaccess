@@ -1,6 +1,118 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Moniteur de ressources" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Resource Monitor"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moniteur de ressources"
+          }
+        }
+      }
+    },
+    "Ce NAS n’expose pas les mesures de charge du moniteur de ressources." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This NAS does not expose the load figures the Resource Monitor needs."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce NAS n’expose pas les mesures de charge du moniteur de ressources."
+          }
+        }
+      }
+    },
+    "Chargement des ressources…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading resources…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des ressources…"
+          }
+        }
+      }
+    },
+    "Volumes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volumes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Volumes"
+          }
+        }
+      }
+    },
+    "Charge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge"
+          }
+        }
+      }
+    },
+    "Détail" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Detail"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Détail"
+          }
+        }
+      }
+    },
+    "Réception" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Received"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réception"
+          }
+        }
+      }
+    },
     "Charge moyenne" : {
       "localizations" : {
         "en" : {
