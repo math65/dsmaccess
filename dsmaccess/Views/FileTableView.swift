@@ -108,6 +108,15 @@ struct FileTableView: NSViewRepresentable {
                let cell = table.view(atColumn: 0, row: row, makeIfNecessary: true) {
                 table.window?.makeFirstResponder(table)
                 NSAccessibility.post(element: cell, notification: .focusedUIElementChanged)
+            } else if items.isEmpty {
+                // An empty folder offers no row to focus, yet the table must still be first
+                // responder: it is what carries ⌘V. Deferred, because claiming it during this
+                // update is undone by the empty-state overlay appearing right after. No
+                // accessibility notification: the VoiceOver cursor belongs on the message.
+                Task { [weak table] in
+                    guard let table, table.window != nil else { return }
+                    table.window?.makeFirstResponder(table)
+                }
             }
         }
         context.coordinator.isApplyingSelection = false

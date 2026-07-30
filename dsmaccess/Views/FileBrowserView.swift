@@ -247,15 +247,6 @@ struct FileBrowserView: View {
                 Task { await refresh() }
             }
             .accessibilityFocused($focusEmptyState)
-        } else if vm.sortedItems.isEmpty {
-            EmptyModuleView(
-                title: vm.isShowingSearchResults ? "common.empty.results" : "common.empty.folder",
-                systemImage: vm.isShowingSearchResults ? "magnifyingglass" : "folder",
-                description: vm.isShowingSearchResults
-                    ? "files.search.empty"
-                    : "common.empty.folder.description"
-            )
-            .accessibilityFocused($focusEmptyState)
         } else {
             FileTableView(
                 items: vm.sortedItems,
@@ -284,6 +275,25 @@ struct FileBrowserView: View {
                         .controlSize(.small)
                         .padding(10)
                         .accessibilityLabel(progressLabel)
+                }
+            }
+            // The empty state covers the table instead of replacing it. Replacing it took the
+            // table's keyboard handling down with it, and ⌘V did nothing in exactly the folder
+            // where pasting matters most.
+            .overlay {
+                if vm.sortedItems.isEmpty {
+                    EmptyModuleView(
+                        title: vm.isShowingSearchResults ? "common.empty.results" : "common.empty.folder",
+                        systemImage: vm.isShowingSearchResults ? "magnifyingglass" : "folder",
+                        description: vm.isShowingSearchResults
+                            ? "files.search.empty"
+                            : "common.empty.folder.description"
+                    )
+                    .background(.background)
+                    .accessibilityFocused($focusEmptyState)
+                    // The message is there to be read, not clicked: swallowing mouse events
+                    // would keep the table underneath from ever taking keyboard focus.
+                    .allowsHitTesting(false)
                 }
             }
         }
@@ -972,13 +982,19 @@ struct FileBrowserView: View {
         } else {
             selection.removeAll()
             focusEmptyState = true
+            // Keyboard focus goes to the table even with nothing in it, so that pasting works
+            // here; the VoiceOver cursor stays on the message above it.
+            tableFocusRequestID += 1
         }
         announceSummary(category: .navigation)
     }
 
     private func restoreInitialContentFocus() {
-        if vm.errorMessage != nil || vm.sortedItems.isEmpty {
+        if vm.errorMessage != nil {
             focusEmptyState = true
+        } else if vm.sortedItems.isEmpty {
+            focusEmptyState = true
+            tableFocusRequestID += 1
         } else if let firstItem = vm.sortedItems.first {
             focusEmptyState = false
             selection = [firstItem.path]
