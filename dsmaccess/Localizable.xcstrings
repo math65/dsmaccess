@@ -1,6 +1,390 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Liste de blocage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block list"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste de blocage"
+          }
+        }
+      }
+    },
+    "Actualiser le journal et la liste de blocage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh the log and the block list"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualiser le journal et la liste de blocage"
+          }
+        }
+      }
+    },
+    "Heure" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heure"
+          }
+        }
+      }
+    },
+    "Catégorie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catégorie"
+          }
+        }
+      }
+    },
+    "Événement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Événement"
+          }
+        }
+      }
+    },
+    "Aucune entrée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune entrée"
+          }
+        }
+      }
+    },
+    "Le NAS n’a consigné aucune entrée correspondant à cette recherche." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS has recorded no entry matching this search."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS n’a consigné aucune entrée correspondant à cette recherche."
+          }
+        }
+      }
+    },
+    "Aucune entrée de ce niveau parmi celles chargées. Choisissez un autre niveau." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entry of that level among the ones loaded. Pick another level."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune entrée de ce niveau parmi celles chargées. Choisissez un autre niveau."
+          }
+        }
+      }
+    },
+    "Le NAS cherche dans tout le journal, pas seulement dans les entrées affichées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS searches the whole log, not only the entries shown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS cherche dans tout le journal, pas seulement dans les entrées affichées"
+          }
+        }
+      }
+    },
+    "N’afficher que les entrées de ce niveau" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show only entries of this level"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "N’afficher que les entrées de ce niveau"
+          }
+        }
+      }
+    },
+    "%lld entrées affichées sur %lld, dont %lld erreurs et %lld avertissements" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld entries shown, including %lld errors and %lld warnings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entrées affichées sur %lld, dont %lld erreurs et %lld avertissements"
+          }
+        }
+      }
+    },
+    "%lld entrées de journal, dont %lld erreurs et %lld avertissements" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld log entries, including %lld errors and %lld warnings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entrées de journal, dont %lld erreurs et %lld avertissements"
+          }
+        }
+      }
+    },
+    "Connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion"
+          }
+        }
+      }
+    },
+    "Transfert de fichiers" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File transfer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfert de fichiers"
+          }
+        }
+      }
+    },
+    "Bloquée le" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocked on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloquée le"
+          }
+        }
+      }
+    },
+    "Définitivement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définitivement"
+          }
+        }
+      }
+    },
+    "Lieu inconnu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown location"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lieu inconnu"
+          }
+        }
+      }
+    },
+    "Le blocage automatique n’a bloqué aucune adresse, et aucune n’a été ajoutée à la main. Une adresse y entre après trop d’échecs de connexion." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto block has blocked no address, and none was added by hand. An address lands here after too many failed sign-in attempts."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le blocage automatique n’a bloqué aucune adresse, et aucune n’a été ajoutée à la main. Une adresse y entre après trop d’échecs de connexion."
+          }
+        }
+      }
+    },
+    "Débloquer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unblock"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloquer"
+          }
+        }
+      }
+    },
+    "Débloquer l’adresse %@ ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unblock the address %@?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloquer l’adresse %@ ?"
+          }
+        }
+      }
+    },
+    "Débloquer %lld adresses ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unblock %lld addresses?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloquer %lld adresses ?"
+          }
+        }
+      }
+    },
+    "Le NAS acceptera de nouveau les connexions venant de ces adresses. Le blocage automatique peut les bloquer à nouveau si les échecs de connexion reprennent." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS will accept connections from these addresses again. Auto block may block them once more if failed sign-in attempts resume."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS acceptera de nouveau les connexions venant de ces adresses. Le blocage automatique peut les bloquer à nouveau si les échecs de connexion reprennent."
+          }
+        }
+      }
+    },
+    "Retirer les adresses sélectionnées de la liste de blocage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove the selected addresses from the block list"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer les adresses sélectionnées de la liste de blocage"
+          }
+        }
+      }
+    },
+    "%lld adresses débloquées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld addresses unblocked"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld adresses débloquées"
+          }
+        }
+      }
+    },
     "Le NAS cessera de surveiller ces seuils. Les alertes déjà consignées dans l’historique sont conservées." : {
       "localizations" : {
         "en" : {

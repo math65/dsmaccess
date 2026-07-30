@@ -2,364 +2,260 @@
 //  LogsSecurityView.swift
 //  dsmaccess
 //
-//  Consultation des journaux et des protections de sécurité exposées par DSM.
+//  Journal système du NAS et liste de blocage du blocage automatique, en tableaux triables.
+//
+//  Deux onglets et non deux sections empilées : le journal se parcourt, la liste de blocage
+//  s'agit dessus, et mêler les deux obligeait à traverser l'un pour atteindre l'autre.
 //
 
 import SwiftUI
 
 struct LogsSecurityView: View {
-    private enum Tab: Hashable { case logs, security }
-    private enum Severity { case error, warning, info }
-    private enum LevelFilter: String, CaseIterable, Identifiable {
-        case all, error, warning, info
+    private enum Pane: String, CaseIterable, Identifiable {
+        case logs
+        case blockList
+
         var id: Self { self }
     }
 
-    @State private var viewModel: LogsSecurityViewModel
-    @State private var selectedTab = Tab.logs
-    @State private var searchText = ""
-    @State private var levelFilter = LevelFilter.all
-    @State private var pendingUnblock: BlockedAddress?
-    @AccessibilityFocusState private var contentFocused: Bool
-
-    private let capabilities: DSMCapabilities
+    @State private var vm: LogsSecurityViewModel
+    @State private var pane = Pane.logs
+    @State private var logOrder = [
+        KeyPathComparator(\SystemLogEntry.sortableDate, order: .reverse)
+    ]
+    @State private var blockOrder = [
+        KeyPathComparator(\BlockedAddress.sortableBlockedAt, order: .reverse)
+    ]
+    @State private var blockSelection: Set<BlockedAddress.ID> = []
+    @State private var pendingUnblock: [BlockedAddress] = []
+    @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
-        capabilities = session.capabilities
-        _viewModel = State(initialValue: LogsSecurityViewModel(session: session))
+        _vm = State(initialValue: LogsSecurityViewModel(session: session))
     }
 
     var body: some View {
-        content
-            .searchable(text: $searchText, prompt: searchPrompt)
-            .toolbar { toolbar }
-            .safeAreaInset(edge: .bottom) { statusBar }
-            .task { await load(restoresInitialFocus: true) }
-            .confirmationDialog(
-                "Débloquer cette adresse ?",
-                isPresented: Binding(
-                    get: { pendingUnblock != nil },
-                    set: { if !$0 { pendingUnblock = nil } }
-                ),
-                presenting: pendingUnblock
-            ) { blockedAddress in
-                Button("Débloquer \(blockedAddress.address)", role: .destructive) {
-                    Task { await unblock(blockedAddress) }
-                }
-                .help(String(localized: "Débloquer \(blockedAddress.address)"))
-                Button("Annuler", role: .cancel) { }
-                    .help("Conserver cette adresse bloquée")
-            } message: { blockedAddress in
-                Text("Les nouvelles connexions provenant de \(blockedAddress.address) seront à nouveau autorisées par le blocage automatique.")
-            }
-    }
-
-    @ViewBuilder
-    private var content: some View {
-        if viewModel.isLoading && viewModel.logs.isEmpty {
-            ModuleLoadingView("Chargement des journaux et protections…")
-                .accessibilityFocused($contentFocused)
-        } else if let errorMessage = viewModel.errorMessage {
-            ModuleErrorView(message: errorMessage) { Task { await load() } }
-                .accessibilityFocused($contentFocused)
-        } else {
-            TabView(selection: $selectedTab) {
-                logsView
-                    .tabItem { Label("Journaux", systemImage: "doc.text.magnifyingglass") }
-                    .tag(Tab.logs)
-                securityView
-                    .tabItem { Label("Sécurité", systemImage: "lock.shield") }
-                    .tag(Tab.security)
-            }
-            .accessibilityFocused($contentFocused)
-        }
-    }
-
-    @ViewBuilder
-    private var logsView: some View {
-        if filteredLogs.isEmpty {
-            EmptyModuleView(
-                title: viewModel.logs.isEmpty ? "Journal vide" : "Aucun résultat",
-                systemImage: "doc.text.magnifyingglass",
-                description: viewModel.logs.isEmpty
-                    ? "Aucune entrée de journal n’est disponible."
-                    : "Modifiez la recherche ou le filtre de niveau."
-            )
-        } else {
-            List(filteredLogs) { entry in
-                logRow(entry)
-            }
-            .accessibilityLabel("Journal système")
-        }
-    }
-
-    private var securityView: some View {
-        List {
-            Section("Interfaces de protection") {
-                securityFeature(
-                    title: "Blocage automatique",
-                    systemImage: "hand.raised",
-                    available: supportsAutoBlock
-                )
-                securityFeature(
-                    title: "Pare-feu",
-                    systemImage: "firewall",
-                    available: capabilities.supports(prefix: "SYNO.Core.Security.Firewall")
-                )
-                securityFeature(
-                    title: "Analyse de sécurité",
-                    systemImage: "checkmark.shield",
-                    available: capabilities.supports(prefix: "SYNO.Core.SecurityScan")
-                )
-                securityFeature(
-                    title: "Protection des comptes",
-                    systemImage: "person.badge.shield.checkmark",
-                    available: capabilities.supports(prefix: "SYNO.Core.Security.Account")
-                        || capabilities.supports(prefix: "SYNO.Core.SmartBlock.User")
-                )
-            }
-
-            Section("Adresses bloquées") {
-                if let message = viewModel.blockedAddressesError {
-                    Text(message)
-                        .foregroundStyle(.readableSecondary)
-                        .accessibilityLabel("Erreur : \(message)")
-                } else if !supportsAutoBlock {
-                    Text("La liste de blocage n’est pas exposée par ce NAS.")
-                        .foregroundStyle(.readableSecondary)
-                } else if filteredBlockedAddresses.isEmpty {
-                    Text(searchText.isEmpty ? "Aucune adresse bloquée" : "Aucun résultat")
-                        .foregroundStyle(.readableSecondary)
-                } else {
-                    ForEach(filteredBlockedAddresses) { address in
-                        blockedAddressRow(address)
-                            .contextMenu {
-                                Button("Débloquer…", role: .destructive) { pendingUnblock = address }
-                                    .disabled(viewModel.busyAddresses.contains(address.address))
-                                    .help(String(localized: "Débloquer \(address.address)"))
-                            }
-                    }
-                }
+        VStack(spacing: 0) {
+            TabView(selection: $pane) {
+                logsPane
+                    .tabItem { Text("Journal") }
+                    .tag(Pane.logs)
+                blockListPane
+                    .tabItem { Text("Liste de blocage") }
+                    .tag(Pane.blockList)
             }
         }
-        .accessibilityLabel("Sécurité")
-    }
-
-    @ToolbarContentBuilder
-    private var toolbar: some ToolbarContent {
-        if selectedTab == .logs {
+        .toolbar {
             ToolbarItem {
-                Menu {
-                    Picker("Niveau", selection: $levelFilter) {
-                        Text("Tous les niveaux").tag(LevelFilter.all)
-                        Text("Erreurs").tag(LevelFilter.error)
-                        Text("Avertissements").tag(LevelFilter.warning)
-                        Text("Informations").tag(LevelFilter.info)
+                Button {
+                    Task {
+                        await vm.load(announce: true)
                     }
-                    .help("Choisir le niveau de journal à afficher")
                 } label: {
-                    Label("Filtrer le journal", systemImage: "line.3.horizontal.decrease.circle")
+                    Label("Actualiser", systemImage: "arrow.clockwise")
                 }
-                .help("Filtrer le journal par niveau")
+                .help("Actualiser le journal et la liste de blocage")
             }
         }
-
-        ToolbarItem {
-            Button {
-                Task { await load() }
-            } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
+        .task {
+            await vm.load()
+            focusContent = true
+        }
+        .confirmationDialog(
+            unblockTitle,
+            isPresented: Binding(
+                get: { !pendingUnblock.isEmpty },
+                set: { if !$0 { pendingUnblock = [] } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button("Débloquer", role: .destructive) {
+                let addresses = pendingUnblock
+                pendingUnblock = []
+                Task {
+                    let outcome = await vm.unblock(addresses)
+                    VoiceOver.announce(outcome, priority: .high)
+                }
             }
-            .help("Actualiser les journaux et protections")
+            Button("Annuler", role: .cancel) { pendingUnblock = [] }
+        } message: {
+            Text("Le NAS acceptera de nouveau les connexions venant de ces adresses. Le blocage automatique peut les bloquer à nouveau si les échecs de connexion reprennent.")
         }
     }
 
-    private func logRow(_ entry: SystemLogEntry) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: levelIcon(entry.level))
-                .foregroundStyle(levelColor(entry.level))
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(entry.message).fontWeight(.medium)
-                Text(logMetadata(entry))
-                    .font(.caption)
+    private var unblockTitle: String {
+        if pendingUnblock.count == 1, let only = pendingUnblock.first {
+            return String(localized: "Débloquer l’adresse \(only.address) ?")
+        }
+        return String(localized: "Débloquer \(pendingUnblock.count) adresses ?")
+    }
+
+    // MARK: - Journal
+
+    @ViewBuilder
+    private var logsPane: some View {
+        if vm.isLoading && vm.logs.isEmpty {
+            ModuleLoadingView("Chargement du journal…")
+                .accessibilityFocused($focusContent)
+        } else if let error = vm.errorMessage, vm.logs.isEmpty {
+            ModuleErrorView(message: error) {
+                Task { await vm.load(announce: true) }
+            }
+            .accessibilityFocused($focusContent)
+        } else {
+            VStack(alignment: .leading, spacing: 0) {
+                if let error = vm.errorMessage {
+                    Text(error)
+                        .foregroundStyle(.readableRed)
+                        .padding(.horizontal, 12)
+                        .padding(.top, 8)
+                }
+
+                Text("Journal système")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                    .padding(.horizontal, 12)
+                    .padding(.top, 8)
+                    .accessibilityFocused($focusContent)
+
+                logFilters
+
+                if vm.visibleLogs.isEmpty {
+                    EmptyModuleView(
+                        title: "Aucune entrée",
+                        systemImage: "doc.text.magnifyingglass",
+                        description: vm.logs.isEmpty
+                            ? "Le NAS n’a consigné aucune entrée correspondant à cette recherche."
+                            : "Aucune entrée de ce niveau parmi celles chargées. Choisissez un autre niveau."
+                    )
+                } else {
+                    logTable
+                }
+
+                Text(vm.summary)
+                    .font(.callout)
                     .foregroundStyle(.readableSecondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
             }
         }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(logAccessibilityLabel(entry))
     }
 
-    private func securityFeature(
-        title: LocalizedStringKey,
-        systemImage: String,
-        available: Bool
-    ) -> some View {
+    private var logFilters: some View {
         HStack(spacing: 12) {
-            Label(title, systemImage: systemImage)
-            Spacer()
-            Text(available ? "Interface disponible" : "Non exposée")
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-        }
-        .accessibilityElement(children: .combine)
-    }
+            // La recherche part au NAS, qui filtre le journal entier et non la seule page
+            // chargée : chercher dans 6995 entrées ne se fait pas côté app.
+            TextField("Rechercher dans le journal", text: $vm.searchText)
+                .textFieldStyle(.roundedBorder)
+                .frame(maxWidth: 320)
+                .accessibilityHint("Le NAS cherche dans tout le journal, pas seulement dans les entrées affichées")
 
-    private func blockedAddressRow(_ blockedAddress: BlockedAddress) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "hand.raised.fill")
-                .foregroundStyle(.readableRed)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(blockedAddress.address).fontWeight(.medium)
-                Text(blockedAddressDetail(blockedAddress))
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
+            Picker("Niveau", selection: $vm.levelFilter) {
+                ForEach(LogsSecurityViewModel.LevelFilter.allCases) { filter in
+                    Text(vm.filterText(filter)).tag(filter)
+                }
             }
-            Spacer()
-            Button("Débloquer…") { pendingUnblock = blockedAddress }
-                .disabled(viewModel.busyAddresses.contains(blockedAddress.address))
-                .accessibilityLabel("Débloquer \(blockedAddress.address)")
-                .help(String(localized: "Débloquer \(blockedAddress.address)"))
-        }
-        .accessibilityElement(children: .contain)
-    }
+            .frame(maxWidth: 220)
+            .help("N’afficher que les entrées de ce niveau")
 
-    private var statusBar: some View {
-        HStack {
-            Text(viewModel.summary)
             Spacer()
         }
-        .font(.caption)
-        .foregroundStyle(.readableSecondary)
         .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .background(.bar)
-        .accessibilityElement(children: .combine)
+        .padding(.vertical, 8)
     }
 
-    private var filteredLogs: [SystemLogEntry] {
-        viewModel.logs.filter { entry in
-            levelMatches(entry) && searchMatches(entry)
+    private var logTable: some View {
+        Table(vm.visibleLogs.sorted(using: logOrder), sortOrder: $logOrder) {
+            TableColumn("Heure", value: \.sortableDate) { entry in
+                Text(vm.dateText(for: entry))
+            }
+            // Triée par gravité et non par ordre alphabétique : « Erreur » doit se ranger
+            // après « Avertissement ».
+            TableColumn("Niveau", value: \.sortableLevel) { entry in
+                Text(vm.levelText(entry.level))
+                    .foregroundStyle(color(for: entry.level))
+            }
+            TableColumn("Catégorie") { entry in
+                Text(vm.categoryText(for: entry))
+            }
+            TableColumn("Compte", value: \.sortableAccount) { entry in
+                Text(vm.accountText(for: entry))
+            }
+            TableColumn("Événement", value: \.sortableMessage) { entry in
+                Text(entry.message)
+            }
         }
     }
 
-    private var filteredBlockedAddresses: [BlockedAddress] {
-        guard !searchText.isEmpty else { return viewModel.blockedAddresses }
-        return viewModel.blockedAddresses.filter {
-            $0.address.localizedStandardContains(searchText)
-                || ($0.reason?.localizedStandardContains(searchText) == true)
+    // MARK: - Liste de blocage
+
+    @ViewBuilder
+    private var blockListPane: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Liste de blocage")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+
+            if let error = vm.blockedAddressesError {
+                // Un compte sans privilège d'administration se voit refuser cette liste : le
+                // dire, plutôt que de présenter une liste vide qui se lirait comme un NAS sans
+                // adresse bloquée.
+                ModuleErrorView(message: error) {
+                    Task { await vm.load(announce: true) }
+                }
+            } else if vm.blockedAddresses.isEmpty {
+                EmptyModuleView(
+                    title: "Aucune adresse bloquée",
+                    systemImage: "hand.raised",
+                    description: "Le blocage automatique n’a bloqué aucune adresse, et aucune n’a été ajoutée à la main. Une adresse y entre après trop d’échecs de connexion."
+                )
+            } else {
+                Table(
+                    vm.blockedAddresses.sorted(using: blockOrder),
+                    selection: $blockSelection,
+                    sortOrder: $blockOrder
+                ) {
+                    TableColumn("Adresse", value: \.address) { address in
+                        Text(address.address)
+                    }
+                    TableColumn("Bloquée le", value: \.sortableBlockedAt) { address in
+                        Text(vm.blockedAtText(for: address))
+                    }
+                    TableColumn("Expiration", value: \.sortableExpiry) { address in
+                        Text(vm.expiryText(for: address))
+                    }
+                    TableColumn("Lieu", value: \.sortableCountry) { address in
+                        Text(vm.countryText(for: address))
+                    }
+                }
+
+                HStack {
+                    Button("Débloquer", role: .destructive) {
+                        pendingUnblock = selectedAddresses
+                    }
+                    .disabled(selectedAddresses.isEmpty || !selectedAddresses.allSatisfy(vm.canUnblock))
+                    .help("Retirer les adresses sélectionnées de la liste de blocage")
+
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 8)
+            }
         }
     }
 
-    private var supportsAutoBlock: Bool {
-        capabilities.supports("SYNO.Core.Security.AutoBlock")
-            || capabilities.supports("SYNO.Core.SmartBlock.Untrusted")
+    private var selectedAddresses: [BlockedAddress] {
+        vm.blockedAddresses.filter { blockSelection.contains($0.id) }
     }
 
-    private var searchPrompt: LocalizedStringKey {
-        selectedTab == .logs ? "Rechercher dans le journal" : "Rechercher une adresse bloquée"
-    }
-
-    private func levelMatches(_ entry: SystemLogEntry) -> Bool {
-        guard levelFilter != .all else { return true }
-        let level = entry.level.lowercased()
-        return switch levelFilter {
-        case .all: true
-        case .error: level.contains("error") || level.contains("critical") || level == "err"
-        case .warning: level.contains("warn")
-        case .info: level.contains("info") || level.contains("notice")
-        }
-    }
-
-    private func searchMatches(_ entry: SystemLogEntry) -> Bool {
-        guard !searchText.isEmpty else { return true }
-        return entry.message.localizedStandardContains(searchText)
-            || (entry.user?.localizedStandardContains(searchText) == true)
-            || (entry.address?.localizedStandardContains(searchText) == true)
-            || (entry.category?.localizedStandardContains(searchText) == true)
-    }
-
-    private func load(restoresInitialFocus: Bool = false) async {
-        VoiceOver.announce(
-            String(localized: "Chargement des journaux et de la sécurité…"),
-            category: .progress,
-            priority: .low
-        )
-        await viewModel.load()
-        guard !Task.isCancelled else { return }
-        if restoresInitialFocus {
-            await VoiceOver.restoreFocusIfCapturedByToolbar { contentFocused = true }
-        }
-        VoiceOver.announce(
-            viewModel.summary,
-            category: viewModel.errorMessage == nil ? .result : .error
-        )
-    }
-
-    private func unblock(_ blockedAddress: BlockedAddress) async {
-        VoiceOver.announce(await viewModel.unblock(blockedAddress), priority: .high)
-    }
-
-    private func logMetadata(_ entry: SystemLogEntry) -> String {
-        [timestampText(entry.timestamp), entry.category, entry.user, entry.address]
-            .compactMap { $0 }
-            .joined(separator: " · ")
-    }
-
-    private func logAccessibilityLabel(_ entry: SystemLogEntry) -> String {
-        [levelText(entry.level), timestampText(entry.timestamp), entry.message, entry.user, entry.address]
-            .compactMap { $0 }
-            .formatted(.list(type: .and))
-    }
-
-    private func blockedAddressDetail(_ blockedAddress: BlockedAddress) -> String {
-        [blockedAddress.reason, blockedAddress.expiresAt.map { String(localized: "expiration \($0)") }]
-            .compactMap { $0 }
-            .joined(separator: " · ")
-            .ifEmpty(String(localized: "Blocage sans expiration indiquée"))
-    }
-
-    private func timestampText(_ value: String?) -> String? {
-        guard let value, !value.isEmpty else { return nil }
-        if let seconds = TimeInterval(value) {
-            return Date(timeIntervalSince1970: seconds).formatted(date: .abbreviated, time: .standard)
-        }
-        return value
-    }
-
-    private func levelText(_ level: String) -> String {
-        switch severity(level) {
-        case .error: String(localized: "Erreur")
-        case .warning: String(localized: "Avertissement")
-        case .info: String(localized: "Information")
-        }
-    }
-
-    private func levelIcon(_ level: String) -> String {
-        switch severity(level) {
-        case .error: "xmark.octagon.fill"
-        case .warning: "exclamationmark.triangle.fill"
-        case .info: "info.circle.fill"
-        }
-    }
-
-    private func levelColor(_ level: String) -> Color {
-        switch severity(level) {
+    /// La couleur double le mot, elle ne le remplace pas : le niveau est toujours écrit.
+    private func color(for level: SystemLogEntry.Level) -> Color {
+        switch level {
         case .error: .readableRed
         case .warning: .readableOrange
-        case .info: .readableSecondary
+        case .info, .other: .primary
         }
     }
-
-    private func severity(_ level: String) -> Severity {
-        let value = level.lowercased()
-        if value.contains("error") || value.contains("critical") || value == "err" { return .error }
-        if value.contains("warn") { return .warning }
-        return .info
-    }
-}
-
-private extension String {
-    func ifEmpty(_ replacement: String) -> String { isEmpty ? replacement : self }
 }
