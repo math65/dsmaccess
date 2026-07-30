@@ -1,6 +1,70 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Copier la somme MD5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy MD5 checksum"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier la somme MD5"
+          }
+        }
+      }
+    },
+    "Somme MD5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MD5 checksum"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Somme MD5"
+          }
+        }
+      }
+    },
+    "GID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GID"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GID"
+          }
+        }
+      }
+    },
+    "UID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UID"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UID"
+          }
+        }
+      }
+    },
     "Une valeur dépasse 100 % lorsqu’un processus occupe plusieurs cœurs du NAS." : {
       "localizations" : {
         "en" : {
@@ -29480,7 +29544,7 @@
         }
       }
     },
-    "Installation en cours sur le NAS, %lld %." : {
+    "Installation en cours sur le NAS, %lld %%." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29491,7 +29555,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Installation en cours sur le NAS, %lld %."
+            "value" : "Installation en cours sur le NAS, %lld %%."
           }
         }
       }
