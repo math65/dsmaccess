@@ -45,9 +45,12 @@ enum DSMError: Error, LocalizedError, Equatable {
     case passwordMustChange
     /// The password does not satisfy the strength rules configured on the NAS.
     case weakPassword
-    /// The account was indeed created, but adding it to the requested groups failed: the
-    /// operation can neither be presented as successful, nor retried as is.
-    case userCreatedWithoutGroups(name: String)
+    /// The account was indeed created, but DSM refused these groups: the operation can neither
+    /// be presented as successful, nor retried as is. The groups are named because the others
+    /// were applied, and the user has to know which ones are left to assign by hand.
+    case userCreatedWithoutGroups(name: String, groups: [String])
+    /// DSM refused these group changes on an existing account. The changes it accepted stand.
+    case membershipsRefused(groups: [String])
     /// Any other API error returned by DSM.
     case apiError(code: Int)
     /// Package Center requires a decision or a wizard that the app must not guess.
@@ -103,8 +106,12 @@ enum DSMError: Error, LocalizedError, Equatable {
             return String(localized: "common.error.password_change_required")
         case .weakPassword:
             return String(localized: "error.password.policy_rejected")
-        case .userCreatedWithoutGroups(let name):
-            return String(localized: "error.user.created_without_groups", defaultValue: "The account \(name) was created, but adding it to the groups failed.")
+        case .userCreatedWithoutGroups(let name, let groups):
+            let list = groups.formatted(.list(type: .and))
+            return String(localized: "error.user.created_without_groups", defaultValue: "The account \(name) was created, but the NAS refused these groups: \(list).")
+        case .membershipsRefused(let groups):
+            let list = groups.formatted(.list(type: .and))
+            return String(localized: "error.user.memberships_refused", defaultValue: "The NAS refused these groups: \(list). The other changes were applied.")
         case .apiError(let code):
             return String(localized: "error.nas.code", defaultValue: "NAS error (code \(code)).")
         case .packageCenter(let message):

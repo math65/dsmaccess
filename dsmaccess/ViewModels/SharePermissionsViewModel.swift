@@ -78,8 +78,10 @@ final class SharePermissionsViewModel {
                         $0.name.localizedStandardCompare($1.name) == .orderedAscending
                     }
                 }
-                groups = all
-                memberships = Set(all.filter { $0.members.contains(holder.name) }.map(\.name))
+                // "users" is left out: the NAS assigns it to every account and refuses to change
+                // it, so listing it would offer a switch that cannot move.
+                groups = all.filter { !$0.isEveryone }
+                memberships = Set(groups.filter { $0.members.contains(holder.name) }.map(\.name))
                 loadedMemberships = memberships
             } catch {
                 guard !DSMError.isCancellation(error) else { return }

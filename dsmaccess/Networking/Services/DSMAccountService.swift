@@ -82,26 +82,42 @@ final class DSMAccountService {
             throw DSMError.weakPassword
         }
 
-        guard !draft.groups.isEmpty else { return }
-        do {
-            for group in draft.groups {
-                try await changeMembership(of: draft.name, in: group, joins: true)
-            }
-        } catch {
-            guard !DSMError.isCancellation(error) else { throw error }
-            throw DSMError.userCreatedWithoutGroups(name: draft.name)
+        let refused = try await joinAll(draft.name, to: draft.groups)
+        guard refused.isEmpty else {
+            throw DSMError.userCreatedWithoutGroups(name: draft.name, groups: refused)
         }
     }
 
+    /// Adds an account to each group, and returns those DSM refused. Every group is attempted:
+    /// stopping at the first refusal used to drop the remaining ones silently, so a single
+    /// unwritable group cost the memberships listed after it.
+    private func joinAll(_ user: String, to groups: [String]) async throws -> [String] {
+        var refused: [String] = []
+        for group in groups where group != DSMGroup.everyoneName {
+            do {
+                try await changeMembership(of: user, in: group, joins: true)
+            } catch {
+                guard !DSMError.isCancellation(error) else { throw error }
+                refused.append(group)
+            }
+        }
+        return refused
+    }
+
     /// Applies an account's membership to a set of groups. DSM can only modify one group at a
-    /// time: it is the group that carries its members, not the other way around.
+    /// time: it is the group that carries its members, not the other way around. Every group is
+    /// attempted before reporting, so one refusal does not discard the changes that follow it.
     func setMemberships(of user: String, joining: [String], leaving: [String]) async throws {
-        for group in joining {
-            try await changeMembership(of: user, in: group, joins: true)
+        var refused = try await joinAll(user, to: joining)
+        for group in leaving where group != DSMGroup.everyoneName {
+            do {
+                try await changeMembership(of: user, in: group, joins: false)
+            } catch {
+                guard !DSMError.isCancellation(error) else { throw error }
+                refused.append(group)
+            }
         }
-        for group in leaving {
-            try await changeMembership(of: user, in: group, joins: false)
-        }
+        guard refused.isEmpty else { throw DSMError.membershipsRefused(groups: refused) }
     }
 
     private func changeMembership(of user: String, in group: String, joins: Bool) async throws {

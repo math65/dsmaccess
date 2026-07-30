@@ -55,6 +55,14 @@ struct DSMGroup: nonisolated Decodable, Identifiable, Hashable, Sendable {
 
     var id: String { name }
 
+    /// DSM puts every local account in `users` when it is created, and refuses both `add_member`
+    /// and `remove_member` on it with code 3216. Membership is therefore neither obtainable nor
+    /// revocable, and offering it as a choice would be offering one that cannot be honoured.
+    /// Verified against DSM 7.4 on 2026-07-30.
+    static let everyoneName = "users"
+
+    var isEveryone: Bool { name == Self.everyoneName }
+
     enum CodingKeys: String, CodingKey {
         case name
         case description = "desc"

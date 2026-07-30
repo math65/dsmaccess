@@ -398,7 +398,7 @@ private struct CreateUserSheet: View {
     @State private var passwordConfirmation = ""
     @State private var description = ""
     @State private var email = ""
-    @State private var selectedGroups: Set<String> = ["users"]
+    @State private var selectedGroups: Set<String> = []
     @State private var revealsPassword = false
     @State private var isCreating = false
     @State private var failureMessage: String?
@@ -460,12 +460,15 @@ private struct CreateUserSheet: View {
                         .help("users.create_user.description_field.hint")
                 }
 
-                if !groups.isEmpty {
-                    Section("common.label.groups") {
-                        ForEach(groups) { group in
-                            Toggle(group.name, isOn: groupBinding(group.name))
-                                .help(String(localized: "users.create_user.group_membership.hint", defaultValue: "Add the user to or remove the user from the \(group.name) group"))
-                        }
+                Section("common.label.groups") {
+                    // The NAS assigns "users" itself and refuses to change it, so it is stated
+                    // rather than offered: a switch here could never do what it promises.
+                    Text("users.create_user.everyone_group.note")
+                        .foregroundStyle(.readableSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                    ForEach(assignableGroups) { group in
+                        Toggle(group.name, isOn: groupBinding(group.name))
+                            .help(String(localized: "users.create_user.group_membership.hint", defaultValue: "Add the user to or remove the user from the \(group.name) group"))
                     }
                 }
             }
@@ -512,6 +515,10 @@ private struct CreateUserSheet: View {
                 category: .navigation
             )
         }
+    }
+
+    private var assignableGroups: [DSMGroup] {
+        groups.filter { !$0.isEveryone }
     }
 
     private func groupBinding(_ group: String) -> Binding<Bool> {

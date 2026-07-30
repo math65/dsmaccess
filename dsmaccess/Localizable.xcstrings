@@ -8632,13 +8632,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The account %@ was created, but adding it to the groups failed."
+            "value": "The account %1$@ was created, but the NAS refused these groups: %2$@."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le compte %@ a été créé, mais son ajout aux groupes a échoué."
+            "value": "Le compte %1$@ a été créé, mais le NAS a refusé ces groupes : %2$@."
           }
         }
       }
@@ -32363,13 +32363,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "User created: %@. Adding it to the groups failed; assign them from the group list."
+            "value": "User created: %1$@. The NAS refused these groups: %2$@; assign them from the group list."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Utilisateur créé : %@. Son ajout aux groupes a échoué, attribuez-les depuis la liste des groupes."
+            "value": "Utilisateur créé : %1$@. Le NAS a refusé ces groupes : %2$@ ; attribuez-les depuis la liste des groupes."
           }
         }
       }
@@ -33522,6 +33522,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualiser les machines virtuelles"
+          }
+        }
+      }
+    },
+    "users.create_user.everyone_group.note": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every account belongs to the users group. The NAS assigns it and does not allow it to be changed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout compte appartient au groupe users. Le NAS l'attribue et n'autorise pas à le modifier."
+          }
+        }
+      }
+    },
+    "error.user.memberships_refused": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The NAS refused these groups: %@. The other changes were applied."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS a refusé ces groupes : %@. Les autres modifications ont été appliquées."
           }
         }
       }

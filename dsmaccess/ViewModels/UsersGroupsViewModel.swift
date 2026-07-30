@@ -61,12 +61,14 @@ final class UsersGroupsViewModel {
             do {
                 try await client.createUser(draft)
                 return String(localized: "users.user.created.announcement", defaultValue: "User created: \(draft.name)")
-            } catch DSMError.userCreatedWithoutGroups {
-                // The account exists: resubmitting the form would only fail on a name already
-                // taken. The operation therefore ends, stating what is left to do.
+            } catch DSMError.userCreatedWithoutGroups(_, let refused) {
+                // The account exists, and every group the NAS accepted is applied: resubmitting
+                // the form would only fail on a name already taken. The operation therefore
+                // ends, naming the groups that are left to assign by hand.
+                let list = refused.formatted(.list(type: .and))
                 return String(
                     localized: "users.user.created.groups_failed.announcement",
-                    defaultValue: "User created: \(draft.name). Adding it to the groups failed; assign them from the group list."
+                    defaultValue: "User created: \(draft.name). The NAS refused these groups: \(list); assign them from the group list."
                 )
             }
         }

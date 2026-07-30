@@ -65,7 +65,7 @@ struct DSMAccountServiceTests {
                 password: "secret",
                 description: "Compte invité",
                 email: "",
-                groups: ["users", "photo"]
+                groups: ["photo", "sales"]
             )
         )
 
@@ -84,10 +84,63 @@ struct DSMAccountServiceTests {
         let firstGroup = try query(from: requests[1])
         #expect(firstGroup["api"] == "SYNO.Core.Group.Member")
         #expect(firstGroup["method"] == "change")
-        #expect(firstGroup["group"] == #""users""#)
+        #expect(firstGroup["group"] == #""photo""#)
         #expect(firstGroup["add_member"] == #"["martine"]"#)
         let secondGroup = try query(from: requests[2])
-        #expect(secondGroup["group"] == #""photo""#)
+        #expect(secondGroup["group"] == #""sales""#)
+    }
+
+    /// DSM assigns "users" to every account and answers 3216 to any attempt to change it, in
+    /// either direction. Sending it produced a failure the user could not act on, on an
+    /// account that was in fact complete.
+    @Test func neverAsksTheNASToChangeTheEveryoneGroup() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"name":"martine","uid":1031}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.createUser(
+            DSMUserDraft(
+                name: "martine",
+                password: "secret",
+                description: "",
+                email: "",
+                groups: ["users"]
+            )
+        )
+
+        // Only the creation: no membership call was worth making.
+        #expect(await stub.requests.count == 1)
+    }
+
+    /// The refusal of one group used to abandon the ones that followed it. Since the list is
+    /// sorted, a group refused early cost every membership after it, without naming any.
+    @Test func appliesTheOtherGroupsWhenTheNASRefusesOne() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"name":"martine","uid":1031}}"#.utf8)),
+            .response(Data(#"{"success":false,"error":{"code":3216}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        await #expect(throws: DSMError.userCreatedWithoutGroups(name: "martine", groups: ["http"])) {
+            try await service.createUser(
+                DSMUserDraft(
+                    name: "martine",
+                    password: "secret",
+                    description: "",
+                    email: "",
+                    groups: ["http", "photo", "sales"]
+                )
+            )
+        }
+
+        // The two groups listed after the refused one were still applied.
+        let requests = await stub.requests
+        #expect(requests.count == 4)
+        #expect(try query(from: requests[2])["group"] == #""photo""#)
+        #expect(try query(from: requests[3])["group"] == #""sales""#)
     }
 
     @Test func createsNoGroupCallWhenTheDraftHasNoGroup() async throws {
@@ -112,14 +165,14 @@ struct DSMAccountServiceTests {
         ])
         let service = makeService(stub: stub)
 
-        await #expect(throws: DSMError.userCreatedWithoutGroups(name: "martine")) {
+        await #expect(throws: DSMError.userCreatedWithoutGroups(name: "martine", groups: ["photo"])) {
             try await service.createUser(
                 DSMUserDraft(
                     name: "martine",
                     password: "secret",
                     description: "",
                     email: "",
-                    groups: ["users"]
+                    groups: ["photo"]
                 )
             )
         }
@@ -134,7 +187,7 @@ struct DSMAccountServiceTests {
         ])
         let service = makeService(stub: stub)
 
-        try await service.setMemberships(of: "martine", joining: ["photo"], leaving: ["users"])
+        try await service.setMemberships(of: "martine", joining: ["photo"], leaving: ["sales"])
 
         let requests = await stub.requests
         #expect(requests.count == 2)
@@ -145,9 +198,33 @@ struct DSMAccountServiceTests {
         #expect(joined["add_member"] == #"["martine"]"#)
         #expect(joined["remove_member"] == nil)
         let left = try query(from: requests[1])
-        #expect(left["group"] == #""users""#)
+        #expect(left["group"] == #""sales""#)
         #expect(left["remove_member"] == #"["martine"]"#)
         #expect(left["add_member"] == nil)
+    }
+
+    /// Same guarantee when editing an existing account: a refusal names its group and leaves
+    /// the accepted changes in place, instead of dropping whatever came after it.
+    @Test func reportsOnlyTheGroupsTheNASRefusedWhenEditing() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+            .response(Data(#"{"success":false,"error":{"code":3216}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        await #expect(throws: DSMError.membershipsRefused(groups: ["http"])) {
+            try await service.setMemberships(
+                of: "martine",
+                joining: ["photo", "http"],
+                leaving: ["sales"]
+            )
+        }
+
+        // The removal still happened, after the refusal.
+        let requests = await stub.requests
+        #expect(requests.count == 3)
+        #expect(try query(from: requests[2])["remove_member"] == #"["martine"]"#)
     }
 
     @Test func reportsAPasswordRefusedByTheNASPolicy() async throws {
