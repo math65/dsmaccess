@@ -189,6 +189,10 @@ struct DSMCommands: Commands {
 
             Divider()
 
+            // No keyboard shortcut here on purpose: a menu-bar shortcut is application-wide and
+            // would swallow ⌘V while the user is typing in the search field or any other text
+            // field. The file table owns these keys; making them work in an empty folder is a
+            // matter of keeping that table on screen, not of moving the keys to the menu.
             Button("common.button.copy") { fileActions?.copy() }
                 .disabled(
                     fileActions?.hasSelection != true || fileActions?.canCopyMove != true
