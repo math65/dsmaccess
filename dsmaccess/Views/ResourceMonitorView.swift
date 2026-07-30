@@ -16,6 +16,9 @@ struct ResourceMonitorView: View {
         case performance
         case tasks
         case connections
+        case openedFiles
+        case history
+        case alarm
 
         var id: Self { self }
 
@@ -24,6 +27,9 @@ struct ResourceMonitorView: View {
             case .performance: "Performances"
             case .tasks: "Tâches"
             case .connections: "Connexions"
+            case .openedFiles: "Fichiers ouverts"
+            case .history: "Historique"
+            case .alarm: "Alarme"
             }
         }
     }
@@ -32,12 +38,18 @@ struct ResourceMonitorView: View {
     @State private var vm: SystemResourcesViewModel
     @State private var tasks: TaskManagerViewModel
     @State private var connections: ConnectionsViewModel
+    @State private var openedFiles: OpenedFilesViewModel
+    @State private var history: ResourceMonitorHistoryViewModel
+    @State private var alarm: PerformanceAlarmViewModel
     @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
         _vm = State(initialValue: SystemResourcesViewModel(session: session))
         _tasks = State(initialValue: TaskManagerViewModel(session: session))
         _connections = State(initialValue: ConnectionsViewModel(session: session))
+        _openedFiles = State(initialValue: OpenedFilesViewModel(session: session))
+        _history = State(initialValue: ResourceMonitorHistoryViewModel(session: session))
+        _alarm = State(initialValue: PerformanceAlarmViewModel(session: session))
     }
 
     var body: some View {
@@ -57,6 +69,15 @@ struct ResourceMonitorView: View {
                 ConnectionsView(vm: connections)
                     .tabItem { Text("Connexions") }
                     .tag(Pane.connections)
+                OpenedFilesView(vm: openedFiles)
+                    .tabItem { Text("Fichiers ouverts") }
+                    .tag(Pane.openedFiles)
+                ResourceMonitorHistoryView(vm: history)
+                    .tabItem { Text("Historique") }
+                    .tag(Pane.history)
+                PerformanceAlarmView(vm: alarm)
+                    .tabItem { Text("Alarme") }
+                    .tag(Pane.alarm)
             }
         }
         .toolbar {
@@ -67,6 +88,9 @@ struct ResourceMonitorView: View {
                         case .performance: await vm.load(announce: true)
                         case .tasks: await tasks.load(announce: true)
                         case .connections: await connections.load(announce: true)
+                        case .openedFiles: await openedFiles.load(announce: true)
+                        case .history: await history.load(announce: true)
+                        case .alarm: await alarm.load(announce: true)
                         }
                     }
                 } label: {

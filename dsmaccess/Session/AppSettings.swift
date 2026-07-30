@@ -23,6 +23,10 @@ final class AppSettings {
         didSet { Preferences.notifiesFinishedOperations = notifiesFinishedOperations }
     }
 
+    var playsCompletionSound: Bool {
+        didSet { Preferences.playsCompletionSound = playsCompletionSound }
+    }
+
     private(set) var sidebarOrder: [AppModule] {
         didSet { Preferences.sidebarOrder = sidebarOrder }
     }
@@ -41,6 +45,7 @@ final class AppSettings {
         enabledAnnouncementCategories = Preferences.enabledAnnouncementCategories
         queueAnnouncements = Preferences.queueAnnouncements
         notifiesFinishedOperations = Preferences.notifiesFinishedOperations
+        playsCompletionSound = Preferences.playsCompletionSound
         sidebarOrder = Preferences.sidebarOrder
         enabledSidebarModules = Preferences.enabledSidebarModules
         automaticallyHideUnavailableModules = Preferences.automaticallyHideUnavailableModules

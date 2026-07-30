@@ -52,10 +52,11 @@ final class TaskManagerViewModel {
             async let loadedProcesses = session.withClient { try await $0.processes() }
             let (fetchedGroups, fetchedProcesses) = try await (loadedGroups, loadedProcesses)
             guard generation == loadGeneration else { return }
-            // Tri par mémoire et non par processeur : sur un NAS au repos tous les
-            // services affichent « 0,0 % », et un tri sur des écarts invisibles donne une
-            // liste qui paraît aléatoire — et qui se réordonne à chaque actualisation,
-            // ce qui rend le parcours au lecteur d'écran impraticable.
+            // Tri par mémoire et non par processeur : la charge d'un service au repos varie
+            // d'un centième de point à chaque relevé, et un tri sur ces écarts réordonne la
+            // liste à chaque actualisation, ce qui rend le parcours au lecteur d'écran
+            // impraticable. La mémoire, elle, bouge lentement. Le tri visible reste celui
+            // que l'utilisateur choisit sur les en-têtes du tableau.
             groups = fetchedGroups.sorted { lhs, rhs in
                 let leftMemory = lhs.memoryBytes ?? -1
                 let rightMemory = rhs.memoryBytes ?? -1
@@ -119,6 +120,32 @@ final class TaskManagerViewModel {
     func memoryText(for group: ProcessGroup) -> String {
         guard let bytes = group.memoryBytes else { return "—" }
         return bytes.formatted(.byteCount(style: .memory, spellsOutZero: false))
+    }
+
+    // MARK: - Mesures que DSM n'affiche pas
+
+    /// Temps processeur cumulé depuis le démarrage du service.
+    func cpuTimeText(for group: ProcessGroup) -> String {
+        guard let seconds = group.cpuTime, seconds >= 0 else { return "—" }
+        return Duration.seconds(seconds).formatted(
+            .units(allowed: [.hours, .minutes, .seconds], width: .narrow)
+        )
+    }
+
+    func readRateText(for group: ProcessGroup) -> String {
+        rateText(group.readBytesPerSecond)
+    }
+
+    func writeRateText(for group: ProcessGroup) -> String {
+        rateText(group.writeBytesPerSecond)
+    }
+
+    /// Un tiret quand DSM n'a pas mesuré, un débit sinon — y compris zéro, qui est ici une
+    /// mesure et non une absence : un service au repos n'écrit réellement rien.
+    private func rateText(_ bytesPerSecond: Int64?) -> String {
+        guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
+        let formatted = bytesPerSecond.formatted(.byteCount(style: .memory, spellsOutZero: false))
+        return String(localized: "\(formatted)/s")
     }
 
     func cpuText(for process: SystemProcess) -> String {

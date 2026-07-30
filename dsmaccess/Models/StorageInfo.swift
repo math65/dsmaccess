@@ -65,6 +65,9 @@ struct Volume: nonisolated Decodable, Identifiable, Sendable {
     let fsType: String?
     let size: ByteSize?
     let progress: Progress?
+    /// Point de montage, « /volume1 ». C'est sous cette forme que les règles de l'alarme des
+    /// performances désignent un volume.
+    let mountPath: String?
 
     struct Progress: nonisolated Decodable, Sendable {
         let percent: String?
@@ -75,6 +78,7 @@ struct Volume: nonisolated Decodable, Identifiable, Sendable {
         case id, desc, status, size, progress
         case numId = "num_id"
         case fsType = "fs_type"
+        case mountPath = "vol_path"
     }
 }
 

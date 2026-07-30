@@ -1,6 +1,3334 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Jouer un son à la fin d’une opération" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play a sound when an operation finishes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jouer un son à la fin d’une opération"
+          }
+        }
+      }
+    },
+    "Joue un son court quand une opération longue se termine alors que DSM Access est au premier plan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plays a short sound when a long operation finishes while DSM Access is in the foreground"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joue un son court quand une opération longue se termine alors que DSM Access est au premier plan"
+          }
+        }
+      }
+    },
+    "Devant l’écran, l’annonce peut passer inaperçue si votre attention est ailleurs. Le son la double, sans jamais la remplacer. Hors premier plan, c’est la notification qui vous prévient." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In front of the screen, the announcement can go unnoticed if your attention is elsewhere. The sound doubles it, and never replaces it. Out of the foreground, the notification is what reaches you."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devant l’écran, l’annonce peut passer inaperçue si votre attention est ailleurs. Le son la double, sans jamais la remplacer. Hors premier plan, c’est la notification qui vous prévient."
+          }
+        }
+      }
+    },
+    "Journalisation des transferts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfer logging"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journalisation des transferts"
+          }
+        }
+      }
+    },
+    "Le NAS tient un journal par protocole. Couper un protocole n’efface pas les entrées déjà consignées, mais son journal cesse de s’alimenter." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS keeps one log per protocol. Switching a protocol off does not erase the entries already recorded, but its log stops filling up."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS tient un journal par protocole. Couper un protocole n’efface pas les entrées déjà consignées, mais son journal cesse de s’alimenter."
+          }
+        }
+      }
+    },
+    "Chargement des réglages…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading settings…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des réglages…"
+          }
+        }
+      }
+    },
+    "Bloquer les adresses après trop d’échecs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block addresses after too many failures"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloquer les adresses après trop d’échecs"
+          }
+        }
+      }
+    },
+    "Tentatives autorisées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attempts allowed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tentatives autorisées"
+          }
+        }
+      }
+    },
+    "Fenêtre en minutes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Window in minutes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fenêtre en minutes"
+          }
+        }
+      }
+    },
+    "Lever le blocage après un délai" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lift the block after a delay"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lever le blocage après un délai"
+          }
+        }
+      }
+    },
+    "Jours avant déblocage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days before unblocking"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jours avant déblocage"
+          }
+        }
+      }
+    },
+    "Journalisation activée pour %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logging turned on for %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journalisation activée pour %@"
+          }
+        }
+      }
+    },
+    "Journalisation désactivée pour %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logging turned off for %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journalisation désactivée pour %@"
+          }
+        }
+      }
+    },
+    "Blocage automatique enregistré" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto block saved"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocage automatique enregistré"
+          }
+        }
+      }
+    },
+    "Blocage automatique désactivé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto block turned off"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocage automatique désactivé"
+          }
+        }
+      }
+    },
+    "Connexions signalées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Flagged sign-ins"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexions signalées"
+          }
+        }
+      }
+    },
+    "Aucune connexion signalée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No sign-in flagged"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune connexion signalée"
+          }
+        }
+      }
+    },
+    "Le Conseiller de sécurité n’a relevé ni connexion inhabituelle ni tentative répétée." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Security Advisor has flagged neither an unusual sign-in nor repeated attempts."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le Conseiller de sécurité n’a relevé ni connexion inhabituelle ni tentative répétée."
+          }
+        }
+      }
+    },
+    "Connexion inhabituelle depuis %@, %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unusual sign-in from %@, %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion inhabituelle depuis %@, %@"
+          }
+        }
+      }
+    },
+    "Connexion inhabituelle depuis %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unusual sign-in from %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion inhabituelle depuis %@"
+          }
+        }
+      }
+    },
+    "Connexion inhabituelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unusual sign-in"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion inhabituelle"
+          }
+        }
+      }
+    },
+    "%lld tentatives de connexion échouées en %lld minutes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld failed sign-in attempts within %lld minutes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld tentatives de connexion échouées en %lld minutes"
+          }
+        }
+      }
+    },
+    "Tentatives de connexion répétées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Repeated sign-in attempts"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tentatives de connexion répétées"
+          }
+        }
+      }
+    },
+    "Alerte de sécurité non reconnue (%@)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unrecognised security alert (%@)"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerte de sécurité non reconnue (%@)"
+          }
+        }
+      }
+    },
+    "Faible" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Low"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Faible"
+          }
+        }
+      }
+    },
+    "Moyenne" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Medium"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Moyenne"
+          }
+        }
+      }
+    },
+    "Élevée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "High"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Élevée"
+          }
+        }
+      }
+    },
+    "Gravité inconnue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown severity"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gravité inconnue"
+          }
+        }
+      }
+    },
+    "%lld alertes de connexion, dont %lld de gravité élevée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sign-in alerts, including %lld of high severity"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld alertes de connexion, dont %lld de gravité élevée"
+          }
+        }
+      }
+    },
+    "Exporter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter"
+          }
+        }
+      }
+    },
+    "Exporter en CSV" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as CSV"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter en CSV"
+          }
+        }
+      }
+    },
+    "Exporter en HTML" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export as HTML"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporter en HTML"
+          }
+        }
+      }
+    },
+    "Enregistrer tout le journal dans un fichier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save the whole log to a file"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer tout le journal dans un fichier"
+          }
+        }
+      }
+    },
+    "Le NAS exporte tout le journal, et non les seules entrées affichées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS exports the whole log, not only the entries shown."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS exporte tout le journal, et non les seules entrées affichées."
+          }
+        }
+      }
+    },
+    "Export en cours…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exporting…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export en cours…"
+          }
+        }
+      }
+    },
+    "Journal exporté vers %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Log exported to %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journal exporté vers %@"
+          }
+        }
+      }
+    },
+    "Échec de l’export : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not export: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de l’export : %@"
+          }
+        }
+      }
+    },
+    "%lld entrées de journal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld log entries"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entrées de journal"
+          }
+        }
+      }
+    },
+    "Renommage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rename"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renommage"
+          }
+        }
+      }
+    },
+    "Création de dossier" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Folder creation"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Création de dossier"
+          }
+        }
+      }
+    },
+    "Choisir le journal à consulter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose which log to read"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisir le journal à consulter"
+          }
+        }
+      }
+    },
+    "Journal de connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection log"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journal de connexion"
+          }
+        }
+      }
+    },
+    "Transferts %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ transfers"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transferts %@"
+          }
+        }
+      }
+    },
+    "Charger les entrées plus anciennes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Load older entries"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charger les entrées plus anciennes"
+          }
+        }
+      }
+    },
+    "Ajoute les entrées suivantes à la suite de celles déjà affichées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adds the next entries after the ones already shown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajoute les entrées suivantes à la suite de celles déjà affichées"
+          }
+        }
+      }
+    },
+    "Ajouter la tranche suivante du journal" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add the next slice of the log"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter la tranche suivante du journal"
+          }
+        }
+      }
+    },
+    "Tout le journal est affiché" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The whole log is shown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout le journal est affiché"
+          }
+        }
+      }
+    },
+    "Échec du chargement de la suite : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not load the rest: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du chargement de la suite : %@"
+          }
+        }
+      }
+    },
+    "Liste de blocage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block list"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Liste de blocage"
+          }
+        }
+      }
+    },
+    "Actualiser le journal et la liste de blocage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh the log and the block list"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Actualiser le journal et la liste de blocage"
+          }
+        }
+      }
+    },
+    "Heure" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Time"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Heure"
+          }
+        }
+      }
+    },
+    "Catégorie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Category"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catégorie"
+          }
+        }
+      }
+    },
+    "Événement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Event"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Événement"
+          }
+        }
+      }
+    },
+    "Aucune entrée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entries"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune entrée"
+          }
+        }
+      }
+    },
+    "Le NAS n’a consigné aucune entrée correspondant à cette recherche." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS has recorded no entry matching this search."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS n’a consigné aucune entrée correspondant à cette recherche."
+          }
+        }
+      }
+    },
+    "Aucune entrée de ce niveau parmi celles chargées. Choisissez un autre niveau." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No entry of that level among the ones loaded. Pick another level."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune entrée de ce niveau parmi celles chargées. Choisissez un autre niveau."
+          }
+        }
+      }
+    },
+    "Le NAS cherche dans tout le journal, pas seulement dans les entrées affichées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS searches the whole log, not only the entries shown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS cherche dans tout le journal, pas seulement dans les entrées affichées"
+          }
+        }
+      }
+    },
+    "N’afficher que les entrées de ce niveau" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show only entries of this level"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "N’afficher que les entrées de ce niveau"
+          }
+        }
+      }
+    },
+    "%lld entrées affichées sur %lld, dont %lld erreurs et %lld avertissements" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld entries shown, including %lld errors and %lld warnings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entrées affichées sur %lld, dont %lld erreurs et %lld avertissements"
+          }
+        }
+      }
+    },
+    "%lld entrées de journal, dont %lld erreurs et %lld avertissements" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld log entries, including %lld errors and %lld warnings"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld entrées de journal, dont %lld erreurs et %lld avertissements"
+          }
+        }
+      }
+    },
+    "Connexion" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connection"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Connexion"
+          }
+        }
+      }
+    },
+    "Transfert de fichiers" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File transfer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfert de fichiers"
+          }
+        }
+      }
+    },
+    "Bloquée le" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocked on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloquée le"
+          }
+        }
+      }
+    },
+    "Définitivement" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permanently"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Définitivement"
+          }
+        }
+      }
+    },
+    "Lieu inconnu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown location"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lieu inconnu"
+          }
+        }
+      }
+    },
+    "Le blocage automatique n’a bloqué aucune adresse, et aucune n’a été ajoutée à la main. Une adresse y entre après trop d’échecs de connexion." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto block has blocked no address, and none was added by hand. An address lands here after too many failed sign-in attempts."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le blocage automatique n’a bloqué aucune adresse, et aucune n’a été ajoutée à la main. Une adresse y entre après trop d’échecs de connexion."
+          }
+        }
+      }
+    },
+    "Débloquer" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unblock"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloquer"
+          }
+        }
+      }
+    },
+    "Débloquer l’adresse %@ ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unblock the address %@?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloquer l’adresse %@ ?"
+          }
+        }
+      }
+    },
+    "Débloquer %lld adresses ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unblock %lld addresses?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débloquer %lld adresses ?"
+          }
+        }
+      }
+    },
+    "Le NAS acceptera de nouveau les connexions venant de ces adresses. Le blocage automatique peut les bloquer à nouveau si les échecs de connexion reprennent." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS will accept connections from these addresses again. Auto block may block them once more if failed sign-in attempts resume."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS acceptera de nouveau les connexions venant de ces adresses. Le blocage automatique peut les bloquer à nouveau si les échecs de connexion reprennent."
+          }
+        }
+      }
+    },
+    "Retirer les adresses sélectionnées de la liste de blocage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove the selected addresses from the block list"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retirer les adresses sélectionnées de la liste de blocage"
+          }
+        }
+      }
+    },
+    "%lld adresses débloquées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld addresses unblocked"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld adresses débloquées"
+          }
+        }
+      }
+    },
+    "Le NAS cessera de surveiller ces seuils. Les alertes déjà consignées dans l’historique sont conservées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS will stop watching these thresholds. Alerts already recorded in the history are kept."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS cessera de surveiller ces seuils. Les alertes déjà consignées dans l’historique sont conservées."
+          }
+        }
+      }
+    },
+    "Alarme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarm"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarme"
+          }
+        }
+      }
+    },
+    "Règles d’alarme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alarm rules"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règles d’alarme"
+          }
+        }
+      }
+    },
+    "Chargement des règles d’alarme…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading alarm rules…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des règles d’alarme…"
+          }
+        }
+      }
+    },
+    "Aucune règle d’alarme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No alarm rules"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune règle d’alarme"
+          }
+        }
+      }
+    },
+    "Le NAS ne surveille aucun seuil et ne consignera donc aucune alerte. Ajoutez une règle pour qu’il signale une ressource qui dérape." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS watches no threshold and will therefore record no alert. Add a rule so that it reports a resource going out of hand."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS ne surveille aucun seuil et ne consignera donc aucune alerte. Ajoutez une règle pour qu’il signale une ressource qui dérape."
+          }
+        }
+      }
+    },
+    "Règle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rule"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle"
+          }
+        }
+      }
+    },
+    "Gravité" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Severity"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gravité"
+          }
+        }
+      }
+    },
+    "Activer la règle %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on the rule %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Activer la règle %@"
+          }
+        }
+      }
+    },
+    "Active" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active"
+          }
+        }
+      }
+    },
+    "Inactive" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Off"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Inactive"
+          }
+        }
+      }
+    },
+    "Ajouter une règle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add a rule"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajouter une règle"
+          }
+        }
+      }
+    },
+    "Composer une nouvelle règle d’alarme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Compose a new alarm rule"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Composer une nouvelle règle d’alarme"
+          }
+        }
+      }
+    },
+    "Modifier la règle sélectionnée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit the selected rule"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier la règle sélectionnée"
+          }
+        }
+      }
+    },
+    "Supprimer les règles sélectionnées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete the selected rules"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer les règles sélectionnées"
+          }
+        }
+      }
+    },
+    "Supprimer la règle « %@ » ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete the rule “%@”?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer la règle « %@ » ?"
+          }
+        }
+      }
+    },
+    "Supprimer %lld règles ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete %lld rules?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer %lld règles ?"
+          }
+        }
+      }
+    },
+    "Le NAS cessera de surveiller ce seuil. Les alertes déjà consignées dans l’historique sont conservées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS will stop watching this threshold. Alerts already recorded in the history are kept."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS cessera de surveiller ce seuil. Les alertes déjà consignées dans l’historique sont conservées."
+          }
+        }
+      }
+    },
+    "Nouvelle règle d’alarme" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "New alarm rule"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nouvelle règle d’alarme"
+          }
+        }
+      }
+    },
+    "Modifier la règle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Edit the rule"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Modifier la règle"
+          }
+        }
+      }
+    },
+    "Surveiller" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Watch"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Surveiller"
+          }
+        }
+      }
+    },
+    "Seuil" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Threshold"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seuil"
+          }
+        }
+      }
+    },
+    "Règle active" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rule is on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle active"
+          }
+        }
+      }
+    },
+    "Une règle inactive reste enregistrée mais ne déclenche aucune alerte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rule that is off stays saved but raises no alert"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une règle inactive reste enregistrée mais ne déclenche aucune alerte"
+          }
+        }
+      }
+    },
+    "Entre %lld et %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Between %lld and %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entre %lld et %lld"
+          }
+        }
+      }
+    },
+    "Entre %lld et %lld %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Between %lld and %lld %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Entre %lld et %lld %@"
+          }
+        }
+      }
+    },
+    "Aucune cible disponible" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No target available"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune cible disponible"
+          }
+        }
+      }
+    },
+    "Choisissez la cible à surveiller." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choose the target to watch."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez la cible à surveiller."
+          }
+        }
+      }
+    },
+    "Le seuil doit être un nombre entier." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The threshold must be a whole number."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le seuil doit être un nombre entier."
+          }
+        }
+      }
+    },
+    "Le seuil doit être compris entre %lld et %lld." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The threshold must be between %lld and %lld."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le seuil doit être compris entre %lld et %lld."
+          }
+        }
+      }
+    },
+    "Cette ressource n’est pas disponible pour ce type de règle." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This resource is not available for this kind of rule."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette ressource n’est pas disponible pour ce type de règle."
+          }
+        }
+      }
+    },
+    "%lld règles d’alarme, %lld actives" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld alarm rules, %lld on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld règles d’alarme, %lld actives"
+          }
+        }
+      }
+    },
+    "Règle activée : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rule turned on: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle activée : %@"
+          }
+        }
+      }
+    },
+    "Règle désactivée : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rule turned off: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle désactivée : %@"
+          }
+        }
+      }
+    },
+    "Échec du changement d’état : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not change the rule state: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du changement d’état : %@"
+          }
+        }
+      }
+    },
+    "Règle supprimée : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rule deleted: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle supprimée : %@"
+          }
+        }
+      }
+    },
+    "%lld règles supprimées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld rules deleted"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld règles supprimées"
+          }
+        }
+      }
+    },
+    "Règle créée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rule created"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle créée"
+          }
+        }
+      }
+    },
+    "Règle modifiée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rule updated"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Règle modifiée"
+          }
+        }
+      }
+    },
+    "Une règle surveille déjà cette ressource avec la même gravité. Modifiez la règle existante ou changez la gravité." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A rule already watches this resource at the same severity. Edit that rule, or pick a different severity."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une règle surveille déjà cette ressource avec la même gravité. Modifiez la règle existante ou changez la gravité."
+          }
+        }
+      }
+    },
+    "Cible inconnue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown target"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cible inconnue"
+          }
+        }
+      }
+    },
+    "LUN iSCSI" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iSCSI LUN"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "LUN iSCSI"
+          }
+        }
+      }
+    },
+    "Usage interne" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Internal use"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Usage interne"
+          }
+        }
+      }
+    },
+    "Processeur au-dessus de %lld %%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processor above %lld %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processeur au-dessus de %lld %%"
+          }
+        }
+      }
+    },
+    "Charge moyenne sur 1 minute au-dessus de %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1-minute load average above %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge moyenne sur 1 minute au-dessus de %lld"
+          }
+        }
+      }
+    },
+    "Charge moyenne sur 5 minutes au-dessus de %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5-minute load average above %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge moyenne sur 5 minutes au-dessus de %lld"
+          }
+        }
+      }
+    },
+    "Charge moyenne sur 15 minutes au-dessus de %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15-minute load average above %lld"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge moyenne sur 15 minutes au-dessus de %lld"
+          }
+        }
+      }
+    },
+    "Mémoire au-dessus de %lld %%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory above %lld %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mémoire au-dessus de %lld %%"
+          }
+        }
+      }
+    },
+    "Processeur graphique au-dessus de %lld %%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graphics processor above %lld %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processeur graphique au-dessus de %lld %%"
+          }
+        }
+      }
+    },
+    "%@ : processeur au-dessus de %lld %%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: processor above %lld %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : processeur au-dessus de %lld %%"
+          }
+        }
+      }
+    },
+    "%@ : mémoire au-dessus de %lld Mo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: memory above %lld MB"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : mémoire au-dessus de %lld Mo"
+          }
+        }
+      }
+    },
+    "%@ : activité disque au-dessus de %lld Mo/s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: disk activity above %lld MB/s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : activité disque au-dessus de %lld Mo/s"
+          }
+        }
+      }
+    },
+    "%@ : activité disque au-dessus de %lld %%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: disk activity above %lld %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : activité disque au-dessus de %lld %%"
+          }
+        }
+      }
+    },
+    "%@ : latence réseau au-dessus de %lld ms" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: network latency above %lld ms"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : latence réseau au-dessus de %lld ms"
+          }
+        }
+      }
+    },
+    "%@ : latence d’accès au-dessus de %lld ms" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@: access latency above %lld ms"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ : latence d’accès au-dessus de %lld ms"
+          }
+        }
+      }
+    },
+    "Partition système au-dessus de %lld %%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System partition above %lld %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partition système au-dessus de %lld %%"
+          }
+        }
+      }
+    },
+    "Dossier temporaire au-dessus de %lld %%" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temporary folder above %lld %%"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dossier temporaire au-dessus de %lld %%"
+          }
+        }
+      }
+    },
+    "Plus de %lld fichiers de vidage mémoire" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More than %lld core dump files"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plus de %lld fichiers de vidage mémoire"
+          }
+        }
+      }
+    },
+    "Seuil de %lld sur une ressource inconnue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Threshold of %lld on an unknown resource"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seuil de %lld sur une ressource inconnue"
+          }
+        }
+      }
+    },
+    "Utilisation du processeur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processor usage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation du processeur"
+          }
+        }
+      }
+    },
+    "Charge moyenne sur 1 minute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1-minute load average"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge moyenne sur 1 minute"
+          }
+        }
+      }
+    },
+    "Charge moyenne sur 5 minutes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "5-minute load average"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge moyenne sur 5 minutes"
+          }
+        }
+      }
+    },
+    "Charge moyenne sur 15 minutes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "15-minute load average"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Charge moyenne sur 15 minutes"
+          }
+        }
+      }
+    },
+    "Mémoire occupée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Memory used"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mémoire occupée"
+          }
+        }
+      }
+    },
+    "Utilisation des accès disque" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disk access usage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation des accès disque"
+          }
+        }
+      }
+    },
+    "Débit disque" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disk throughput"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Débit disque"
+          }
+        }
+      }
+    },
+    "Latence réseau" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Network latency"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latence réseau"
+          }
+        }
+      }
+    },
+    "Latence d’accès" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Access latency"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Latence d’accès"
+          }
+        }
+      }
+    },
+    "Partition système" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "System partition"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Partition système"
+          }
+        }
+      }
+    },
+    "Dossier temporaire" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temporary folder"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dossier temporaire"
+          }
+        }
+      }
+    },
+    "Fichiers de vidage mémoire" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Core dump files"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fichiers de vidage mémoire"
+          }
+        }
+      }
+    },
+    "Utilisation du processeur graphique" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Graphics processor usage"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilisation du processeur graphique"
+          }
+        }
+      }
+    },
+    "Mo" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MB"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mo"
+          }
+        }
+      }
+    },
+    "Mo/s" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MB/s"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mo/s"
+          }
+        }
+      }
+    },
+    "ms" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ms"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ms"
+          }
+        }
+      }
+    },
+    "L’enregistrement est actif, mais aucune règle n’est définie dans l’alarme des performances : le NAS n’a aucun seuil à surveiller et ne consignera rien. Ce journal restera vide tant qu’aucune règle n’existe." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recording is on, but no rule is defined in the performance alarm: the NAS has no threshold to watch and will record nothing. This journal stays empty as long as no rule exists."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’enregistrement est actif, mais aucune règle n’est définie dans l’alarme des performances : le NAS n’a aucun seuil à surveiller et ne consignera rien. Ce journal restera vide tant qu’aucune règle n’existe."
+          }
+        }
+      }
+    },
+    "Aucune alerte enregistrée, aucune règle d’alarme définie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No alerts recorded, no alarm rule defined"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune alerte enregistrée, aucune règle d’alarme définie"
+          }
+        }
+      }
+    },
+    "Historique" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique"
+          }
+        }
+      }
+    },
+    "Historique des alertes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert history"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique des alertes"
+          }
+        }
+      }
+    },
+    "Chargement de l’historique…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading history…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement de l’historique…"
+          }
+        }
+      }
+    },
+    "Date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        }
+      }
+    },
+    "Alerte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerte"
+          }
+        }
+      }
+    },
+    "Aucune alerte enregistrée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No alerts recorded"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune alerte enregistrée"
+          }
+        }
+      }
+    },
+    "L’enregistrement de l’historique est désactivé sur le NAS : aucune alerte n’y est consignée. Activez-le ci-dessous pour que les prochaines le soient." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History recording is turned off on the NAS, so no alert is being recorded. Turn it on below to record the next ones."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’enregistrement de l’historique est désactivé sur le NAS : aucune alerte n’y est consignée. Activez-le ci-dessous pour que les prochaines le soient."
+          }
+        }
+      }
+    },
+    "Le NAS n’a consigné aucune alerte depuis l’activation de l’enregistrement. Une alerte y apparaît quand une ressource franchit un seuil défini dans l’alarme des performances." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS has recorded no alert since history recording was turned on. An alert appears here when a resource crosses a threshold set in the performance alarm."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS n’a consigné aucune alerte depuis l’activation de l’enregistrement. Une alerte y apparaît quand une ressource franchit un seuil défini dans l’alarme des performances."
+          }
+        }
+      }
+    },
+    "Enregistrer l’historique" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record history"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer l’historique"
+          }
+        }
+      }
+    },
+    "Le NAS consigne les alertes de ressources tant que ce réglage est actif" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS records resource alerts while this setting is on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS consigne les alertes de ressources tant que ce réglage est actif"
+          }
+        }
+      }
+    },
+    "Consigner les alertes de ressources dans l’historique du NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record resource alerts in the NAS history"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consigner les alertes de ressources dans l’historique du NAS"
+          }
+        }
+      }
+    },
+    "%lld alertes affichées sur %lld enregistrées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld recorded alerts shown."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld alertes affichées sur %lld enregistrées."
+          }
+        }
+      }
+    },
+    "%lld alertes affichées sur %lld enregistrées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld recorded alerts shown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld alertes affichées sur %lld enregistrées"
+          }
+        }
+      }
+    },
+    "%lld alertes enregistrées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld recorded alerts"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld alertes enregistrées"
+          }
+        }
+      }
+    },
+    "Enregistrement de l’historique désactivé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History recording turned off"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement de l’historique désactivé"
+          }
+        }
+      }
+    },
+    "Enregistrement de l’historique activé. Les alertes à venir y seront consignées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History recording turned on. Alerts from now on will be recorded."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement de l’historique activé. Les alertes à venir y seront consignées."
+          }
+        }
+      }
+    },
+    "Enregistrement de l’historique désactivé. Les alertes déjà consignées sont conservées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History recording turned off. Alerts already recorded are kept."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement de l’historique désactivé. Les alertes déjà consignées sont conservées."
+          }
+        }
+      }
+    },
+    "Échec du changement de réglage : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not change the setting: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du changement de réglage : %@"
+          }
+        }
+      }
+    },
+    "Niveau inconnu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown level"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niveau inconnu"
+          }
+        }
+      }
+    },
+    "Alerte sans description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert with no description"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerte sans description"
+          }
+        }
+      }
+    },
+    "Fichiers ouverts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open files"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fichiers ouverts"
+          }
+        }
+      }
+    },
+    "Chargement des fichiers ouverts…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading open files…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des fichiers ouverts…"
+          }
+        }
+      }
+    },
+    "Aucun fichier ouvert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open file"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun fichier ouvert"
+          }
+        }
+      }
+    },
+    "Le NAS ne tient aucun fichier ouvert en ce moment. Cette liste se remplit quand un service ou une session réseau lit ou écrit un fichier." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS is not holding any file open right now. This list fills in when a service or a network session reads or writes a file."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS ne tient aucun fichier ouvert en ce moment. Cette liste se remplit quand un service ou une session réseau lit ou écrit un fichier."
+          }
+        }
+      }
+    },
+    "Machine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Host"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Machine"
+          }
+        }
+      }
+    },
+    "Service inconnu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown service"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Service inconnu"
+          }
+        }
+      }
+    },
+    "Un service du NAS lui-même n’a ni compte ni machine d’origine : ces colonnes affichent alors un tiret." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A service running on the NAS itself has no account and no originating machine: those columns then show a dash."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un service du NAS lui-même n’a ni compte ni machine d’origine : ces colonnes affichent alors un tiret."
+          }
+        }
+      }
+    },
+    "%lld fichiers affichés sur %lld ouverts." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld open files shown."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld fichiers affichés sur %lld ouverts."
+          }
+        }
+      }
+    },
+    "%lld fichiers affichés sur %lld ouverts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld open files shown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld fichiers affichés sur %lld ouverts"
+          }
+        }
+      }
+    },
+    "%lld fichiers ouverts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld open files"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld fichiers ouverts"
+          }
+        }
+      }
+    },
+    "Deux étapes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Two-step"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deux étapes"
+          }
+        }
+      }
+    },
+    "Temps processeur" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "CPU time"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Temps processeur"
+          }
+        }
+      }
+    },
+    "Oui, appareil de confiance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Yes, trusted device"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oui, appareil de confiance"
+          }
+        }
+      }
+    },
+    "Non, appareil de confiance" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No, trusted device"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non, appareil de confiance"
+          }
+        }
+      }
+    },
+    "Client" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Client"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Client"
+          }
+        }
+      }
+    },
+    "Lieu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Location"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lieu"
+          }
+        }
+      }
+    },
+    "Copier la somme MD5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copy MD5 checksum"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Copier la somme MD5"
+          }
+        }
+      }
+    },
+    "Somme MD5" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "MD5 checksum"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Somme MD5"
+          }
+        }
+      }
+    },
+    "GID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GID"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "GID"
+          }
+        }
+      }
+    },
+    "UID" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UID"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "UID"
+          }
+        }
+      }
+    },
+    "Une valeur dépasse 100 % lorsqu’un processus occupe plusieurs cœurs du NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A value goes above 100 % when a process uses more than one of the NAS cores."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une valeur dépasse 100 % lorsqu’un processus occupe plusieurs cœurs du NAS."
+          }
+        }
+      }
+    },
+    "Cette session peut être celle de cette app : vous seriez alors déconnecté du NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This session may be this app’s: you would then be disconnected from the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette session peut être celle de cette app : vous seriez alors déconnecté du NAS."
+          }
+        }
+      }
+    },
+    "Laisser ces sessions ouvertes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave these sessions open"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser ces sessions ouvertes"
+          }
+        }
+      }
+    },
+    "Couper la session…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect session…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper la session…"
+          }
+        }
+      }
+    },
+    "Fermer les sessions sélectionnées sur le NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close the selected sessions on the NAS"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer les sessions sélectionnées sur le NAS"
+          }
+        }
+      }
+    },
+    "Couper la session sélectionnée…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect the selected session…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper la session sélectionnée…"
+          }
+        }
+      }
+    },
+    "Couper les %lld sessions sélectionnées…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect the %lld selected sessions…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper les %lld sessions sélectionnées…"
+          }
+        }
+      }
+    },
+    "Couper cette session ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect this session?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper cette session ?"
+          }
+        }
+      }
+    },
+    "Couper ces %lld sessions ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect these %lld sessions?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper ces %lld sessions ?"
+          }
+        }
+      }
+    },
+    "Couper les %lld sessions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect the %lld sessions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper les %lld sessions"
+          }
+        }
+      }
+    },
+    "Couper la session de %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect %@’s session"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper la session de %@"
+          }
+        }
+      }
+    },
+    "Le NAS ne permet pas de couper cette sélection." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS does not allow this selection to be disconnected."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS ne permet pas de couper cette sélection."
+          }
+        }
+      }
+    },
+    "Session de %@ coupée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@’s session disconnected"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session de %@ coupée"
+          }
+        }
+      }
+    },
+    "%lld sessions coupées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sessions disconnected"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sessions coupées"
+          }
+        }
+      }
+    },
+    "Échec de la coupure : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not disconnect: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de la coupure : %@"
+          }
+        }
+      }
+    },
+    "La session de %@ ouverte depuis %@ sera fermée, et tout transfert en cours sur cette session interrompu." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@’s session from %@ will be closed, and any transfer in progress on it interrupted."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La session de %@ ouverte depuis %@ sera fermée, et tout transfert en cours sur cette session interrompu."
+          }
+        }
+      }
+    },
+    "Ces sessions seront fermées et tout transfert en cours interrompu. Comptes concernés : %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These sessions will be closed and any transfer in progress interrupted. Accounts affected: %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces sessions seront fermées et tout transfert en cours interrompu. Comptes concernés : %@."
+          }
+        }
+      }
+    },
+    "L’une de ces sessions peut être celle de cette app : vous seriez alors déconnecté du NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One of these sessions may be this app’s: you would then be disconnected from the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’une de ces sessions peut être celle de cette app : vous seriez alors déconnecté du NAS."
+          }
+        }
+      }
+    },
+    "une adresse inconnue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "an unknown address"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "une adresse inconnue"
+          }
+        }
+      }
+    },
     "Ressource" : {
       "localizations" : {
         "en" : {
@@ -257,50 +3585,50 @@
         }
       }
     },
-    "%1$@ depuis %2$@" : {
+    "%@ depuis %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ from %2$@"
+            "value" : "%@ from %@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ depuis %2$@"
+            "value" : "%@ depuis %@"
           }
         }
       }
     },
-    "%1$@ depuis %2$@, ouverte le %3$@" : {
+    "%@ depuis %@, ouverte le %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ from %2$@, opened %3$@"
+            "value" : "%@ from %@, opened %@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ depuis %2$@, ouverte le %3$@"
+            "value" : "%@ depuis %@, ouverte le %@"
           }
         }
       }
     },
-    "%1$@, %2$@, session courante" : {
+    "%@, %@, session courante" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@, %2$@, current session"
+            "value" : "%@, %@, current session"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@, %2$@, session courante"
+            "value" : "%@, %@, session courante"
           }
         }
       }
@@ -449,18 +3777,18 @@
         }
       }
     },
-    "Les %1$lld processus consommant le plus de processeur, sur %2$lld en cours." : {
+    "Les %lld processus consommant le plus de processeur, sur %lld en cours." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The %1$lld processes using the most processor time, out of %2$lld running."
+            "value" : "The %lld processes using the most processor time, out of %lld running."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les %1$lld processus consommant le plus de processeur, sur %2$lld en cours."
+            "value" : "Les %lld processus consommant le plus de processeur, sur %lld en cours."
           }
         }
       }
@@ -497,18 +3825,18 @@
         }
       }
     },
-    "%1$@, %2$@, %3$lld processus" : {
+    "%@, %@, %lld processus" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@, %2$@, %3$lld processes"
+            "value" : "%@, %@, %lld processes"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@, %2$@, %3$lld processus"
+            "value" : "%@, %@, %lld processus"
           }
         }
       }
@@ -529,18 +3857,18 @@
         }
       }
     },
-    "%1$lld services, %2$lld processus" : {
+    "%lld services, %lld processus" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld services, %2$lld processes"
+            "value" : "%lld services, %lld processes"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld services, %2$lld processus"
+            "value" : "%lld services, %lld processus"
           }
         }
       }
@@ -673,50 +4001,50 @@
         }
       }
     },
-    "%1$@ sur 1 minute, %2$@ sur 5 minutes, %3$@ sur 15 minutes" : {
+    "%@ sur 1 minute, %@ sur 5 minutes, %@ sur 15 minutes" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ over 1 minute, %2$@ over 5 minutes, %3$@ over 15 minutes"
+            "value" : "%@ over 1 minute, %@ over 5 minutes, %@ over 15 minutes"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ sur 1 minute, %2$@ sur 5 minutes, %3$@ sur 15 minutes"
+            "value" : "%@ sur 1 minute, %@ sur 5 minutes, %@ sur 15 minutes"
           }
         }
       }
     },
-    "%1$@ en lecture, %2$@ en écriture" : {
+    "%@ en lecture, %@ en écriture" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ read, %2$@ written"
+            "value" : "%@ read, %@ written"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ en lecture, %2$@ en écriture"
+            "value" : "%@ en lecture, %@ en écriture"
           }
         }
       }
     },
-    "%1$lld %%, %2$@ en lecture, %3$@ en écriture" : {
+    "%lld %%, %@ en lecture, %@ en écriture" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld%%, %2$@ read, %3$@ written"
+            "value" : "%lld%%, %@ read, %@ written"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld %%, %2$@ en lecture, %3$@ en écriture"
+            "value" : "%lld %%, %@ en lecture, %@ en écriture"
           }
         }
       }
@@ -929,18 +4257,18 @@
         }
       }
     },
-    "%1$@/s, il reste environ %2$@" : {
+    "%@/s, il reste environ %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@/s, about %2$@ left"
+            "value" : "%@/s, about %@ left"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@/s, il reste environ %2$@"
+            "value" : "%@/s, il reste environ %@"
           }
         }
       }
@@ -29176,7 +32504,7 @@
         }
       }
     },
-    "Installation en cours sur le NAS, %lld %." : {
+    "Installation en cours sur le NAS, %lld %%." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -29187,7 +32515,7 @@
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Installation en cours sur le NAS, %lld %."
+            "value" : "Installation en cours sur le NAS, %lld %%."
           }
         }
       }

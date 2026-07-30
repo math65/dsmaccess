@@ -153,26 +153,31 @@ struct AdministrationModelsTests {
         #expect(camera.framesPerSecond == 25)
     }
 
-    @Test func decodesSystemLogAliases() throws {
+    /// Forme réelle d'une entrée, relevée sur DSM 7.4. Le décodage se limite aux six champs que
+    /// le NAS envoie : les alias supplémentaires qu'il a portés un temps ne correspondaient à
+    /// rien et laissaient les colonnes vides.
+    @Test func decodesASystemLogEntryAsTheNASSendsIt() throws {
         let data = Data(
             #"""
             {
-              "time": 1710000000,
-              "priority": "warning",
-              "type": "connection",
-              "who": "alex",
-              "from": "192.168.1.30",
-              "descr": "Login failed"
+              "time": "2026/07/30 11:32:32",
+              "level": "warn",
+              "logtype": "Système",
+              "orginalLogType": "system",
+              "who": "testeur",
+              "descr": "Echec de connexion"
             }
             """#.utf8
         )
 
         let entry = try JSONDecoder().decode(SystemLogEntry.self, from: data)
 
-        #expect(entry.timestamp == "1710000000")
-        #expect(entry.level == "warning")
-        #expect(entry.user == "alex")
-        #expect(entry.message == "Login failed")
+        #expect(entry.level == .warning)
+        #expect(entry.technicalCategory == "system")
+        #expect(entry.translatedCategory == "Système")
+        #expect(entry.account == "testeur")
+        #expect(entry.message == "Echec de connexion")
+        #expect(entry.recordedAt != nil)
     }
 
     @Test func rejectsItemsWithoutOperationalIdentifiers() {
@@ -193,16 +198,19 @@ struct AdministrationModelsTests {
     @Test func rejectsMalformedCollectionsInsteadOfReportingEmptyState() {
         let malformed = Data(#"{"items":"not-an-array"}"#.utf8)
         #expect(throws: (any Error).self) {
-            try JSONDecoder().decode(SystemLogList.self, from: malformed)
+            try JSONDecoder().decode(SystemLogPage.self, from: malformed)
         }
     }
 
     @Test func givesDuplicateLogEntriesDistinctIdentities() throws {
         let systemLogs = try JSONDecoder().decode(
-            SystemLogList.self,
-            from: Data(#"{"logs":[{"time":1,"message":"same"},{"time":1,"message":"same"}]}"#.utf8)
+            SystemLogPage.self,
+            from: Data(#"""
+            {"items":[{"time":"2026/07/30 11:00:00","descr":"same"},
+                      {"time":"2026/07/30 11:00:00","descr":"same"}]}
+            """#.utf8)
         )
-        #expect(Set(systemLogs.logs.map(\.id)).count == 2)
+        #expect(Set(systemLogs.entries.map(\.id)).count == 2)
 
         let containerLogs = try JSONDecoder().decode(
             ContainerLogList.self,

@@ -47,6 +47,59 @@ struct NASConnectionTests {
         #expect(parts.hour == 18)
     }
 
+    /// `kick_connection` réidentifie la session par un quadruplet qui dépend du protocole.
+    /// Une session web est reconnue par sa valeur exacte « HTTP/HTTPS » : la confondre avec un
+    /// « HTTP » nu enverrait toutes les sessions web dans la liste des autres protocoles.
+    @Test func buildsTheKickReferenceExpectedForEachProtocol() throws {
+        let items = try JSONDecoder().decode(NASConnectionPage.self, from: payload).items
+
+        #expect(items[0].isWebSession)
+        #expect(
+            items[0].kickReference
+                == .web(deviceID: "", account: "testeur", resource: "DiskStation Manager", address: "10.0.0.2")
+        )
+        #expect(!items[1].isWebSession)
+        #expect(
+            items[1].kickReference
+                == .service(processID: 2, type: "SMB3", account: "testeur", address: "10.0.0.2")
+        )
+    }
+
+    /// Le NAS refuse la coupure de certaines sessions. Sans référence, l'app ne peut pas
+    /// proposer une action qui échouerait, ni en viser une autre à la place.
+    @Test func refusesToReferenceASessionTheNASProtects() throws {
+        let payload = Data(#"""
+        {"items":[
+          {"who":"testeur","from":"10.0.0.2","type":"SMB3","descr":"home","pid":2,
+           "time":"2026/07/29 11:38:17","can_be_kicked":false},
+          {"who":"testeur","from":"10.0.0.2","type":"FTP","descr":"home",
+           "time":"2026/07/29 11:38:17","can_be_kicked":true}]}
+        """#.utf8)
+
+        let items = try JSONDecoder().decode(NASConnectionPage.self, from: payload).items
+
+        #expect(items[0].kickReference == nil)
+        // Protocole hors web sans `pid` : rien ne permet de désigner la session.
+        #expect(items[1].kickReference == nil)
+    }
+
+    /// Plusieurs sessions web du même compte partagent compte, adresse, protocole et
+    /// horodatage. Sans le jeton d'appareil dans la clé, elles se confondraient et une
+    /// sélection porterait sur la mauvaise.
+    @Test func distinguishesTwoWebSessionsOfTheSameAccount() throws {
+        let payload = Data(#"""
+        {"items":[
+          {"who":"testeur","from":"10.0.0.2","type":"HTTP/HTTPS","descr":"DiskStation Manager",
+           "did":"jeton-a","pid":1,"time":"2026/07/29 18:02:31","can_be_kicked":true},
+          {"who":"testeur","from":"10.0.0.2","type":"HTTP/HTTPS","descr":"DiskStation Manager",
+           "did":"jeton-b","pid":1,"time":"2026/07/29 18:02:31","can_be_kicked":true}]}
+        """#.utf8)
+
+        let items = try JSONDecoder().decode(NASConnectionPage.self, from: payload).items
+
+        #expect(items[0].id != items[1].id)
+    }
+
     /// Un horodatage que DSM enverrait sous une autre forme ne doit pas emporter la ligne :
     /// la connexion reste listée, sans date.
     @Test func keepsAConnectionWhoseTimestampCannotBeRead() throws {

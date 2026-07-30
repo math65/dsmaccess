@@ -10,6 +10,10 @@
 //  « - ». Le décodage souple la ramène à `nil`, et l'affichage doit alors dire qu'il n'y
 //  a pas de valeur plutôt que d'écrire zéro, qui se lirait comme une mesure.
 //
+//  Troisième piège, et deux échelles opposées pour la même grandeur : la charge processeur
+//  d'un processus est déjà un pourcentage, celle d'un groupe est une fraction à multiplier
+//  par 100.
+//
 
 import Foundation
 
@@ -66,6 +70,10 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     /// et laisse `name` vide. Les deux ne sont jamais renseignés en même temps.
     let localizedName: String?
     let unitName: String?
+    /// Charge processeur en pourcentage. DSM l'envoie sous forme de **fraction** dans
+    /// `cpu_utilization` — son propre client la range dans un champ nommé `cpuFraction` et la
+    /// multiplie par 100 pour l'afficher. Lue telle quelle, la colonne entière s'écrit
+    /// « 0,0 % » : 1,2 % de charge arrive ici en 0,0121.
     let cpuPercent: Double?
     /// Temps processeur cumulé, en secondes.
     let cpuTime: Double?
@@ -81,6 +89,9 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     /// bloquer le tri, elle se range en fin de liste.
     var sortableCPU: Double { cpuPercent ?? -1 }
     var sortableMemory: Int64 { memoryBytes ?? -1 }
+    var sortableCPUTime: Double { cpuTime ?? -1 }
+    var sortableReadRate: Int64 { readBytesPerSecond ?? -1 }
+    var sortableWriteRate: Int64 { writeBytesPerSecond ?? -1 }
 
     var displayName: String {
         let candidates = [name, localizedName, unitName].compactMap { $0 }
@@ -92,7 +103,10 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     /// « service:desktop_service », « storage_pool:raid_process ». Son client web la
     /// résout, ce que nous ne pouvons pas faire. La clé est donc rendue lisible plutôt
     /// qu'affichée brute — seule sa ponctuation change, rien n'est deviné.
-    private static func readable(_ raw: String) -> String {
+    ///
+    /// Les règles d'alarme reçoivent les mêmes clés dans leur champ `name` : elles
+    /// s'appuient sur cette conversion plutôt que d'en écrire une seconde.
+    static func readable(_ raw: String) -> String {
         guard raw.contains(":") || raw.contains("_") else { return raw }
         let tail = raw.split(separator: ":").last.map(String.init) ?? raw
         let words = tail.replacingOccurrences(of: "_", with: " ")
@@ -115,7 +129,7 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
         name = c.flexString(.name)
         localizedName = c.flexString(.localizedName)
         unitName = c.flexString(.unitName)
-        cpuPercent = c.flexDouble(.cpuPercent)
+        cpuPercent = c.flexDouble(.cpuPercent).map { $0 * 100 }
         cpuTime = c.flexDouble(.cpuTime)
         memoryBytes = c.flexInt64(.memoryBytes)
         readBytesPerSecond = c.flexInt64(.readBytesPerSecond)

@@ -20,6 +20,7 @@ struct TaskManagerView: View {
     @State private var processOrder = [KeyPathComparator(\SystemProcess.sortableCPU, order: .reverse)]
     @AccessibilityFocusState private var focusContent: Bool
 
+
     var body: some View {
         content
             .task {
@@ -81,6 +82,18 @@ struct TaskManagerView: View {
                 TableColumn("Processus", value: \.processCount) { group in
                     Text(group.processCount, format: .number)
                 }
+                // Trois mesures que le NAS renvoie et qu'aucune colonne ne montrait. Ce sont
+                // elles qui répondent à « qu'est-ce qui travaille ? » quand la colonne
+                // Processeur affiche 0,0 % : un service peut écrire beaucoup sans calculer.
+                TableColumn("Temps processeur", value: \.sortableCPUTime) { group in
+                    Text(vm.cpuTimeText(for: group))
+                }
+                TableColumn("Lecture", value: \.sortableReadRate) { group in
+                    Text(vm.readRateText(for: group))
+                }
+                TableColumn("Écriture", value: \.sortableWriteRate) { group in
+                    Text(vm.writeRateText(for: group))
+                }
             }
         }
         .frame(minHeight: 160)
@@ -106,11 +119,23 @@ struct TaskManagerView: View {
                 }
             }
 
+            // L'échelle est dite ici et non sur chaque ligne : le NAS renvoie une charge
+            // cumulée sur les cœurs, qu'un seul processus peut donc porter au-delà de 100 %.
+            // Relevé sur le DS920+ : 251 % pour Plex Media Server, soit deux cœurs et demi.
+            // Phrase distincte de celle du dessus, qui porte des interpolations : un signe
+            // pourcent littéral dans une clé de format doit être échappé, et l'oubli ne se
+            // voit qu'en anglais, où la chaîne ressort alors en français.
             Text("Les \(TaskManagerViewModel.visibleProcessCount) processus consommant le plus de processeur, sur \(vm.totalProcessCount) en cours.")
                 .font(.callout)
                 .foregroundStyle(.readableSecondary)
                 .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .padding(.top, 6)
+
+            Text("Une valeur dépasse 100 % lorsqu’un processus occupe plusieurs cœurs du NAS.")
+                .font(.callout)
+                .foregroundStyle(.readableSecondary)
+                .padding(.horizontal, 12)
+                .padding(.bottom, 6)
         }
         .frame(minHeight: 160)
     }

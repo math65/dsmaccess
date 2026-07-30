@@ -193,6 +193,15 @@ protocol DSMClientProtocol: AnyObject {
     func processes() async throws -> [SystemProcess]
     func processGroups() async throws -> [ProcessGroup]
     func connections() async throws -> [NASConnection]
+    func kickConnections(_ references: [NASConnection.KickReference]) async throws
+    func openedFiles(limit: Int) async throws -> OpenedFilePage
+    func resourceMonitorLogs(limit: Int) async throws -> ResourceMonitorLogPage
+    func resourceMonitorHistoryEnabled() async throws -> Bool
+    func setResourceMonitorHistory(enabled: Bool) async throws
+    func performanceAlarmRules() async throws -> PerformanceAlarmRulePage
+    func savePerformanceAlarmRule(_ draft: PerformanceAlarmRuleDraft) async throws
+    func setPerformanceAlarmRules(_ states: [(id: String, enabled: Bool)]) async throws
+    func deletePerformanceAlarmRules(ids: [String]) async throws
     func listSharedFolders() async throws -> [SharedFolder]
     func createSharedFolder(
         name: String,
@@ -291,9 +300,24 @@ protocol DSMClientProtocol: AnyObject {
     func listSurveillanceCameras() async throws -> [SurveillanceCamera]
     func setSurveillanceCameras(ids: Set<String>, enabled: Bool) async throws
     func surveillanceSnapshot(cameraID: String) async throws -> Data
-    func listSystemLogs() async throws -> [SystemLogEntry]
-    func listBlockedAddresses() async throws -> [BlockedAddress]
-    func unblockAddress(_ address: String) async throws
+    func systemLogs(
+        kind: SystemLogKind,
+        limit: Int,
+        offset: Int,
+        keyword: String?
+    ) async throws -> SystemLogPage
+    func fileTransferLogging() async throws -> FileTransferLogging
+    func exportSystemLog(
+        kind: SystemLogKind,
+        format: SystemLogExportFormat,
+        to destination: URL
+    ) async throws
+    func setFileTransferLogging(_ logging: FileTransferLogging) async throws
+    func autoBlockSettings() async throws -> AutoBlockSettings
+    func setAutoBlockSettings(_ settings: AutoBlockSettings) async throws
+    func loginActivity(limit: Int) async throws -> LoginActivityPage
+    func blockedAddresses(limit: Int) async throws -> BlockedAddressPage
+    func unblockAddresses(_ addresses: [String]) async throws
     func networkInfo() async throws -> NetworkInfo
     func logout() async throws
 }
@@ -807,6 +831,42 @@ final class DSMClient: DSMClientProtocol {
         try await system.processGroups()
     }
 
+    func kickConnections(_ references: [NASConnection.KickReference]) async throws {
+        try await system.kickConnections(references)
+    }
+
+    func openedFiles(limit: Int) async throws -> OpenedFilePage {
+        try await system.openedFiles(limit: limit)
+    }
+
+    func resourceMonitorLogs(limit: Int) async throws -> ResourceMonitorLogPage {
+        try await system.resourceMonitorLogs(limit: limit)
+    }
+
+    func resourceMonitorHistoryEnabled() async throws -> Bool {
+        try await system.resourceMonitorHistoryEnabled()
+    }
+
+    func performanceAlarmRules() async throws -> PerformanceAlarmRulePage {
+        try await system.performanceAlarmRules()
+    }
+
+    func savePerformanceAlarmRule(_ draft: PerformanceAlarmRuleDraft) async throws {
+        try await system.savePerformanceAlarmRule(draft)
+    }
+
+    func setPerformanceAlarmRules(_ states: [(id: String, enabled: Bool)]) async throws {
+        try await system.setPerformanceAlarmRules(states)
+    }
+
+    func deletePerformanceAlarmRules(ids: [String]) async throws {
+        try await system.deletePerformanceAlarmRules(ids: ids)
+    }
+
+    func setResourceMonitorHistory(enabled: Bool) async throws {
+        try await system.setResourceMonitorHistory(enabled: enabled)
+    }
+
     func connections() async throws -> [NASConnection] {
         try await system.connections()
     }
@@ -1138,16 +1198,54 @@ final class DSMClient: DSMClientProtocol {
         try await surveillance.snapshot(cameraID: cameraID)
     }
 
-    func listSystemLogs() async throws -> [SystemLogEntry] {
-        try await logsSecurity.logs()
+    func systemLogs(
+        kind: SystemLogKind,
+        limit: Int,
+        offset: Int,
+        keyword: String?
+    ) async throws -> SystemLogPage {
+        try await logsSecurity.systemLogs(
+            kind: kind,
+            limit: limit,
+            offset: offset,
+            keyword: keyword
+        )
     }
 
-    func listBlockedAddresses() async throws -> [BlockedAddress] {
-        try await logsSecurity.blockedAddresses()
+    func fileTransferLogging() async throws -> FileTransferLogging {
+        try await logsSecurity.fileTransferLogging()
     }
 
-    func unblockAddress(_ address: String) async throws {
-        try await logsSecurity.unblock(address)
+    func exportSystemLog(
+        kind: SystemLogKind,
+        format: SystemLogExportFormat,
+        to destination: URL
+    ) async throws {
+        try await logsSecurity.exportSystemLog(kind: kind, format: format, to: destination)
+    }
+
+    func setFileTransferLogging(_ logging: FileTransferLogging) async throws {
+        try await logsSecurity.setFileTransferLogging(logging)
+    }
+
+    func autoBlockSettings() async throws -> AutoBlockSettings {
+        try await logsSecurity.autoBlockSettings()
+    }
+
+    func setAutoBlockSettings(_ settings: AutoBlockSettings) async throws {
+        try await logsSecurity.setAutoBlockSettings(settings)
+    }
+
+    func loginActivity(limit: Int) async throws -> LoginActivityPage {
+        try await logsSecurity.loginActivity(limit: limit)
+    }
+
+    func blockedAddresses(limit: Int) async throws -> BlockedAddressPage {
+        try await logsSecurity.blockedAddresses(limit: limit)
+    }
+
+    func unblockAddresses(_ addresses: [String]) async throws {
+        try await logsSecurity.unblockAddresses(addresses)
     }
 
     func networkInfo() async throws -> NetworkInfo {
