@@ -17,6 +17,11 @@ Use this priority order when making trade-offs:
 3. Simple, maintainable code that fits the existing architecture.
 4. Visual polish and feature breadth.
 
+Rebuild a DSM feature in full: if DSM shows it and the API exposes it, this app shows it too.
+A screen that quietly covers part of what DSM offers is unfinished, and the missing part is
+found by a user rather than by a test. Going beyond DSM is allowed where the API makes it
+possible and the result is genuinely more useful.
+
 The deployment target is macOS 14. The project uses Swift 5 language mode, approachable
 concurrency, and MainActor as the default actor isolation. Sparkle is the one existing
 package dependency. Do not add another dependency without explicit approval.
@@ -132,6 +137,18 @@ loading, content, empty, validation failure, operation in progress, and error.
 
 - Use native controls and semantic structure first. Preserve logical reading order, keyboard
   traversal, headings, default/cancel actions, and table or list semantics.
+- A new list of data is a SwiftUI `Table`: it is an `NSTableView` underneath, with column
+  headers and native sorting. macOS `List` navigates poorly with the arrow keys and tends to
+  collapse a row into one accessibility element, which buries the values it holds. Drop to
+  AppKit only for Finder-style keyboard handling; `Views/FileTableView.swift` is that pattern.
+  Never combine a table row into a single accessibility element.
+- A screen that filters its content puts the search field in the toolbar with `.searchable`,
+  where every other module keeps it, rather than inline above the content.
+- For status and metadata text in module views, use the contrast-checked styles from
+  `Views/Components/ReadableStyles.swift` (`.readableSecondary`, `.readableGreen`,
+  `.readableOrange`, `.readableRed`, `.labeledContentStyle(.readable)`) instead of `.secondary`
+  or raw state colors: the system values fail the AA contrast threshold at the small sizes
+  this app uses.
 - Give icon-only and ambiguous controls explicit localized labels. Add hints only when the
   action or consequence is not clear from the label. Accessibility identifiers are for tests;
   they do not replace labels.
