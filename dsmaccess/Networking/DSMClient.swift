@@ -312,6 +312,7 @@ protocol DSMClientProtocol: AnyObject {
         format: SystemLogExportFormat,
         to destination: URL
     ) async throws
+    func loginActivity(limit: Int) async throws -> LoginActivityPage
     func blockedAddresses(limit: Int) async throws -> BlockedAddressPage
     func unblockAddresses(_ addresses: [String]) async throws
     func networkInfo() async throws -> NetworkInfo
@@ -1218,6 +1219,10 @@ final class DSMClient: DSMClientProtocol {
         to destination: URL
     ) async throws {
         try await logsSecurity.exportSystemLog(kind: kind, format: format, to: destination)
+    }
+
+    func loginActivity(limit: Int) async throws -> LoginActivityPage {
+        try await logsSecurity.loginActivity(limit: limit)
     }
 
     func blockedAddresses(limit: Int) async throws -> BlockedAddressPage {

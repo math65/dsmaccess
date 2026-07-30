@@ -14,6 +14,7 @@ import SwiftUI
 struct LogsSecurityView: View {
     private enum Pane: String, CaseIterable, Identifiable {
         case logs
+        case loginActivity
         case blockList
 
         var id: Self { self }
@@ -26,6 +27,9 @@ struct LogsSecurityView: View {
     ]
     @State private var blockOrder = [
         KeyPathComparator(\BlockedAddress.sortableBlockedAt, order: .reverse)
+    ]
+    @State private var activityOrder = [
+        KeyPathComparator(\LoginActivityEvent.sortableDate, order: .reverse)
     ]
     @State private var blockSelection: Set<BlockedAddress.ID> = []
     @State private var pendingUnblock: [BlockedAddress] = []
@@ -46,6 +50,9 @@ struct LogsSecurityView: View {
                     .searchable(text: $vm.searchText, prompt: "Rechercher dans le journal")
                     .tabItem { Text("Journal") }
                     .tag(Pane.logs)
+                loginActivityPane
+                    .tabItem { Text("Connexions signalées") }
+                    .tag(Pane.loginActivity)
                 blockListPane
                     .tabItem { Text("Liste de blocage") }
                     .tag(Pane.blockList)
@@ -248,6 +255,67 @@ struct LogsSecurityView: View {
                     Text(entry.message)
                 }
             }
+        }
+    }
+
+    // MARK: - Connexions signalées
+
+    /// Ce que le Conseiller de sécurité de DSM a relevé : connexions venues d'ailleurs que
+    /// d'habitude, et tentatives répétées. Lecture seule — c'est la liste de blocage qui agit.
+    @ViewBuilder
+    private var loginActivityPane: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Connexions signalées")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+
+            if let error = vm.loginActivityError {
+                ModuleErrorView(message: error) {
+                    Task { await vm.load(announce: true) }
+                }
+            } else if vm.loginActivity.isEmpty {
+                EmptyModuleView(
+                    title: "Aucune connexion signalée",
+                    systemImage: "checkmark.shield",
+                    description: "Le Conseiller de sécurité n’a relevé ni connexion inhabituelle ni tentative répétée."
+                )
+            } else {
+                Table(vm.loginActivity.sorted(using: activityOrder), sortOrder: $activityOrder) {
+                    TableColumn("Date", value: \.sortableDate) { event in
+                        Text(vm.dateText(for: event))
+                    }
+                    // Triée par gravité, non par ordre alphabétique.
+                    TableColumn("Gravité", value: \.sortableSeverity) { event in
+                        Text(vm.severityText(event.severity))
+                            .foregroundStyle(color(for: event.severity))
+                    }
+                    TableColumn("Compte", value: \.sortableAccount) { event in
+                        Text(vm.accountText(for: event))
+                    }
+                    TableColumn("Adresse") { event in
+                        Text(vm.addressText(for: event))
+                    }
+                    TableColumn("Alerte") { event in
+                        Text(vm.description(of: event))
+                    }
+                }
+
+                Text(vm.loginActivitySummary)
+                    .font(.callout)
+                    .foregroundStyle(.readableSecondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+            }
+        }
+    }
+
+    private func color(for severity: LoginActivityEvent.Severity) -> Color {
+        switch severity {
+        case .high: .readableRed
+        case .medium: .readableOrange
+        case .low, .other: .primary
         }
     }
 

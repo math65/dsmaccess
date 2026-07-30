@@ -12,6 +12,7 @@ final class DSMLogSecurityService {
     private static let logAPI = DSMAPI("SYNO.Core.SyslogClient.Log")
     private static let blockListAPI = DSMAPI("SYNO.Core.Security.AutoBlock.Rules")
     private static let transferLoggingAPI = DSMAPI("SYNO.Core.SyslogClient.FileTransfer")
+    private static let loginActivityAPI = DSMAPI("SYNO.SecurityAdvisor.LoginActivity")
 
     private let transport: DSMTransport
 
@@ -120,6 +121,17 @@ final class DSMLogSecurityService {
                 "type": .string(Self.denyList),
             ],
             as: BlockedAddressPage.self
+        )
+    }
+
+    /// Activité de connexion relevée par le Conseiller de sécurité : connexions inhabituelles
+    /// et tentatives répétées. Lecture seule.
+    func loginActivity(limit: Int) async throws -> LoginActivityPage {
+        try await transport.read(
+            api: Self.loginActivityAPI,
+            method: "list",
+            parameters: ["offset": .integer(0), "limit": .integer(limit)],
+            as: LoginActivityPage.self
         )
     }
 

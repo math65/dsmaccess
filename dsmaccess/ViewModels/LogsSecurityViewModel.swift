@@ -27,6 +27,8 @@ final class LogsSecurityViewModel {
     /// Vrai le temps que le NAS produise le fichier d'export.
     private(set) var isExporting = false
     private(set) var blockedAddresses: [BlockedAddress] = []
+    private(set) var loginActivity: [LoginActivityEvent] = []
+    var loginActivityError: String?
     private(set) var isLoading = false
     /// Adresses dont le déblocage est en cours, pour désarmer leurs commandes.
     private(set) var busyAddresses: Set<String> = []
@@ -95,11 +97,32 @@ final class LogsSecurityViewModel {
         }
 
         await loadBlockedAddresses(generation: generation)
+        await loadLoginActivity(generation: generation)
 
         if announce, generation == loadGeneration {
             VoiceOver.announce(summary, category: errorMessage == nil ? .result : .error)
         }
     }
+
+    /// L'activité de connexion vient du Conseiller de sécurité, une autre API que les journaux :
+    /// elle porte donc son erreur, pour qu'un refus n'emporte pas le reste de l'écran.
+    private func loadLoginActivity(generation: Int) async {
+        loginActivityError = nil
+        do {
+            let page = try await session.withClient {
+                try await $0.loginActivity(limit: Self.loginActivityLimit)
+            }
+            guard generation == loadGeneration else { return }
+            loginActivity = page.events.sorted { $0.sortableDate > $1.sortableDate }
+        } catch {
+            guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
+            loginActivity = []
+            loginActivityError = (error as? DSMError)?.errorDescription
+                ?? error.localizedDescription
+        }
+    }
+
+    static let loginActivityLimit = 200
 
     /// Journaux à proposer. Un journal de transfert dont le protocole n'est pas journalisé
     /// renverrait zéro entrée sans erreur, ce qui se lirait comme un journal vide : mieux vaut
@@ -379,6 +402,78 @@ final class LogsSecurityViewModel {
             return String(localized: "Lieu inconnu")
         }
         return Locale.current.localizedString(forRegionCode: country) ?? country
+    }
+
+    // MARK: - Activité de connexion
+
+    /// L'alerte en une phrase. Le NAS n'en fournit aucune : il envoie une clé de son catalogue
+    /// et des arguments, que son client web assemble. Chaque clé connue a donc sa phrase
+    /// complète, et le compte comme l'adresse restent dans leurs colonnes plutôt que d'être
+    /// répétés ici.
+    func description(of event: LoginActivityEvent) -> String {
+        switch event.kind {
+        case .abnormalLogin:
+            if let city = event.details.city, let country = countryName(event.details.countryCode) {
+                return String(localized: "Connexion inhabituelle depuis \(city), \(country)")
+            }
+            if let country = countryName(event.details.countryCode) {
+                return String(localized: "Connexion inhabituelle depuis \(country)")
+            }
+            return String(localized: "Connexion inhabituelle")
+        case .bruteForceAttack:
+            if let attempts = event.details.attemptCount,
+               let minutes = event.details.thresholdMinutes {
+                return String(
+                    localized: "\(attempts) tentatives de connexion échouées en \(minutes) minutes"
+                )
+            }
+            return String(localized: "Tentatives de connexion répétées")
+        case .unknown(let section, let identifier):
+            // Le NAS a signalé quelque chose que nous ne savons pas formuler : le dire, plutôt
+            // que d'inventer une phrase ou de masquer l'alerte.
+            let key = identifier.isEmpty ? section : "\(section):\(identifier)"
+            return String(localized: "Alerte de sécurité non reconnue (\(key))")
+        }
+    }
+
+    func severityText(_ severity: LoginActivityEvent.Severity) -> String {
+        switch severity {
+        case .low: String(localized: "Faible")
+        case .medium: String(localized: "Moyenne")
+        case .high: String(localized: "Élevée")
+        case .other(let raw): raw.isEmpty ? String(localized: "Gravité inconnue") : raw
+        }
+    }
+
+    func accountText(for event: LoginActivityEvent) -> String {
+        event.account ?? event.details.user ?? "—"
+    }
+
+    /// Les adresses d'une alerte. Une attaque par force brute peut en porter plusieurs.
+    func addressText(for event: LoginActivityEvent) -> String {
+        let addresses = event.details.allAddresses
+        guard !addresses.isEmpty else { return "—" }
+        return addresses.formatted(.list(type: .and))
+    }
+
+    func dateText(for event: LoginActivityEvent) -> String {
+        guard let recordedAt = event.recordedAt else { return "—" }
+        return recordedAt.formatted(date: .abbreviated, time: .standard)
+    }
+
+    /// Le NAS envoie un code de pays à deux lettres ; le Mac sait le nommer dans la langue de
+    /// l'utilisateur.
+    private func countryName(_ code: String?) -> String? {
+        guard let code, !code.isEmpty else { return nil }
+        return Locale.current.localizedString(forRegionCode: code) ?? code
+    }
+
+    var loginActivitySummary: String {
+        if let loginActivityError { return loginActivityError }
+        let high = loginActivity.filter { $0.severity == .high }.count
+        return String(
+            localized: "\(loginActivity.count) alertes de connexion, dont \(high) de gravité élevée"
+        )
     }
 
     func canUnblock(_ address: BlockedAddress) -> Bool {
