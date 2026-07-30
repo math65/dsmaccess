@@ -545,50 +545,50 @@
         }
       }
     },
-    "%1$@ depuis %2$@" : {
+    "%@ depuis %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ from %2$@"
+            "value" : "%@ from %@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ depuis %2$@"
+            "value" : "%@ depuis %@"
           }
         }
       }
     },
-    "%1$@ depuis %2$@, ouverte le %3$@" : {
+    "%@ depuis %@, ouverte le %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ from %2$@, opened %3$@"
+            "value" : "%@ from %@, opened %@"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ depuis %2$@, ouverte le %3$@"
+            "value" : "%@ depuis %@, ouverte le %@"
           }
         }
       }
     },
-    "%1$@, %2$@, session courante" : {
+    "%@, %@, session courante" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@, %2$@, current session"
+            "value" : "%@, %@, current session"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@, %2$@, session courante"
+            "value" : "%@, %@, session courante"
           }
         }
       }
@@ -737,18 +737,18 @@
         }
       }
     },
-    "Les %1$lld processus consommant le plus de processeur, sur %2$lld en cours." : {
+    "Les %lld processus consommant le plus de processeur, sur %lld en cours." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "The %1$lld processes using the most processor time, out of %2$lld running."
+            "value" : "The %lld processes using the most processor time, out of %lld running."
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Les %1$lld processus consommant le plus de processeur, sur %2$lld en cours."
+            "value" : "Les %lld processus consommant le plus de processeur, sur %lld en cours."
           }
         }
       }
@@ -785,18 +785,18 @@
         }
       }
     },
-    "%1$@, %2$@, %3$lld processus" : {
+    "%@, %@, %lld processus" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@, %2$@, %3$lld processes"
+            "value" : "%@, %@, %lld processes"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@, %2$@, %3$lld processus"
+            "value" : "%@, %@, %lld processus"
           }
         }
       }
@@ -817,18 +817,18 @@
         }
       }
     },
-    "%1$lld services, %2$lld processus" : {
+    "%lld services, %lld processus" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld services, %2$lld processes"
+            "value" : "%lld services, %lld processes"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld services, %2$lld processus"
+            "value" : "%lld services, %lld processus"
           }
         }
       }
@@ -961,50 +961,50 @@
         }
       }
     },
-    "%1$@ sur 1 minute, %2$@ sur 5 minutes, %3$@ sur 15 minutes" : {
+    "%@ sur 1 minute, %@ sur 5 minutes, %@ sur 15 minutes" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ over 1 minute, %2$@ over 5 minutes, %3$@ over 15 minutes"
+            "value" : "%@ over 1 minute, %@ over 5 minutes, %@ over 15 minutes"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ sur 1 minute, %2$@ sur 5 minutes, %3$@ sur 15 minutes"
+            "value" : "%@ sur 1 minute, %@ sur 5 minutes, %@ sur 15 minutes"
           }
         }
       }
     },
-    "%1$@ en lecture, %2$@ en écriture" : {
+    "%@ en lecture, %@ en écriture" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ read, %2$@ written"
+            "value" : "%@ read, %@ written"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@ en lecture, %2$@ en écriture"
+            "value" : "%@ en lecture, %@ en écriture"
           }
         }
       }
     },
-    "%1$lld %%, %2$@ en lecture, %3$@ en écriture" : {
+    "%lld %%, %@ en lecture, %@ en écriture" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld%%, %2$@ read, %3$@ written"
+            "value" : "%lld%%, %@ read, %@ written"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$lld %%, %2$@ en lecture, %3$@ en écriture"
+            "value" : "%lld %%, %@ en lecture, %@ en écriture"
           }
         }
       }
@@ -1217,18 +1217,18 @@
         }
       }
     },
-    "%1$@/s, il reste environ %2$@" : {
+    "%@/s, il reste environ %@" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@/s, about %2$@ left"
+            "value" : "%@/s, about %@ left"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "%1$@/s, il reste environ %2$@"
+            "value" : "%@/s, il reste environ %@"
           }
         }
       }
