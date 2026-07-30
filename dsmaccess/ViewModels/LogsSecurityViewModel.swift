@@ -29,6 +29,12 @@ final class LogsSecurityViewModel {
     private(set) var blockedAddresses: [BlockedAddress] = []
     private(set) var loginActivity: [LoginActivityEvent] = []
     var loginActivityError: String?
+    /// Réglages du blocage automatique. `nil` tant qu'ils n'ont pas été lus : l'écran ne
+    /// présente pas de valeurs par défaut comme si elles venaient du NAS.
+    private(set) var autoBlock: AutoBlockSettings?
+    var settingsError: String?
+    /// Vrai le temps qu'un réglage soit écrit, pour désarmer les commandes.
+    private(set) var isSavingSettings = false
     private(set) var isLoading = false
     /// Adresses dont le déblocage est en cours, pour désarmer leurs commandes.
     private(set) var busyAddresses: Set<String> = []
@@ -98,6 +104,7 @@ final class LogsSecurityViewModel {
 
         await loadBlockedAddresses(generation: generation)
         await loadLoginActivity(generation: generation)
+        await loadSettings(generation: generation)
 
         if announce, generation == loadGeneration {
             VoiceOver.announce(summary, category: errorMessage == nil ? .result : .error)
@@ -123,6 +130,70 @@ final class LogsSecurityViewModel {
     }
 
     static let loginActivityLimit = 200
+
+    /// Réglages : la journalisation des transferts est déjà lue pour peupler le sélecteur de
+    /// journal ; seul le blocage automatique reste à charger.
+    private func loadSettings(generation: Int) async {
+        settingsError = nil
+        do {
+            let settings = try await session.withClient { try await $0.autoBlockSettings() }
+            guard generation == loadGeneration else { return }
+            autoBlock = settings
+        } catch {
+            guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
+            autoBlock = nil
+            settingsError = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    /// Active ou coupe la journalisation d'un protocole. Le journal correspondant apparaît ou
+    /// disparaît du sélecteur, sans que les entrées déjà consignées soient perdues.
+    func setTransferLogging(_ kind: SystemLogKind, enabled: Bool) async -> DSMOperationOutcome {
+        isSavingSettings = true
+        defer { isSavingSettings = false }
+
+        var protocols = Set(availableKinds.filter(\.isTransfer))
+        if enabled { protocols.insert(kind) } else { protocols.remove(kind) }
+        do {
+            try await session.withClient {
+                try await $0.setFileTransferLogging(FileTransferLogging(enabled: protocols))
+            }
+            // Le sélecteur se reconstruit depuis le NAS plutôt que depuis notre hypothèse.
+            availableKinds = SystemLogKind.always
+            await load()
+            return .success(
+                enabled
+                    ? String(localized: "Journalisation activée pour \(kindText(kind))")
+                    : String(localized: "Journalisation désactivée pour \(kindText(kind))")
+            )
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "Échec du changement de réglage : \(reason)"))
+        }
+    }
+
+    /// Enregistre les réglages du blocage automatique.
+    func save(_ settings: AutoBlockSettings) async -> DSMOperationOutcome {
+        isSavingSettings = true
+        defer { isSavingSettings = false }
+        do {
+            try await session.withClient { try await $0.setAutoBlockSettings(settings) }
+            autoBlock = settings
+            return .success(
+                settings.isEnabled
+                    ? String(localized: "Blocage automatique enregistré")
+                    : String(localized: "Blocage automatique désactivé")
+            )
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "Échec de l’enregistrement : \(reason)"))
+        }
+    }
+
+    /// Protocoles journalisés, pour l'écran de réglages.
+    func isTransferLogged(_ kind: SystemLogKind) -> Bool { availableKinds.contains(kind) }
 
     /// Journaux à proposer. Un journal de transfert dont le protocole n'est pas journalisé
     /// renverrait zéro entrée sans erreur, ce qui se lirait comme un journal vide : mieux vaut

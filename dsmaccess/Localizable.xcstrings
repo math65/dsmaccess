@@ -1,6 +1,198 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Journalisation des transferts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transfer logging"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journalisation des transferts"
+          }
+        }
+      }
+    },
+    "Le NAS tient un journal par protocole. Couper un protocole n’efface pas les entrées déjà consignées, mais son journal cesse de s’alimenter." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS keeps one log per protocol. Switching a protocol off does not erase the entries already recorded, but its log stops filling up."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS tient un journal par protocole. Couper un protocole n’efface pas les entrées déjà consignées, mais son journal cesse de s’alimenter."
+          }
+        }
+      }
+    },
+    "Chargement des réglages…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading settings…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des réglages…"
+          }
+        }
+      }
+    },
+    "Bloquer les adresses après trop d’échecs" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Block addresses after too many failures"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bloquer les adresses après trop d’échecs"
+          }
+        }
+      }
+    },
+    "Tentatives autorisées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Attempts allowed"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tentatives autorisées"
+          }
+        }
+      }
+    },
+    "Fenêtre en minutes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Window in minutes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fenêtre en minutes"
+          }
+        }
+      }
+    },
+    "Lever le blocage après un délai" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lift the block after a delay"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lever le blocage après un délai"
+          }
+        }
+      }
+    },
+    "Jours avant déblocage" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Days before unblocking"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jours avant déblocage"
+          }
+        }
+      }
+    },
+    "Journalisation activée pour %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logging turned on for %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journalisation activée pour %@"
+          }
+        }
+      }
+    },
+    "Journalisation désactivée pour %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Logging turned off for %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Journalisation désactivée pour %@"
+          }
+        }
+      }
+    },
+    "Blocage automatique enregistré" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto block saved"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocage automatique enregistré"
+          }
+        }
+      }
+    },
+    "Blocage automatique désactivé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto block turned off"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Blocage automatique désactivé"
+          }
+        }
+      }
+    },
     "Connexions signalées" : {
       "localizations" : {
         "en" : {

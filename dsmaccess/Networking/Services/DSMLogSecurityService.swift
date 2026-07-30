@@ -13,6 +13,9 @@ final class DSMLogSecurityService {
     private static let blockListAPI = DSMAPI("SYNO.Core.Security.AutoBlock.Rules")
     private static let transferLoggingAPI = DSMAPI("SYNO.Core.SyslogClient.FileTransfer")
     private static let loginActivityAPI = DSMAPI("SYNO.SecurityAdvisor.LoginActivity")
+    /// ⚠️ Cette API porte les **réglages** du blocage automatique et n'a pas de méthode `list` :
+    /// la liste des adresses vit dans `AutoBlock.Rules`.
+    private static let autoBlockAPI = DSMAPI("SYNO.Core.Security.AutoBlock")
 
     private let transport: DSMTransport
 
@@ -121,6 +124,46 @@ final class DSMLogSecurityService {
                 "type": .string(Self.denyList),
             ],
             as: BlockedAddressPage.self
+        )
+    }
+
+    /// Choisit les protocoles dont les transferts sont journalisés. Activer un protocole fait
+    /// apparaître son journal ; le couper ne supprime pas les entrées déjà consignées.
+    ///
+    /// Les six champs partent ensemble : vérifié sur DSM 7.4, `set` ignore les champs absents
+    /// — un appel sans aucun paramètre réussit sans rien changer — mais tout envoyer évite de
+    /// dépendre de ce comportement.
+    ///
+    /// Mutation : chemin sans nouvelle tentative.
+    func setFileTransferLogging(_ logging: FileTransferLogging) async throws {
+        let parameters = logging.parameters.mapValues { DSMParameter.boolean($0) }
+        try await transport.perform(
+            api: Self.transferLoggingAPI,
+            method: "set",
+            parameters: parameters
+        )
+    }
+
+    /// Réglages du blocage automatique.
+    func autoBlockSettings() async throws -> AutoBlockSettings {
+        try await transport.read(
+            api: Self.autoBlockAPI,
+            method: "get",
+            as: AutoBlockSettings.self
+        )
+    }
+
+    /// Mutation : chemin sans nouvelle tentative.
+    func setAutoBlockSettings(_ settings: AutoBlockSettings) async throws {
+        try await transport.perform(
+            api: Self.autoBlockAPI,
+            method: "set",
+            parameters: [
+                "enable": .boolean(settings.isEnabled),
+                "attempts": .integer(settings.attempts),
+                "within_mins": .integer(settings.withinMinutes),
+                "expire_day": .integer(settings.expiryDays),
+            ]
         )
     }
 

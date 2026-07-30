@@ -45,6 +45,47 @@ enum SystemLogKind: String, nonisolated Sendable, Hashable, Identifiable, CaseIt
     var isTransfer: Bool { Self.transfers.contains(self) }
 }
 
+/// Réglages du blocage automatique (SYNO.Core.Security.AutoBlock get/set) : au bout de combien
+/// d'échecs, dans quelle fenêtre, et pour combien de temps le NAS refuse une adresse.
+struct AutoBlockSettings: nonisolated Decodable, Sendable, Equatable {
+    var isEnabled: Bool
+    /// Nombre d'échecs de connexion à partir duquel l'adresse est bloquée.
+    var attempts: Int
+    /// Fenêtre, en minutes, dans laquelle ces échecs sont comptés.
+    var withinMinutes: Int
+    /// Jours au bout desquels un blocage expire. `0` signifie « jamais » — c'est ainsi que DSM
+    /// code l'absence d'expiration, et non par une valeur manquante.
+    var expiryDays: Int
+
+    var expires: Bool { expiryDays > 0 }
+
+    enum CodingKeys: String, CodingKey {
+        case enable, attempts
+        case withinMinutes = "within_mins"
+        case expiryDays = "expire_day"
+    }
+
+    nonisolated init(isEnabled: Bool, attempts: Int, withinMinutes: Int, expiryDays: Int) {
+        self.isEnabled = isEnabled
+        self.attempts = attempts
+        self.withinMinutes = withinMinutes
+        self.expiryDays = expiryDays
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        isEnabled = c.flexBool(.enable) ?? false
+        attempts = c.flexInt(.attempts) ?? 0
+        withinMinutes = c.flexInt(.withinMinutes) ?? 0
+        expiryDays = c.flexInt(.expiryDays) ?? 0
+    }
+
+    /// Bornes que DSM impose à son propre formulaire. Un seuil hors bornes serait refusé.
+    static let attemptsRange = 1...100
+    static let withinMinutesRange = 1...1440
+    static let expiryDaysRange = 1...2000
+}
+
 /// Format d'export proposé par le NAS. La valeur brute est celle qu'il attend.
 enum SystemLogExportFormat: String, nonisolated Sendable, CaseIterable, Identifiable {
     case csv
@@ -59,8 +100,23 @@ enum SystemLogExportFormat: String, nonisolated Sendable, CaseIterable, Identifi
 /// Protocoles dont le NAS journalise les transferts (SYNO.Core.SyslogClient.FileTransfer get).
 /// Ce réglage décide quels journaux de transfert existent : demander un journal désactivé
 /// renvoie zéro entrée sans erreur, ce qui se lirait comme un journal vide.
-struct FileTransferLogging: nonisolated Decodable, Sendable {
+struct FileTransferLogging: nonisolated Decodable, Sendable, Equatable {
     let enabled: Set<SystemLogKind>
+
+    /// Protocoles que ce réglage couvre, dans l'ordre où l'écran les présente.
+    static let protocols = SystemLogKind.transfers
+
+    nonisolated init(enabled: Set<SystemLogKind>) {
+        self.enabled = enabled
+    }
+
+    /// Les six champs partent toujours, à leur valeur courante comprise : vérifié sur DSM 7.4,
+    /// `set` ignore les champs absents, mais les envoyer tous lève l'ambiguïté.
+    var parameters: [String: Bool] {
+        Dictionary(
+            uniqueKeysWithValues: Self.protocols.map { ($0.rawValue, enabled.contains($0)) }
+        )
+    }
 
     enum CodingKeys: String, CodingKey {
         case afp, cifs, filestation, ftp, tftp, webdav

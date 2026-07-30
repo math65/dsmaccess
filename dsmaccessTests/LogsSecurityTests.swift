@@ -309,6 +309,60 @@ struct LogsSecurityTests {
         try? FileManager.default.removeItem(at: destination)
     }
 
+    /// Les six protocoles partent ensemble, à leur valeur courante comprise. Vérifié sur le
+    /// NAS : `set` ignore les champs absents — un appel sans aucun paramètre réussit sans rien
+    /// changer — mais tout envoyer évite de dépendre de ce comportement.
+    @Test func sendsEveryTransferProtocolWhenSavingLogging() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.setFileTransferLogging(
+            FileTransferLogging(enabled: [.cifs, .fileStation])
+        )
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.Core.SyslogClient.FileTransfer")
+        #expect(parameters["method"] == "set")
+        #expect(parameters["cifs"] == "true")
+        #expect(parameters["filestation"] == "true")
+        #expect(parameters["afp"] == "false")
+        #expect(parameters["ftp"] == "false")
+        #expect(parameters["tftp"] == "false")
+        #expect(parameters["webdav"] == "false")
+    }
+
+    /// ⚠️ Zéro jour signifie « pas d'expiration » et non « expire aujourd'hui ». Le réglage doit
+    /// traverser la lecture et l'écriture sans que ce zéro se transforme en date.
+    @Test func readsAndWritesAutoBlockSettingsIncludingTheZeroExpiry() async throws {
+        let decoded = try JSONDecoder().decode(
+            AutoBlockSettings.self,
+            from: Data(#"{"attempts":10,"enable":true,"expire_day":0,"within_mins":5}"#.utf8)
+        )
+
+        #expect(decoded.isEnabled)
+        #expect(decoded.attempts == 10)
+        #expect(decoded.withinMinutes == 5)
+        #expect(decoded.expiryDays == 0)
+        #expect(!decoded.expires)
+
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.setAutoBlockSettings(decoded)
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.Core.Security.AutoBlock")
+        #expect(parameters["method"] == "set")
+        #expect(parameters["enable"] == "true")
+        #expect(parameters["attempts"] == "10")
+        #expect(parameters["within_mins"] == "5")
+        #expect(parameters["expire_day"] == "0")
+    }
+
     /// Débloquer est une mutation : un délai d'attente ne doit pas la rejouer. Le NAS peut
     /// avoir retiré l'adresse avant de répondre, et le blocage automatique peut l'avoir
     /// rebloquée entre-temps.
@@ -354,6 +408,12 @@ struct LogsSecurityTests {
                 path: "entry.cgi", minVersion: 1, maxVersion: 1, requestFormat: "JSON"
             ),
             "SYNO.Core.Security.AutoBlock.Rules": APIInfoEntry(
+                path: "entry.cgi", minVersion: 1, maxVersion: 1, requestFormat: "JSON"
+            ),
+            "SYNO.Core.Security.AutoBlock": APIInfoEntry(
+                path: "entry.cgi", minVersion: 1, maxVersion: 1, requestFormat: "JSON"
+            ),
+            "SYNO.Core.SyslogClient.FileTransfer": APIInfoEntry(
                 path: "entry.cgi", minVersion: 1, maxVersion: 1, requestFormat: "JSON"
             ),
         ])

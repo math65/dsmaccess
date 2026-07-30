@@ -16,6 +16,7 @@ struct LogsSecurityView: View {
         case logs
         case loginActivity
         case blockList
+        case settings
 
         var id: Self { self }
     }
@@ -56,6 +57,9 @@ struct LogsSecurityView: View {
                 blockListPane
                     .tabItem { Text("Liste de blocage") }
                     .tag(Pane.blockList)
+                settingsPane
+                    .tabItem { Text("Réglages") }
+                    .tag(Pane.settings)
             }
         }
         .toolbar {
@@ -396,6 +400,142 @@ struct LogsSecurityView: View {
         )
         Task {
             let outcome = await vm.export(as: format, to: url)
+            VoiceOver.announce(outcome, priority: .high)
+        }
+    }
+
+    // MARK: - Réglages
+
+    /// Ce qui décide de ce que les autres onglets montrent : quels transferts sont journalisés,
+    /// et à partir de quand le NAS bloque une adresse.
+    @ViewBuilder
+    private var settingsPane: some View {
+        Form {
+            Section("Journalisation des transferts") {
+                Text("Le NAS tient un journal par protocole. Couper un protocole n’efface pas les entrées déjà consignées, mais son journal cesse de s’alimenter.")
+                    .font(.callout)
+                    .foregroundStyle(.readableSecondary)
+
+                ForEach(FileTransferLogging.protocols) { kind in
+                    Toggle(
+                        isOn: Binding(
+                            get: { vm.isTransferLogged(kind) },
+                            set: { enabled in
+                                Task {
+                                    let outcome = await vm.setTransferLogging(kind, enabled: enabled)
+                                    VoiceOver.announce(outcome, priority: .high)
+                                }
+                            }
+                        )
+                    ) {
+                        Text(vm.kindText(kind))
+                    }
+                    .disabled(vm.isSavingSettings)
+                }
+            }
+
+            Section("Blocage automatique") {
+                if let error = vm.settingsError {
+                    Text(error)
+                        .foregroundStyle(.readableRed)
+                } else if let settings = vm.autoBlock {
+                    autoBlockFields(settings)
+                } else {
+                    Text("Chargement des réglages…")
+                        .foregroundStyle(.readableSecondary)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .labeledContentStyle(.readable)
+    }
+
+    @ViewBuilder
+    private func autoBlockFields(_ settings: AutoBlockSettings) -> some View {
+        Toggle(
+            "Bloquer les adresses après trop d’échecs",
+            isOn: Binding(
+                get: { settings.isEnabled },
+                set: { enabled in
+                    var updated = settings
+                    updated.isEnabled = enabled
+                    save(updated)
+                }
+            )
+        )
+        .disabled(vm.isSavingSettings)
+
+        LabeledContent("Tentatives autorisées") {
+            Stepper(
+                value: Binding(
+                    get: { settings.attempts },
+                    set: { value in
+                        var updated = settings
+                        updated.attempts = value
+                        save(updated)
+                    }
+                ),
+                in: AutoBlockSettings.attemptsRange
+            ) {
+                Text(settings.attempts.formatted())
+            }
+            .disabled(vm.isSavingSettings || !settings.isEnabled)
+        }
+
+        LabeledContent("Fenêtre en minutes") {
+            Stepper(
+                value: Binding(
+                    get: { settings.withinMinutes },
+                    set: { value in
+                        var updated = settings
+                        updated.withinMinutes = value
+                        save(updated)
+                    }
+                ),
+                in: AutoBlockSettings.withinMinutesRange
+            ) {
+                Text(settings.withinMinutes.formatted())
+            }
+            .disabled(vm.isSavingSettings || !settings.isEnabled)
+        }
+
+        // DSM code l'absence d'expiration par zéro : l'interrupteur dit la même chose en clair.
+        Toggle(
+            "Lever le blocage après un délai",
+            isOn: Binding(
+                get: { settings.expires },
+                set: { expires in
+                    var updated = settings
+                    updated.expiryDays = expires ? AutoBlockSettings.expiryDaysRange.lowerBound : 0
+                    save(updated)
+                }
+            )
+        )
+        .disabled(vm.isSavingSettings || !settings.isEnabled)
+
+        if settings.expires {
+            LabeledContent("Jours avant déblocage") {
+                Stepper(
+                    value: Binding(
+                        get: { settings.expiryDays },
+                        set: { value in
+                            var updated = settings
+                            updated.expiryDays = value
+                            save(updated)
+                        }
+                    ),
+                    in: AutoBlockSettings.expiryDaysRange
+                ) {
+                    Text(settings.expiryDays.formatted())
+                }
+                .disabled(vm.isSavingSettings)
+            }
+        }
+    }
+
+    private func save(_ settings: AutoBlockSettings) {
+        Task {
+            let outcome = await vm.save(settings)
             VoiceOver.announce(outcome, priority: .high)
         }
     }
