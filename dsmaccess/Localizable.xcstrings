@@ -1,6 +1,22 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Une valeur dépasse 100 % lorsqu’un processus occupe plusieurs cœurs du NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A value goes above 100 % when a process uses more than one of the NAS cores."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une valeur dépasse 100 % lorsqu’un processus occupe plusieurs cœurs du NAS."
+          }
+        }
+      }
+    },
     "Cette session peut être celle de cette app : vous seriez alors déconnecté du NAS." : {
       "localizations" : {
         "en" : {
