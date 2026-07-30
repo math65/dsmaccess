@@ -1,6 +1,358 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "L’enregistrement est actif, mais aucune règle n’est définie dans l’alarme des performances : le NAS n’a aucun seuil à surveiller et ne consignera rien. Ce journal restera vide tant qu’aucune règle n’existe." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recording is on, but no rule is defined in the performance alarm: the NAS has no threshold to watch and will record nothing. This journal stays empty as long as no rule exists."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’enregistrement est actif, mais aucune règle n’est définie dans l’alarme des performances : le NAS n’a aucun seuil à surveiller et ne consignera rien. Ce journal restera vide tant qu’aucune règle n’existe."
+          }
+        }
+      }
+    },
+    "Aucune alerte enregistrée, aucune règle d’alarme définie" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No alerts recorded, no alarm rule defined"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune alerte enregistrée, aucune règle d’alarme définie"
+          }
+        }
+      }
+    },
+    "Historique" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique"
+          }
+        }
+      }
+    },
+    "Historique des alertes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert history"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Historique des alertes"
+          }
+        }
+      }
+    },
+    "Chargement de l’historique…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading history…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement de l’historique…"
+          }
+        }
+      }
+    },
+    "Date" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Date"
+          }
+        }
+      }
+    },
+    "Alerte" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerte"
+          }
+        }
+      }
+    },
+    "Aucune alerte enregistrée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No alerts recorded"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune alerte enregistrée"
+          }
+        }
+      }
+    },
+    "L’enregistrement de l’historique est désactivé sur le NAS : aucune alerte n’y est consignée. Activez-le ci-dessous pour que les prochaines le soient." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History recording is turned off on the NAS, so no alert is being recorded. Turn it on below to record the next ones."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’enregistrement de l’historique est désactivé sur le NAS : aucune alerte n’y est consignée. Activez-le ci-dessous pour que les prochaines le soient."
+          }
+        }
+      }
+    },
+    "Le NAS n’a consigné aucune alerte depuis l’activation de l’enregistrement. Une alerte y apparaît quand une ressource franchit un seuil défini dans l’alarme des performances." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS has recorded no alert since history recording was turned on. An alert appears here when a resource crosses a threshold set in the performance alarm."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS n’a consigné aucune alerte depuis l’activation de l’enregistrement. Une alerte y apparaît quand une ressource franchit un seuil défini dans l’alarme des performances."
+          }
+        }
+      }
+    },
+    "Enregistrer l’historique" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record history"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrer l’historique"
+          }
+        }
+      }
+    },
+    "Le NAS consigne les alertes de ressources tant que ce réglage est actif" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS records resource alerts while this setting is on"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS consigne les alertes de ressources tant que ce réglage est actif"
+          }
+        }
+      }
+    },
+    "Consigner les alertes de ressources dans l’historique du NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record resource alerts in the NAS history"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consigner les alertes de ressources dans l’historique du NAS"
+          }
+        }
+      }
+    },
+    "%lld alertes affichées sur %lld enregistrées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld recorded alerts shown."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld alertes affichées sur %lld enregistrées."
+          }
+        }
+      }
+    },
+    "%lld alertes affichées sur %lld enregistrées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld recorded alerts shown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld alertes affichées sur %lld enregistrées"
+          }
+        }
+      }
+    },
+    "%lld alertes enregistrées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld recorded alerts"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld alertes enregistrées"
+          }
+        }
+      }
+    },
+    "Enregistrement de l’historique désactivé" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History recording turned off"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement de l’historique désactivé"
+          }
+        }
+      }
+    },
+    "Enregistrement de l’historique activé. Les alertes à venir y seront consignées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History recording turned on. Alerts from now on will be recorded."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement de l’historique activé. Les alertes à venir y seront consignées."
+          }
+        }
+      }
+    },
+    "Enregistrement de l’historique désactivé. Les alertes déjà consignées sont conservées." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History recording turned off. Alerts already recorded are kept."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enregistrement de l’historique désactivé. Les alertes déjà consignées sont conservées."
+          }
+        }
+      }
+    },
+    "Échec du changement de réglage : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not change the setting: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec du changement de réglage : %@"
+          }
+        }
+      }
+    },
+    "Niveau inconnu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown level"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Niveau inconnu"
+          }
+        }
+      }
+    },
+    "Alerte sans description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alert with no description"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alerte sans description"
+          }
+        }
+      }
+    },
     "Fichiers ouverts" : {
       "localizations" : {
         "en" : {

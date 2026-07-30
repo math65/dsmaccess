@@ -195,6 +195,10 @@ protocol DSMClientProtocol: AnyObject {
     func connections() async throws -> [NASConnection]
     func kickConnections(_ references: [NASConnection.KickReference]) async throws
     func openedFiles(limit: Int) async throws -> OpenedFilePage
+    func resourceMonitorLogs(limit: Int) async throws -> ResourceMonitorLogPage
+    func resourceMonitorHistoryEnabled() async throws -> Bool
+    func resourceMonitorAlarmRuleCount() async throws -> Int
+    func setResourceMonitorHistory(enabled: Bool) async throws
     func listSharedFolders() async throws -> [SharedFolder]
     func createSharedFolder(
         name: String,
@@ -815,6 +819,22 @@ final class DSMClient: DSMClientProtocol {
 
     func openedFiles(limit: Int) async throws -> OpenedFilePage {
         try await system.openedFiles(limit: limit)
+    }
+
+    func resourceMonitorLogs(limit: Int) async throws -> ResourceMonitorLogPage {
+        try await system.resourceMonitorLogs(limit: limit)
+    }
+
+    func resourceMonitorHistoryEnabled() async throws -> Bool {
+        try await system.resourceMonitorHistoryEnabled()
+    }
+
+    func resourceMonitorAlarmRuleCount() async throws -> Int {
+        try await system.resourceMonitorAlarmRuleCount()
+    }
+
+    func setResourceMonitorHistory(enabled: Bool) async throws {
+        try await system.setResourceMonitorHistory(enabled: enabled)
     }
 
     func connections() async throws -> [NASConnection] {

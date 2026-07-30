@@ -17,6 +17,7 @@ struct ResourceMonitorView: View {
         case tasks
         case connections
         case openedFiles
+        case history
 
         var id: Self { self }
 
@@ -26,6 +27,7 @@ struct ResourceMonitorView: View {
             case .tasks: "Tâches"
             case .connections: "Connexions"
             case .openedFiles: "Fichiers ouverts"
+            case .history: "Historique"
             }
         }
     }
@@ -35,6 +37,7 @@ struct ResourceMonitorView: View {
     @State private var tasks: TaskManagerViewModel
     @State private var connections: ConnectionsViewModel
     @State private var openedFiles: OpenedFilesViewModel
+    @State private var history: ResourceMonitorHistoryViewModel
     @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
@@ -42,6 +45,7 @@ struct ResourceMonitorView: View {
         _tasks = State(initialValue: TaskManagerViewModel(session: session))
         _connections = State(initialValue: ConnectionsViewModel(session: session))
         _openedFiles = State(initialValue: OpenedFilesViewModel(session: session))
+        _history = State(initialValue: ResourceMonitorHistoryViewModel(session: session))
     }
 
     var body: some View {
@@ -64,6 +68,9 @@ struct ResourceMonitorView: View {
                 OpenedFilesView(vm: openedFiles)
                     .tabItem { Text("Fichiers ouverts") }
                     .tag(Pane.openedFiles)
+                ResourceMonitorHistoryView(vm: history)
+                    .tabItem { Text("Historique") }
+                    .tag(Pane.history)
             }
         }
         .toolbar {
@@ -75,6 +82,7 @@ struct ResourceMonitorView: View {
                         case .tasks: await tasks.load(announce: true)
                         case .connections: await connections.load(announce: true)
                         case .openedFiles: await openedFiles.load(announce: true)
+                        case .history: await history.load(announce: true)
                         }
                     }
                 } label: {

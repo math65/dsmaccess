@@ -108,6 +108,78 @@ struct DSMSystemServiceTests {
         #expect(parameters["offset"] == "0")
     }
 
+    /// Le client web pagine ce journal ; l'écran s'appuie sur l'écart entre la page et le
+    /// total pour dire ce qu'il ne montre pas.
+    @Test func asksForABoundedPageOfHistoryEntries() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"""
+            {"success":true,"data":{"logs":[
+              {"time":"2026/7/30 9:05:12","level":"Warning","event":"Charge du volume 1"}],
+              "total":40}}
+            """#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        let page = try await service.resourceMonitorLogs(limit: 1000)
+
+        #expect(page.entries.count == 1)
+        #expect(page.total == 40)
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.ResourceMonitor.Log")
+        #expect(parameters["method"] == "list")
+        #expect(parameters["limit"] == "1000")
+        #expect(parameters["offset"] == "0")
+    }
+
+    /// Le réglage décide si le journal se remplit. Une réponse mal lue présenterait un NAS qui
+    /// enregistre comme un NAS silencieux.
+    @Test func readsWhetherTheNASRecordsItsHistory() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"enable_history":true}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        #expect(try await service.resourceMonitorHistoryEnabled())
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.ResourceMonitor.Setting")
+        #expect(parameters["method"] == "get")
+    }
+
+    /// Changer le réglage est une mutation : un délai d'attente ne doit pas la rejouer. Le NAS
+    /// peut l'avoir appliquée avant de répondre, et une seconde tentative écraserait un
+    /// changement fait entre-temps depuis DSM.
+    @Test func neverReplaysTheHistorySettingAfterATimeout() async throws {
+        let stub = DSMRequestStub(results: [.timeout, .response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        do {
+            try await service.setResourceMonitorHistory(enabled: true)
+            Issue.record("Le changement de réglage aurait dû échouer après le délai d’attente.")
+        } catch {
+            let dsmError = try #require(error as? DSMError)
+            guard case .network = dsmError else {
+                Issue.record("Erreur inattendue : \(dsmError)")
+                return
+            }
+        }
+        #expect(await stub.requestCount == 1)
+    }
+
+    /// DSM attend la case du formulaire telle qu'elle s'appelle, en booléen JSON.
+    @Test func sendsTheHistorySettingAsDSMNamesIt() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.setResourceMonitorHistory(enabled: false)
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.ResourceMonitor.Setting")
+        #expect(parameters["method"] == "set")
+        #expect(parameters["enable_history"] == "false")
+    }
+
     private struct WebReference: Decodable, Equatable {
         let did: String
         let who: String
@@ -137,6 +209,18 @@ struct DSMSystemServiceTests {
                 requestFormat: "JSON"
             ),
             "SYNO.Core.FileHandle": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.ResourceMonitor.Log": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.ResourceMonitor.Setting": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1,

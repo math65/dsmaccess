@@ -15,6 +15,9 @@ final class DSMSystemService {
     private static let processGroupAPI = DSMAPI("SYNO.Core.System.ProcessGroup")
     private static let connectionAPI = DSMAPI("SYNO.Core.CurrentConnection")
     private static let fileHandleAPI = DSMAPI("SYNO.Core.FileHandle")
+    private static let resourceLogAPI = DSMAPI("SYNO.ResourceMonitor.Log")
+    private static let resourceSettingAPI = DSMAPI("SYNO.ResourceMonitor.Setting")
+    private static let resourceAlarmAPI = DSMAPI("SYNO.ResourceMonitor.EventRule")
 
     private let transport: DSMTransport
 
@@ -75,6 +78,49 @@ final class DSMSystemService {
             method: "get",
             parameters: ["limit": .integer(limit), "offset": .integer(0)],
             as: OpenedFilePage.self
+        )
+    }
+
+    /// Alertes que le NAS a enregistrées quand une ressource a franchi un seuil. Le journal
+    /// remonte aussi loin que l'enregistrement est resté actif : la page est bornée et le
+    /// total renvoyé reste celui de l'ensemble.
+    func resourceMonitorLogs(limit: Int) async throws -> ResourceMonitorLogPage {
+        try await transport.read(
+            api: Self.resourceLogAPI,
+            method: "list",
+            parameters: ["limit": .integer(limit), "offset": .integer(0)],
+            as: ResourceMonitorLogPage.self
+        )
+    }
+
+    /// Le moniteur n'enregistre son historique que si le réglage est actif ; sans lui le
+    /// journal reste vide indéfiniment. L'écran a besoin de la distinction pour ne pas
+    /// présenter un réglage désactivé comme un NAS sans incident.
+    func resourceMonitorHistoryEnabled() async throws -> Bool {
+        try await transport.read(
+            api: Self.resourceSettingAPI,
+            method: "get",
+            as: ResourceMonitorSetting.self
+        ).historyEnabled
+    }
+
+    /// Nombre de règles d'alarme définies. Le journal ne consigne une alerte que lorsqu'une
+    /// règle est franchie : ce compte distingue un NAS sans incident d'un NAS où rien ne peut
+    /// être détecté.
+    func resourceMonitorAlarmRuleCount() async throws -> Int {
+        try await transport.read(
+            api: Self.resourceAlarmAPI,
+            method: "list",
+            as: ResourceMonitorAlarmRuleCount.self
+        ).total
+    }
+
+    /// Mutation : chemin sans nouvelle tentative.
+    func setResourceMonitorHistory(enabled: Bool) async throws {
+        try await transport.perform(
+            api: Self.resourceSettingAPI,
+            method: "set",
+            parameters: ["enable_history": .boolean(enabled)]
         )
     }
 
