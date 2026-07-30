@@ -2,14 +2,14 @@
 //  NASConnection.swift
 //  dsmaccess
 //
-//  Sessions ouvertes sur le NAS (SYNO.Core.CurrentConnection get), telles que l'onglet
-//  Connexions du moniteur de ressources les présente.
+//  Sessions open on the NAS (SYNO.Core.CurrentConnection get), as the resource monitor's
+//  Connections tab presents them.
 //
-//  Deux mises en garde relevées sur DSM 7.4 le 29/07/2026 :
-//  — `descr` vaut « DiskStation Manager » aussi bien pour l'app que pour le client web ;
-//    seule l'adresse source distingue les deux.
-//  — `time` et `first_login_time` se contredisent d'une entrée à l'autre. DSM affiche
-//    `time` dans sa colonne « Heure » : c'est celui-là qui fait foi ici.
+//  Two warnings observed on DSM 7.4 on 2026/07/29:
+//  — `descr` is "DiskStation Manager" for both the app and the web client; only the source
+//    address tells them apart.
+//  — `time` and `first_login_time` contradict each other from one entry to the next. DSM
+//    shows `time` in its "Time" column: that is the one that is authoritative here.
 //
 
 import Foundation
@@ -21,38 +21,38 @@ struct NASConnectionPage: nonisolated Decodable, Sendable {
 struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
     let account: String?
     let address: String?
-    /// Protocole affiché par DSM : « HTTP/HTTPS », « SMB3 »…
+    /// Protocol displayed by DSM: "HTTP/HTTPS", "SMB3"…
     let type: String?
-    /// Ressource ou application concernée, selon le protocole.
+    /// Resource or application involved, depending on the protocol.
     let descriptionText: String?
-    /// Horodatage brut du NAS, au format « aaaa/MM/jj HH:mm:ss ».
+    /// Raw NAS timestamp, in "yyyy/MM/dd HH:mm:ss" format.
     let rawTime: String?
     let isCurrent: Bool
     let canBeKicked: Bool
-    /// Identifiant du processus qui porte la session. Vaut 1 pour toutes les sessions web :
-    /// il n'identifie donc rien à lui seul, mais `kick_connection` l'exige pour les autres
-    /// protocoles.
+    /// Identifier of the process holding the session. It is 1 for every web session, so it
+    /// identifies nothing on its own, but `kick_connection` requires it for the other
+    /// protocols.
     let processID: Int?
-    /// Jeton d'appareil. Renseigné pour les sessions web, vide pour les autres.
+    /// Device token. Filled in for web sessions, empty for the others.
     let deviceID: String?
-    /// Client à l'origine de la session, tel que le NAS l'a vu. Souvent vide.
+    /// Client that opened the session, as the NAS saw it. Often empty.
     let userAgent: String?
-    /// Localisation déduite par DSM. Vide sur un accès local.
+    /// Location inferred by DSM. Empty on local access.
     let location: String?
-    /// L'appareil a été marqué de confiance lors d'une vérification en deux étapes.
+    /// The device was marked as trusted during a two-step verification.
     let isTrustedDevice: Bool
-    /// La session a été ouverte avec une vérification en deux étapes.
+    /// The session was opened with a two-step verification.
     let usesTwoFactor: Bool
 
-    /// Le NAS n'attribue pas d'identifiant de session. `did` entre dans la clé parce que
-    /// plusieurs sessions web du même compte partagent souvent compte, adresse, protocole et
-    /// horodatage : sans lui, elles se confondraient et la sélection porterait sur la mauvaise.
+    /// The NAS does not assign a session identifier. `did` is part of the key because several
+    /// web sessions of the same account often share account, address, protocol and timestamp:
+    /// without it they would be indistinguishable and selection would hit the wrong one.
     var id: String {
         [account, address, type, rawTime, deviceID].compactMap { $0 }.joined(separator: "|")
     }
 
-    /// Clés de tri non optionnelles : une valeur absente se range en tête plutôt que
-    /// d'empêcher le tri de sa colonne.
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
     var sortableAccount: String { account ?? "" }
     var sortableAddress: String { address ?? "" }
     var sortableType: String { type ?? "" }
@@ -60,14 +60,14 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
     var sortableDate: Date { openedAt ?? .distantPast }
     var sortableUserAgent: String { userAgent ?? "" }
     var sortableLocation: String { location ?? "" }
-    /// Trié comme un texte : `Bool` n'est pas `Comparable`, et la colonne doit pouvoir se
-    /// trier comme les autres.
+    /// Sorted as text: `Bool` is not `Comparable`, and the column must be sortable like the
+    /// others.
     var sortableTwoFactor: String { usesTwoFactor ? "1" : "0" }
 
-    /// Horodatage rendu dans la langue et le fuseau du Mac. DSM n'indiquant pas le fuseau
-    /// de sa valeur, elle est lue comme locale — juste tant que le NAS et le Mac partagent
-    /// le même, ce qui est le cas courant. La chaîne brute est conservée en repli plutôt
-    /// que de n'afficher rien.
+    /// Timestamp rendered in the Mac's language and time zone. Since DSM does not state the
+    /// time zone of its value, it is read as local — correct as long as the NAS and the Mac
+    /// share the same one, which is the common case. The raw string is kept as a fallback
+    /// rather than displaying nothing.
     var openedAt: Date? {
         guard let rawTime else { return nil }
         return Self.nasFormatter.date(from: rawTime)
@@ -80,17 +80,17 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
         return formatter
     }()
 
-    /// Ce que `kick_connection` attend pour retrouver la session à couper. DSM ne l'identifie
-    /// pas par une clé unique : il la réidentifie par un quadruplet, et ce quadruplet n'est
-    /// pas le même selon le protocole. `nil` quand une valeur indispensable manque — mieux
-    /// vaut ne pas proposer la coupure que viser une session au hasard.
+    /// What `kick_connection` expects in order to find the session to cut. DSM does not
+    /// identify it by a unique key: it re-identifies it through a quadruplet, and that
+    /// quadruplet differs by protocol. `nil` when a required value is missing — better not to
+    /// offer the disconnect than to target a session at random.
     enum KickReference: Sendable, Equatable {
         case web(deviceID: String, account: String, resource: String, address: String)
         case service(processID: Int, type: String, account: String, address: String)
     }
 
-    /// Valeur exacte que DSM place dans `type` pour ses sessions web. Relevée sur DSM 7.4 :
-    /// c'est une seule chaîne, barre oblique comprise, et non deux protocoles distincts.
+    /// Exact value DSM puts in `type` for its web sessions. Observed on DSM 7.4: it is a
+    /// single string, slash included, not two separate protocols.
     static let webSessionType = "HTTP/HTTPS"
 
     var isWebSession: Bool { type == Self.webSessionType }
@@ -98,8 +98,8 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
     var kickReference: KickReference? {
         guard canBeKicked, let account, let address else { return nil }
         if isWebSession {
-            // `descr` et `did` partent tels quels : DSM compare des valeurs, une absence
-            // vaut chaîne vide comme dans son propre client.
+            // `descr` and `did` go out as they are: DSM compares values, and a missing one
+            // counts as an empty string, just as in its own client.
             return .web(
                 deviceID: deviceID ?? "",
                 account: account,
@@ -131,8 +131,8 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
         canBeKicked = c.flexBool(.canBeKicked) ?? false
         processID = c.flexInt(.pid)
         deviceID = c.flexString(.did)
-        // Ces trois champs reviennent le plus souvent vides sur un accès local : une valeur
-        // vide vaut absence, pour que l'affichage puisse simplement ne rien dire.
+        // These three fields most often come back empty on local access: an empty value
+        // counts as absence, so the display can simply say nothing.
         userAgent = c.flexString(.userAgent).flatMap { $0.isEmpty ? nil : $0 }
         location = c.flexString(.location).flatMap { $0.isEmpty ? nil : $0 }
         isTrustedDevice = c.flexBool(.isTrustedDevice) ?? false

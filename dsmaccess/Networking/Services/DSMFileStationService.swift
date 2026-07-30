@@ -2,7 +2,7 @@
 //  DSMFileStationService.swift
 //  dsmaccess
 //
-//  Navigation et opérations de base sur les fichiers du NAS.
+//  Navigation and basic operations on the NAS files.
 //
 
 import Foundation
@@ -45,11 +45,11 @@ final class DSMFileStationService {
     private let operationPollInterval: Duration
     private let operationPollCeiling: Duration
 
-    /// Une copie de plusieurs dizaines de gigaoctets tient des heures : un incident réseau
-    /// passager ne doit pas faire perdre le suivi d'une tâche que le NAS traite toujours.
+    /// A copy of several tens of gigabytes runs for hours: a transient network incident must
+    /// not lose track of a task the NAS is still processing.
     private static let toleratedPollFailures = 3
 
-    /// Code DSM « tâche inconnue » : la tâche interrogée n'existe plus côté NAS.
+    /// DSM "unknown task" code: the polled task no longer exists on the NAS side.
     private static let unknownTaskErrorCode = 599
 
     private static let fileAdditionalFields = [
@@ -320,10 +320,9 @@ final class DSMFileStationService {
     ) async throws {
         let resolved = try await transport.resolvedAPI(Self.uploadAPI)
         let boundary = "Boundary-\(UUID().uuidString)"
-        // Contrat capturé sur DSM 7.4-90075 : api, version, method et la session
-        // doivent être dans la query de l'URL (erreur 101 s'ils sont dans le corps
-        // multipart), et les valeurs multipart s'envoient brutes, sans les
-        // guillemets JSON du requestFormat (erreur 401 sinon).
+        // Contract captured on DSM 7.4-90075: api, version, method and the session must be
+        // in the URL query (error 101 if they are in the multipart body), and multipart
+        // values are sent raw, without the requestFormat JSON quotes (error 401 otherwise).
         var fields: [String: String] = [
             "path": folderPath,
             "create_parents": options.createParentFolders ? "true" : "false",
@@ -977,8 +976,8 @@ final class DSMFileStationService {
         )
     }
 
-    /// Reprend le suivi d'une tâche déjà lancée, retrouvée dans BackgroundTask après un
-    /// changement de module ou un redémarrage de l'app.
+    /// Resumes tracking of an already started task, found again in BackgroundTask after a
+    /// module change or an app restart.
     func followOperation(
         kind: FileOperationKind,
         taskID: String,
@@ -1004,27 +1003,27 @@ final class DSMFileStationService {
         do {
             try await stopSearch(taskIDs: [taskID])
         } catch {
-            // L'erreur qui a interrompu la recherche reste le résultat principal.
+            // The error that interrupted the search remains the primary result.
         }
         do {
             try await cleanSearch(taskIDs: [taskID])
         } catch {
-            // La base temporaire peut encore être supprimée par DSM à l'expiration de la tâche.
+            // DSM can still delete the temporary database when the task expires.
         }
     }
 
-    /// Suit une tâche jusqu'à son terme, sans limite de durée : DSM traite une copie de
-    /// plusieurs dizaines de gigaoctets pendant des heures, et l'utilisateur garde le
-    /// bouton d'annulation. Ni l'annulation du suivi ni son interruption n'arrêtent la
-    /// tâche côté NAS : elle reste listée dans BackgroundTask, où l'app la reprend.
+    /// Tracks a task through to completion, with no time limit: DSM processes a copy of
+    /// several tens of gigabytes for hours, and the user keeps the cancel button. Neither
+    /// cancelling the tracking nor interrupting it stops the task on the NAS side: it stays
+    /// listed in BackgroundTask, where the app picks it back up.
     private func waitForOperation(
         api: DSMAPI,
         kind: FileOperationKind,
         taskID: String,
         progress: (FileOperationProgress) -> Void
     ) async throws -> FileOperationProgress {
-        // Le premier état part avant toute interrogation : l'appelant a besoin de
-        // l'identifiant de tâche dès maintenant pour pouvoir l'arrêter.
+        // The first state is sent before any poll: the caller needs the task identifier
+        // right now in order to be able to stop it.
         progress(
             FileOperationProgress(
                 kind: kind,
@@ -1077,24 +1076,24 @@ final class DSMFileStationService {
         }
     }
 
-    /// La première interrogation part sans délai, puis l'intervalle double jusqu'à son
-    /// plafond : inutile d'interroger le NAS deux fois par seconde pendant des heures.
+    /// The first poll is sent with no delay, then the interval doubles up to its ceiling:
+    /// no point polling the NAS twice a second for hours.
     private func nextPollInterval(after interval: Duration) -> Duration {
         min(max(interval * 2, operationPollInterval), operationPollCeiling)
     }
 
-    /// DSM ne garde pas une tâche achevée : à la fin d'une compression longue, `status`
-    /// répond 599 « tâche inconnue » et la tâche disparaît de BackgroundTask, parfois sans
-    /// avoir jamais renvoyé `finished`. Le suivi doit alors conclure comme le client web —
-    /// l'opération est finie, pas perdue — sinon l'app annonce une interruption pour une
-    /// compression réussie.
+    /// DSM does not keep a completed task: at the end of a long compression, `status`
+    /// answers 599 "unknown task" and the task disappears from BackgroundTask, sometimes
+    /// without ever having returned `finished`. Tracking must then conclude the way the web
+    /// client does — the operation is finished, not lost — otherwise the app announces an
+    /// interruption for a successful compression.
     private func isRetiredTaskFailure(_ error: Error) -> Bool {
         guard case .apiError(Self.unknownTaskErrorCode) = error as? DSMError else { return false }
         return true
     }
 
-    /// La dernière progression connue reste la seule information vérifiée ; seul l'achèvement
-    /// est ajouté. Rien n'est inventé sur le volume traité, que DSM ne donne pas pour une
+    /// The last known progress remains the only verified information; only completion is
+    /// added. Nothing is invented about the processed volume, which DSM does not give for a
     /// compression.
     private func completedProgress(
         kind: FileOperationKind,
@@ -1115,8 +1114,8 @@ final class DSMFileStationService {
         )
     }
 
-    /// Seul un incident de transport peut se résorber d'une interrogation à l'autre ;
-    /// une session expirée ou un refus de DSM se reproduira à l'identique.
+    /// Only a transport incident can clear up from one poll to the next; an expired session
+    /// or a refusal from DSM will occur again identically.
     private func isTransientPollFailure(_ error: Error) -> Bool {
         switch error as? DSMError {
         case .network, .decoding, .invalidResponse: true
@@ -1163,8 +1162,8 @@ final class DSMFileStationService {
                 parameters: ["taskid": .string(taskID)]
             )
         } catch {
-            // L'annulation demandée par l'utilisateur reste le résultat principal. La tâche
-            // demeure visible dans BackgroundTask si DSM n'a pas pu traiter l'arrêt.
+            // The cancellation requested by the user remains the primary result. The task
+            // stays visible in BackgroundTask if DSM could not process the stop.
         }
     }
 

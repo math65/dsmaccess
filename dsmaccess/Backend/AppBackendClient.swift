@@ -2,22 +2,22 @@
 //  AppBackendClient.swift
 //  dsmaccess
 //
-//  Client HTTP du backend partagé des apps (https://mathieumartin.ovh) :
-//  formulaires de contact, rapports d'erreur et annonces au lancement.
-//  Contrat complet : dépôt app-backend, docs/API.md. Indépendant du réseau DSM,
-//  ce client ne passe volontairement pas par DSMTransport.
+//  HTTP client for the shared app backend (https://mathieumartin.ovh):
+//  contact forms, error reports and launch announcements.
+//  Full contract: app-backend repository, docs/API.md. Independent of the DSM
+//  network, this client deliberately does not go through DSMTransport.
 //
-//  Le secret Bearer n'est PAS versionné (dépôt public) : il est lu depuis
-//  `AppBackendSecret.plist` (git-ignoré, embarqué automatiquement par le groupe
-//  synchronisé). Sans ce fichier, le build réussit, `isConfigured` vaut `false`
-//  et l'interface de contact est masquée.
+//  The Bearer secret is NOT versioned (public repository): it is read from
+//  `AppBackendSecret.plist` (git-ignored, bundled automatically by the
+//  synchronized group). Without that file the build succeeds, `isConfigured` is
+//  `false` and the contact interface is hidden.
 //
 
 import Foundation
 
 final class AppBackendClient {
     enum ContactType: String, CaseIterable, Identifiable {
-        // Les valeurs brutes sont les `contact_type` attendus côté serveur.
+        // The raw values are the `contact_type` values the server expects.
         case bug
         case suggestion
         case question
@@ -27,10 +27,10 @@ final class AppBackendClient {
 
         var title: LocalizedStringResource {
             switch self {
-            case .bug: "Signalement de problème"
-            case .suggestion: "Suggestion"
-            case .question: "Question"
-            case .other: "Autre"
+            case .bug: "feedback.kind.problem"
+            case .suggestion: "feedback.kind.suggestion"
+            case .question: "feedback.kind.question"
+            case .other: "feedback.kind.other"
             }
         }
     }
@@ -45,21 +45,21 @@ final class AppBackendClient {
         var localizedMessage: String {
             switch self {
             case .notConfigured:
-                String(localized: "L’envoi de messages n’est pas disponible dans cette version de l’app.")
+                String(localized: "common.error.messaging_unavailable")
             case .network:
-                String(localized: "Impossible de joindre le serveur. Vérifiez votre connexion Internet, puis réessayez.")
+                String(localized: "feedback.send.unreachable.error")
             case .rateLimited:
-                String(localized: "Trop de messages envoyés récemment. Réessayez dans une heure.")
+                String(localized: "feedback.send.rate_limited.error")
             case .validation:
-                String(localized: "Le message n’a pas pu être accepté. Vérifiez l’adresse e-mail et le contenu, puis réessayez.")
+                String(localized: "feedback.send.rejected.error")
             case .server:
-                String(localized: "Le serveur a rencontré une erreur. Réessayez plus tard.")
+                String(localized: "feedback.send.server.error")
             }
         }
     }
 
-    /// Une section du rapport, au format tableau ordonné du backend (`type: "kv"`).
-    /// Les tableaux préservent l'ordre aux deux niveaux (sections et lignes).
+    /// A report section, in the backend's ordered table format (`type: "kv"`).
+    /// Arrays preserve order at both levels (sections and rows).
     struct ReportSection: Encodable {
         struct Row: Encodable {
             let label: String
@@ -81,7 +81,7 @@ final class AppBackendClient {
         let body: String
         let style: String
         let mode: String
-        /// Bouton secondaire facultatif ; `label` arrive déjà localisé par le serveur.
+        /// Optional secondary button; `label` arrives already localized by the server.
         let link: Link?
 
         struct Link: Decodable {
@@ -116,8 +116,8 @@ final class AppBackendClient {
     private let secret: String?
     private let execute: (URLRequest) async throws -> (Data, URLResponse)
 
-    /// `secret` et `execute` sont injectables pour les tests ; par défaut le client
-    /// utilise le secret embarqué et une session éphémère (sans cache ni cookies).
+    /// `secret` and `execute` are injectable for tests; by default the client uses
+    /// the bundled secret and an ephemeral session (no cache, no cookies).
     init(secret: String? = AppBackendClient.bundledSecret,
          execute: ((URLRequest) async throws -> (Data, URLResponse))? = nil) {
         self.secret = secret
@@ -129,7 +129,7 @@ final class AppBackendClient {
         }
     }
 
-    // MARK: - Contact et rapport
+    // MARK: - Contact and report
 
     func sendContact(email: String, type: ContactType, message: String) async throws {
         struct Body: Encodable {
@@ -185,7 +185,7 @@ final class AppBackendClient {
         try await perform(request)
     }
 
-    // MARK: - Annonces
+    // MARK: - Announcements
 
     func checkAnnouncement(installID: String, language: String) async throws -> Announcement? {
         struct Body: Encodable {
@@ -220,13 +220,13 @@ final class AppBackendClient {
         return decoded.announcement
     }
 
-    /// Signale au backend que l'annonce a réellement été affichée.
-    /// L'échec est ignoré : au pire, le compteur de portée sous-estime.
+    /// Tells the backend that the announcement was actually displayed.
+    /// Failure is ignored: at worst, the reach counter underestimates.
     func acknowledgeAnnouncement(installID: String, announcementID: String) async {
         await sendAnnouncementEvent(path: "/api/announce/ack", installID: installID, announcementID: announcementID)
     }
 
-    /// Signale au backend que l'utilisateur a activé le bouton lien de l'annonce.
+    /// Tells the backend that the user activated the announcement's link button.
     func reportAnnouncementClick(installID: String, announcementID: String) async {
         await sendAnnouncementEvent(path: "/api/announce/click", installID: installID, announcementID: announcementID)
     }
@@ -251,7 +251,7 @@ final class AppBackendClient {
         _ = try? await execute(request)
     }
 
-    // MARK: - Plomberie
+    // MARK: - Plumbing
 
     private struct APIResponse: Decodable {
         let ok: Bool
@@ -295,8 +295,8 @@ final class AppBackendClient {
         guard http.statusCode != 200 else {
             return
         }
-        // Hors 200, le serveur renvoie {ok: false, error_code: "..."} ; un corps
-        // illisible est traité comme une erreur serveur.
+        // Outside 200, the server returns {ok: false, error_code: "..."}; an
+        // unreadable body is treated as a server error.
         let decoded = try? JSONDecoder().decode(APIResponse.self, from: data)
         switch decoded?.errorCode {
         case "rate_limited":

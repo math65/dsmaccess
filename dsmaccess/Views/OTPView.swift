@@ -2,12 +2,11 @@
 //  OTPView.swift
 //  dsmaccess
 //
-//  Saisie du code de vérification à deux facteurs. Affiché uniquement quand DSM le
-//  réclame après une connexion par mot de passe. Le focus VoiceOver est placé sur le
-//  champ dès l'apparition.
+//  Entry of the two-factor verification code. Shown only when DSM asks for it after a
+//  password sign-in. VoiceOver focus is placed on the field as soon as it appears.
 //
-//  L'approbation « push » de Secure SignIn suit un autre chemin, sans mot de passe :
-//  voir SecureSignInApprovalView.
+//  Secure SignIn "push" approval follows another path, without a password: see
+//  SecureSignInApprovalView.
 //
 
 import SwiftUI
@@ -19,23 +18,23 @@ struct OTPView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Vérification en deux étapes")
+            Text("otp.title")
                 .font(.largeTitle.bold())
                 .accessibilityAddTraits(.isHeader)
 
-            Text("Ouvrez l'app Synology Secure SignIn et saisissez le code à 6 chiffres affiché.")
+            Text("otp.code.description")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            LabeledField(label: "Code de vérification") {
+            LabeledField(label: "otp.code.label") {
                 TextField("123456", text: $vm.otpCode)
                     .accessibilityFocused($focusCode)
                     .onSubmit { Task { await vm.submitOTP() } }
-                    .help("Saisir le code de vérification à six chiffres")
+                    .help("otp.code.field.label")
             }
 
-            Toggle("Se souvenir de cet appareil", isOn: $vm.rememberDevice)
-                .help("Mémoriser ce Mac comme appareil approuvé")
+            Toggle("otp.remember_device", isOn: $vm.rememberDevice)
+                .help("otp.remember_device.hint")
 
             if let error = vm.errorMessage {
                 Text(error)
@@ -47,20 +46,20 @@ struct OTPView: View {
                 if vm.state == .connecting {
                     ProgressView()
                         .controlSize(.small)
-                        .accessibilityLabel("Vérification en cours")
-                    Text("Vérification en cours…")
+                        .accessibilityLabel("otp.verifying.label")
+                    Text("otp.verifying.progress")
                         .foregroundStyle(.secondary)
                         .accessibilityHidden(true)
                 }
                 Spacer()
-                Button("Annuler") { vm.cancelOTP() }
-                    .help("Annuler la vérification et revenir à la connexion")
-                Button("Valider") {
+                Button("common.button.cancel") { vm.cancelOTP() }
+                    .help("otp.cancel.hint")
+                Button("otp.submit.button") {
                     Task { await vm.submitOTP() }
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(vm.otpCode.isEmpty || vm.state == .connecting)
-                .help("Valider le code de vérification")
+                .help("otp.submit.hint")
             }
         }
         .padding(28)
@@ -68,7 +67,7 @@ struct OTPView: View {
         .onAppear {
             focusCode = true
             VoiceOver.announce(
-                String(localized: "Saisissez le code de vérification à six chiffres"),
+                String(localized: "otp.code.field.placeholder"),
                 category: .navigation
             )
         }

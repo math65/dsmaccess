@@ -2,7 +2,7 @@
 //  MainView.swift
 //  dsmaccess
 //
-//  Fenêtre d'administration principale.
+//  Main administration window.
 //
 
 import SwiftUI
@@ -73,7 +73,7 @@ struct MainView: View {
         )
         .task {
             normalizeSelection()
-            VoiceOver.announce(String(localized: "Connecté"), category: .navigation)
+            VoiceOver.announce(String(localized: "common.status.connected"), category: .navigation)
         }
         .onChange(of: visibleModules) { _, _ in
             normalizeSelection()
@@ -89,21 +89,22 @@ struct MainView: View {
             sidebarFocusedModule = selection
         }
         .safeAreaInset(edge: .top, spacing: 0) { reconnectionNoticeBanner }
-        .alert("Renommer le NAS", isPresented: $isRenamingNAS) {
-            TextField("Nom du NAS", text: $proposedNASName)
-                .help("Saisir le nouveau nom du NAS")
-            Button("Renommer", action: renameNAS)
+        .alert("main.rename.title", isPresented: $isRenamingNAS) {
+            TextField("common.field.nas_name", text: $proposedNASName)
+                .help("main.rename.field.label")
+            Button("common.button.rename", action: renameNAS)
                 .disabled(proposedNASName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .help("Enregistrer le nouveau nom du NAS")
-            Button("Annuler", role: .cancel) { }
-                .help("Annuler le changement de nom")
+                .help("common.button.save_nas_name")
+            Button("common.button.cancel", role: .cancel) { }
+                .help("main.rename.cancel")
         } message: {
-            Text("Choisissez le nom affiché dans DSM Access.")
+            Text("main.rename.description")
         }
     }
 
-    /// Signale qu'une expiration de session a interrompu le travail en cours, car la
-    /// reconnexion automatique ramène ici sans passage visible par l'écran de connexion.
+    /// Reports that a session expiration interrupted the work in progress, because the
+    /// automatic reconnection brings the user back here with no visible detour through the
+    /// sign-in screen.
     @ViewBuilder
     private var reconnectionNoticeBanner: some View {
         if let notice = session.reconnectionNotice {
@@ -112,15 +113,15 @@ struct MainView: View {
                     .foregroundStyle(.orange)
                     .accessibilityFocused($focusReconnectionNotice)
                 Spacer()
-                Button("Fermer l’avis") {
+                Button("main.notice.dismiss") {
                     session.dismissReconnectionNotice()
                     sidebarFocusedModule = selection
                 }
-                .help("Masquer l’avis de reconnexion")
+                .help("main.notice.reconnect.dismiss.hint")
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            // Fond opaque : l'encart flotte au-dessus des colonnes de la fenêtre.
+            // Opaque background: the banner floats above the window's columns.
             .background(.bar)
             .onAppear {
                 VoiceOver.announce(notice, category: .error, priority: .high)
@@ -189,7 +190,7 @@ struct MainView: View {
     private func sidebarLabel(for module: AppModule, available: Bool) -> String {
         available
             ? module.localizedTitle
-            : String(localized: "\(module.localizedTitle) (indisponible)")
+            : String(localized: "main.module.unavailable", defaultValue: "\(module.localizedTitle) (unavailable)")
     }
 
     @ToolbarContentBuilder
@@ -213,30 +214,30 @@ struct MainView: View {
                         Text(profile.displayName)
                     }
                 }
-                .help(String(localized: "Se connecter à \(profile.displayName)"))
+                .help(String(localized: "common.action.connect_to", defaultValue: "Connect to \(profile.displayName)"))
             }
 
             Divider()
-            Button("Ajouter un NAS…", systemImage: "plus", action: addNAS)
-                .help("Ajouter un NAS à DSM Access")
-            Button("Renommer le NAS…", action: beginRenamingNAS)
-                .help("Renommer le NAS connecté")
+            Button("common.action.add_nas", systemImage: "plus", action: addNAS)
+                .help("common.action.add_nas.hint")
+            Button("common.action.rename_nas", action: beginRenamingNAS)
+                .help("common.action.rename_nas.hint")
             Divider()
-            Button("Déconnexion", role: .destructive) {
+            Button("common.action.log_out", role: .destructive) {
                 Task { await logout() }
             }
-            .help("Se déconnecter du NAS")
+            .help("common.action.log_out.hint")
         } label: {
             Label(
-                session.activeProfile?.displayName ?? String(localized: "NAS"),
+                session.activeProfile?.displayName ?? String(localized: "common.label.nas"),
                 systemImage: "externaldrive.connected.to.line.below"
             )
         }
-        .help("Changer de NAS")
-        // La barre d'outils réduit ce menu à son icône : sans étiquette explicite,
-        // VoiceOver annonce le nom du symbole SF à la place du nom du NAS.
-        .accessibilityLabel("Changer de NAS")
-        .accessibilityValue(session.activeProfile?.displayName ?? String(localized: "Aucun NAS"))
+        .help("main.nas.switch")
+        // The toolbar reduces this menu to its icon: without an explicit label, VoiceOver
+        // announces the SF Symbol name instead of the NAS name.
+        .accessibilityLabel("main.nas.switch")
+        .accessibilityValue(session.activeProfile?.displayName ?? String(localized: "main.nas.none"))
     }
 
     private func normalizeSelection() {
@@ -265,7 +266,7 @@ struct MainView: View {
         guard let profileID = session.activeProfileID else { return }
         session.renameProfile(profileID, to: proposedNASName)
         VoiceOver.announce(
-            String(localized: "NAS renommé \(proposedNASName)"),
+            String(localized: "common.status.nas_renamed", defaultValue: "NAS renamed \(proposedNASName)"),
             category: .result
         )
     }

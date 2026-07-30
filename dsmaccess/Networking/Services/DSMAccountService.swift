@@ -2,7 +2,7 @@
 //  DSMAccountService.swift
 //  dsmaccess
 //
-//  Administration des utilisateurs et groupes locaux DSM.
+//  Administration of DSM local users and groups.
 //
 
 import Foundation
@@ -13,7 +13,7 @@ final class DSMAccountService {
     private static let groupAPI = DSMAPI("SYNO.Core.Group")
     private static let groupMemberAPI = DSMAPI("SYNO.Core.Group.Member")
     private static let passwordPolicyAPI = DSMAPI("SYNO.Core.User.PasswordPolicy")
-    /// Réponse de DSM quand le mot de passe ne satisfait pas les règles de force du NAS.
+    /// DSM's answer when the password does not satisfy the NAS's strength rules.
     private static let weakPasswordCode = 3121
 
     private let transport: DSMTransport
@@ -48,8 +48,8 @@ final class DSMAccountService {
             as: DSMGroupList.self
         )
         var groups = result.groups.filter { !$0.name.isEmpty }
-        // DSM ignore « members » dans l'additional de la liste ; les membres ne s'obtiennent
-        // que groupe par groupe, via SYNO.Core.Group.Member.
+        // DSM ignores "members" in the list's additional; members can only be obtained group
+        // by group, through SYNO.Core.Group.Member.
         for index in groups.indices {
             let members = try await transport.read(
                 api: Self.groupMemberAPI,
@@ -62,10 +62,10 @@ final class DSMAccountService {
         return groups
     }
 
-    /// DSM 7.4 accepte le paramètre « group » de SYNO.Core.User.create et répond `success`,
-    /// mais n'ajoute le compte à aucun de ces groupes : l'appartenance ne s'obtient qu'en
-    /// second appel, via SYNO.Core.Group.Member. Le compte existe dès la première étape,
-    /// d'où l'erreur dédiée si la seconde échoue.
+    /// DSM 7.4 accepts the "group" parameter of SYNO.Core.User.create and answers `success`,
+    /// but does not add the account to any of those groups: membership can only be obtained in
+    /// a second call, through SYNO.Core.Group.Member. The account exists as of the first step,
+    /// hence the dedicated error if the second one fails.
     func createUser(_ draft: DSMUserDraft) async throws {
         let parameters: [String: DSMParameter] = [
             "name": .string(draft.name),
@@ -93,8 +93,8 @@ final class DSMAccountService {
         }
     }
 
-    /// Applique l'appartenance d'un compte à un ensemble de groupes. DSM ne sait modifier
-    /// qu'un groupe à la fois : c'est le groupe qui porte ses membres, pas l'inverse.
+    /// Applies an account's membership to a set of groups. DSM can only modify one group at a
+    /// time: it is the group that carries its members, not the other way around.
     func setMemberships(of user: String, joining: [String], leaving: [String]) async throws {
         for group in joining {
             try await changeMembership(of: user, in: group, joins: true)
@@ -110,7 +110,7 @@ final class DSMAccountService {
             method: "change",
             parameters: [
                 "group": .string(group),
-                // Le paramètre est au singulier, et « add » répond succès sans rien faire.
+                // The parameter is singular, and "add" answers success without doing anything.
                 joins ? "add_member" : "remove_member": try DSMParameter.json([user]),
             ]
         )

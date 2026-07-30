@@ -2,22 +2,22 @@
 //  DSMUpgrade.swift
 //  dsmaccess
 //
-//  Mise à jour manuelle de DSM à partir d'un fichier .pat (SYNO.Core.Upgrade).
+//  Manual DSM update from a .pat file (SYNO.Core.Upgrade).
 //
 
 import Foundation
 
-/// Ce que DSM annonce du fichier reçu avant d'installer quoi que ce soit.
+/// What DSM says about the received file before installing anything.
 ///
-/// Le flux a été relevé sur DSM 7.4 en observant le client web, mais la forme exacte des
-/// réponses n'a pas pu être mesurée. Le décodage accepte donc plusieurs écritures et ne
-/// considère aucun champ comme obligatoire : une réponse inattendue doit laisser l'écran
-/// utilisable, pas interrompre l'opération.
+/// The flow was captured on DSM 7.4 by watching the web client, but the exact shape of the
+/// responses could not be measured. Decoding therefore accepts several spellings and treats
+/// no field as mandatory: an unexpected response must leave the screen usable, not interrupt
+/// the operation.
 struct DSMUpgradePreCheck: nonisolated Decodable, Equatable, Sendable {
-    /// Paquets que DSM cessera de prendre en charge après la mise à jour.
+    /// Packages DSM will stop supporting after the update.
     let unsupportedPackages: [String]
-    /// Vrai quand DSM a répondu dans une forme que l'app sait lire. Faux, l'écran renvoie
-    /// l'utilisateur vers DSM plutôt que d'affirmer qu'il n'y a aucune conséquence.
+    /// True when DSM answered in a shape the app knows how to read. When false, the screen
+    /// sends the user to DSM rather than claiming there is no consequence.
     let isUnderstood: Bool
 
     enum CodingKeys: String, CodingKey {
@@ -47,7 +47,7 @@ struct DSMUpgradePreCheck: nonisolated Decodable, Equatable, Sendable {
         self.isUnderstood = isUnderstood
     }
 
-    /// DSM écrit ce genre de liste tantôt en chaînes, tantôt en objets nommés.
+    /// DSM writes this kind of list sometimes as strings, sometimes as named objects.
     private static func names(
         in container: KeyedDecodingContainer<CodingKeys>,
         forKey key: CodingKeys
@@ -79,8 +79,8 @@ struct DSMUpgradePreCheck: nonisolated Decodable, Equatable, Sendable {
     }
 }
 
-/// Avancement renvoyé par `SYNO.Core.Upgrade` pendant l'installation. Aucun champ n'est
-/// garanti : l'écran se contente de ce qu'il obtient et n'invente pas de progression.
+/// Progress returned by `SYNO.Core.Upgrade` during installation. No field is guaranteed: the
+/// screen makes do with what it gets and does not invent progress.
 struct DSMUpgradeProgress: nonisolated Decodable, Equatable, Sendable {
     let percentage: Int?
     let isFinished: Bool
@@ -107,12 +107,12 @@ struct DSMUpgradeProgress: nonisolated Decodable, Equatable, Sendable {
     }
 }
 
-/// Réponse de `/webman/pingpong.cgi`, le signal que DSM utilise lui-même pour savoir si le
-/// NAS a fini de démarrer.
+/// Response of `/webman/pingpong.cgi`, the signal DSM itself uses to know whether the NAS has
+/// finished booting.
 ///
-/// ⚠️ Mesuré le 2026-07-28 : `boot_done` passe à `true` alors que l'interface de DSM affiche
-/// encore plusieurs minutes de redémarrage. Il dit que l'hôte répond, pas que la mise à jour
-/// est terminée — seule une reconnexion réussie le prouve.
+/// ⚠️ Measured on 2026-07-28: `boot_done` turns `true` while the DSM interface still shows
+/// several more minutes of restarting. It says the host is answering, not that the update is
+/// finished — only a successful reconnection proves that.
 struct DSMBootState: nonisolated Decodable, Equatable, Sendable {
     let isBootDone: Bool
 

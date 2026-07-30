@@ -2,26 +2,26 @@
 //  SystemLogEntry.swift
 //  dsmaccess
 //
-//  Journal système du NAS (SYNO.Core.SyslogClient.Log list) et liste de blocage du blocage
-//  automatique (SYNO.Core.Security.AutoBlock.Rules list).
+//  NAS system log (SYNO.Core.SyslogClient.Log list) and the auto block block list
+//  (SYNO.Core.Security.AutoBlock.Rules list).
 //
-//  Contrats relevés sur DSM 7.4 le 30/07/2026. Quatre particularités :
-//  — Le journal arrive sous la clé `items`, et chaque page porte le décompte par gravité.
-//    ⚠️ Ces décomptes valent pour la page reçue, pas pour tout le journal du NAS.
-//  — La catégorie tient dans `logtype`, que le NAS a **déjà traduit** dans la langue du compte
-//    DSM, et dans `orginalLogType` (sic), qui garde la valeur technique. C'est celle-ci qui est
-//    lue, pour que l'app parle sa propre langue et non celle de la session DSM.
-//  — Une entrée ne comporte **aucune adresse d'origine** : ni `from`, ni `ip`.
-//  — Une adresse bloquée sans expiration porte `expire_date` à 0, que le NAS formate quand même
-//    en « 1970/01/01 » : c'est l'entier qui fait foi.
+//  Contracts captured on DSM 7.4 on 2026/07/30. Four quirks:
+//  — The log arrives under the `items` key, and each page carries the per-severity counts.
+//    ⚠️ Those counts apply to the page received, not to the whole NAS log.
+//  — The category lives in `logtype`, which the NAS has **already translated** into the DSM
+//    account's language, and in `orginalLogType` (sic), which keeps the technical value. The
+//    latter is the one read, so the app speaks its own language and not the DSM session's.
+//  — An entry carries **no source address** at all: neither `from` nor `ip`.
+//  — A blocked address with no expiry carries `expire_date` at 0, which the NAS still formats
+//    as "1970/01/01": the integer is what counts.
 //
 
 import Foundation
 
-/// Journal demandé au NAS. ⚠️ `SYNO.Core.SyslogClient.Log` ne tient pas un journal mais
-/// plusieurs, et sans `logtype` il ne renvoie que celui du système : sur le DS920+ de
-/// développement, 6 997 entrées système contre plus de 114 000 au total. La valeur brute est
-/// celle que le NAS attend, et les journaux de transfert portent le nom de leur protocole.
+/// Log requested from the NAS. ⚠️ `SYNO.Core.SyslogClient.Log` does not keep one log but
+/// several, and without `logtype` it returns only the system one: on the development DS920+,
+/// 6,997 system entries against more than 114,000 in total. The raw value is the one the NAS
+/// expects, and the transfer logs are named after their protocol.
 enum SystemLogKind: String, nonisolated Sendable, Hashable, Identifiable, CaseIterable {
     case system
     case connection
@@ -34,27 +34,27 @@ enum SystemLogKind: String, nonisolated Sendable, Hashable, Identifiable, CaseIt
 
     var id: String { rawValue }
 
-    /// Journaux que le NAS tient toujours, sans réglage à activer.
+    /// Logs the NAS always keeps, with no setting to enable.
     static let always: [SystemLogKind] = [.system, .connection]
 
-    /// Journaux de transfert, chacun conditionné par la journalisation de son protocole.
+    /// Transfer logs, each one conditional on its protocol's logging being enabled.
     static let transfers: [SystemLogKind] = [.afp, .cifs, .fileStation, .ftp, .tftp, .webdav]
 
-    /// Les journaux de transfert n'ont pas la même forme que les autres : pas de gravité, mais
-    /// l'adresse d'origine, l'opération et la taille du fichier. Les colonnes en dépendent.
+    /// Transfer logs do not have the same shape as the others: no severity, but the source
+    /// address, the operation and the file size. The columns depend on this.
     var isTransfer: Bool { Self.transfers.contains(self) }
 }
 
-/// Réglages du blocage automatique (SYNO.Core.Security.AutoBlock get/set) : au bout de combien
-/// d'échecs, dans quelle fenêtre, et pour combien de temps le NAS refuse une adresse.
+/// Auto block settings (SYNO.Core.Security.AutoBlock get/set): after how many failures, within
+/// which window, and for how long the NAS refuses an address.
 struct AutoBlockSettings: nonisolated Decodable, Sendable, Equatable {
     var isEnabled: Bool
-    /// Nombre d'échecs de connexion à partir duquel l'adresse est bloquée.
+    /// Number of failed sign-in attempts after which the address is blocked.
     var attempts: Int
-    /// Fenêtre, en minutes, dans laquelle ces échecs sont comptés.
+    /// Window, in minutes, over which those failures are counted.
     var withinMinutes: Int
-    /// Jours au bout desquels un blocage expire. `0` signifie « jamais » — c'est ainsi que DSM
-    /// code l'absence d'expiration, et non par une valeur manquante.
+    /// Days after which a block expires. `0` means "never" — that is how DSM encodes the
+    /// absence of an expiry, not by a missing value.
     var expiryDays: Int
 
     var expires: Bool { expiryDays > 0 }
@@ -80,38 +80,38 @@ struct AutoBlockSettings: nonisolated Decodable, Sendable, Equatable {
         expiryDays = c.flexInt(.expiryDays) ?? 0
     }
 
-    /// Bornes que DSM impose à son propre formulaire. Un seuil hors bornes serait refusé.
+    /// Bounds DSM enforces on its own form. A threshold outside them would be rejected.
     static let attemptsRange = 1...100
     static let withinMinutesRange = 1...1440
     static let expiryDaysRange = 1...2000
 }
 
-/// Format d'export proposé par le NAS. La valeur brute est celle qu'il attend.
+/// Export format offered by the NAS. The raw value is the one it expects.
 enum SystemLogExportFormat: String, nonisolated Sendable, CaseIterable, Identifiable {
     case csv
     case html
 
     var id: String { rawValue }
 
-    /// Extension du fichier proposé à l'enregistrement.
+    /// Extension of the file offered when saving.
     var fileExtension: String { rawValue }
 }
 
-/// Protocoles dont le NAS journalise les transferts (SYNO.Core.SyslogClient.FileTransfer get).
-/// Ce réglage décide quels journaux de transfert existent : demander un journal désactivé
-/// renvoie zéro entrée sans erreur, ce qui se lirait comme un journal vide.
+/// Protocols whose transfers the NAS logs (SYNO.Core.SyslogClient.FileTransfer get). This
+/// setting decides which transfer logs exist: asking for a disabled log returns zero entries
+/// without an error, which would read as an empty log.
 struct FileTransferLogging: nonisolated Decodable, Sendable, Equatable {
     let enabled: Set<SystemLogKind>
 
-    /// Protocoles que ce réglage couvre, dans l'ordre où l'écran les présente.
+    /// Protocols this setting covers, in the order the screen presents them.
     static let protocols = SystemLogKind.transfers
 
     nonisolated init(enabled: Set<SystemLogKind>) {
         self.enabled = enabled
     }
 
-    /// Les six champs partent toujours, à leur valeur courante comprise : vérifié sur DSM 7.4,
-    /// `set` ignore les champs absents, mais les envoyer tous lève l'ambiguïté.
+    /// All six fields are always sent, including those at their current value: verified on
+    /// DSM 7.4, `set` ignores missing fields, but sending them all removes the ambiguity.
     var parameters: [String: Bool] {
         Dictionary(
             uniqueKeysWithValues: Self.protocols.map { ($0.rawValue, enabled.contains($0)) }
@@ -138,9 +138,9 @@ struct FileTransferLogging: nonisolated Decodable, Sendable, Equatable {
 
 struct SystemLogPage: nonisolated Decodable, Sendable {
     let entries: [SystemLogEntry]
-    /// Nombre d'entrées que le NAS conserve, indépendant de la page demandée.
+    /// Number of entries the NAS keeps, independent of the page requested.
     let total: Int?
-    /// Décomptes par gravité **de la page reçue**, renvoyés par le NAS avec celle-ci.
+    /// Per-severity counts **for the page received**, returned by the NAS along with it.
     let errorCount: Int?
     let warningCount: Int?
     let infoCount: Int?
@@ -155,8 +155,8 @@ struct SystemLogPage: nonisolated Decodable, Sendable {
     nonisolated init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let decoded = try c.decodeIfPresent([SystemLogEntry].self, forKey: .items) ?? []
-        // Le NAS n'attribue pas d'identifiant et deux entrées peuvent partager la seconde, le
-        // niveau et le message : le rang dans la page est la seule identité qui les distingue.
+        // The NAS assigns no identifier and two entries can share the same second, level and
+        // message: the rank within the page is the only identity that tells them apart.
         entries = decoded.enumerated().map { offset, entry in
             var positioned = entry
             positioned.position = offset
@@ -170,65 +170,65 @@ struct SystemLogPage: nonisolated Decodable, Sendable {
 }
 
 struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
-    /// Rang dans la page renvoyée, attribué au décodage. Le NAS ne fournit pas de clé.
+    /// Rank within the page returned, assigned at decoding time. The NAS provides no key.
     fileprivate(set) var position = 0
-    /// Horodatage brut du NAS, au format « aaaa/MM/jj HH:mm:ss ».
+    /// Raw NAS timestamp, in "yyyy/MM/dd HH:mm:ss" format.
     let rawTime: String?
-    /// `nil` dans les journaux de transfert, qui n'attribuent aucune gravité. Une colonne
-    /// « niveau inconnu » y serait un contresens.
+    /// `nil` in the transfer logs, which assign no severity at all. An "unknown level" column
+    /// there would be a misreading.
     let level: Level?
-    /// Catégorie technique, non traduite : « system ». Sert de clé d'affichage.
+    /// Technical, untranslated category: "system". Used as the display key.
     let technicalCategory: String?
-    /// Catégorie telle que le NAS l'a traduite, dans la langue du compte DSM. Repli quand la
-    /// valeur technique est inconnue de l'app.
+    /// Category as the NAS translated it, in the DSM account's language. Fallback when the
+    /// technical value is unknown to the app.
     let translatedCategory: String?
-    /// Compte concerné. Le journal système et celui des connexions l'écrivent dans `who`, les
-    /// journaux de transfert dans `username`.
+    /// Account involved. The system log and the connection log write it in `who`, the transfer
+    /// logs in `username`.
     let account: String?
     let message: String
-    /// Adresse d'origine, présente dans les journaux de transfert seulement.
+    /// Source address, present in the transfer logs only.
     let address: String?
-    /// Opération enregistrée par un journal de transfert : lecture, écriture, suppression…
+    /// Operation recorded by a transfer log: read, write, delete…
     let operation: String?
-    /// Taille du fichier transféré, en octets. `nil` pour un dossier ou hors transfert.
+    /// Size of the transferred file, in bytes. `nil` for a folder or outside a transfer.
     let fileSize: Int64?
-    /// Vrai quand l'entrée porte sur un dossier et non un fichier.
+    /// True when the entry concerns a folder and not a file.
     let isDirectory: Bool
 
     var id: Int { position }
 
-    /// Renumérote l'entrée à partir du rang donné. Les pages suivantes du journal repartent de
-    /// zéro : sans ce décalage, la deuxième page porterait les identifiants de la première et
-    /// le tableau confondrait ses lignes.
+    /// Renumbers the entry starting from the given rank. Later pages of the log start back at
+    /// zero: without this offset, the second page would carry the first page's identifiers and
+    /// the table would confuse its rows.
     nonisolated func renumbered(from start: Int) -> SystemLogEntry {
         var copy = self
         copy.position += start
         return copy
     }
 
-    /// Horodatage rendu dans la langue et le fuseau du Mac. DSM n'indique pas le fuseau de sa
-    /// valeur : elle est lue comme locale, ce qui est juste tant que le NAS et le Mac partagent
-    /// le même.
+    /// Timestamp rendered in the Mac's language and time zone. DSM does not state the time zone
+    /// of its value: it is read as local, which is correct as long as the NAS and the Mac share
+    /// the same one.
     var recordedAt: Date? {
         guard let rawTime else { return nil }
         return Self.nasFormatter.date(from: rawTime)
     }
 
-    /// Clés de tri non optionnelles : une valeur absente se range en tête plutôt que
-    /// d'empêcher le tri de sa colonne.
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted.
     var sortableDate: Date { recordedAt ?? .distantPast }
     var sortableAccount: String { account ?? "" }
     var sortableMessage: String { message }
     var sortableAddress: String { address ?? "" }
     var sortableOperation: String { operation ?? "" }
-    /// Une entrée sans taille se range avant les autres plutôt que d'empêcher le tri.
+    /// An entry with no size sorts before the others rather than preventing the sort.
     var sortableSize: Int64 { fileSize ?? -1 }
-    /// Trié par gravité décroissante, et non par ordre alphabétique. Une entrée sans gravité se
-    /// range avant les informations.
+    /// Sorted by decreasing severity, not alphabetically. An entry with no severity sorts
+    /// before the informational ones.
     var sortableLevel: Int { level?.severity ?? -1 }
 
-    /// Gravité telle que DSM la code : trois valeurs courtes. Une quatrième serait une
-    /// évolution de DSM, conservée telle quelle plutôt que rangée d'office dans l'une d'elles.
+    /// Severity as DSM encodes it: three short values. A fourth one would be a DSM evolution,
+    /// kept as is rather than forced into one of the existing ones.
     enum Level: nonisolated Sendable, Equatable, Hashable {
         case info
         case warning
@@ -264,7 +264,7 @@ struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
     nonisolated init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         rawTime = c.flexString(.time)
-        // Absent des journaux de transfert : une gravité inventée y serait fausse.
+        // Absent from the transfer logs: an invented severity there would be wrong.
         level = c.flexString(.level).map { Level(rawValue: $0) }
         technicalCategory = c.flexString(.technicalCategory).flatMap { $0.isEmpty ? nil : $0 }
         translatedCategory = c.flexString(.logtype).flatMap { $0.isEmpty ? nil : $0 }
@@ -272,7 +272,7 @@ struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
         message = c.flexString(.message) ?? ""
         address = Self.meaningful(c.flexString(.ip))
         operation = Self.meaningful(c.flexString(.cmd))
-        // Un dossier n'a pas de taille utile, et le NAS y écrit zéro.
+        // A folder has no useful size, and the NAS writes zero there.
         isDirectory = c.flexBool(.isdir) ?? false
         fileSize = isDirectory ? nil : c.flexInt64(.filesize).flatMap { $0 > 0 ? $0 : nil }
     }
@@ -286,29 +286,29 @@ struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
     private static let nasFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
-        // Composantes à un chiffre acceptées comme complétées : cette API envoie des valeurs
-        // complétées, mais le client web de DSM lit les deux formes.
+        // Single-digit components accepted as well as padded ones: this API sends padded
+        // values, but DSM's own web client reads both forms.
         formatter.dateFormat = "yyyy/M/d H:m:s"
         return formatter
     }()
 }
 
-/// Une adresse de la liste de blocage du blocage automatique.
+/// An address from the auto block block list.
 struct BlockedAddress: nonisolated Decodable, Sendable, Identifiable {
     let address: String
-    /// Pays déduit par DSM. Vide quand la géolocalisation n'aboutit pas.
+    /// Country inferred by DSM. Empty when geolocation does not resolve.
     let country: String?
     let isPublic: Bool
     let blockedAt: Date?
-    /// `nil` quand le blocage n'expire pas. Le NAS envoie alors 0, qu'il formate lui-même en
-    /// 1970 : la date formatée n'est donc jamais lue.
+    /// `nil` when the block does not expire. The NAS then sends 0, which it formats itself as
+    /// 1970: the formatted date is therefore never read.
     let expiresAt: Date?
 
     var id: String { address }
 
     var sortableCountry: String { country ?? "" }
     var sortableBlockedAt: Date { blockedAt ?? .distantPast }
-    /// Un blocage sans expiration se range après les autres : il est le plus durable.
+    /// A block with no expiry sorts after the others: it is the longest-lasting one.
     var sortableExpiry: Date { expiresAt ?? .distantFuture }
 
     enum CodingKeys: String, CodingKey {
@@ -327,8 +327,8 @@ struct BlockedAddress: nonisolated Decodable, Sendable, Identifiable {
         expiresAt = c.flexInt64(.expiresAt).flatMap(Self.date)
     }
 
-    /// Zéro n'est pas une date : c'est la façon dont DSM dit « pas d'expiration », et pour
-    /// `record_date` l'absence de valeur.
+    /// Zero is not a date: it is how DSM says "no expiry", and for `record_date` the absence
+    /// of a value.
     nonisolated private static func date(_ timestamp: Int64) -> Date? {
         guard timestamp > 0 else { return nil }
         return Date(timeIntervalSince1970: TimeInterval(timestamp))

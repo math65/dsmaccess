@@ -2,7 +2,7 @@
 //  DSMHTTPMethod.swift
 //  dsmaccess
 //
-//  Méthode HTTP utilisée pour transporter une requête WebAPI DSM.
+//  HTTP method used to carry a DSM WebAPI request.
 //
 
 enum DSMHTTPMethod: String, Equatable, Sendable {

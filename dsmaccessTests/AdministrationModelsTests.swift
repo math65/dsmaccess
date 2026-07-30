@@ -153,9 +153,9 @@ struct AdministrationModelsTests {
         #expect(camera.framesPerSecond == 25)
     }
 
-    /// Forme réelle d'une entrée, relevée sur DSM 7.4. Le décodage se limite aux six champs que
-    /// le NAS envoie : les alias supplémentaires qu'il a portés un temps ne correspondaient à
-    /// rien et laissaient les colonnes vides.
+    /// Real shape of an entry, captured on DSM 7.4. Decoding is limited to the six fields the
+    /// NAS sends: the extra aliases it carried for a while matched nothing and left the
+    /// columns empty.
     @Test func decodesASystemLogEntryAsTheNASSendsIt() throws {
         let data = Data(
             #"""
@@ -322,8 +322,8 @@ struct AdministrationModelsTests {
                 #"{"strong_password":{"min_length":20,"min_length_enable":true,"mixed_case":true,"included_numeric_char":true,"included_special_char":true}}"#.utf8
             )
         )
-        // Le tirage est aléatoire : ce sont les invariants qui sont vérifiés, sur assez
-        // d'échantillons pour qu'une classe manquante ressorte.
+        // The draw is random: it is the invariants that are checked, over enough samples for
+        // a missing class to show up.
         for _ in 0..<50 {
             let password = DSMPasswordPolicy.generatedPassword(for: policy)
             #expect(password.count == 20)
@@ -331,7 +331,7 @@ struct AdministrationModelsTests {
             #expect(password.contains { $0.isUppercase })
             #expect(password.contains { $0.isNumber })
             #expect(password.contains { !$0.isLetter && !$0.isNumber })
-            // Caractères écartés parce qu'ils se confondent à la lecture et à la dictée.
+            // Characters excluded because they get confused when read out and dictated.
             #expect(!password.contains { "l1IO0".contains($0) })
         }
     }

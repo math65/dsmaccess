@@ -2,9 +2,9 @@
 //  PackageSettingsSheet.swift
 //  dsmaccess
 //
-//  Feuille des réglages globaux du Centre de paquets (SYNO.Core.Package.Setting) : mise à jour
-//  automatique, paquets bêta, notifications. Chaque contrôle enregistre immédiatement (comme
-//  les bascules de FileServicesView) et annonce le résultat à VoiceOver.
+//  Sheet for the global Package Center settings (SYNO.Core.Package.Setting): automatic
+//  updates, beta packages, notifications. Each control saves immediately (like the toggles
+//  in FileServicesView) and announces the result to VoiceOver.
 //
 
 import SwiftUI
@@ -27,7 +27,7 @@ struct PackageSettingsSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Text("Réglages du Centre de paquets")
+            Text("packages.settings.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusTitle)
@@ -41,15 +41,15 @@ struct PackageSettingsSheet: View {
             }
 
             if vm.isSaving {
-                ProgressView("Enregistrement des réglages…")
+                ProgressView("packages.settings.saving.progress")
             }
 
             HStack {
                 Spacer()
-                Button("Terminé") { dismiss() }
+                Button("common.status.done") { dismiss() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(vm.isSaving)
-                    .help("Fermer les réglages du Centre de paquets")
+                    .help("packages.settings.close.hint")
             }
         }
         .padding(24)
@@ -69,15 +69,15 @@ struct PackageSettingsSheet: View {
         if vm.isLoading && vm.settings == nil {
             HStack(spacing: 12) {
                 ProgressView().controlSize(.small)
-                Text("Chargement…").foregroundStyle(.secondary)
+                Text("common.status.loading").foregroundStyle(.secondary)
             }
             .accessibilityElement(children: .combine)
             .accessibilityFocused($focusStatus)
         } else if let error = vm.errorMessage, vm.settings == nil {
             VStack(alignment: .leading, spacing: 12) {
                 Text(error).foregroundStyle(.red)
-                Button("Réessayer") { Task { await load() } }
-                    .help("Réessayer de charger les réglages du Centre de paquets")
+                Button("common.button.retry") { Task { await load() } }
+                    .help("packages.settings.retry.button")
             }
             .accessibilityFocused($focusStatus)
         } else if vm.settings != nil {
@@ -87,28 +87,28 @@ struct PackageSettingsSheet: View {
 
     private var controls: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Mise à jour automatique.
+            // Automatic updates.
             VStack(alignment: .leading, spacing: 4) {
-                Picker("Mise à jour automatique", selection: autoUpdateBinding) {
-                    Text("Désactivée").tag(AutoUpdateMode.off)
-                    Text("Versions importantes").tag(AutoUpdateMode.important)
-                    Text("Dernières versions").tag(AutoUpdateMode.latest)
+                Picker("packages.settings.automatic_updates", selection: autoUpdateBinding) {
+                    Text("common.status.disabled.feminine").tag(AutoUpdateMode.off)
+                    Text("packages.settings.update_scope.important").tag(AutoUpdateMode.important)
+                    Text("packages.settings.update_scope.latest").tag(AutoUpdateMode.latest)
                 }
-                .help("Choisir la stratégie de mise à jour automatique des paquets")
-                Text("Certains paquets ne prennent pas en charge la mise à jour automatique.")
+                .help("packages.settings.automatic_updates.hint")
+                Text("packages.settings.auto_update.footer")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            // Paquets bêta.
+            // Beta packages.
             VStack(alignment: .leading, spacing: 4) {
-                Toggle("Afficher les versions bêta", isOn: boolBinding(
+                Toggle("packages.settings.beta_versions.label", isOn: boolBinding(
                     get: { $0.updateChannelBeta },
                     set: { await vm.setBeta($0) }
                 ))
-                .help("Afficher les versions bêta dans le Centre de paquets")
-                Text("Les versions bêta permettent d'essayer les nouvelles fonctionnalités avant leur publication officielle.")
+                .help("packages.settings.beta_versions.hint")
+                Text("packages.settings.beta.description")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -116,44 +116,44 @@ struct PackageSettingsSheet: View {
 
             // Notifications.
             VStack(alignment: .leading, spacing: 8) {
-                Text("Notifications de mise à jour")
+                Text("packages.settings.update_notifications.section")
                     .font(.subheadline.weight(.semibold))
                     .accessibilityAddTraits(.isHeader)
-                Toggle("Activer les notifications sur le bureau", isOn: boolBinding(
+                Toggle("packages.settings.desktop_notifications", isOn: boolBinding(
                     get: { $0.enableDsm },
                     set: { await vm.setDsmNotify($0) }
                 ))
-                .help("Activer les notifications de mise à jour sur le bureau")
-                Toggle("Activer la notification par courriel", isOn: boolBinding(
+                .help("packages.settings.desktop_notifications.hint")
+                Toggle("packages.settings.email_notification.label", isOn: boolBinding(
                     get: { $0.enableEmail },
                     set: { await vm.setEmailNotify($0) }
                 ))
-                .help("Activer les notifications de mise à jour par courriel")
+                .help("packages.settings.email_notification.hint")
             }
 
             Divider()
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Paramètres conservés")
+                Text("packages.settings.preserved_settings.label")
                     .font(.subheadline.weight(.semibold))
                     .accessibilityAddTraits(.isHeader)
                 if let settings = vm.settings {
-                    LabeledContent("Volume par défaut", value: settings.defaultVol)
-                    LabeledContent("Niveau de confiance (code DSM)") {
+                    LabeledContent("packages.settings.default_volume", value: settings.defaultVol)
+                    LabeledContent("packages.settings.trust_level.label") {
                         Text(settings.trustLevel, format: .number.grouping(.never))
                     }
                 }
-                Text("DSM Access conserve ces valeurs lors de chaque enregistrement. Les API de ce NAS n’exposent pas de commande vérifiée permettant de modifier ici le niveau de confiance ou les certificats d’éditeur.")
+                Text("packages.settings.trust_level.description")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
                 if canManagePackageSources {
-                    Button("Gérer les sources de paquets…") {
+                    Button("packages.settings.manage_sources.button") {
                         showPackageSources = true
                     }
-                    .help("Ajouter, modifier ou supprimer les sources tierces du Centre de paquets")
+                    .help("packages.settings.sources.hint")
                 } else {
-                    Text("La gestion des sources de paquets n’est pas disponible sur ce NAS.")
+                    Text("packages.settings.manage_sources.unavailable")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -176,7 +176,7 @@ struct PackageSettingsSheet: View {
         )
     }
 
-    /// Fabrique un Binding<Bool> qui lit un champ des réglages et enregistre via `set`.
+    /// Builds a Binding<Bool> that reads a settings field and saves through `set`.
     private func boolBinding(get: @escaping (PackageSettings) -> Bool,
                              set: @escaping (Bool) async -> DSMOperationOutcome) -> Binding<Bool> {
         Binding(
@@ -192,7 +192,7 @@ struct PackageSettingsSheet: View {
 
     private var loadAnnouncement: String {
         if let error = vm.errorMessage { return error }
-        return String(localized: "Réglages du Centre de paquets chargés")
+        return String(localized: "packages.settings.loaded.announcement")
     }
 
     private func load() async {

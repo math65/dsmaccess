@@ -2,7 +2,7 @@
 //  ControlPanelView.swift
 //  dsmaccess
 //
-//  Point d'entrée des réglages système du NAS.
+//  Entry point for the NAS system settings.
 //
 
 import SwiftUI
@@ -17,11 +17,11 @@ struct ControlPanelView: View {
         NavigationStack(path: $path) {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Panneau de configuration")
+                    Text("common.module.control_panel")
                         .font(.largeTitle.bold())
                         .accessibilityAddTraits(.isHeader)
                         .accessibilityFocused($focusTitle)
-                    Text("Réglages système du NAS, regroupés par domaine.")
+                    Text("control_panel.description")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
@@ -62,7 +62,7 @@ struct ControlPanelView: View {
         .task {
             focusTitle = true
             VoiceOver.announce(
-                String(localized: "Panneau de configuration"),
+                String(localized: "common.module.control_panel"),
                 category: .navigation
             )
         }

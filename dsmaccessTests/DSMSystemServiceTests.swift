@@ -4,9 +4,9 @@ import Testing
 
 @MainActor
 struct DSMSystemServiceTests {
-    /// Contrat relevé sur DSM 7.4 : `kick_connection` ne prend pas d'identifiant de session.
-    /// Il attend deux listes, et le tri entre les deux dépend du protocole. Une session web
-    /// rangée dans `service_conn` — ou l'inverse — ne coupe rien tout en répondant vrai.
+    /// Contract captured on DSM 7.4: `kick_connection` takes no session identifier. It
+    /// expects two lists, and sorting between the two depends on the protocol. A web session
+    /// placed in `service_conn` — or the reverse — cuts nothing while still answering true.
     @Test func sendsTheTwoConnectionListsKickExpects() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),
@@ -30,8 +30,8 @@ struct DSMSystemServiceTests {
         #expect(service_ == [ServiceReference(pid: 12908, type: "SMB3", who: "testeur", from: "10.0.0.3")])
     }
 
-    /// Le client web envoie toujours les deux paramètres. En omettre un vide exposerait au
-    /// risque que DSM lise la liste restante comme portant sur tous les protocoles.
+    /// The web client always sends both parameters. Omitting an empty one would risk DSM
+    /// reading the remaining list as covering every protocol.
     @Test func sendsBothListsEvenWhenOneIsEmpty() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),
@@ -47,9 +47,9 @@ struct DSMSystemServiceTests {
         #expect(try decode([ServiceReference].self, from: parameters["service_conn"]).count == 1)
     }
 
-    /// Couper une session est une mutation : un délai d'attente ne doit pas la rejouer. Le NAS
-    /// peut avoir fermé les sessions avant de répondre, et une seconde tentative couperait
-    /// alors des sessions rouvertes entre-temps.
+    /// Cutting a session is a mutation: a timeout must not replay it. The NAS may have closed
+    /// the sessions before answering, and a second attempt would then cut sessions reopened
+    /// in the meantime.
     @Test func neverReplaysTheKickAfterATimeout() async throws {
         let stub = DSMRequestStub(results: [.timeout, .response(Data(#"{"success":true}"#.utf8))])
         let service = makeService(stub: stub)
@@ -69,8 +69,8 @@ struct DSMSystemServiceTests {
         #expect(await stub.requestCount == 1)
     }
 
-    /// Une erreur DSM doit remonter comme telle : un échec présenté en succès laisserait
-    /// croire qu'une session a été fermée alors qu'elle reste ouverte.
+    /// A DSM error must surface as such: a failure presented as a success would suggest a
+    /// session was closed while it stays open.
     @Test func reportsAKickRefusedByTheNAS() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":false,"error":{"code":105}}"#.utf8)),
@@ -84,9 +84,9 @@ struct DSMSystemServiceTests {
         }
     }
 
-    /// Le client web envoie `limit` et `offset` ; vérifié sur le NAS, la pagination est bien
-    /// honorée (2 sur 9 renvoyés) et `total` reste celui de l'ensemble. L'écran s'appuie sur
-    /// cet écart pour dire ce qu'il ne montre pas.
+    /// The web client sends `limit` and `offset`; verified on the NAS, pagination is indeed
+    /// honoured (2 out of 9 returned) and `total` stays that of the whole set. The screen
+    /// relies on that gap to state what it is not showing.
     @Test func asksForABoundedPageOfOpenedFiles() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"""
@@ -108,8 +108,8 @@ struct DSMSystemServiceTests {
         #expect(parameters["offset"] == "0")
     }
 
-    /// Le client web pagine ce journal ; l'écran s'appuie sur l'écart entre la page et le
-    /// total pour dire ce qu'il ne montre pas.
+    /// The web client paginates this log; the screen relies on the gap between the page and
+    /// the total to state what it is not showing.
     @Test func asksForABoundedPageOfHistoryEntries() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"""
@@ -131,8 +131,8 @@ struct DSMSystemServiceTests {
         #expect(parameters["offset"] == "0")
     }
 
-    /// Le réglage décide si le journal se remplit. Une réponse mal lue présenterait un NAS qui
-    /// enregistre comme un NAS silencieux.
+    /// The setting decides whether the log fills up. A misread answer would present a NAS
+    /// that is recording as a silent one.
     @Test func readsWhetherTheNASRecordsItsHistory() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"enable_history":true}}"#.utf8)),
@@ -145,9 +145,9 @@ struct DSMSystemServiceTests {
         #expect(parameters["method"] == "get")
     }
 
-    /// Changer le réglage est une mutation : un délai d'attente ne doit pas la rejouer. Le NAS
-    /// peut l'avoir appliquée avant de répondre, et une seconde tentative écraserait un
-    /// changement fait entre-temps depuis DSM.
+    /// Changing the setting is a mutation: a timeout must not replay it. The NAS may have
+    /// applied it before answering, and a second attempt would overwrite a change made from
+    /// DSM in the meantime.
     @Test func neverReplaysTheHistorySettingAfterATimeout() async throws {
         let stub = DSMRequestStub(results: [.timeout, .response(Data(#"{"success":true}"#.utf8))])
         let service = makeService(stub: stub)
@@ -165,7 +165,7 @@ struct DSMSystemServiceTests {
         #expect(await stub.requestCount == 1)
     }
 
-    /// DSM attend la case du formulaire telle qu'elle s'appelle, en booléen JSON.
+    /// DSM expects the form checkbox under its own name, as a JSON boolean.
     @Test func sendsTheHistorySettingAsDSMNamesIt() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),
@@ -180,9 +180,9 @@ struct DSMSystemServiceTests {
         #expect(parameters["enable_history"] == "false")
     }
 
-    /// Contrat éprouvé sur le NAS : la cible part dans un paramètre unique nommé `service`,
-    /// quel que soit le type de règle. Les noms de champs du formulaire web (`system`,
-    /// `service_name`, `volume`) ne sont pas des paramètres d'API — les envoyer vaut un refus.
+    /// Contract proven on the NAS: the target is sent in a single parameter named `service`,
+    /// whatever the rule type. The web form's field names (`system`, `service_name`,
+    /// `volume`) are not API parameters — sending them earns a refusal.
     @Test func sendsTheRuleTargetUnderTheSingleParameterDSMExpects() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),
@@ -204,8 +204,8 @@ struct DSMSystemServiceTests {
         #expect(parameters["service_name"] == nil)
     }
 
-    /// Vérifié sur le NAS : `enable` est exigé aussi en modification, alors que le formulaire
-    /// web cache la case dans ce mode. L'omettre fait échouer la requête.
+    /// Verified on the NAS: `enable` is required when editing too, even though the web form
+    /// hides the checkbox in that mode. Omitting it makes the request fail.
     @Test func alwaysSendsTheEnabledFlagEvenWhenEditing() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),
@@ -232,13 +232,13 @@ struct DSMSystemServiceTests {
         #expect(creation["enable"] == "true")
         #expect(creation["id"] == nil)
         #expect(edition["enable"] == "false")
-        // Décodé plutôt que comparé brut : Foundation échappe la barre oblique d'un chemin
-        // quand elle encode une chaîne JSON.
+        // Decoded rather than compared raw: Foundation escapes the slash of a path when it
+        // encodes a JSON string.
         #expect(try decode(String.self, from: edition["id"]) == "3_/volume1_5_0")
         #expect(try decode(String.self, from: edition["service"]) == "/volume1")
     }
 
-    /// Les identifiants de règle sont des chaînes composées par le NAS, pas des nombres.
+    /// Rule identifiers are strings composed by the NAS, not numbers.
     @Test func togglesAndDeletesRulesByTheirStringIdentifiers() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),
@@ -260,9 +260,9 @@ struct DSMSystemServiceTests {
             == ["0_general_4_0", "1_snmp.slice_0_1"])
     }
 
-    /// Enregistrer une règle est une mutation : un délai d'attente ne doit pas la rejouer. Le
-    /// NAS peut l'avoir créée avant de répondre, et la seconde tentative se heurterait alors à
-    /// la règle que la première vient d'écrire.
+    /// Saving a rule is a mutation: a timeout must not replay it. The NAS may have created it
+    /// before answering, and the second attempt would then collide with the rule the first
+    /// one just wrote.
     @Test func neverReplaysARuleSaveAfterATimeout() async throws {
         let stub = DSMRequestStub(results: [.timeout, .response(Data(#"{"success":true}"#.utf8))])
         let service = makeService(stub: stub)

@@ -2,7 +2,7 @@
 //  AppCommands.swift
 //  dsmaccess
 //
-//  Commandes de barre des menus reliées à la fenêtre active.
+//  Menu bar commands wired to the active window.
 //
 
 import SwiftUI
@@ -92,7 +92,7 @@ struct DSMCommands: Commands {
     @FocusedValue(\.fileCommandActions) private var fileActions
 
     var body: some Commands {
-        CommandMenu("NAS") {
+        CommandMenu("common.label.nas") {
             if let sessionActions {
                 ForEach(sessionActions.profiles) { profile in
                     Button {
@@ -104,39 +104,39 @@ struct DSMCommands: Commands {
                             Text(profile.displayName)
                         }
                     }
-                    .help(String(localized: "Se connecter à \(profile.displayName)"))
+                    .help(String(localized: "common.action.connect_to", defaultValue: "Connect to \(profile.displayName)"))
                 }
 
                 if !sessionActions.profiles.isEmpty {
                     Divider()
                 }
-                Button("Ajouter un NAS…", action: sessionActions.addNAS)
-                    .help("Ajouter un NAS à DSM Access")
-                Button("Renommer le NAS…", action: sessionActions.renameNAS)
+                Button("common.action.add_nas", action: sessionActions.addNAS)
+                    .help("common.action.add_nas.hint")
+                Button("common.action.rename_nas", action: sessionActions.renameNAS)
                     .disabled(sessionActions.activeProfileID == nil)
-                    .help("Renommer le NAS connecté")
+                    .help("common.action.rename_nas.hint")
                 SettingsLink {
-                    Text("Gérer les NAS…")
+                    Text("menu.nas.manage")
                 }
-                .help("Ouvrir les réglages des NAS enregistrés")
+                .help("menu.nas.manage.hint")
                 Divider()
-                Button("Déconnexion", role: .destructive, action: sessionActions.logout)
-                    .help("Se déconnecter du NAS")
+                Button("common.action.log_out", role: .destructive, action: sessionActions.logout)
+                    .help("common.action.log_out.hint")
             } else {
-                Button("Ajouter un NAS…") { }
+                Button("common.action.add_nas") { }
                     .disabled(true)
-                    .help("Connectez-vous pour ajouter un NAS")
+                    .help("menu.nas.sign_in_required")
                 SettingsLink {
-                    Text("Gérer les NAS…")
+                    Text("menu.nas.manage")
                 }
-                .help("Ouvrir les réglages des NAS enregistrés")
-                Button("Déconnexion", role: .destructive) { }
+                .help("menu.nas.manage.hint")
+                Button("common.action.log_out", role: .destructive) { }
                     .disabled(true)
-                    .help("Aucun NAS connecté")
+                    .help("menu.nas.none_connected")
             }
         }
 
-        CommandMenu("Navigation") {
+        CommandMenu("menu.navigation.section") {
             ForEach(AppModuleSection.allCases) { section in
                 Section(section.title) {
                     ForEach(section.modules) { module in
@@ -150,82 +150,82 @@ struct DSMCommands: Commands {
                         .disabled(
                             selectedModule == nil || availableModules?.contains(module) != true
                         )
-                        .help(String(localized: "Afficher \(module.localizedTitle)"))
+                        .help(String(localized: "menu.module.show", defaultValue: "Show \(module.localizedTitle)"))
                     }
                 }
             }
         }
 
-        CommandMenu("Fichiers") {
-            Button("Ouvrir") { fileActions?.open() }
+        CommandMenu("common.module.files") {
+            Button("common.button.open") { fileActions?.open() }
                 .keyboardShortcut("o", modifiers: .command)
                 .disabled(fileActions?.hasSingleSelection != true)
-                .help("Ouvrir l’élément sélectionné")
-            Button("Dossier parent") { fileActions?.goUp() }
+                .help("common.button.open.hint")
+            Button("common.button.parent_folder") { fileActions?.goUp() }
                 .keyboardShortcut(.upArrow, modifiers: .command)
                 .disabled(fileActions?.canGoUp != true)
-                .help("Ouvrir le dossier parent")
-            Button("Actualiser") { fileActions?.refresh() }
+                .help("menu.files.parent_folder")
+            Button("common.button.refresh") { fileActions?.refresh() }
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(fileActions == nil)
-                .help("Actualiser le dossier")
+                .help("menu.files.refresh_folder")
 
             Divider()
 
-            Button("Nouveau dossier") { fileActions?.createFolder() }
+            Button("common.button.new_folder") { fileActions?.createFolder() }
                 .keyboardShortcut("n", modifiers: [.command, .shift])
                 .disabled(fileActions?.canCreateFolder != true)
-                .help("Créer un nouveau dossier")
-            Button("Envoyer des fichiers…") { fileActions?.upload() }
+                .help("common.button.new_folder.hint")
+            Button("common.button.upload_files") { fileActions?.upload() }
                 .keyboardShortcut("u", modifiers: .command)
                 .disabled(fileActions?.canUpload != true)
-                .help("Envoyer des fichiers dans ce dossier")
-            Button("Télécharger…") { fileActions?.download() }
+                .help("common.button.upload_files.hint")
+            Button("common.button.download") { fileActions?.download() }
                 .keyboardShortcut("d", modifiers: [.command, .shift])
                 .disabled(
                     fileActions?.hasSelection != true || fileActions?.canDownload != true
                 )
-                .help("Télécharger les éléments sélectionnés")
+                .help("common.button.download.hint")
 
             Divider()
 
-            Button("Copier") { fileActions?.copy() }
+            Button("common.button.copy") { fileActions?.copy() }
                 .disabled(
                     fileActions?.hasSelection != true || fileActions?.canCopyMove != true
                 )
-                .help("Copier les éléments sélectionnés")
-            Button("Coller") { fileActions?.paste() }
+                .help("common.button.copy.hint")
+            Button("common.button.paste") { fileActions?.paste() }
                 .disabled(fileActions?.canPaste != true)
-                .help("Coller ici les éléments copiés ou les fichiers du Finder")
-            Button("Déplacer ici") { fileActions?.moveHere() }
+                .help("common.button.paste.hint")
+            Button("common.button.move_here") { fileActions?.moveHere() }
                 .disabled(fileActions?.canMoveHere != true)
-                .help("Déplacer ici les éléments copiés, en les retirant de leur emplacement d’origine")
-            Button("Renommer…") { fileActions?.rename() }
+                .help("common.button.move_here.hint")
+            Button("common.menu.rename") { fileActions?.rename() }
                 .disabled(
                     fileActions?.hasSingleSelection != true || fileActions?.canRename != true
                 )
-                .help("Renommer l’élément sélectionné")
+                .help("common.button.rename.hint")
 
             Divider()
 
-            Button("Compresser…") { fileActions?.compress() }
+            Button("common.button.compress") { fileActions?.compress() }
                 .disabled(
                     fileActions?.hasSelection != true || fileActions?.canCompress != true
                 )
-                .help("Compresser les éléments sélectionnés")
-            Button("Extraire") { fileActions?.extract() }
+                .help("common.button.compress.hint")
+            Button("common.button.extract") { fileActions?.extract() }
                 .disabled(fileActions?.canExtract != true)
-                .help("Extraire l’archive sélectionnée")
-            Button("Supprimer…", role: .destructive) { fileActions?.delete() }
+                .help("common.button.extract.hint")
+            Button("common.menu.delete", role: .destructive) { fileActions?.delete() }
                 .disabled(fileActions?.hasSelection != true || fileActions?.canDelete != true)
-                .help("Supprimer les éléments sélectionnés")
+                .help("common.button.delete.hint")
 
             Divider()
 
-            Button("Lire les informations") { fileActions?.showInfo() }
+            Button("common.button.get_info") { fileActions?.showInfo() }
                 .keyboardShortcut("i", modifiers: .command)
                 .disabled(fileActions?.hasSingleSelection != true)
-                .help("Lire les informations de l’élément sélectionné")
+                .help("common.button.get_info.hint")
         }
     }
 }

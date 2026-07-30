@@ -2,10 +2,10 @@
 //  FeedbackDiagnostics.swift
 //  dsmaccess
 //
-//  Instantané de diagnostic joint aux signalements de problème. Les libellés sont
-//  en français littéral (et non localisés) : ils composent l'e-mail reçu par le
-//  développeur, pas l'interface. Aucune donnée du NAS n'y figure : ni adresse,
-//  ni compte, ni nom de profil, ni identifiant de session.
+//  Diagnostic snapshot attached to problem reports. The labels are literal French
+//  (and not localized): they make up the email the developer receives, not the
+//  interface. No NAS data appears in it: no address, no account, no profile name,
+//  no session identifier.
 //
 
 import AppKit

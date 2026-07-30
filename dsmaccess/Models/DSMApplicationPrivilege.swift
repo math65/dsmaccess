@@ -2,13 +2,13 @@
 //  DSMApplicationPrivilege.swift
 //  dsmaccess
 //
-//  Droits d'accès aux applications DSM (SYNO.Core.AppPriv).
+//  Access rights to the DSM applications (SYNO.Core.AppPriv).
 //
 
 import Foundation
 
-/// Décision explicite portée par une règle. Son absence laisse l'application relever du
-/// droit accordé à tout le monde, puis du défaut déclaré par l'application elle-même.
+/// Explicit decision carried by a rule. Its absence leaves the application governed by the
+/// right granted to everyone, then by the default declared by the application itself.
 enum DSMApplicationDecision: String, Sendable, Hashable, CaseIterable, Identifiable {
     case allow
     case deny
@@ -17,35 +17,35 @@ enum DSMApplicationDecision: String, Sendable, Hashable, CaseIterable, Identifia
 
     var label: String {
         switch self {
-        case .allow: return String(localized: "Autoriser")
-        case .deny: return String(localized: "Refuser")
+        case .allow: return String(localized: "privileges.application.allow")
+        case .deny: return String(localized: "privileges.application.deny")
         }
     }
 }
 
-/// Une application du catalogue, accompagnée de la décision prise pour un compte ou un groupe.
+/// An application from the catalogue, together with the decision made for an account or group.
 struct DSMApplicationPrivilege: Identifiable, Hashable, Sendable {
     let appID: String
-    /// Nom déjà localisé par DSM : ne pas le retraduire.
+    /// Name already localized by DSM: do not translate it again.
     let name: String
     let isGrantedByDefault: Bool
     var decision: DSMApplicationDecision?
-    /// Vrai quand la règle vise des adresses précises plutôt que « toutes ». L'app ne sait
-    /// pas éditer ce cas sans risquer d'effacer la restriction : la ligne reste en lecture.
+    /// True when the rule targets specific addresses rather than "all". The app cannot edit
+    /// that case without risking erasing the restriction: the row stays read-only.
     let restrictsAddresses: Bool
 
     var id: String { appID }
 
-    /// Ce qui s'applique faute de décision explicite, à énoncer pour que « par défaut » ne
-    /// soit pas un choix aveugle.
+    /// What applies in the absence of an explicit decision, to be stated so that "by default"
+    /// is not a blind choice.
     var fallbackLabel: String {
         isGrantedByDefault
-            ? String(localized: "autorisée par défaut")
-            : String(localized: "refusée par défaut")
+            ? String(localized: "privileges.application.allow_default")
+            : String(localized: "privileges.application.deny_default")
     }
 }
 
-/// Catalogue des applications soumises à autorisation (`SYNO.Core.AppPriv.App list`).
+/// Catalogue of the applications subject to authorization (`SYNO.Core.AppPriv.App list`).
 struct DSMApplicationList: nonisolated Decodable, Sendable {
     struct Application: nonisolated Decodable, Sendable {
         let appID: String
@@ -76,8 +76,8 @@ struct DSMApplicationList: nonisolated Decodable, Sendable {
     }
 }
 
-/// Règles posées pour une entité (`SYNO.Core.AppPriv.Rule get`). DSM exprime la décision par
-/// deux listes d'adresses : « 0.0.0.0 » y signifie « toutes ».
+/// Rules set for an entity (`SYNO.Core.AppPriv.Rule get`). DSM expresses the decision through
+/// two address lists: "0.0.0.0" means "all" there.
 struct DSMApplicationRuleList: nonisolated Decodable, Sendable {
     struct Rule: nonisolated Decodable, Sendable {
         static let anyAddress = "0.0.0.0"

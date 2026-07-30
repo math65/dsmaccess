@@ -2,17 +2,17 @@
 //  DSMClient.swift
 //  dsmaccess
 //
-//  Façade de session regroupant les services DSM spécialisés.
+//  Session facade grouping the specialized DSM services.
 //
 
 import Foundation
 
-/// Contrat de la façade DSM. Les services concrets partagent un transport unique qui
-/// centralise la découverte des API, l'authentification et la gestion des erreurs.
+/// Contract of the DSM facade. The concrete services share a single transport that
+/// centralizes API discovery, authentication and error handling.
 @MainActor
 protocol DSMClientProtocol: AnyObject {
     var capabilities: DSMCapabilities { get }
-    /// Réinstalle une session conservée d'un lancement précédent, avant tout appel.
+    /// Reinstalls a session kept from a previous launch, before any call.
     func adoptSession(_ session: StoredDSMSession)
     func discoverCapabilities() async throws -> DSMCapabilities
     func apiInfo(for apis: [String]) async throws -> [String: APIInfoEntry]

@@ -83,8 +83,8 @@ struct QuickConnectResolverTests {
     }
 
     @Test func rejectsRoutesWhosePingAnswersForAnotherServer() async {
-        // Le lien entre la réponse de contrôle et la route passe par le pingpong :
-        // une route qui répond pour un autre serveur est écartée, directe comme relais.
+        // The link between the control response and the route goes through the pingpong:
+        // a route that answers for another server is discarded, direct as well as relay.
         let host = "192-0-2-10.MY-NAS.direct.quickconnect.to"
         let stub = DSMRequestStub(results: [
             .response(serverInfo(serverID: "077000111", smartDNSHost: host)),
@@ -127,8 +127,8 @@ struct QuickConnectResolverTests {
     }
 
     @Test func acceptsTheNumericInternalServerIDReturnedByQuickConnect() async throws {
-        // Le service réel renvoie un identifiant interne numérique dans `server.serverID`,
-        // différent de l'alias demandé, et le pingpong répond md5(identifiant interne).
+        // The real service returns a numeric internal identifier in `server.serverID`,
+        // different from the alias requested, and the pingpong answers md5(internal id).
         let internalID = "077000111"
         let host = "192-0-2-10.MY-NAS.direct.quickconnect.to"
         let stub = DSMRequestStub(results: [

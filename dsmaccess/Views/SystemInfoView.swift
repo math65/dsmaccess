@@ -2,7 +2,7 @@
 //  SystemInfoView.swift
 //  dsmaccess
 //
-//  Informations générales et ressources du NAS.
+//  General information and resources of the NAS.
 //
 
 import SwiftUI
@@ -21,7 +21,7 @@ struct SystemInfoView: View {
     var body: some View {
         Group {
             if vm.isLoading && vm.info == nil {
-                ModuleLoadingView("Chargement des informations…")
+                ModuleLoadingView("common.status.loading_information")
                     .accessibilityFocused($focusContent)
             } else if let error = vm.errorMessage, vm.info == nil {
                 ModuleErrorView(message: error) {
@@ -30,19 +30,19 @@ struct SystemInfoView: View {
                 .accessibilityFocused($focusContent)
             } else if let info = vm.info {
                 Form {
-                    Section("Système") {
-                        LabeledContent("Modèle", value: info.model)
-                        LabeledContent("Numéro de série", value: info.serial)
-                        LabeledContent("Version DSM", value: info.versionString)
-                        LabeledContent("Mémoire vive", value: vm.ramText)
-                        LabeledContent("Temps de fonctionnement", value: vm.uptimeText)
-                        LabeledContent("Température", value: vm.temperatureText)
+                    Section("common.label.system") {
+                        LabeledContent("common.label.model", value: info.model)
+                        LabeledContent("system_info.serial_number.label", value: info.serial)
+                        LabeledContent("system_info.dsm_version.label", value: info.versionString)
+                        LabeledContent("system_info.memory.label", value: vm.ramText)
+                        LabeledContent("common.label.uptime", value: vm.uptimeText)
+                        LabeledContent("common.column.temperature", value: vm.temperatureText)
                     }
                 }
                 .formStyle(.grouped)
                 .accessibilityFocused($focusContent)
             } else {
-                ModuleLoadingView("Chargement des informations…")
+                ModuleLoadingView("common.status.loading_information")
             }
         }
         .toolbar {
@@ -50,9 +50,9 @@ struct SystemInfoView: View {
                 Button {
                     Task { await load() }
                 } label: {
-                    Label("Actualiser", systemImage: "arrow.clockwise")
+                    Label("common.button.refresh", systemImage: "arrow.clockwise")
                 }
-                .help("Actualiser les informations du NAS")
+                .help("system_info.refresh.action")
             }
         }
         .task { await load(restoresInitialFocus: true) }
@@ -60,7 +60,7 @@ struct SystemInfoView: View {
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement des informations…"),
+            String(localized: "common.status.loading_information"),
             category: .progress,
             priority: .low
         )

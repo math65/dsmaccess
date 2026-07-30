@@ -4,8 +4,8 @@ import Testing
 
 @MainActor
 struct OpenedFileTests {
-    /// Forme relevée sur le DS920+ en DSM 7.4 le 30/07/2026. Les chemins réels du NAS n'y
-    /// figurent pas : seule la forme de la réponse est reprise.
+    /// Shape observed on the DS920+ under DSM 7.4 on 2026/07/30. The NAS's real paths do not
+    /// appear here: only the shape of the response is reproduced.
     @Test func readsOpenedFilesAsTheNASSendsThem() throws {
         let payload = Data(#"""
         {"OpenedFiles":[
@@ -29,9 +29,9 @@ struct OpenedFileTests {
         #expect(network.processID == "14002")
     }
 
-    /// DSM écrit « - » et non une chaîne vide quand la valeur ne s'applique pas : un service
-    /// du NAS lui-même n'a ni compte ni machine d'origine. Affiché tel quel, ce tiret passerait
-    /// pour une donnée renvoyée par le NAS.
+    /// DSM writes "-" and not an empty string when the value does not apply: a service of the
+    /// NAS itself has neither an account nor an originating machine. Displayed as is, that dash
+    /// would look like data returned by the NAS.
     @Test func readsADashAsAnAbsentAccountAndHost() throws {
         let payload = Data(#"""
         {"OpenedFiles":[{"filename":"base.db","host":"-","path":"AppData/base.db",
@@ -44,14 +44,14 @@ struct OpenedFileTests {
 
         #expect(file.account == nil)
         #expect(file.host == nil)
-        // Le reste de la ligne survit : le fichier reste listé avec son service.
+        // The rest of the row survives: the file stays listed with its service.
         #expect(file.service == "Service local")
         #expect(file.displayName == "base.db")
     }
 
-    /// `path` est relatif au partage et se termine par le nom du fichier. Le dossier en est
-    /// déduit pour ne pas répéter le nom dans deux colonnes voisines ; un chemin sans dossier
-    /// ne doit pas produire une chaîne vide, qui se lirait comme une valeur.
+    /// `path` is relative to the share and ends with the file name. The folder is derived from
+    /// it so the name is not repeated in two neighbouring columns; a path without a folder must
+    /// not produce an empty string, which would read as a value.
     @Test func derivesTheFolderWithoutRepeatingTheFileName() throws {
         let payload = Data(#"""
         {"OpenedFiles":[
@@ -66,9 +66,8 @@ struct OpenedFileTests {
         #expect(files[1].folder == "Partage/Sous dossier")
     }
 
-    /// Un même processus tient souvent plusieurs fichiers, et un même chemin peut être ouvert
-    /// par plusieurs processus. Sans les deux dans la clé, des lignes distinctes se
-    /// confondraient dans le tableau.
+    /// A single process often holds several files, and a single path can be opened by several
+    /// processes. Without both in the key, distinct rows would be conflated in the table.
     @Test func distinguishesFilesHeldByTheSameProcess() throws {
         let payload = Data(#"""
         {"OpenedFiles":[
@@ -82,8 +81,8 @@ struct OpenedFileTests {
         #expect(files[0].id != files[1].id)
     }
 
-    /// Un NAS au repos ne renvoie aucun fichier. L'absence de la clé ne doit pas faire échouer
-    /// le décodage : l'écran a un état vide à présenter.
+    /// An idle NAS returns no file at all. A missing key must not make decoding fail: the
+    /// screen has an empty state to present.
     @Test func survivesAResponseWithoutAnyOpenedFile() throws {
         let page = try JSONDecoder().decode(
             OpenedFilePage.self, from: Data(#"{"total":0}"#.utf8)

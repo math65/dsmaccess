@@ -2,7 +2,7 @@
 //  USBCopyTask.swift
 //  dsmaccess
 //
-//  Tâches renvoyées par l’API privée SYNO.USBCopy.
+//  Tasks returned by the private SYNO.USBCopy API.
 //
 
 import Foundation
@@ -18,9 +18,9 @@ enum USBCopyTaskType: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var localizedName: String {
         switch self {
-        case .importGeneral: String(localized: "Importer des données depuis un périphérique USB")
-        case .exportGeneral: String(localized: "Exporter des données vers un périphérique USB")
-        case .importPhoto: String(localized: "Importer des photos et vidéos")
+        case .importGeneral: String(localized: "usb_copy.task.mode.import")
+        case .exportGeneral: String(localized: "usb_copy.task.mode.export")
+        case .importPhoto: String(localized: "usb_copy.task.mode.import_photos")
         }
     }
 }
@@ -34,9 +34,9 @@ enum USBCopyStrategy: String, CaseIterable, Codable, Identifiable, Sendable {
 
     var localizedName: String {
         switch self {
-        case .versioning: String(localized: "Versions multiples")
-        case .mirror: String(localized: "Miroir")
-        case .incremental: String(localized: "Copie incrémentielle")
+        case .versioning: String(localized: "usb_copy.task.copy_mode.multi_version")
+        case .mirror: String(localized: "usb_copy.task.copy_mode.mirror")
+        case .incremental: String(localized: "common.label.incremental_copy")
         }
     }
 }
@@ -49,8 +49,8 @@ enum USBCopyConflictPolicy: String, CaseIterable, Codable, Identifiable, Sendabl
 
     var localizedName: String {
         switch self {
-        case .rename: String(localized: "Renommer le nouveau fichier")
-        case .overwrite: String(localized: "Remplacer le fichier existant")
+        case .rename: String(localized: "usb_copy.task.conflict.rename")
+        case .overwrite: String(localized: "usb_copy.task.conflict.overwrite")
         }
     }
 }
@@ -63,8 +63,8 @@ enum USBCopyRotationPolicy: String, CaseIterable, Codable, Identifiable, Sendabl
 
     var localizedName: String {
         switch self {
-        case .oldestVersion: String(localized: "Supprimer les versions les plus anciennes")
-        case .smartRecycle: String(localized: "Recyclage intelligent")
+        case .oldestVersion: String(localized: "usb_copy.task.rotation.delete_oldest")
+        case .smartRecycle: String(localized: "usb_copy.task.rotation.smart_recycle")
         }
     }
 }
@@ -84,17 +84,17 @@ enum USBCopyTaskStatus: String, Sendable {
 
     var localizedName: String {
         switch self {
-        case .initial: String(localized: "Jamais exécutée")
-        case .successful: String(localized: "Terminée")
-        case .failed: String(localized: "Échec")
-        case .waiting: String(localized: "En attente")
-        case .copying: String(localized: "Copie en cours")
-        case .disabled: String(localized: "Désactivée")
-        case .unmounted: String(localized: "Périphérique déconnecté")
-        case .shareUnavailable: String(localized: "Dossier indisponible")
-        case .shareDeleted: String(localized: "Dossier supprimé")
-        case .canceling: String(localized: "Annulation en cours")
-        case .notAvailable: String(localized: "Non disponible")
+        case .initial: String(localized: "usb_copy.task.status.never_run")
+        case .successful: String(localized: "common.status.completed.feminine")
+        case .failed: String(localized: "common.status.failed")
+        case .waiting: String(localized: "common.status.waiting")
+        case .copying: String(localized: "usb_copy.task.status.copying")
+        case .disabled: String(localized: "common.status.disabled.feminine")
+        case .unmounted: String(localized: "usb_copy.task.status.device_disconnected")
+        case .shareUnavailable: String(localized: "usb_copy.task.status.folder_unavailable")
+        case .shareDeleted: String(localized: "usb_copy.task.status.folder_deleted")
+        case .canceling: String(localized: "usb_copy.task.status.cancelling")
+        case .notAvailable: String(localized: "common.value.not_available")
         }
     }
 }

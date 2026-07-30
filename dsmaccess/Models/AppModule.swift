@@ -17,10 +17,10 @@ enum AppModuleSection: String, CaseIterable, Identifiable {
 
     var title: LocalizedStringKey {
         switch self {
-        case .overview: "Vue d’ensemble"
-        case .files: "Fichiers et partage"
-        case .administration: "Administration"
-        case .applications: "Applications"
+        case .overview: "modules.overview.title"
+        case .files: "modules.section.files_sharing"
+        case .administration: "modules.section.administration"
+        case .applications: "common.label.applications"
         }
     }
 }
@@ -60,41 +60,41 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var title: LocalizedStringKey {
         switch self {
-        case .systemInfo: "Votre NAS"
-        case .resourceMonitor: "Moniteur de ressources"
-        case .storage: "Stockage"
-        case .logsSecurity: "Journaux et sécurité"
-        case .files: "Fichiers"
-        case .shares: "Dossiers partagés"
-        case .downloads: "Download Station"
-        case .usbCopy: "USB Copy"
-        case .usersGroups: "Utilisateurs et groupes"
-        case .fileServices: "Services de fichiers"
-        case .packages: "Centre de paquets"
-        case .controlPanel: "Panneau de configuration"
-        case .containers: "Conteneurs"
-        case .virtualMachines: "Machines virtuelles"
-        case .surveillance: "Surveillance Station"
+        case .systemInfo: "modules.section.your_nas"
+        case .resourceMonitor: "modules.resource_monitor.title"
+        case .storage: "common.module.storage"
+        case .logsSecurity: "modules.logs_security.title"
+        case .files: "common.module.files"
+        case .shares: "common.module.shared_folders"
+        case .downloads: "modules.download_station.title"
+        case .usbCopy: "modules.usb_copy.title"
+        case .usersGroups: "modules.users_groups.title"
+        case .fileServices: "common.module.file_services"
+        case .packages: "common.module.package_center"
+        case .controlPanel: "common.module.control_panel"
+        case .containers: "common.module.containers"
+        case .virtualMachines: "common.module.virtual_machines"
+        case .surveillance: "modules.surveillance_station.title"
         }
     }
 
     var localizedTitle: String {
         switch self {
-        case .systemInfo: String(localized: "Votre NAS")
-        case .resourceMonitor: String(localized: "Moniteur de ressources")
-        case .storage: String(localized: "Stockage")
-        case .logsSecurity: String(localized: "Journaux et sécurité")
-        case .files: String(localized: "Fichiers")
-        case .shares: String(localized: "Dossiers partagés")
-        case .downloads: String(localized: "Download Station")
-        case .usbCopy: String(localized: "USB Copy")
-        case .usersGroups: String(localized: "Utilisateurs et groupes")
-        case .fileServices: String(localized: "Services de fichiers")
-        case .packages: String(localized: "Centre de paquets")
-        case .controlPanel: String(localized: "Panneau de configuration")
-        case .containers: String(localized: "Conteneurs")
-        case .virtualMachines: String(localized: "Machines virtuelles")
-        case .surveillance: String(localized: "Surveillance Station")
+        case .systemInfo: String(localized: "modules.section.your_nas")
+        case .resourceMonitor: String(localized: "modules.resource_monitor.title")
+        case .storage: String(localized: "common.module.storage")
+        case .logsSecurity: String(localized: "modules.logs_security.title")
+        case .files: String(localized: "common.module.files")
+        case .shares: String(localized: "common.module.shared_folders")
+        case .downloads: String(localized: "modules.download_station.title")
+        case .usbCopy: String(localized: "modules.usb_copy.title")
+        case .usersGroups: String(localized: "modules.users_groups.title")
+        case .fileServices: String(localized: "common.module.file_services")
+        case .packages: String(localized: "common.module.package_center")
+        case .controlPanel: String(localized: "common.module.control_panel")
+        case .containers: String(localized: "common.module.containers")
+        case .virtualMachines: String(localized: "common.module.virtual_machines")
+        case .surveillance: String(localized: "modules.surveillance_station.title")
         }
     }
 
@@ -178,15 +178,15 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
 
     var unavailableHelp: LocalizedStringKey {
         switch self {
-        case .downloads: "Download Station n’est pas installé ou son API n’est pas disponible."
-        case .usbCopy: "USB Copy n’est pas installé ou son API n’est pas disponible."
-        case .containers: "Container Manager n’est pas installé ou son API n’est pas disponible."
-        case .virtualMachines: "Virtual Machine Manager n’est pas installé ou son API n’est pas disponible."
-        case .surveillance: "Surveillance Station n’est pas installé ou son API n’est pas disponible."
-        case .usersGroups: "L’administration des utilisateurs et groupes n’est pas exposée par ce NAS."
-        case .logsSecurity: "Les interfaces de journalisation et de sécurité ne sont pas exposées par ce NAS."
-        case .resourceMonitor: "Ce NAS n’expose pas les mesures de charge du moniteur de ressources."
-        default: "Ce module n’est pas disponible sur ce NAS."
+        case .downloads: "modules.download_station.unavailable"
+        case .usbCopy: "modules.usb_copy.unavailable"
+        case .containers: "modules.container_manager.unavailable"
+        case .virtualMachines: "modules.virtual_machine_manager.unavailable"
+        case .surveillance: "modules.surveillance_station.unavailable"
+        case .usersGroups: "modules.users_groups.unavailable"
+        case .logsSecurity: "modules.logs_security.unavailable"
+        case .resourceMonitor: "modules.resource_monitor.unavailable"
+        default: "modules.unavailable.generic"
         }
     }
 }

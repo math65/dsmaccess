@@ -2,22 +2,22 @@
 //  BackendAnnouncementCoordinator.swift
 //  dsmaccess
 //
-//  Vérifie au lancement si le backend a un message de l'éditeur à afficher, et
-//  applique côté client le mode « une seule fois » (le serveur renvoie toujours
-//  l'annonce active). L'échec du réseau est silencieux : ce service est
-//  facultatif et ne doit jamais gêner le démarrage.
+//  Checks at launch whether the backend has a publisher message to display, and
+//  applies the "once only" mode on the client side (the server always returns the
+//  active announcement). Network failure is silent: this service is optional and
+//  must never get in the way of startup.
 //
-//  La présentation passe par NSAlert et non par le modificateur `.alert` de
-//  SwiftUI : attaché en permanence à la racine, celui-ci fait échouer l'audit
-//  d'accessibilité de la fenêtre (hiérarchie parent/enfant incohérente), alors
-//  que NSAlert est entièrement lu par VoiceOver et gère le clavier nativement.
+//  Presentation goes through NSAlert and not SwiftUI's `.alert` modifier:
+//  permanently attached to the root, the latter makes the window's accessibility
+//  audit fail (inconsistent parent/child hierarchy), whereas NSAlert is read in
+//  full by VoiceOver and handles the keyboard natively.
 //
 
 import AppKit
 
 final class BackendAnnouncementCoordinator {
-    /// Annonce retenue par `checkAtLaunch`, à présenter via `presentPendingAnnouncement`.
-    /// Séparée de la présentation pour rester testable sans interface.
+    /// Announcement held by `checkAtLaunch`, to be presented via `presentPendingAnnouncement`.
+    /// Kept separate from presentation so it stays testable without a user interface.
     private(set) var pendingAnnouncement: AppBackendClient.Announcement?
 
     private let client: AppBackendClient
@@ -43,18 +43,18 @@ final class BackendAnnouncementCoordinator {
         pendingAnnouncement = announcement
     }
 
-    /// Affiche l'annonce en attente dans une alerte modale, puis confirme
-    /// l'affichage au backend et compte l'activation éventuelle du bouton lien.
+    /// Displays the pending announcement in a modal alert, then confirms the
+    /// display to the backend and counts any activation of the link button.
     func presentPendingAnnouncement() {
         guard let announcement = pendingAnnouncement else { return }
         let alert = NSAlert()
         alert.alertStyle = announcement.style == "warning" ? .warning : .informational
         alert.messageText = announcement.title
         alert.informativeText = announcement.body
-        // Avec un lien, « OK » (fermer) reste l'action par défaut et le bouton
-        // lien vient en second. Sans lien, NSAlert affiche son « OK » implicite.
+        // With a link, "OK" (dismiss) stays the default action and the link
+        // button comes second. Without a link, NSAlert shows its implicit "OK".
         if let link = announcement.link {
-            alert.addButton(withTitle: String(localized: "OK"))
+            alert.addButton(withTitle: String(localized: "common.button.ok"))
             alert.addButton(withTitle: link.label)
         }
         NSApp.activate(ignoringOtherApps: true)
@@ -66,7 +66,7 @@ final class BackendAnnouncementCoordinator {
         }
     }
 
-    /// Mémorise l'annonce comme vue et confirme l'affichage au backend.
+    /// Records the announcement as seen and confirms the display to the backend.
     func markPresented(_ announcement: AppBackendClient.Announcement) {
         pendingAnnouncement = nil
         var seenIDs = Preferences.seenBackendAnnouncementIDs
@@ -82,7 +82,7 @@ final class BackendAnnouncementCoordinator {
         }
     }
 
-    /// Ouvre le lien du bouton secondaire et compte le clic côté backend.
+    /// Opens the secondary button's link and counts the click on the backend side.
     func openLink(of announcement: AppBackendClient.Announcement) {
         guard let link = announcement.link, let url = URL(string: link.url) else { return }
         NSWorkspace.shared.open(url)

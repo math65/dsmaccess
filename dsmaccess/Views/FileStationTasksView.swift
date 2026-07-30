@@ -2,7 +2,7 @@
 //  FileStationTasksView.swift
 //  dsmaccess
 //
-//  Suivi des opérations asynchrones conservées par File Station sur le NAS.
+//  Tracking the asynchronous operations File Station keeps on the NAS.
 //
 
 import SwiftUI
@@ -18,7 +18,7 @@ struct FileStationTasksView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Tâches File Station")
+            Text("common.action.file_station_tasks")
                 .font(.title2.bold())
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusHeading)
@@ -30,7 +30,7 @@ struct FileStationTasksView: View {
             }
 
             if automaticFollowStopped {
-                Text("Le suivi automatique s’est interrompu : les valeurs affichées datent de la dernière lecture réussie.")
+                Text("file_tasks.polling_stopped.description")
                     .font(.callout)
                     .foregroundStyle(.readableOrange)
             }
@@ -38,22 +38,22 @@ struct FileStationTasksView: View {
             content
 
             HStack {
-                Button("Effacer les tâches terminées") {
+                Button("file_tasks.clear_finished.button") {
                     Task { await clearFinishedTasks() }
                 }
                 .disabled(
                     vm.isLoadingBackgroundTasks
                         || !vm.backgroundTasks.contains(where: \.finished)
                 )
-                .help("Retirer de l’historique les opérations terminées")
+                .help("file_tasks.clear_finished.hint")
 
-                Button("Actualiser") { Task { await loadTasks() } }
+                Button("common.button.refresh") { Task { await loadTasks() } }
                     .disabled(vm.isLoadingBackgroundTasks)
-                    .help("Actualiser les tâches File Station")
+                    .help("file_tasks.refresh.label")
 
                 Spacer()
 
-                Button("Fermer", role: .cancel) { dismiss() }
+                Button("common.button.close", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
             }
         }
@@ -69,29 +69,29 @@ struct FileStationTasksView: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoadingBackgroundTasks && vm.backgroundTasks.isEmpty {
-            ModuleLoadingView("Chargement des tâches File Station…")
+            ModuleLoadingView("file_tasks.loading")
                 .accessibilityFocused($focusStatus)
         } else if let error = vm.backgroundTasksError {
             VStack(spacing: 12) {
                 Text(error)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
-                Button("Réessayer") { Task { await loadTasks() } }
+                Button("common.button.retry") { Task { await loadTasks() } }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityFocused($focusStatus)
         } else if vm.backgroundTasks.isEmpty {
             ContentUnavailableView(
-                "Aucune tâche File Station",
+                "file_tasks.empty",
                 systemImage: "list.bullet.rectangle",
-                description: Text("Les opérations de copie, compression, extraction et suppression apparaîtront ici.")
+                description: Text("file_tasks.empty.description")
             )
             .accessibilityFocused($focusStatus)
         } else {
             List(vm.backgroundTasks) { task in
                 taskRow(task)
             }
-            .accessibilityLabel("Historique des tâches File Station")
+            .accessibilityLabel("file_tasks.table.label")
         }
     }
 
@@ -101,7 +101,7 @@ struct FileStationTasksView: View {
                 Text(task.operationLabel)
                     .font(.headline)
                 Spacer()
-                Text(task.finished ? "Terminée" : "En cours")
+                Text(task.finished ? "common.status.completed.feminine" : "common.status.in_progress")
                     .foregroundStyle(.secondary)
             }
 
@@ -115,7 +115,7 @@ struct FileStationTasksView: View {
 
             if let fraction = task.normalizedProgress {
                 ProgressView(value: fraction)
-                    .accessibilityLabel(String(localized: "Progression de \(task.operationLabel)"))
+                    .accessibilityLabel(String(localized: "common.label.progress_for", defaultValue: "\(task.operationLabel) progress"))
                     .accessibilityValue(fraction.formatted(.percent.precision(.fractionLength(0))))
             }
 
@@ -130,10 +130,10 @@ struct FileStationTasksView: View {
                 }
                 Spacer()
                 if !task.finished, FileOperationKind(rawValue: task.api) != nil {
-                    Button("Arrêter", role: .destructive) {
+                    Button("common.button.stop", role: .destructive) {
                         Task { await stop(task) }
                     }
-                    .help(String(localized: "Arrêter la tâche \(task.operationLabel)"))
+                    .help(String(localized: "file_tasks.stop.label", defaultValue: "Stop the \(task.operationLabel) task"))
                 }
             }
         }
@@ -141,10 +141,10 @@ struct FileStationTasksView: View {
         .accessibilityElement(children: .contain)
     }
 
-    /// Le NAS ne signale rien de lui-même : sans relecture, la fenêtre garde la progression
-    /// figée à l'instant de son ouverture. La relecture reste silencieuse et ne déplace pas
-    /// le curseur VoiceOver, qui serait sinon ramené en haut de la fenêtre toutes les
-    /// trois secondes.
+    /// The NAS reports nothing on its own: without re-reading, the window keeps progress
+    /// frozen at the moment it opened. The re-read stays silent and does not move the
+    /// VoiceOver cursor, which would otherwise be dragged back to the top of the window
+    /// every three seconds.
     private func followRunningTasks() async {
         while !Task.isCancelled {
             do {
@@ -157,14 +157,14 @@ struct FileStationTasksView: View {
                   vm.backgroundTasks.contains(where: { !$0.finished })
             else { continue }
             guard await vm.refreshBackgroundTasksQuietly() else {
-                // Une seule annonce : le suivi ne reprendra qu'après « Actualiser », donc
-                // le message ne se répétera pas d'un tour à l'autre. La boucle doit
-                // continuer de tourner à vide : c'est elle qui repart quand « Actualiser »
-                // remet le drapeau à zéro. La quitter ici rendrait le bouton trompeur,
-                // l'alerte disparaissant sans que le suivi reprenne.
+                // A single announcement: tracking will only resume after "Refresh", so the
+                // message will not repeat from one round to the next. The loop must keep
+                // spinning idle: it is what starts up again when "Refresh" clears the flag.
+                // Leaving it here would make the button misleading, with the warning
+                // disappearing without tracking resuming.
                 automaticFollowStopped = true
                 VoiceOver.announce(
-                    String(localized: "Le suivi automatique des tâches s’est interrompu."),
+                    String(localized: "file_tasks.polling_stopped.title"),
                     category: .error,
                     priority: .high
                 )
@@ -172,7 +172,7 @@ struct FileStationTasksView: View {
             }
             if !vm.backgroundTasks.contains(where: { !$0.finished }) {
                 VoiceOver.announce(
-                    String(localized: "Toutes les tâches File Station sont terminées."),
+                    String(localized: "file_tasks.all_finished.announcement"),
                     category: .result
                 )
             }
@@ -187,7 +187,7 @@ struct FileStationTasksView: View {
         if vm.backgroundTasksError == nil {
             focusHeading = true
             VoiceOver.announce(
-                String(localized: "\(vm.backgroundTasks.count) tâches File Station"),
+                String(localized: "file_tasks.count", defaultValue: "\(vm.backgroundTasks.count) File Station tasks"),
                 category: .result
             )
         } else if let error = vm.backgroundTasksError {

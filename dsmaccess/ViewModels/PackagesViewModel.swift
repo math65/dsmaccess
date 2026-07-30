@@ -2,7 +2,7 @@
 //  PackagesViewModel.swift
 //  dsmaccess
 //
-//  Charge et administre les paquets installés sur DSM.
+//  Loads and administers the packages installed on DSM.
 //
 
 import Foundation
@@ -89,12 +89,12 @@ final class PackagesViewModel {
     func setRunning(_ package: PackageInfo, running: Bool) async -> DSMOperationOutcome {
         guard capabilities?.canControlPackages == true, package.canStartStop else {
             return .failure(
-                String(localized: "Le contrôle de ce paquet n’est pas disponible sur ce NAS.")
+                String(localized: "packages.control.unavailable.error")
             )
         }
         let id = package.pkgId
         guard busy.insert(id).inserted else {
-            return .failure(String(localized: "Une opération est déjà en cours pour ce paquet."))
+            return .failure(String(localized: "packages.operation.busy_package.error"))
         }
         defer { busy.remove(id) }
         do {
@@ -102,45 +102,45 @@ final class PackagesViewModel {
             await load()
             return .success(
                 running
-                    ? String(localized: "\(package.displayName) démarré")
-                    : String(localized: "\(package.displayName) arrêté")
+                    ? String(localized: "packages.start.success", defaultValue: "\(package.displayName) started")
+                    : String(localized: "packages.stop.success", defaultValue: "\(package.displayName) stopped")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
             await load()
-            return .failure(String(localized: "Échec pour \(package.displayName) : \(reason)"))
+            return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(package.displayName): \(reason)"))
         }
     }
 
     func uninstall(_ package: PackageInfo) async -> DSMOperationOutcome {
         guard capabilities?.canUninstallPackages == true, package.canUninstall else {
             return .failure(
-                String(localized: "La désinstallation de ce paquet n’est pas disponible sur ce NAS.")
+                String(localized: "packages.uninstall.unavailable.error")
             )
         }
         guard !package.hasUninstallOptions else {
             return .failure(
                 String(
-                    localized: "Ce paquet exige un assistant de désinstallation propre à DSM. Désinstallez-le depuis le Centre de paquets DSM pour choisir correctement le traitement de ses données."
+                    localized: "packages.uninstall.assistant_required.error"
                 )
             )
         }
         let id = package.pkgId
         guard busy.insert(id).inserted else {
-            return .failure(String(localized: "Une opération est déjà en cours pour ce paquet."))
+            return .failure(String(localized: "packages.operation.busy_package.error"))
         }
         defer { busy.remove(id) }
         do {
             try await session.withClient { try await $0.uninstallPackage(id: id) }
             await load()
-            return .success(String(localized: "\(package.displayName) désinstallé"))
+            return .success(String(localized: "packages.uninstall.success", defaultValue: "\(package.displayName) uninstalled"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
             await load()
             return .failure(
-                String(localized: "Échec de la désinstallation de \(package.displayName) : \(reason)")
+                String(localized: "packages.uninstall.error", defaultValue: "Failed to uninstall \(package.displayName): \(reason)")
             )
         }
     }
@@ -148,20 +148,20 @@ final class PackagesViewModel {
     func applyUpdate(_ package: PackageInfo) async -> DSMOperationOutcome {
         guard capabilities?.canInstallVerifiedUpdates == true else {
             return .failure(
-                String(localized: "L’installation des mises à jour n’est pas disponible sur ce NAS.")
+                String(localized: "packages.update.unavailable.error")
             )
         }
         guard let update = update(for: package) else {
             return .failure(
-                String(localized: "Aucune mise à jour disponible pour \(package.displayName).")
+                String(localized: "packages.update.none_for_package.error", defaultValue: "No update is available for \(package.displayName).")
             )
         }
 
         let id = package.pkgId
         guard busy.insert(id).inserted else {
-            return .failure(String(localized: "Une opération est déjà en cours pour ce paquet."))
+            return .failure(String(localized: "packages.operation.busy_package.error"))
         }
-        activeOperationName = String(localized: "Mise à jour de \(package.displayName)")
+        activeOperationName = String(localized: "packages.update.status", defaultValue: "Updating \(package.displayName)")
         operationProgress = nil
         defer {
             busy.remove(id)
@@ -178,13 +178,13 @@ final class PackagesViewModel {
                 )
             }
             await load(forceCatalogRefresh: true)
-            return .success(String(localized: "\(package.displayName) mis à jour"))
+            return .success(String(localized: "packages.update.success", defaultValue: "\(package.displayName) updated"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = Self.errorDescription(for: error)
             await load()
             return .failure(
-                String(localized: "Échec de la mise à jour de \(package.displayName) : \(reason)")
+                String(localized: "packages.update.error", defaultValue: "Failed to update \(package.displayName): \(reason)")
             )
         }
     }
@@ -192,25 +192,26 @@ final class PackagesViewModel {
     func install(_ catalogItem: PackageUpdate) async -> DSMOperationOutcome {
         guard capabilities?.canInstallCatalogPackages == true else {
             return .failure(
-                String(localized: "L’installation depuis le catalogue n’est pas disponible sur ce NAS.")
+                String(localized: "common.error.catalog_install_unavailable")
             )
         }
         guard installedPackage(for: catalogItem) == nil else {
             return .failure(
-                String(localized: "Le paquet \(catalogItem.packageID) est déjà installé.")
+                String(localized: "packages.install.already_installed.error", defaultValue: "The \(catalogItem.packageID) package is already installed.")
             )
         }
         guard !catalogItem.requirements.requiresInteractiveInstaller else {
             return .failure(
                 String(
-                    localized: "Le paquet \(catalogItem.packageID) exige une licence ou un assistant de configuration propre à DSM. Installez-le depuis le Centre de paquets DSM pour effectuer ces choix explicitement."
+                    localized: "common.error.package_requires_dsm_wizard",
+                    defaultValue: "The \(catalogItem.packageID) package requires a DSM licence or configuration wizard. Install it in DSM Package Center so you can make those choices explicitly."
                 )
             )
         }
         return await runCatalogOperation(
             packageID: catalogItem.packageID,
-            operationName: String(localized: "Installation de \(catalogItem.packageID)"),
-            successMessage: String(localized: "\(catalogItem.packageID) installé")
+            operationName: String(localized: "packages.install.status", defaultValue: "Installing \(catalogItem.packageID)"),
+            successMessage: String(localized: "packages.install.success", defaultValue: "\(catalogItem.packageID) installed")
         ) { client, progress in
             try await client.installPackage(catalogItem, progress: progress)
         }
@@ -219,30 +220,32 @@ final class PackagesViewModel {
     func repair(_ package: PackageInfo) async -> DSMOperationOutcome {
         guard capabilities?.canRepairPackages == true, package.requiresAttention else {
             return .failure(
-                String(localized: "La réparation de ce paquet n’est pas disponible sur ce NAS.")
+                String(localized: "packages.repair.unavailable.error")
             )
         }
         guard let catalogItem = catalogItem(for: package) else {
             return .failure(
                 String(
-                    localized: "Aucun paquet officiel correspondant à \(package.displayName) n’est disponible pour la réparation."
+                    localized: "packages.repair.no_official_package.error",
+                    defaultValue: "No matching official package is available to repair \(package.displayName)."
                 )
             )
         }
         guard !catalogItem.requirements.requiresInteractiveInstaller else {
             return .failure(
                 String(
-                    localized: "Le paquet \(package.displayName) exige une licence ou un assistant de configuration propre à DSM. Réparez-le depuis le Centre de paquets DSM pour effectuer ces choix explicitement."
+                    localized: "packages.repair.assistant_required.error",
+                    defaultValue: "The \(package.displayName) package requires a DSM licence or configuration wizard. Repair it in DSM Package Center so you can make those choices explicitly."
                 )
             )
         }
         let installsNewerVersion = update(for: package) != nil
         return await runCatalogOperation(
             packageID: package.pkgId,
-            operationName: String(localized: "Réparation de \(package.displayName)"),
+            operationName: String(localized: "packages.repair.status", defaultValue: "Repairing \(package.displayName)"),
             successMessage: installsNewerVersion
-                ? String(localized: "\(package.displayName) réparé et mis à jour")
-                : String(localized: "\(package.displayName) réparé")
+                ? String(localized: "packages.repair.updated.success", defaultValue: "\(package.displayName) repaired and updated")
+                : String(localized: "packages.repair.success", defaultValue: "\(package.displayName) repaired")
         ) { client, progress in
             try await client.repairPackage(
                 catalogItem,
@@ -255,15 +258,15 @@ final class PackagesViewModel {
     func installManualPackage(at fileURL: URL) async -> DSMOperationOutcome {
         guard capabilities?.canInstallManualPackages == true else {
             return .failure(
-                String(localized: "L’installation manuelle de paquets n’est pas disponible sur ce NAS.")
+                String(localized: "packages.manual_install.unavailable.error")
             )
         }
         let filename = fileURL.lastPathComponent
         let operationID = "manual:\(filename.lowercased())"
         guard busy.insert(operationID).inserted else {
-            return .failure(String(localized: "Une installation manuelle est déjà en cours."))
+            return .failure(String(localized: "packages.manual_install.busy.error"))
         }
-        activeOperationName = String(localized: "Installation de \(filename)")
+        activeOperationName = String(localized: "packages.install.status", defaultValue: "Installing \(filename)")
         operationProgress = nil
         transferProgress = nil
         let hasSecurityScope = fileURL.startAccessingSecurityScopedResource()
@@ -284,13 +287,13 @@ final class PackagesViewModel {
                 )
             }
             await load(forceCatalogRefresh: true)
-            return .success(String(localized: "\(installedName) installé"))
+            return .success(String(localized: "packages.install.success", defaultValue: "\(installedName) installed"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = Self.errorDescription(for: error)
             await load()
             return .failure(
-                String(localized: "Échec de l’installation de \(filename) : \(reason)")
+                String(localized: "packages.install.error", defaultValue: "Failed to install \(filename): \(reason)")
             )
         }
     }
@@ -298,18 +301,18 @@ final class PackagesViewModel {
     func applyAllUpdates() async -> DSMOperationOutcome {
         guard capabilities?.canInstallVerifiedUpdates == true else {
             return .failure(
-                String(localized: "L’installation des mises à jour n’est pas disponible sur ce NAS.")
+                String(localized: "packages.update.unavailable.error")
             )
         }
         let updates = packages.compactMap { package in
             update(for: package).map { (package, $0) }
         }
         guard !updates.isEmpty else {
-            return .failure(String(localized: "Aucune mise à jour disponible."))
+            return .failure(String(localized: "packages.update.none.error"))
         }
         let identifiers = Set(updates.map { $0.0.pkgId })
         guard busy.isDisjoint(with: identifiers) else {
-            return .failure(String(localized: "Une opération est déjà en cours pour un paquet."))
+            return .failure(String(localized: "packages.operation.busy.error"))
         }
         busy.formUnion(identifiers)
         operationProgress = nil
@@ -324,7 +327,7 @@ final class PackagesViewModel {
         for (package, update) in updates {
             do {
                 try Task.checkCancellation()
-                activeOperationName = String(localized: "Mise à jour de \(package.displayName)")
+                activeOperationName = String(localized: "packages.update.status", defaultValue: "Updating \(package.displayName)")
                 operationProgress = nil
                 try await session.withClient {
                     try await $0.upgradePackage(
@@ -340,19 +343,21 @@ final class PackagesViewModel {
             } catch {
                 failures.append(
                     String(
-                        localized: "\(package.displayName) : \(Self.errorDescription(for: error))"
+                        localized: "packages.operation.detail.format",
+                        defaultValue: "\(package.displayName): \(Self.errorDescription(for: error))"
                     )
                 )
             }
         }
         await load(forceCatalogRefresh: true)
         if failures.isEmpty {
-            return .success(String(localized: "\(completed) paquets mis à jour"))
+            return .success(String(localized: "packages.update_all.success", defaultValue: "\(completed) packages updated"))
         }
         let failureSummary = failures.formatted(.list(type: .and))
         return .failure(
             String(
-                localized: "\(completed) paquets mis à jour, \(failures.count) en échec : \(failureSummary)"
+                localized: "packages.update_all.partial_failure.summary",
+                defaultValue: "\(completed) packages updated, \(failures.count) failed: \(failureSummary)"
             )
         )
     }
@@ -410,16 +415,18 @@ final class PackagesViewModel {
         if let transferProgress {
             if let fraction = transferProgress.fractionCompleted, fraction < 1 {
                 return String(
-                    localized: "\(activeOperationName), envoi \(fraction.formatted(.percent.precision(.fractionLength(0))))"
+                    localized: "packages.operation.upload.progress",
+                    defaultValue: "\(activeOperationName), upload \(fraction.formatted(.percent.precision(.fractionLength(0))))"
                 )
             }
-            return String(localized: "\(activeOperationName), installation par le NAS")
+            return String(localized: "packages.operation.installing.progress", defaultValue: "\(activeOperationName), installing on the NAS")
         }
         guard let operationProgress else {
-            return String(localized: "\(activeOperationName), préparation par le NAS")
+            return String(localized: "packages.operation.preparing.progress", defaultValue: "\(activeOperationName), preparing on the NAS")
         }
         return String(
-            localized: "\(activeOperationName), vérification de l’état \(operationProgress.statusChecks)"
+            localized: "packages.operation.status_check.progress",
+            defaultValue: "\(activeOperationName), status check \(operationProgress.statusChecks)"
         )
     }
 
@@ -433,7 +440,7 @@ final class PackagesViewModel {
         ) async throws -> Void
     ) async -> DSMOperationOutcome {
         guard busy.insert(packageID).inserted else {
-            return .failure(String(localized: "Une opération est déjà en cours pour ce paquet."))
+            return .failure(String(localized: "packages.operation.busy_package.error"))
         }
         activeOperationName = operationName
         operationProgress = nil
@@ -456,7 +463,7 @@ final class PackagesViewModel {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = Self.errorDescription(for: error)
             await load()
-            return .failure(String(localized: "Échec pour \(packageID) : \(reason)"))
+            return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(packageID): \(reason)"))
         }
     }
 
@@ -607,14 +614,16 @@ final class PackagesViewModel {
         let base: String
         if !availableUpdates.isEmpty && updateCount > 0 {
             base = String(
-                localized: "\(packages.count) paquets, \(updateCount) mises à jour disponibles"
+                localized: "packages.summary.count_with_updates",
+                defaultValue: "\(packages.count) packages, \(updateCount) updates available"
             )
         } else {
-            base = String(localized: "\(packages.count) paquets installés")
+            base = String(localized: "packages.installed.count", defaultValue: "\(packages.count) installed packages")
         }
         if let catalogErrorMessage {
             return String(
-                localized: "\(base). Catalogue indisponible : \(catalogErrorMessage)"
+                localized: "packages.catalog.unavailable.summary",
+                defaultValue: "\(base). Catalog unavailable: \(catalogErrorMessage)"
             )
         }
         return base

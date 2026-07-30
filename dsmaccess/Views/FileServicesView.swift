@@ -1,7 +1,7 @@
 //
 //  FileServicesView.swift
 //  dsmaccess
-//  Gestion des protocoles de partage de fichiers DSM.
+//  Management of the DSM file sharing protocols.
 
 import SwiftUI
 
@@ -21,28 +21,28 @@ struct FileServicesView: View {
                 Button {
                     reloadAll()
                 } label: {
-                    Label("Actualiser", systemImage: "arrow.clockwise")
+                    Label("common.button.refresh", systemImage: "arrow.clockwise")
                 }
-                .help("Actualiser l’état des services")
+                .help("file_services.refresh.label")
             }
         }
         .task {
             await load(restoresInitialFocus: true)
         }
         .confirmationDialog(
-            "Désactiver ce service ?",
+            "file_services.disable.confirm",
             isPresented: Binding(
                 get: { pendingDisable != nil },
                 set: { if !$0 { pendingDisable = nil } }
             ),
             presenting: pendingDisable
         ) { service in
-            Button("Désactiver \(service.displayName)", role: .destructive) {
+            Button(String(localized: "files.service.disable.button", defaultValue: "Disable \(service.displayName)"), role: .destructive) {
                 apply(service, enabled: false)
             }
-            .help(String(localized: "Désactiver \(service.displayName)"))
-            Button("Annuler", role: .cancel) { }
-                .help("Conserver ce service activé")
+            .help(String(localized: "files.service.disable.button", defaultValue: "Disable \(service.displayName)"))
+            Button("common.button.cancel", role: .cancel) { }
+                .help("file_services.disable.cancel")
         } message: { service in
             Text(disableWarning(for: service))
         }
@@ -56,16 +56,16 @@ struct FileServicesView: View {
         } else {
             List {
                 Section {
-                    Text("Activez ou désactivez les protocoles de partage de fichiers du NAS.")
+                    Text("file_services.protocols.description")
                         .foregroundStyle(.readableSecondary)
                 }
-                Section("Protocoles") {
+                Section("file_services.section.protocols") {
                     ForEach(vm.services) { service in
                         row(for: service)
                     }
                 }
             }
-            .accessibilityLabel("Services de fichiers")
+            .accessibilityLabel("common.module.file_services")
             .accessibilityFocused($focusContent)
         }
     }
@@ -85,17 +85,17 @@ struct FileServicesView: View {
         .contextMenu {
             switch state {
             case .on:
-                Button("Désactiver \(service.displayName)") { pendingDisable = service }
+                Button(String(localized: "files.service.disable.button", defaultValue: "Disable \(service.displayName)")) { pendingDisable = service }
                     .disabled(vm.busy.contains(service))
-                    .help(String(localized: "Désactiver \(service.displayName)"))
+                    .help(String(localized: "files.service.disable.button", defaultValue: "Disable \(service.displayName)"))
             case .off:
-                Button("Activer \(service.displayName)") { apply(service, enabled: true) }
+                Button(String(localized: "file_services.service.enable.action", defaultValue: "Enable \(service.displayName)")) { apply(service, enabled: true) }
                     .disabled(vm.busy.contains(service))
-                    .help(String(localized: "Activer \(service.displayName)"))
+                    .help(String(localized: "file_services.service.enable.action", defaultValue: "Enable \(service.displayName)"))
             case .unknown, .failed:
-                Button("Réessayer") { reloadAll() }
+                Button("common.button.retry") { reloadAll() }
                     .disabled(vm.busy.contains(service))
-                    .help(String(localized: "Réessayer de charger \(service.displayName)"))
+                    .help(String(localized: "file_services.retry.hint", defaultValue: "Retry loading \(service.displayName)"))
             }
         }
     }
@@ -106,7 +106,7 @@ struct FileServicesView: View {
         switch state {
         case .on, .off:
             Toggle(
-                "Activer \(service.displayName)",
+                String(localized: "file_services.service.enable.action", defaultValue: "Enable \(service.displayName)"),
                 isOn: Binding(
                     get: { state == .on },
                     set: { enabled in
@@ -122,13 +122,13 @@ struct FileServicesView: View {
                 .disabled(isBusy)
                 .accessibilityLabel(service.displayName)
                 .accessibilityValue(stateText(state))
-                .accessibilityHint("Active ou désactive ce protocole")
-                .help(String(localized: "Activer ou désactiver \(service.displayName)"))
+                .accessibilityHint("file_services.service.toggle.hint")
+                .help(String(localized: "file_services.service.toggle.label", defaultValue: "Enable or disable \(service.displayName)"))
         case .unknown, .failed:
-            Button("Réessayer") { reloadAll() }
+            Button("common.button.retry") { reloadAll() }
                 .disabled(isBusy)
-                .accessibilityLabel("Réessayer \(service.displayName)")
-                .help(String(localized: "Réessayer de charger \(service.displayName)"))
+                .accessibilityLabel(String(localized: "file_services.retry.button", defaultValue: "Retry \(service.displayName)"))
+                .help(String(localized: "file_services.retry.hint", defaultValue: "Retry loading \(service.displayName)"))
         }
     }
 
@@ -147,7 +147,7 @@ struct FileServicesView: View {
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement des services de fichiers…"),
+            String(localized: "file_services.loading"),
             category: .progress,
             priority: .low
         )
@@ -162,13 +162,13 @@ struct FileServicesView: View {
         )
     }
 
-    // MARK: - Présentation
+    // MARK: - Presentation
 
     private func stateText(_ state: FileServiceState) -> String {
         switch state {
-        case .on: return String(localized: "Activé")
-        case .off: return String(localized: "Désactivé")
-        case .unknown: return String(localized: "État indisponible")
+        case .on: return String(localized: "common.status.enabled.masculine")
+        case .off: return String(localized: "common.status.disabled.masculine")
+        case .unknown: return String(localized: "file_services.status.unavailable")
         case .failed(let message): return message
         }
     }
@@ -184,8 +184,8 @@ struct FileServicesView: View {
 
     private func disableWarning(for service: FileService) -> String {
         if service == .smb {
-            return String(localized: "SMB est le protocole utilisé par le Finder et l'Explorateur Windows. Le désactiver coupera l'accès aux fichiers depuis ces apps, y compris depuis cet appareil. Vous pourrez le réactiver ici.")
+            return String(localized: "file_services.smb.disable.confirm.description")
         }
-        return String(localized: "Le service sera arrêté et les connexions en cours interrompues. Vous pourrez le réactiver ici.")
+        return String(localized: "file_services.disable.confirm.description")
     }
 }

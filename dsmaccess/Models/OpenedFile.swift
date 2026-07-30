@@ -2,22 +2,22 @@
 //  OpenedFile.swift
 //  dsmaccess
 //
-//  Fichiers actuellement ouverts sur le NAS (SYNO.Core.FileHandle get), tels que le
-//  sous-onglet « Fichier consulté » du moniteur de ressources les présente.
+//  Files currently open on the NAS (SYNO.Core.FileHandle get), as the resource monitor's
+//  "Accessed file" sub-tab presents them.
 //
-//  Trois particularités relevées sur DSM 7.4 le 30/07/2026 :
-//  — `path` est relatif au partage, sans barre oblique initiale, et se **termine par le nom
-//    du fichier** : afficher `filename` et `path` côte à côte répéterait le nom.
-//  — `user` et `host` valent la chaîne « - » pour un service local du NAS, jamais une chaîne
-//    vide ni `null` — même piège que `ProcessGroup`.
-//  — `pid` arrive en **chaîne** numérique, là où les autres API du module envoient un nombre.
+//  Three quirks observed on DSM 7.4 on 30/07/2026:
+//  — `path` is relative to the share, has no leading slash, and **ends with the file name**:
+//    showing `filename` and `path` side by side would repeat the name.
+//  — `user` and `host` hold the string "-" for a NAS-local service, never an empty string
+//    nor `null` — the same trap as `ProcessGroup`.
+//  — `pid` arrives as a numeric **string**, where the other APIs of the module send a number.
 //
 
 import Foundation
 
 struct OpenedFilePage: nonisolated Decodable, Sendable {
     let files: [OpenedFile]
-    /// Nombre total de fichiers ouverts sur le NAS, indépendant de la page demandée.
+    /// Total number of files open on the NAS, independent of the requested page.
     let total: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -34,25 +34,25 @@ struct OpenedFilePage: nonisolated Decodable, Sendable {
 
 struct OpenedFile: nonisolated Decodable, Sendable, Identifiable {
     let name: String?
-    /// Chemin relatif au partage, nom du fichier compris.
+    /// Path relative to the share, file name included.
     let path: String?
-    /// Service qui tient le fichier ouvert : « SMB », « Plex Media Server »…
+    /// Service holding the file open: "SMB", "Plex Media Server"…
     let service: String?
-    /// Compte ayant ouvert le fichier. `nil` pour un service local du NAS.
+    /// Account that opened the file. `nil` for a NAS-local service.
     let account: String?
-    /// Machine à l'origine de l'accès. `nil` pour un service local du NAS.
+    /// Machine the access comes from. `nil` for a NAS-local service.
     let host: String?
-    /// Processus qui tient le fichier. Sert d'identité et, pour DSM, de cible de fermeture.
+    /// Process holding the file. Serves as identity and, for DSM, as the target to close.
     let processID: String?
 
-    /// Le NAS n'attribue pas d'identifiant : un même processus peut tenir plusieurs fichiers,
-    /// et un même chemin être ouvert par plusieurs processus. Les deux ensemble distinguent.
+    /// The NAS assigns no identifier: one process can hold several files, and one path can be
+    /// open in several processes. Taken together, the two tell them apart.
     var id: String { [processID, path].compactMap { $0 }.joined(separator: "|") }
 
     var displayName: String { name ?? path ?? "" }
 
-    /// Dossier contenant le fichier, sans répéter son nom. `nil` quand le chemin ne comporte
-    /// aucun dossier, plutôt qu'une chaîne vide qui se lirait comme une valeur.
+    /// Folder holding the file, without repeating its name. `nil` when the path contains no
+    /// folder at all, rather than an empty string that would read as a value.
     var folder: String? {
         guard let path else { return nil }
         guard let separator = path.lastIndex(of: "/") else { return nil }
@@ -60,8 +60,8 @@ struct OpenedFile: nonisolated Decodable, Sendable, Identifiable {
         return parent.isEmpty ? nil : parent
     }
 
-    /// Clés de tri non optionnelles : une valeur absente se range en tête plutôt que
-    /// d'empêcher le tri de sa colonne.
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
     var sortableName: String { displayName }
     var sortableFolder: String { folder ?? "" }
     var sortableService: String { service ?? "" }
@@ -82,9 +82,9 @@ struct OpenedFile: nonisolated Decodable, Sendable, Identifiable {
         processID = Self.meaningful(c.flexString(.pid))
     }
 
-    /// DSM écrit « - » quand la valeur ne s'applique pas — pour un service local, il n'y a ni
-    /// compte ni machine d'origine. Affichée telle quelle, cette chaîne passerait pour une
-    /// donnée du NAS.
+    /// DSM writes "-" when the value does not apply — a local service has neither an account
+    /// nor an originating machine. Displayed as is, that string would pass for data coming
+    /// from the NAS.
     private static func meaningful(_ value: String?) -> String? {
         guard let value else { return nil }
         let trimmed = value.trimmingCharacters(in: .whitespaces)

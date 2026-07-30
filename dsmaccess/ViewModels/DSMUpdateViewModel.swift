@@ -2,7 +2,7 @@
 //  DSMUpdateViewModel.swift
 //  dsmaccess
 //
-//  Conduite d'une mise à jour manuelle de DSM, du choix du fichier au retour du NAS.
+//  Driving a manual DSM update, from picking the file to the NAS coming back.
 //
 
 import Foundation
@@ -11,8 +11,8 @@ import Observation
 @MainActor
 @Observable
 final class DSMUpdateViewModel {
-    /// Étapes de l'opération. Elles servent aussi à décider ce qui est annoncé : une
-    /// installation dure une vingtaine de minutes et l'écran change seul d'état.
+    /// Stages of the operation. They also decide what gets announced: an installation takes
+    /// about twenty minutes and the screen changes state on its own.
     enum Stage: Equatable {
         case idle
         case uploading
@@ -36,8 +36,8 @@ final class DSMUpdateViewModel {
     var errorMessage: String?
 
     private let session: SessionStore
-    /// Sondage du retour du NAS : 15 s entre deux essais, plafonné à 40 minutes. DSM annonce
-    /// 10 à 20 minutes ; au-delà du plafond, l'app le dit au lieu d'attendre indéfiniment.
+    /// Polling for the NAS's return: 15 s between attempts, capped at 40 minutes. DSM
+    /// announces 10 to 20 minutes; past the cap, the app says so instead of waiting forever.
     private let onlinePollInterval: Duration = .seconds(15)
     private let onlinePollLimit = 160
 
@@ -55,40 +55,40 @@ final class DSMUpdateViewModel {
     var summary: String {
         if let errorMessage { return errorMessage }
         guard let currentVersion else {
-            return String(localized: "Version du NAS inconnue.")
+            return String(localized: "dsm_update.status.version_unknown")
         }
-        return String(localized: "Version installée : \(currentVersion)")
+        return String(localized: "common.status.installed_version", defaultValue: "Installed version: \(currentVersion)")
     }
 
-    /// Texte d'état, unique source de vérité pour l'affichage comme pour les annonces.
+    /// Status text, the single source of truth for both display and announcements.
     var statusText: String {
         switch stage {
         case .idle:
-            return selectedFile.map { String(localized: "Fichier prêt : \($0.lastPathComponent)") }
-                ?? String(localized: "Aucun fichier de mise à jour sélectionné.")
+            return selectedFile.map { String(localized: "dsm_update.status.file_ready", defaultValue: "File ready: \($0.lastPathComponent)") }
+                ?? String(localized: "dsm_update.status.no_file")
         case .uploading:
             guard let fraction = transferProgress?.fractionCompleted else {
-                return String(localized: "Envoi du fichier au NAS.")
+                return String(localized: "common.status.sending.description")
             }
             let pourcentage = fraction.formatted(.percent.precision(.fractionLength(0)))
-            return String(localized: "Envoi du fichier au NAS, \(pourcentage).")
+            return String(localized: "dsm_update.status.uploading", defaultValue: "Sending the file to the NAS, \(pourcentage).")
         case .checking:
-            return String(localized: "Le NAS vérifie le fichier de mise à jour.")
+            return String(localized: "dsm_update.status.checking_file")
         case .awaitingConfirmation:
-            return String(localized: "Le fichier est accepté. Confirmez pour installer.")
+            return String(localized: "dsm_update.status.file_accepted")
         case .starting:
-            return String(localized: "Démarrage de l’installation.")
+            return String(localized: "dsm_update.status.starting")
         case .installing:
             guard let pourcentage = installProgress?.percentage else {
-                return String(localized: "Installation en cours sur le NAS.")
+                return String(localized: "dsm_update.status.installing")
             }
-            return String(localized: "Installation en cours sur le NAS, \(pourcentage) %.")
+            return String(localized: "dsm_update.status.installing_progress", defaultValue: "Installation under way on the NAS, \(pourcentage) %.")
         case .rebooting:
-            return String(localized: "Le NAS redémarre. Cela prend 10 à 20 minutes.")
+            return String(localized: "dsm_update.status.restarting")
         case .backOnline:
-            return String(localized: "Le NAS répond à nouveau. Reconnectez-vous pour vérifier la version.")
+            return String(localized: "dsm_update.status.nas_back")
         case .finished:
-            return String(localized: "Mise à jour terminée.")
+            return String(localized: "dsm_update.status.finished")
         }
     }
 
@@ -113,8 +113,8 @@ final class DSMUpdateViewModel {
         stage = .idle
     }
 
-    /// Envoie le fichier puis demande au NAS ce qu'il en pense. S'arrête avant d'installer :
-    /// la décision revient à l'utilisateur, une fois les conséquences connues.
+    /// Sends the file then asks the NAS what it thinks of it. Stops before installing: the
+    /// decision belongs to the user, once the consequences are known.
     func uploadAndCheck() async -> DSMOperationOutcome {
         guard let fileURL = selectedFile, !isBusy else { return .cancelled }
         stage = .uploading
@@ -134,16 +134,16 @@ final class DSMUpdateViewModel {
             let resultat = try await session.withClient { try await $0.dsmUpgradePreCheck() }
             preCheck = resultat
             stage = .awaitingConfirmation
-            return .success(String(localized: "Fichier envoyé et vérifié par le NAS."))
+            return .success(String(localized: "dsm_update.status.file_checked"))
         } catch {
             stage = .idle
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let raison = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de l’envoi : \(raison)"))
+            return .failure(String(localized: "dsm_update.upload.error", defaultValue: "Sending failed: \(raison)"))
         }
     }
 
-    /// Lance l'installation, puis suit le NAS jusqu'à ce qu'il réponde de nouveau.
+    /// Starts the installation, then follows the NAS until it answers again.
     func startUpgrade() async -> DSMOperationOutcome {
         guard stage == .awaitingConfirmation else { return .cancelled }
         stage = .starting
@@ -154,7 +154,7 @@ final class DSMUpdateViewModel {
             stage = .awaitingConfirmation
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let raison = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec du lancement : \(raison)"))
+            return .failure(String(localized: "dsm_update.install.start.error", defaultValue: "Starting failed: \(raison)"))
         }
 
         stage = .installing
@@ -163,14 +163,14 @@ final class DSMUpdateViewModel {
         let revenu = await waitForReturn()
         stage = revenu ? .backOnline : .rebooting
         return revenu
-            ? .success(String(localized: "Le NAS répond à nouveau. Reconnectez-vous pour vérifier la version."))
+            ? .success(String(localized: "dsm_update.status.nas_back"))
             : .failure(String(
-                localized: "Le NAS n’a pas répondu dans le temps prévu. Vérifiez-le directement avant de relancer quoi que ce soit."
+                localized: "dsm_update.status.restart_timeout"
             ))
     }
 
-    /// Suit la progression tant que le NAS répond encore. Sa disparition n'est pas une erreur
-    /// ici : c'est le redémarrage attendu.
+    /// Follows progress for as long as the NAS still answers. Its disappearance is not an
+    /// error here: it is the expected restart.
     private func followInstallation() async {
         while !Task.isCancelled {
             do {

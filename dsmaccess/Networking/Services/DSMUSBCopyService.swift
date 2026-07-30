@@ -2,7 +2,7 @@
 //  DSMUSBCopyService.swift
 //  dsmaccess
 //
-//  Gestion de USB Copy via les contrats observés dans le client DSM officiel.
+//  USB Copy management through the contracts observed in the official DSM client.
 //
 
 import Foundation

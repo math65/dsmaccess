@@ -2,7 +2,7 @@
 //  FlexibleDecoding.swift
 //  dsmaccess
 //
-//  Décodage défensif des valeurs DSM dont le type JSON varie selon la version.
+//  Defensive decoding of DSM values whose JSON type varies from one version to another.
 //
 
 import Foundation
@@ -95,9 +95,8 @@ extension KeyedDecodingContainer {
         return value
     }
 
-    /// Décode le premier alias présent. Une clé absente signifie « aucune donnée » ;
-    /// une clé présente mais mal formée reste une erreur de schéma et n'est jamais
-    /// transformée en collection vide.
+    /// Decodes the first alias present. A missing key means "no data"; a key that is present
+    /// but malformed stays a schema error and is never turned into an empty collection.
     nonisolated func decodeArray<Element: Decodable>(
         _ type: Element.Type,
         forFirstPresent keys: [Key]

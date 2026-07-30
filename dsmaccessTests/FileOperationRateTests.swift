@@ -27,7 +27,7 @@ struct FileOperationRateTests {
 
     @Test func computesTheRateAndTheTimeLeftFromSuccessiveSamples() throws {
         var rate = FileOperationRate()
-        // 64 Mio par relevé, un relevé toutes les 2 s : 32 Mio/s.
+        // 64 MiB per sample, one sample every 2 s: 32 MiB/s.
         for step in 0..<5 {
             rate.record(
                 progress(processed: Int64(step) * 67_108_864),
@@ -40,12 +40,12 @@ struct FileOperationRateTests {
 
         let last = progress(processed: 4 * 67_108_864, total: 40 * 67_108_864)
         let left = try #require(rate.remaining(for: last))
-        // 36 relevés de 64 Mio restants à 32 Mio/s : 72 secondes.
+        // 36 samples of 64 MiB left at 32 MiB/s: 72 seconds.
         #expect(abs(left.components.seconds - 72) <= 1)
     }
 
-    /// Une estimation qui s'affiche trop tôt saute de deux à quarante minutes ; mieux vaut
-    /// ne rien afficher tant que la fenêtre n'a pas de quoi être stable.
+    /// An estimate shown too early jumps from two to forty minutes; better to show nothing
+    /// as long as the window has nothing to make it stable.
     @Test func staysSilentUntilEnoughSamplesAreIn() {
         var rate = FileOperationRate()
         rate.record(progress(processed: 0), at: start)
@@ -57,8 +57,8 @@ struct FileOperationRateTests {
         #expect(rate.bytesPerSecond != nil)
     }
 
-    /// Une compression ne rapporte aucun volume traité : il n'y a rien à mesurer, et
-    /// surtout rien à inventer.
+    /// A compression reports no processed volume: there is nothing to measure, and above all
+    /// nothing to invent.
     @Test func measuresNothingWhenTheNASReportsNoProcessedSize() {
         var rate = FileOperationRate()
         for step in 0..<6 {
@@ -67,8 +67,8 @@ struct FileOperationRateTests {
         #expect(rate.bytesPerSecond == nil)
     }
 
-    /// Une seconde opération ne doit pas hériter du débit de la précédente, ni d'un
-    /// volume qui recule quand le NAS repart de zéro.
+    /// A second operation must not inherit the previous one's rate, nor a volume that goes
+    /// backwards when the NAS starts again from zero.
     @Test func startsOverWhenAnotherTaskTakesOver() {
         var rate = FileOperationRate()
         for step in 0..<5 {
@@ -83,9 +83,8 @@ struct FileOperationRateTests {
         #expect(rate.bytesPerSecond == nil)
     }
 
-    /// Une fin proche reste une information : l'estimation est rendue telle quelle, à
-    /// charge pour l'affichage de dire « moins d'une minute » plutôt que d'égrener des
-    /// secondes.
+    /// A near end is still information: the estimate is returned as is, and it is up to the
+    /// display to say "less than a minute" rather than counting off seconds.
     @Test func stillEstimatesWhenTheEndIsSeconds() throws {
         var rate = FileOperationRate()
         for step in 0..<5 {
@@ -101,7 +100,7 @@ struct FileOperationRateTests {
         #expect(left > .zero)
     }
 
-    /// Sans taille totale — le cas d'une compression — il n'y a rien à estimer.
+    /// Without a total size — the case of a compression — there is nothing to estimate.
     @Test func estimatesNothingWithoutATotalSize() {
         var rate = FileOperationRate()
         for step in 0..<5 {

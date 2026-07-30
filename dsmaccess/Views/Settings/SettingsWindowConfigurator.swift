@@ -2,8 +2,8 @@
 //  SettingsWindowConfigurator.swift
 //  dsmaccess
 //
-//  Applique aux onglets de la scène Settings les conventions macOS que
-//  SwiftUI n'expose pas directement : barre fixe et info-bulles natives.
+//  Applies to the Settings scene tabs the macOS conventions that SwiftUI does
+//  not expose directly: fixed toolbar and native tooltips.
 //
 
 import AppKit

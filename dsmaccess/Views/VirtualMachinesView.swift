@@ -22,28 +22,28 @@ struct VirtualMachinesView: View {
 
     var body: some View {
         content
-            .searchable(text: $searchText, prompt: "Rechercher une machine virtuelle")
+            .searchable(text: $searchText, prompt: "vm.search.label")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
             .task { await load(restoresInitialFocus: true) }
             .task(id: autoRefresh) { await refreshPeriodically() }
             .inspector(isPresented: $showInspector) { inspector }
             .confirmationDialog(
-                "Forcer l’extinction de cette machine ?",
+                "vm.force_off.confirm.title",
                 isPresented: Binding(
                     get: { pendingPowerOff != nil },
                     set: { if !$0 { pendingPowerOff = nil } }
                 ),
                 presenting: pendingPowerOff
             ) { machine in
-                Button("Forcer l’extinction de \(machine.name)", role: .destructive) {
+                Button(String(localized: "vm.force_off.named.label", defaultValue: "Force \(machine.name) to power off"), role: .destructive) {
                     Task { await perform(.powerOff, on: machine) }
                 }
-                .help(String(localized: "Forcer l’extinction de \(machine.name)"))
-                Button("Annuler", role: .cancel) { }
-                    .help("Annuler l’extinction forcée")
+                .help(String(localized: "vm.force_off.named.label", defaultValue: "Force \(machine.name) to power off"))
+                Button("common.button.cancel", role: .cancel) { }
+                    .help("vm.force_off.cancel.button")
             } message: { machine in
-                Text("La machine « \(machine.name) » sera arrêtée sans laisser son système d’exploitation se fermer proprement. Des données peuvent être perdues.")
+                Text(String(localized: "vm.force_off.confirm.description", defaultValue: "“\(machine.name)” will be powered off without allowing its operating system to shut down gracefully. Data may be lost."))
             }
             .onChange(of: viewModel.machines) {
                 guard let selection else { return }
@@ -57,18 +57,18 @@ struct VirtualMachinesView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.machines.isEmpty {
-            ModuleLoadingView("Chargement des machines virtuelles…")
+            ModuleLoadingView("vm.loading.label")
                 .accessibilityFocused($contentFocused)
         } else if let errorMessage = viewModel.errorMessage {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
                 .accessibilityFocused($contentFocused)
         } else if filteredMachines.isEmpty {
             EmptyModuleView(
-                title: searchText.isEmpty ? "Aucune machine virtuelle" : "Aucun résultat",
+                title: searchText.isEmpty ? "vm.list.empty.title" : "common.empty.results",
                 systemImage: "desktopcomputer",
                 description: searchText.isEmpty
-                    ? "Créez une machine dans Virtual Machine Manager pour la gérer ici."
-                    : "Modifiez votre recherche et réessayez."
+                    ? "vm.list.empty.description"
+                    : "common.empty.results.description"
             )
             .accessibilityFocused($contentFocused)
         } else {
@@ -77,7 +77,7 @@ struct VirtualMachinesView: View {
                     .tag(machine.id)
                     .contextMenu { machineActions(machine) }
             }
-            .accessibilityLabel("Machines virtuelles")
+            .accessibilityLabel("common.module.virtual_machines")
             .accessibilityFocused($contentFocused)
         }
     }
@@ -89,10 +89,10 @@ struct VirtualMachinesView: View {
                 guard let selectedMachine else { return }
                 Task { await perform(.powerOn, on: selectedMachine) }
             } label: {
-                Label("Démarrer", systemImage: "play")
+                Label("common.button.start", systemImage: "play")
             }
             .disabled(selectedMachine?.canStart != true || selectedIsBusy)
-            .help("Démarrer la machine virtuelle")
+            .help("vm.start.button")
         }
 
         ToolbarItem {
@@ -100,44 +100,44 @@ struct VirtualMachinesView: View {
                 guard let selectedMachine else { return }
                 Task { await perform(.shutdown, on: selectedMachine) }
             } label: {
-                Label("Arrêter proprement", systemImage: "stop")
+                Label("vm.shutdown.button", systemImage: "stop")
             }
             .disabled(selectedMachine?.canStop != true || selectedIsBusy)
-            .help("Demander un arrêt propre au système invité")
+            .help("vm.shutdown.hint")
         }
 
         ToolbarItem {
             Menu {
-                Button("Forcer l’extinction…", role: .destructive) {
+                Button("vm.force_off.button", role: .destructive) {
                     pendingPowerOff = selectedMachine
                 }
                 .disabled(selectedMachine?.canStop != true || selectedIsBusy)
-                .help("Forcer l’extinction de la machine virtuelle")
-                Toggle("Actualisation automatique", isOn: $autoRefresh)
-                    .help("Actualiser automatiquement les machines virtuelles")
+                .help("vm.force_off.hint")
+                Toggle("common.label.automatic_refresh", isOn: $autoRefresh)
+                    .help("vm.toolbar.auto_refresh.label")
             } label: {
-                Label("Actions", systemImage: "ellipsis.circle")
+                Label("vm.column.actions", systemImage: "ellipsis.circle")
             }
-            .help("Autres actions")
+            .help("vm.row.more_actions.label")
         }
 
         ToolbarItem {
             Button {
                 showInspector.toggle()
             } label: {
-                Label("Informations", systemImage: "info.circle")
+                Label("common.label.information", systemImage: "info.circle")
             }
             .disabled(selectedMachine == nil)
-            .help(showInspector ? "Masquer les informations" : "Afficher les informations")
+            .help(showInspector ? "vm.detail.hide.button" : "vm.detail.show.button")
         }
 
         ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
+                Label("common.button.refresh", systemImage: "arrow.clockwise")
             }
-            .help("Actualiser les machines virtuelles")
+            .help("vm.toolbar.refresh.label")
         }
     }
 
@@ -150,7 +150,7 @@ struct VirtualMachinesView: View {
                 Text(machine.name).fontWeight(.medium)
                 HStack(spacing: 8) {
                     Text(statusText(machine.status))
-                    if machine.vCPUCount > 0 { Text("\(machine.vCPUCount) processeurs virtuels") }
+                    if machine.vCPUCount > 0 { Text(String(localized: "vm.detail.vcpu_count", defaultValue: "\(machine.vCPUCount) virtual processors")) }
                     if let memory = memoryText(machine) { Text(memory) }
                 }
                 .font(.caption)
@@ -160,88 +160,88 @@ struct VirtualMachinesView: View {
             if machine.isTransitioning {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel("Opération en cours pour \(machine.name)")
+                    .accessibilityLabel(String(localized: "common.status.operation_in_progress", defaultValue: "Operation in progress for \(machine.name)"))
             }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(machineAccessibilityLabel(machine))
         .accessibilityActions {
             if machine.canStart {
-                Button("Démarrer") { Task { await perform(.powerOn, on: machine) } }
-                    .help("Démarrer cette machine virtuelle")
+                Button("common.button.start") { Task { await perform(.powerOn, on: machine) } }
+                    .help("vm.start.hint")
             }
             if machine.canStop {
-                Button("Arrêter proprement") { Task { await perform(.shutdown, on: machine) } }
-                    .help("Arrêter proprement cette machine virtuelle")
-                Button("Forcer l’extinction…", role: .destructive) {
+                Button("vm.shutdown.button") { Task { await perform(.shutdown, on: machine) } }
+                    .help("vm.shutdown.row.hint")
+                Button("vm.force_off.button", role: .destructive) {
                     pendingPowerOff = machine
                 }
-                .help("Forcer l’extinction de cette machine virtuelle")
+                .help("vm.force_off.row.hint")
             }
-            Button("Lire les informations") {
+            Button("common.button.get_info") {
                 selection = machine.id
                 showInspector = true
             }
-            .help("Lire les informations de cette machine virtuelle")
+            .help("vm.detail.show.hint")
         }
     }
 
     @ViewBuilder
     private func machineActions(_ machine: VirtualMachine) -> some View {
         if machine.canStart {
-            Button("Démarrer") { Task { await perform(.powerOn, on: machine) } }
-                .help("Démarrer cette machine virtuelle")
+            Button("common.button.start") { Task { await perform(.powerOn, on: machine) } }
+                .help("vm.start.hint")
         }
         if machine.canStop {
-            Button("Arrêter proprement") { Task { await perform(.shutdown, on: machine) } }
-                .help("Arrêter proprement cette machine virtuelle")
+            Button("vm.shutdown.button") { Task { await perform(.shutdown, on: machine) } }
+                .help("vm.shutdown.row.hint")
             Divider()
-            Button("Forcer l’extinction…", role: .destructive) { pendingPowerOff = machine }
-                .help("Forcer l’extinction de cette machine virtuelle")
+            Button("vm.force_off.button", role: .destructive) { pendingPowerOff = machine }
+                .help("vm.force_off.row.hint")
         }
         Divider()
-        Button("Lire les informations") {
+        Button("common.button.get_info") {
             selection = machine.id
             showInspector = true
         }
-        .help("Lire les informations de cette machine virtuelle")
+        .help("vm.detail.show.hint")
     }
 
     @ViewBuilder
     private var inspector: some View {
         if let machine = selectedMachine {
             Form {
-                Section("Machine virtuelle") {
-                    LabeledContent("Nom", value: machine.name)
-                    LabeledContent("État", value: statusText(machine.status))
+                Section("vm.column.machine") {
+                    LabeledContent("common.column.name", value: machine.name)
+                    LabeledContent("common.column.state", value: statusText(machine.status))
                     if let description = machine.description, !description.isEmpty {
-                        LabeledContent("Description", value: description)
+                        LabeledContent("vm.detail.description.label", value: description)
                     }
-                    LabeledContent("Démarrage automatique", value: machine.autoRun ? "Oui" : "Non")
+                    LabeledContent("vm.detail.autostart.label", value: machine.autoRun ? "Oui" : "Non")
                 }
-                Section("Ressources") {
-                    LabeledContent("Processeurs virtuels", value: machine.vCPUCount.formatted())
-                    if let memory = memoryText(machine) { LabeledContent("Mémoire", value: memory) }
-                    if let storageName = machine.storageName { LabeledContent("Stockage", value: storageName) }
-                    LabeledContent("Disques", value: machine.virtualDisks.count.formatted())
-                    LabeledContent("Interfaces réseau", value: machine.networkInterfaces.count.formatted())
+                Section("common.label.resources") {
+                    LabeledContent("vm.detail.vcpu.label", value: machine.vCPUCount.formatted())
+                    if let memory = memoryText(machine) { LabeledContent("common.metric.memory", value: memory) }
+                    if let storageName = machine.storageName { LabeledContent("common.module.storage", value: storageName) }
+                    LabeledContent("common.label.disks", value: machine.virtualDisks.count.formatted())
+                    LabeledContent("vm.detail.network_interfaces.title", value: machine.networkInterfaces.count.formatted())
                 }
                 if !machine.virtualDisks.isEmpty {
-                    Section("Disques virtuels") {
+                    Section("vm.detail.virtual_disks.title") {
                         ForEach(Array(machine.virtualDisks.enumerated()), id: \.offset) { index, disk in
                             LabeledContent(
-                                disk.name ?? String(localized: "Disque \(index + 1)"),
-                                value: disk.size?.formatted(.byteCount(style: .file)) ?? String(localized: "Taille inconnue")
+                                disk.name ?? String(localized: "vm.detail.disk.label", defaultValue: "Disk \(index + 1)"),
+                                value: disk.size?.formatted(.byteCount(style: .file)) ?? String(localized: "vm.detail.size_unknown")
                             )
                         }
                     }
                 }
                 if !machine.networkInterfaces.isEmpty {
-                    Section("Réseau") {
+                    Section("common.label.network") {
                         ForEach(Array(machine.networkInterfaces.enumerated()), id: \.offset) { index, interface in
                             LabeledContent(
-                                interface.networkName ?? String(localized: "Interface \(index + 1)"),
-                                value: interface.macAddress ?? String(localized: "Adresse inconnue")
+                                interface.networkName ?? String(localized: "vm.detail.network_interface.label", defaultValue: "Interface \(index + 1)"),
+                                value: interface.macAddress ?? String(localized: "vm.detail.address_unknown")
                             )
                         }
                     }
@@ -249,12 +249,12 @@ struct VirtualMachinesView: View {
             }
             .formStyle(.grouped)
             .inspectorColumnWidth(min: 280, ideal: 320, max: 420)
-            .accessibilityLabel("Informations sur \(machine.name)")
+            .accessibilityLabel(String(localized: "common.title.information_for", defaultValue: "Information for \(machine.name)"))
         } else {
             EmptyModuleView(
-                title: "Aucune sélection",
+                title: "common.empty.selection",
                 systemImage: "desktopcomputer",
-                description: "Sélectionnez une machine virtuelle pour lire ses informations."
+                description: "vm.detail.empty.description"
             )
         }
     }
@@ -293,7 +293,7 @@ struct VirtualMachinesView: View {
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement des machines virtuelles…"),
+            String(localized: "vm.loading.label"),
             category: .progress,
             priority: .low
         )
@@ -328,26 +328,26 @@ struct VirtualMachinesView: View {
 
     private func machineAccessibilityLabel(_ machine: VirtualMachine) -> String {
         var parts = [machine.name, statusText(machine.status)]
-        if machine.vCPUCount > 0 { parts.append(String(localized: "\(machine.vCPUCount) processeurs virtuels")) }
+        if machine.vCPUCount > 0 { parts.append(String(localized: "vm.detail.vcpu_count", defaultValue: "\(machine.vCPUCount) virtual processors")) }
         if let memory = memoryText(machine) { parts.append(memory) }
         return parts.formatted(.list(type: .and))
     }
 
     private func statusText(_ status: String) -> String {
         switch status {
-        case "running": String(localized: "En fonctionnement")
-        case "shutdown": String(localized: "Arrêtée")
-        case "booting": String(localized: "Démarrage")
-        case "shutting_down": String(localized: "Arrêt en cours")
-        case "inaccessible": String(localized: "Inaccessible")
-        case "moving": String(localized: "Déplacement")
-        case "stor_migrating": String(localized: "Migration du stockage")
-        case "creating": String(localized: "Création")
-        case "importing": String(localized: "Importation")
-        case "preparing": String(localized: "Préparation")
-        case "ha_standby": String(localized: "Secours haute disponibilité")
-        case "crashed": String(localized: "Arrêt inattendu")
-        default: String(localized: "État inconnu")
+        case "running": String(localized: "common.status.running")
+        case "shutdown": String(localized: "vm.status.stopped")
+        case "booting": String(localized: "vm.status.starting")
+        case "shutting_down": String(localized: "common.status.stopping")
+        case "inaccessible": String(localized: "common.status.unreachable")
+        case "moving": String(localized: "common.operation.moving")
+        case "stor_migrating": String(localized: "vm.status.migrating_storage")
+        case "creating": String(localized: "common.label.creation")
+        case "importing": String(localized: "vm.status.importing")
+        case "preparing": String(localized: "vm.status.preparing")
+        case "ha_standby": String(localized: "vm.status.ha_failover")
+        case "crashed": String(localized: "vm.status.crashed")
+        default: String(localized: "common.status.unknown")
         }
     }
 }

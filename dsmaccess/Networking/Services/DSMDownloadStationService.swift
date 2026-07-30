@@ -2,7 +2,7 @@
 //  DSMDownloadStationService.swift
 //  dsmaccess
 //
-//  Gestion des tâches Download Station via les API publiées par Synology.
+//  Download Station task management through the APIs published by Synology.
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  QuickConnectResolver.swift
 //  dsmaccess
 //
-//  Résolution non authentifiée d'un identifiant QuickConnect vers une route DSM HTTPS.
+//  Unauthenticated resolution of a QuickConnect ID into an HTTPS DSM route.
 //
 
 import CryptoKit
@@ -32,23 +32,23 @@ nonisolated enum QuickConnectError: Error, LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .invalidID:
-            String(localized: "L’identifiant QuickConnect n’est pas valide.")
+            String(localized: "common.error.invalid_quickconnect_id")
         case .unknownID:
-            String(localized: "Cet identifiant QuickConnect est introuvable.")
+            String(localized: "quickconnect.error.id_not_found")
         case .nasUnavailable:
-            String(localized: "Le NAS associé à cet identifiant QuickConnect est hors ligne.")
+            String(localized: "quickconnect.error.nas_offline")
         case .serviceUnavailable:
-            String(localized: "L’accès à DSM par QuickConnect n’est pas activé sur ce NAS.")
+            String(localized: "quickconnect.error.dsm_access_disabled")
         case .relayDisabled:
-            String(localized: "Le relais QuickConnect n’est pas activé sur ce NAS.")
+            String(localized: "quickconnect.error.relay_disabled")
         case .secureRouteUnavailable:
-            String(localized: "QuickConnect n’a fourni aucune route HTTPS vérifiable vers ce NAS.")
+            String(localized: "quickconnect.error.no_https_route")
         case .invalidResponse:
-            String(localized: "La réponse de QuickConnect n’a pas pu être vérifiée.")
+            String(localized: "quickconnect.error.unverified_response")
         case .server(let code):
-            String(localized: "QuickConnect a refusé la connexion (code \(code)).")
+            String(localized: "quickconnect.error.refused", defaultValue: "QuickConnect refused the connection (code \(code)).")
         case .network(let detail):
-            String(localized: "Impossible de joindre QuickConnect : \(detail)")
+            String(localized: "quickconnect.error.unreachable", defaultValue: "Could not reach QuickConnect: \(detail)")
         }
     }
 }
@@ -100,9 +100,9 @@ nonisolated struct QuickConnectResolver: Sendable {
             at: controlURL
         )
         let tunnel = try validatedResponse(in: tunnelResponses)
-        // Le nom d'hôte du relais vient de la réponse (`relay_dn`) quand il est présent ;
-        // la forme historique `alias.région.quickconnect.*` reste le repli. L'identifiant
-        // interne (`server.serverID`, numérique) ne doit jamais servir à construire l'hôte.
+        // The relay host name comes from the response (`relay_dn`) when it is present; the
+        // historical `alias.region.quickconnect.*` form remains the fallback. The internal
+        // identifier (`server.serverID`, numeric) must never be used to build the host.
         guard let service = tunnel.service,
               let relayIP = service.relayIP,
               !relayIP.isEmpty,
@@ -158,7 +158,7 @@ nonisolated struct QuickConnectResolver: Sendable {
         request.httpMethod = "POST"
         request.httpBody = try JSONEncoder().encode(payload)
         request.timeoutInterval = command == .requestTunnel ? 30 : 10
-        // Le portail web envoie ce tableau JSON avec ce Content-Type historique.
+        // The web portal sends this JSON array with this historical Content-Type.
         request.setValue(
             "application/x-www-form-urlencoded; charset=UTF-8",
             forHTTPHeaderField: "Content-Type"
@@ -180,9 +180,9 @@ nonisolated struct QuickConnectResolver: Sendable {
     private func validatedResponse(
         in responses: [QuickConnectControlResponse]
     ) throws -> QuickConnectControlResponse {
-        // `server.serverID` est un identifiant interne numérique, pas l'alias demandé :
-        // le lien avec l'alias vient de la requête elle-même, puis du contrôle pingpong
-        // (ezid = md5 de cet identifiant interne) sur la route retenue.
+        // `server.serverID` is an internal numeric identifier, not the requested alias: the
+        // link with the alias comes from the request itself, then from the pingpong check
+        // (ezid = md5 of that internal identifier) on the selected route.
         if let response = responses.first(where: {
             $0.errno == 0
                 && $0.server != nil
@@ -238,8 +238,8 @@ nonisolated struct QuickConnectResolver: Sendable {
         endpoint: DSMEndpoint,
         response: QuickConnectControlResponse
     ) async throws -> Bool {
-        // L'identifiant interne renvoyé par QuickConnect est numérique : il ne suit pas
-        // les règles de forme d'un alias, seulement celles d'une étiquette DNS.
+        // The internal identifier returned by QuickConnect is numeric: it does not follow the
+        // shape rules of an alias, only those of a DNS label.
         guard let serverID = response.server?.serverID,
               Self.isDNSLabel(serverID),
               let url = Self.pingURL(endpoint: endpoint, response: response) else {
@@ -256,7 +256,7 @@ nonisolated struct QuickConnectResolver: Sendable {
                   let ping = try? JSONDecoder().decode(QuickConnectPingResponse.self, from: data) else {
                 return false
             }
-            // pingpong lie la route à l'identifiant demandé sans exposer d'identifiants DSM.
+            // pingpong ties the route to the requested ID without exposing DSM credentials.
             return ping.ezid.caseInsensitiveCompare(Self.md5(serverID)) == .orderedSame
         } catch {
             if DSMError.isCancellation(error) { throw error }

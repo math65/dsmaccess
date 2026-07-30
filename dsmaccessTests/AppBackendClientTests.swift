@@ -2,7 +2,7 @@ import Foundation
 import Testing
 @testable import dsmaccess
 
-/// Enregistre les requêtes du client backend et rejoue des réponses préparées.
+/// Records the backend client's requests and replays prepared responses.
 @MainActor
 private final class BackendRequestRecorder {
     private(set) var requests: [URLRequest] = []
@@ -85,7 +85,7 @@ struct AppBackendClientTests {
         let contentType = try #require(request.value(forHTTPHeaderField: "Content-Type"))
         #expect(contentType.hasPrefix("multipart/form-data; boundary="))
 
-        // Extrait la partie JSON `report` du corps multipart.
+        // Extracts the `report` JSON part from the multipart body.
         let body = try #require(request.httpBody)
         let text = try #require(String(data: body, encoding: .utf8))
         let jsonText = try #require(text.split(separator: "\r\n\r\n").dropFirst().first?.split(separator: "\r\n").first)
@@ -175,7 +175,7 @@ struct AppBackendClientTests {
 @Suite(.serialized)
 @MainActor
 struct BackendAnnouncementCoordinatorTests {
-    /// Sauvegarde puis restaure les clés UserDefaults touchées par le coordinateur.
+    /// Saves and then restores the UserDefaults keys the coordinator touches.
     private func withCleanDefaults(_ body: () async throws -> Void) async rethrows {
         let defaults = UserDefaults.standard
         let keys = ["appBackendInstallID", "appBackendSeenAnnouncementIDs"]
@@ -212,7 +212,7 @@ struct BackendAnnouncementCoordinatorTests {
             await coordinator.checkAtLaunch()
 
             #expect(coordinator.pendingAnnouncement == nil)
-            // Aucun ack : l'annonce n'a pas été présentée.
+            // No ack: the announcement was not presented.
             #expect(recorder.requests.map { $0.url?.path() } == ["/api/announce/check"])
         }
     }
@@ -269,8 +269,8 @@ struct FeedbackDiagnosticsTests {
                 }
             }
         }
-        // Valeurs sentinelles : si une future section fuit l'hôte ou le compte,
-        // elles apparaîtraient dans le JSON du rapport.
+        // Sentinel values: if a future section were to leak the host or the account,
+        // they would show up in the report JSON.
         Preferences.lastHost = "nas-sentinelle.example"
         Preferences.lastAccount = "compte-sentinelle"
 

@@ -2,7 +2,7 @@
 //  DSMShareService.swift
 //  dsmaccess
 //
-//  Gestion des dossiers partagés DSM.
+//  Management of DSM shared folders.
 //
 
 import Foundation

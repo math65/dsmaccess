@@ -2,7 +2,7 @@
 //  ModuleStatusViews.swift
 //  dsmaccess
 //
-//  États standardisés des modules : chargement, erreur et contenu vide.
+//  Standardized module states: loading, error and empty content.
 //
 
 import SwiftUI
@@ -10,7 +10,7 @@ import SwiftUI
 struct ModuleLoadingView: View {
     let message: LocalizedStringKey
 
-    init(_ message: LocalizedStringKey = "Chargement…") {
+    init(_ message: LocalizedStringKey = "common.status.loading") {
         self.message = message
     }
 
@@ -32,12 +32,12 @@ struct ModuleErrorView: View {
 
     var body: some View {
         ContentUnavailableView {
-            Label("Impossible de charger les données", systemImage: "exclamationmark.triangle")
+            Label("module.error.title", systemImage: "exclamationmark.triangle")
         } description: {
             Text(message)
         } actions: {
-            Button("Réessayer", action: retry)
-                .help("Réessayer le chargement")
+            Button("common.button.retry", action: retry)
+                .help("module.error.retry.button")
         }
     }
 }

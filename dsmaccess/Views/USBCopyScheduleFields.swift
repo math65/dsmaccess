@@ -12,18 +12,18 @@ struct USBCopyScheduleFields: View {
 
     var body: some View {
         if showsRunWhenPlugIn {
-            Toggle("Exécuter la tâche à la connexion du périphérique", isOn: $trigger.runWhenPlugIn)
-                .help("Démarrer automatiquement cette tâche lorsque son périphérique USB est connecté")
+            Toggle("usb_copy.schedule.run_on_connect", isOn: $trigger.runWhenPlugIn)
+                .help("usb_copy.schedule.run_on_connect.description")
         }
-        Toggle("Éjecter le périphérique à la fin de la tâche", isOn: $trigger.ejectWhenTaskDone)
-            .help("Éjecter le périphérique USB après la fin de la copie")
+        Toggle("usb_copy.schedule.eject.label", isOn: $trigger.ejectWhenTaskDone)
+            .help("usb_copy.schedule.eject.description")
         if showsSchedule {
-            Toggle("Activer la planification", isOn: $trigger.scheduleEnabled)
-                .help("Exécuter aussi cette tâche selon un horaire")
+            Toggle("usb_copy.schedule.enable", isOn: $trigger.scheduleEnabled)
+                .help("usb_copy.schedule.enable.label")
         }
 
         if showsSchedule && trigger.scheduleEnabled {
-            GroupBox("Jours d’exécution") {
+            GroupBox("usb_copy.schedule.run_days") {
                 VStack(alignment: .leading) {
                     ForEach(USBCopyWeekday.allCases) { weekday in
                         Toggle(weekday.localizedName, isOn: weekdayBinding(weekday.rawValue))
@@ -32,26 +32,26 @@ struct USBCopyScheduleFields: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            LabeledContent("Date de référence") {
-                TextField("AAAA/MM/JJ", text: $trigger.scheduleContent.date)
+            LabeledContent("usb_copy.schedule.reference_date") {
+                TextField("usb_copy.schedule.reference_date.placeholder", text: $trigger.scheduleContent.date)
                     .frame(minWidth: 140)
-                    .help("Date au format année, mois et jour, séparés par des barres obliques")
+                    .help("usb_copy.schedule.date.hint")
             }
 
             Stepper(value: $trigger.scheduleContent.hour, in: 0...23) {
-                Text("Heure de début : \(trigger.scheduleContent.hour.formatted(.number.precision(.integerLength(2)))) h")
+                Text(String(localized: "usb_copy.schedule.start_hour", defaultValue: "Start hour: \(trigger.scheduleContent.hour.formatted(.number.precision(.integerLength(2))))"))
             }
             Stepper(value: $trigger.scheduleContent.minute, in: 0...59) {
-                Text("Minute de début : \(trigger.scheduleContent.minute.formatted(.number.precision(.integerLength(2))))")
+                Text(String(localized: "usb_copy.schedule.start_minute", defaultValue: "Start minute: \(trigger.scheduleContent.minute.formatted(.number.precision(.integerLength(2))))"))
             }
             Stepper(value: $trigger.scheduleContent.repeatDate, in: 0...365) {
-                Text("Répétition en jours : \(trigger.scheduleContent.repeatDate)")
+                Text(String(localized: "usb_copy.schedule.repeat_days", defaultValue: "Repeat interval in days: \(trigger.scheduleContent.repeatDate)"))
             }
             Stepper(value: $trigger.scheduleContent.repeatHour, in: 0...23) {
-                Text("Répétition en heures : \(trigger.scheduleContent.repeatHour)")
+                Text(String(localized: "usb_copy.schedule.repeat_hours", defaultValue: "Repeat interval in hours: \(trigger.scheduleContent.repeatHour)"))
             }
             Stepper(value: $trigger.scheduleContent.lastWorkHour, in: 0...23) {
-                Text("Dernière heure d’exécution : \(trigger.scheduleContent.lastWorkHour)")
+                Text(String(localized: "usb_copy.schedule.last_run_hour", defaultValue: "Last run hour: \(trigger.scheduleContent.lastWorkHour)"))
             }
         }
     }
@@ -89,13 +89,13 @@ private enum USBCopyWeekday: Int, CaseIterable, Identifiable {
 
     var localizedName: LocalizedStringKey {
         switch self {
-        case .sunday: "Dimanche"
-        case .monday: "Lundi"
-        case .tuesday: "Mardi"
-        case .wednesday: "Mercredi"
-        case .thursday: "Jeudi"
-        case .friday: "Vendredi"
-        case .saturday: "Samedi"
+        case .sunday: "usb_copy.schedule.sunday"
+        case .monday: "usb_copy.schedule.monday"
+        case .tuesday: "usb_copy.schedule.tuesday"
+        case .wednesday: "usb_copy.schedule.wednesday"
+        case .thursday: "usb_copy.schedule.thursday"
+        case .friday: "usb_copy.schedule.friday"
+        case .saturday: "usb_copy.schedule.saturday"
         }
     }
 }

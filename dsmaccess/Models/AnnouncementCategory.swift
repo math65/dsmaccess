@@ -2,7 +2,7 @@
 //  AnnouncementCategory.swift
 //  dsmaccess
 //
-//  Catégories d'annonces configurables dans les réglages d'accessibilité.
+//  Announcement categories that can be configured in the accessibility settings.
 //
 
 import Foundation
@@ -18,21 +18,21 @@ enum AnnouncementCategory: String, CaseIterable, Identifiable, Codable, Sendable
 
     var title: String {
         switch self {
-        case .navigation: String(localized: "Navigation et changements d’écran")
-        case .progress: String(localized: "Chargements et opérations en cours")
-        case .result: String(localized: "Résultats et opérations terminées")
-        case .error: String(localized: "Erreurs")
-        case .automaticRefresh: String(localized: "Actualisation automatique")
+        case .navigation: String(localized: "announcements.category.navigation.title")
+        case .progress: String(localized: "announcements.category.progress.title")
+        case .result: String(localized: "announcements.category.result.title")
+        case .error: String(localized: "common.level.errors")
+        case .automaticRefresh: String(localized: "common.label.automatic_refresh")
         }
     }
 
     var detail: String {
         switch self {
-        case .navigation: String(localized: "Annonce la connexion, le module sélectionné et les changements de dossier.")
-        case .progress: String(localized: "Annonce le début des chargements, recherches et opérations longues.")
-        case .result: String(localized: "Annonce les résumés de contenu et le résultat des actions.")
-        case .error: String(localized: "Annonce les erreurs de connexion, de chargement et d’opération.")
-        case .automaticRefresh: String(localized: "Annonce l’activation ou la désactivation des actualisations automatiques.")
+        case .navigation: String(localized: "announcements.category.navigation.description")
+        case .progress: String(localized: "announcements.category.progress.description")
+        case .result: String(localized: "announcements.category.result.description")
+        case .error: String(localized: "announcements.category.error.description")
+        case .automaticRefresh: String(localized: "announcements.category.auto_refresh.description")
         }
     }
 }

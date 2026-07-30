@@ -2,8 +2,8 @@
 //  PerformanceAlarmView.swift
 //  dsmaccess
 //
-//  Onglet Alarme des performances : les règles qui décident de ce que le NAS consigne dans
-//  son historique. Tableau triable comme les autres onglets du module.
+//  Performance alarm tab: the rules that decide what the NAS records in its history.
+//  Sortable table, like the other tabs of the module.
 //
 
 import SwiftUI
@@ -42,7 +42,7 @@ struct PerformanceAlarmView: View {
                 ),
                 titleVisibility: .visible
             ) {
-                Button("Supprimer", role: .destructive) {
+                Button("common.button.delete", role: .destructive) {
                     let doomed = pendingDeletion
                     pendingDeletion = []
                     Task {
@@ -50,7 +50,7 @@ struct PerformanceAlarmView: View {
                         VoiceOver.announce(outcome, priority: .high)
                     }
                 }
-                Button("Annuler", role: .cancel) { pendingDeletion = [] }
+                Button("common.button.cancel", role: .cancel) { pendingDeletion = [] }
             } message: {
                 Text(deletionConsequence)
             }
@@ -58,22 +58,22 @@ struct PerformanceAlarmView: View {
 
     private var deletionTitle: String {
         if pendingDeletion.count == 1, let only = pendingDeletion.first {
-            return String(localized: "Supprimer la règle « \(vm.description(of: only)) » ?")
+            return String(localized: "alarm.rule.delete.confirm.title", defaultValue: "Delete the rule “\(vm.description(of: only))”?")
         }
-        return String(localized: "Supprimer \(pendingDeletion.count) règles ?")
+        return String(localized: "alarm.rules.delete.confirm.title", defaultValue: "Delete \(pendingDeletion.count) rules?")
     }
 
     private var deletionConsequence: String {
         if pendingDeletion.count == 1 {
-            return String(localized: "Le NAS cessera de surveiller ce seuil. Les alertes déjà consignées dans l’historique sont conservées.")
+            return String(localized: "alarm.rule.delete.confirm.message")
         }
-        return String(localized: "Le NAS cessera de surveiller ces seuils. Les alertes déjà consignées dans l’historique sont conservées.")
+        return String(localized: "alarm.rules.delete.confirm.message")
     }
 
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.rules.isEmpty {
-            ModuleLoadingView("Chargement des règles d’alarme…")
+            ModuleLoadingView("alarm.rules.loading")
                 .accessibilityFocused($focusContent)
         } else if let error = vm.errorMessage, vm.rules.isEmpty {
             ModuleErrorView(message: error) {
@@ -89,7 +89,7 @@ struct PerformanceAlarmView: View {
                         .padding(.top, 8)
                 }
 
-                Text("Règles d’alarme")
+                Text("alarm.rules.title")
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, 12)
@@ -98,9 +98,9 @@ struct PerformanceAlarmView: View {
 
                 if vm.rules.isEmpty {
                     EmptyModuleView(
-                        title: "Aucune règle d’alarme",
+                        title: "common.empty.alarm_rules",
                         systemImage: "bell.slash",
-                        description: "Le NAS ne surveille aucun seuil et ne consignera donc aucune alerte. Ajoutez une règle pour qu’il signale une ressource qui dérape."
+                        description: "alarm.rules.empty.description"
                     )
                     .accessibilityFocused($focusContent)
                 } else {
@@ -114,21 +114,21 @@ struct PerformanceAlarmView: View {
 
     private var table: some View {
         Table(vm.rules.sorted(using: order), selection: $selection, sortOrder: $order) {
-            TableColumn("Règle", value: \.sortableTarget) { rule in
+            TableColumn("alarm.rules.column.rule", value: \.sortableTarget) { rule in
                 Text(vm.description(of: rule))
             }
-            TableColumn("Type", value: \.sortableKind) { rule in
+            TableColumn("common.column.kind", value: \.sortableKind) { rule in
                 Text(vm.kindText(rule.kind))
             }
-            // Triée par gravité et non par ordre alphabétique : « Critique » doit se ranger
-            // après « Avertissement ».
-            TableColumn("Gravité", value: \.sortableSeverity) { rule in
+            // Sorted by severity and not alphabetically: “Critical” must rank after
+            // “Warning”.
+            TableColumn("common.column.severity", value: \.sortableSeverity) { rule in
                 Text(vm.severityText(rule.severity))
                     .foregroundStyle(rule.severity == .critical ? .readableRed : .readableOrange)
             }
-            // L'état s'écrit en toutes lettres : un interrupteur seul ne dirait rien à qui
-            // parcourt le tableau colonne par colonne.
-            TableColumn("État", value: \.sortableEnabled) { rule in
+            // The state is spelled out: a switch alone would say nothing to someone going
+            // through the table column by column.
+            TableColumn("common.column.state", value: \.sortableEnabled) { rule in
                 Toggle(
                     isOn: Binding(
                         get: { rule.isEnabled },
@@ -140,34 +140,34 @@ struct PerformanceAlarmView: View {
                         }
                     )
                 ) {
-                    Text(rule.isEnabled ? "Active" : "Inactive")
+                    Text(rule.isEnabled ? "alarm.rule.state.active" : "alarm.rule.state.inactive")
                 }
                 .toggleStyle(.checkbox)
                 .disabled(vm.isBusy(rule))
-                .accessibilityLabel(Text("Activer la règle \(vm.description(of: rule))"))
+                .accessibilityLabel(Text(String(localized: "alarm.rule.toggle.label", defaultValue: "Turn on the rule \(vm.description(of: rule))")))
             }
         }
     }
 
     private var commands: some View {
         HStack(spacing: 12) {
-            Button("Ajouter une règle") {
+            Button("alarm.rules.add.button") {
                 draft = PerformanceAlarmRuleDraft()
             }
-            .help("Composer une nouvelle règle d’alarme")
+            .help("alarm.rules.add.hint")
 
-            Button("Modifier") {
+            Button("common.button.edit") {
                 guard let rule = selectedRules.first else { return }
                 draft = PerformanceAlarmRuleDraft(editing: rule)
             }
             .disabled(selectedRules.count != 1 || !vm.canModify(selectedRules[0]))
-            .help("Modifier la règle sélectionnée")
+            .help("alarm.rules.edit.button")
 
-            Button("Supprimer", role: .destructive) {
+            Button("common.button.delete", role: .destructive) {
                 pendingDeletion = selectedRules
             }
             .disabled(selectedRules.isEmpty)
-            .help("Supprimer les règles sélectionnées")
+            .help("alarm.rules.delete.button")
 
             Spacer()
         }
@@ -180,8 +180,8 @@ struct PerformanceAlarmView: View {
     }
 }
 
-/// `sheet(item:)` a besoin d'une identité : celle de la règle modifiée, ou une valeur fixe
-/// pour la création, qui n'en a pas encore.
+/// `sheet(item:)` needs an identity: that of the edited rule, or a fixed value for creation,
+/// which does not have one yet.
 extension PerformanceAlarmRuleDraft: Identifiable {
     var id: String { ruleID ?? "creation" }
 }

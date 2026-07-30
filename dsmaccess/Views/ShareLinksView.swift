@@ -2,7 +2,7 @@
 //  ShareLinksView.swift
 //  dsmaccess
 //
-//  Gestion complète des liens de partage File Station.
+//  Full management of File Station sharing links.
 //
 
 import AppKit
@@ -54,22 +54,22 @@ struct ShareLinksView: View {
                 set: { if !$0 { pendingDelete.removeAll() } }
             )
         ) {
-            Button("Supprimer", role: .destructive) { Task { await deletePendingLinks() } }
-            Button("Annuler", role: .cancel) { pendingDelete.removeAll() }
+            Button("common.button.delete", role: .destructive) { Task { await deletePendingLinks() } }
+            Button("common.button.cancel", role: .cancel) { pendingDelete.removeAll() }
         } message: {
             Text(deleteMessage)
         }
-        .alert("Effacer les liens invalides ?", isPresented: $confirmsInvalidCleanup) {
-            Button("Effacer", role: .destructive) { Task { await clearInvalidLinks() } }
-            Button("Annuler", role: .cancel) {}
+        .alert("share_links.clear_invalid.confirm.title", isPresented: $confirmsInvalidCleanup) {
+            Button("common.button.clear", role: .destructive) { Task { await clearInvalidLinks() } }
+            Button("common.button.cancel", role: .cancel) {}
         } message: {
-            Text("Tous les liens que File Station considère comme invalides seront supprimés. Cette action est irréversible.")
+            Text("share_links.clear_invalid.confirm.message")
         }
     }
 
     private var header: some View {
         HStack {
-            Text("Liens de partage")
+            Text("common.action.share_links")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusTitle)
@@ -77,32 +77,32 @@ struct ShareLinksView: View {
             if vm.isLoadingShareLinks || isMutating {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel("Opération sur les liens en cours…")
+                    .accessibilityLabel("share_links.operation.progress")
             }
-            Button("Fermer", role: .cancel) { dismiss() }
+            Button("common.button.close", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
-                .help("Fermer les liens de partage")
+                .help("share_links.close.button")
         }
         .padding()
     }
 
     private var controls: some View {
         HStack(spacing: 16) {
-            Picker("Trier par", selection: $sort) {
+            Picker("common.label.sort_by", selection: $sort) {
                 ForEach(FileStationSharingSort.allCases, id: \.self) { value in
                     Text(value.localizedTitle).tag(value)
                 }
             }
             .frame(maxWidth: 230)
-            Toggle("Ordre croissant", isOn: $ascending)
-            Button("Appliquer") { Task { await loadShareLinks(forceRefresh: false) } }
+            Toggle("common.sort.ascending", isOn: $ascending)
+            Button("common.button.apply") { Task { await loadShareLinks(forceRefresh: false) } }
                 .disabled(vm.isLoadingShareLinks || isMutating)
             Spacer()
-            Button("Actualiser", systemImage: "arrow.clockwise") {
+            Button("common.button.refresh", systemImage: "arrow.clockwise") {
                 Task { await loadShareLinks(forceRefresh: true) }
             }
             .disabled(vm.isLoadingShareLinks || isMutating)
-            .help("Actualiser les liens depuis File Station")
+            .help("share_links.refresh.button")
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
@@ -116,25 +116,25 @@ struct ShareLinksView: View {
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .accessibilityFocused($focusStatus)
-                Button("Fermer l’erreur") { self.operationError = nil }
+                Button("common.button.dismiss_error") { self.operationError = nil }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if vm.isLoadingShareLinks && vm.shareLinks.isEmpty {
-            ModuleLoadingView("Chargement des liens de partage…")
+            ModuleLoadingView("share_links.loading")
                 .accessibilityFocused($focusStatus)
         } else if let error = vm.shareLinksError {
             VStack(spacing: 12) {
                 Text(error).foregroundStyle(.red).multilineTextAlignment(.center)
-                Button("Réessayer") { Task { await loadShareLinks(forceRefresh: true) } }
-                    .help("Réessayer de charger les liens de partage")
+                Button("common.button.retry") { Task { await loadShareLinks(forceRefresh: true) } }
+                    .help("share_links.error.retry.button")
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityFocused($focusStatus)
         } else if vm.shareLinks.isEmpty {
             ContentUnavailableView(
-                "Aucun lien de partage",
+                "share_links.empty.title",
                 systemImage: "link",
-                description: Text("Créez un lien depuis un fichier ou un dossier pour le retrouver ici.")
+                description: Text("share_links.empty.description")
             )
             .accessibilityFocused($focusStatus)
         } else {
@@ -142,23 +142,23 @@ struct ShareLinksView: View {
                 row(for: link)
                     .tag(link.id)
             }
-            .accessibilityLabel("Liens de partage File Station")
+            .accessibilityLabel("share_links.title")
         }
     }
 
     private var footer: some View {
         HStack {
-            Button("Effacer les liens invalides…", role: .destructive) {
+            Button("share_links.clear_invalid.button", role: .destructive) {
                 confirmsInvalidCleanup = true
             }
             .disabled(isMutating || vm.isLoadingShareLinks)
-            .help("Supprimer les liens signalés comme invalides par File Station")
+            .help("share_links.clear_invalid.hint")
             Spacer()
-            Button("Supprimer la sélection…", role: .destructive) {
+            Button("share_links.delete_selection.button", role: .destructive) {
                 pendingDelete = selectedLinks
             }
             .disabled(selection.isEmpty || isMutating)
-            Button("Fermer", role: .cancel) { dismiss() }
+            Button("common.button.close", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
         }
         .padding()
@@ -180,20 +180,20 @@ struct ShareLinksView: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button("Détails", systemImage: "info.circle") { detailsLink = link }
+            Button("common.button.details", systemImage: "info.circle") { detailsLink = link }
                 .labelStyle(.iconOnly)
-                .help("Afficher les détails du lien")
-            Button("Modifier", systemImage: "pencil") { editingLink = link }
+                .help("share_links.row.details.button")
+            Button("common.button.edit", systemImage: "pencil") { editingLink = link }
                 .labelStyle(.iconOnly)
-                .help("Modifier ce lien de partage")
-            Button("Copier", systemImage: "doc.on.clipboard") { copyToClipboard(link.url) }
+                .help("share_links.row.edit.button")
+            Button("common.button.copy", systemImage: "doc.on.clipboard") { copyToClipboard(link.url) }
                 .labelStyle(.iconOnly)
-                .help("Copier ce lien de partage")
-            Button("Supprimer", systemImage: "trash", role: .destructive) {
+                .help("share_links.row.copy.button")
+            Button("common.button.delete", systemImage: "trash", role: .destructive) {
                 pendingDelete = [link]
             }
             .labelStyle(.iconOnly)
-            .help("Supprimer ce lien de partage")
+            .help("share_links.row.delete.button")
         }
         .accessibilityElement(children: .contain)
     }
@@ -204,32 +204,33 @@ struct ShareLinksView: View {
 
     private var deleteTitle: String {
         pendingDelete.count == 1
-            ? String(localized: "Supprimer ce lien de partage ?")
-            : String(localized: "Supprimer \(pendingDelete.count) liens de partage ?")
+            ? String(localized: "share_links.delete.confirm.title")
+            : String(localized: "share_links.delete_selection.confirm.title", defaultValue: "Delete \(pendingDelete.count) sharing links?")
     }
 
     private var deleteMessage: String {
         if pendingDelete.count == 1, let link = pendingDelete.first {
             return String(
-                localized: "Le lien vers « \(link.name ?? link.path ?? link.url) » cessera de fonctionner immédiatement."
+                localized: "share_links.delete.confirm.message",
+                defaultValue: "The link to “\(link.name ?? link.path ?? link.url)” will stop working immediately."
             )
         }
         return String(
-            localized: "Les liens sélectionnés cesseront de fonctionner immédiatement. Cette action est irréversible."
+            localized: "share_links.delete_selection.confirm.message"
         )
     }
 
     private func linkSummary(_ link: SharingLink) -> String {
         var parts = [String]()
         if let status = link.status { parts.append(status) }
-        if link.hasPassword == true { parts.append(String(localized: "Protégé par mot de passe")) }
+        if link.hasPassword == true { parts.append(String(localized: "share_links.row.password_protected")) }
         if let available = link.availableDate {
-            parts.append(String(localized: "Disponible le \(available)"))
+            parts.append(String(localized: "share_links.row.available_on", defaultValue: "Available on \(available)"))
         }
         if let expiration = link.expirationDate {
-            parts.append(String(localized: "Expire le \(expiration)"))
+            parts.append(String(localized: "share_links.row.expires_on", defaultValue: "Expires on \(expiration)"))
         }
-        return parts.isEmpty ? String(localized: "Aucune restriction") : parts.formatted(.list(type: .and))
+        return parts.isEmpty ? String(localized: "share_links.row.no_restriction") : parts.formatted(.list(type: .and))
     }
 
     private func loadShareLinks(forceRefresh: Bool) async {
@@ -256,7 +257,7 @@ struct ShareLinksView: View {
 
     private var shareLinksAnnouncement: String {
         if let error = vm.shareLinksError { return error }
-        return String(localized: "Liens de partage : \(vm.shareLinks.count)")
+        return String(localized: "share_links.count", defaultValue: "Sharing links: \(vm.shareLinks.count)")
     }
 
     private func deletePendingLinks() async {
@@ -286,23 +287,23 @@ struct ShareLinksView: View {
     private func copyToClipboard(_ url: String) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(url, forType: .string)
-        VoiceOver.announce(String(localized: "Lien copié"))
+        VoiceOver.announce(String(localized: "common.status.link_copied"))
     }
 }
 
 private extension FileStationSharingSort {
     var localizedTitle: String {
         switch self {
-        case .id: String(localized: "Identifiant")
-        case .name: String(localized: "Nom")
-        case .isFolder: String(localized: "Type")
-        case .path: String(localized: "Chemin")
-        case .expirationDate: String(localized: "Date d’expiration")
-        case .availableDate: String(localized: "Date de disponibilité")
-        case .status: String(localized: "Statut")
-        case .hasPassword: String(localized: "Protection par mot de passe")
+        case .id: String(localized: "common.column.identifier")
+        case .name: String(localized: "common.column.name")
+        case .isFolder: String(localized: "common.column.kind")
+        case .path: String(localized: "common.column.path")
+        case .expirationDate: String(localized: "common.column.expiration_date")
+        case .availableDate: String(localized: "common.column.available_date")
+        case .status: String(localized: "common.column.status")
+        case .hasPassword: String(localized: "common.label.password_protection")
         case .url: "URL"
-        case .owner: String(localized: "Propriétaire")
+        case .owner: String(localized: "common.column.owner")
         }
     }
 }

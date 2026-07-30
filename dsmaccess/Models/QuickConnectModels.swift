@@ -2,7 +2,7 @@
 //  QuickConnectModels.swift
 //  dsmaccess
 //
-//  Format des commandes et réponses du service de résolution QuickConnect.
+//  Format of the commands and responses of the QuickConnect resolution service.
 //
 
 import Foundation
@@ -46,7 +46,7 @@ nonisolated struct QuickConnectControlResponse: Decodable, Sendable {
         let externalPort: Int
         let relayIP: String?
         let relayPort: Int?
-        /// Nom d'hôte du relais fourni par QuickConnect (ex. `synr-xx.ID.direct.quickconnect.to`).
+        /// Relay host name supplied by QuickConnect (e.g. `synr-xx.ID.direct.quickconnect.to`).
         let relayDN: String?
 
         enum CodingKeys: String, CodingKey {

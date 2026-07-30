@@ -2,19 +2,19 @@
 //  ShareInfo.swift
 //  dsmaccess
 //
-//  Dossiers partagés du NAS via SYNO.Core.Share. API NON documentée : structure calée sur
-//  le code open-source de Synology (synology-csi). Champs optionnels par prudence.
+//  NAS shared folders through SYNO.Core.Share. UNDOCUMENTED API: structure aligned with
+//  Synology's open-source code (synology-csi). Fields optional out of caution.
 //
 
 import Foundation
 
-/// Charge utile de `SYNO.Core.Share` `method=list`.
+/// Payload of `SYNO.Core.Share` `method=list`.
 struct ShareList: nonisolated Decodable, Sendable {
     let shares: [SharedFolder]?
     let total: Int?
 }
 
-/// Un dossier partagé.
+/// A shared folder.
 struct SharedFolder: nonisolated Decodable, Identifiable, Sendable {
     let name: String
     let volPath: String?
@@ -45,8 +45,8 @@ struct SharedFolder: nonisolated Decodable, Identifiable, Sendable {
     var id: String { uuid ?? name }
 }
 
-/// Objet `shareinfo` envoyé à `SYNO.Core.Share` `create` (sérialisé en JSON dans le paramètre).
-/// Champs calés sur le client officiel Synology (synology-csi) ; `encryption` en Int (0/1).
+/// `shareinfo` object sent to `SYNO.Core.Share` `create` (serialized as JSON in the parameter).
+/// Fields aligned with the official Synology client (synology-csi); `encryption` as an Int (0/1).
 struct ShareCreateInfo: Encodable {
     let name: String
     let volPath: String
@@ -63,12 +63,12 @@ struct ShareCreateInfo: Encodable {
     }
 }
 
-// MARK: - Affichage / VoiceOver
+// MARK: - Display / VoiceOver
 
-/// « /volume1 » → « Volume 1 » pour l'affichage ; renvoie le chemin brut sinon.
+/// "/volume1" → "Volume 1" for display; returns the raw path otherwise.
 func volumeLabel(for path: String) -> String {
     if path.hasPrefix("/volume"), let n = Int(path.dropFirst("/volume".count)) {
-        return String(localized: "Volume \(n)")
+        return String(localized: "common.label.volume_number", defaultValue: "Volume \(n)")
     }
     return path
 }
@@ -76,13 +76,13 @@ func volumeLabel(for path: String) -> String {
 extension SharedFolder {
     var displayName: String { name }
 
-    /// Nom lisible du volume hébergeant le partage (« Volume 1 »).
+    /// Readable name of the volume hosting the share ("Volume 1").
     var volumeText: String? {
         guard let path = volPath, !path.isEmpty else { return nil }
         return volumeLabel(for: path)
     }
 
-    /// Ligne secondaire : « Volume 1 · Sauvegardes Mac » (nil si rien à montrer).
+    /// Secondary line: "Volume 1 · Mac backups" (nil if there is nothing to show).
     var subtitleText: String? {
         var parts: [String] = []
         if let vol = volumeText { parts.append(vol) }
@@ -90,10 +90,10 @@ extension SharedFolder {
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
-    /// Libellé VoiceOver complet : « Sauvegardes, sur Volume 1, Sauvegardes Mac ».
+    /// Full VoiceOver label: "Backups, on Volume 1, Mac backups".
     var accessibilityLabel: String {
         var label = displayName
-        if let vol = volumeText { label += ", " + String(localized: "sur \(vol)") }
+        if let vol = volumeText { label += ", " + String(localized: "share.info.on_server", defaultValue: "on \(vol)") }
         if let d = desc, !d.isEmpty { label += ", \(d)" }
         return label
     }

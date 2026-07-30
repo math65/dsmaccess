@@ -11,7 +11,7 @@ struct SidebarSettingsView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Cochez les modules à afficher. Faites-les glisser pour les réordonner dans leur section, ou sélectionnez-en un puis utilisez Commande + Flèche vers le haut ou Commande + Flèche vers le bas.")
+            Text("sidebar.settings.modules.description")
 
             List(selection: $selection) {
                 ForEach(AppModuleSection.allCases) { section in
@@ -26,7 +26,7 @@ struct SidebarSettingsView: View {
                             Label(module.title, systemImage: module.systemImage)
                         }
                         .tag(module)
-                        .help(String(localized: "Afficher ou masquer \(module.localizedTitle) dans la barre latérale"))
+                        .help(String(localized: "sidebar.settings.module_toggle.hint", defaultValue: "Show or hide \(module.localizedTitle) in the sidebar"))
                         .draggable(module.rawValue)
                         .dropDestination(for: String.self) { values, _ in
                             move(values.first, before: module)
@@ -34,25 +34,25 @@ struct SidebarSettingsView: View {
                     }
                 }
             }
-            .accessibilityLabel("Barre latérale")
+            .accessibilityLabel("common.label.sidebar")
 
             HStack(spacing: 8) {
-                Button("Monter", systemImage: "arrow.up", action: moveSelectionUp)
+                Button("common.button.move_up", systemImage: "arrow.up", action: moveSelectionUp)
                     .keyboardShortcut(.upArrow, modifiers: .command)
                     .disabled(!canMoveSelection(by: -1))
-                    .help("Déplacer le module sélectionné vers le haut")
-                Button("Descendre", systemImage: "arrow.down", action: moveSelectionDown)
+                    .help("sidebar.settings.move_up.button")
+                Button("common.button.move_down", systemImage: "arrow.down", action: moveSelectionDown)
                     .keyboardShortcut(.downArrow, modifiers: .command)
                     .disabled(!canMoveSelection(by: 1))
-                    .help("Déplacer le module sélectionné vers le bas")
+                    .help("sidebar.settings.move_down.button")
                 Spacer()
             }
 
             Toggle(
-                "Masquer automatiquement les fonctionnalités indisponibles sur le NAS connecté",
+                "sidebar.settings.hide_unavailable.label",
                 isOn: $settings.automaticallyHideUnavailableModules
             )
-            .help("Masquer les modules qui ne sont pas disponibles sur le NAS connecté")
+            .help("sidebar.settings.hide_unavailable.hint")
         }
         .padding(20)
     }
@@ -108,7 +108,7 @@ struct SidebarSettingsView: View {
         let modules = modules(in: module.section)
         guard let index = modules.firstIndex(of: module) else { return }
         VoiceOver.announce(
-            String(localized: "\(module.localizedTitle), position \(index + 1) sur \(modules.count)"),
+            String(localized: "sidebar.settings.module.position", defaultValue: "\(module.localizedTitle), position \(index + 1) of \(modules.count)"),
             category: .result
         )
     }

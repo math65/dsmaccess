@@ -23,32 +23,32 @@ struct USBCopyGlobalSettingsSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Réglages généraux USB Copy")
+            Text("usb_copy.settings.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($contentFocused)
                 .padding()
 
             if isLoading {
-                ModuleLoadingView("Chargement des réglages USB Copy…")
+                ModuleLoadingView("usb_copy.settings.loading")
             } else if let settingsBinding {
                 Form {
-                    Picker("Volume du dépôt", selection: settingsBinding.repositoryVolumePath) {
+                    Picker("usb_copy.settings.repository_volume.label", selection: settingsBinding.repositoryVolumePath) {
                         ForEach(selectableVolumes, id: \.self) { path in
                             Text(volumeLabel(for: path)).tag(path)
                         }
                     }
-                    .help("Volume qui contient la base de données et les versions USB Copy")
+                    .help("usb_copy.settings.repository_volume.description")
 
                     TextField(
-                        "Nombre maximal de journaux",
+                        "usb_copy.settings.max_log_entries.label",
                         value: settingsBinding.logRotateCount,
                         format: .number
                     )
-                    .help("Conserver entre 5 et 100 000 entrées dans le journal USB Copy")
+                    .help("usb_copy.settings.max_log_entries.description")
 
                     Toggle(
-                        "Émettre un signal sonore au début et à la fin des tâches",
+                        "usb_copy.settings.beep.label",
                         isOn: settingsBinding.beepOnTaskStartEnd
                     )
 
@@ -61,7 +61,7 @@ struct USBCopyGlobalSettingsSheet: View {
                 .formStyle(.grouped)
             } else {
                 ModuleErrorView(
-                    message: errorMessage ?? String(localized: "Impossible de charger les réglages USB Copy."),
+                    message: errorMessage ?? String(localized: "usb_copy.settings.load.error"),
                     retry: { Task { await loadSettings() } }
                 )
                 .accessibilityFocused($errorFocused)
@@ -69,12 +69,12 @@ struct USBCopyGlobalSettingsSheet: View {
 
             Divider()
             HStack {
-                if isSaving { ProgressView("Enregistrement…").controlSize(.small) }
+                if isSaving { ProgressView("common.status.saving").controlSize(.small) }
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .disabled(isSaving)
-                Button("Enregistrer", action: requestSave)
+                Button("common.button.save", action: requestSave)
                     .keyboardShortcut(.defaultAction)
                     .disabled(settings == nil || isLoading || isSaving || !isValid)
             }
@@ -82,14 +82,14 @@ struct USBCopyGlobalSettingsSheet: View {
         }
         .frame(minWidth: 520, minHeight: 400)
         .confirmationDialog(
-            "Déplacer le dépôt USB Copy ?",
+            "usb_copy.settings.move_repository.title",
             isPresented: $showsRepositoryMoveConfirmation
         ) {
-            Button("Déplacer et enregistrer") { Task { await save() } }
-            Button("Annuler", role: .cancel) { }
+            Button("usb_copy.settings.move_repository.confirm") { Task { await save() } }
+            Button("common.button.cancel", role: .cancel) { }
         } message: {
             if let settings {
-                Text("Le dépôt USB Copy sera déplacé de « \(originalRepositoryVolumePath) » vers « \(settings.repositoryVolumePath) ». USB Copy peut être temporairement indisponible pendant le déplacement.")
+                Text(String(localized: "usb_copy.settings.move_repository.message", defaultValue: "The USB Copy repository will be moved from “\(originalRepositoryVolumePath)” to “\(settings.repositoryVolumePath)”. USB Copy may be temporarily unavailable during the move."))
             }
         }
         .task {
@@ -126,7 +126,7 @@ struct USBCopyGlobalSettingsSheet: View {
         isLoading = true
         errorMessage = nil
         defer { isLoading = false }
-        VoiceOver.announce(String(localized: "Chargement des réglages USB Copy…"), category: .progress)
+        VoiceOver.announce(String(localized: "usb_copy.settings.loading"), category: .progress)
         do {
             async let loadedSettings = load()
             async let loadedVolumePaths = loadVolumePaths()
@@ -155,7 +155,7 @@ struct USBCopyGlobalSettingsSheet: View {
         guard let settings, isValid else { return }
         isSaving = true
         errorMessage = nil
-        VoiceOver.announce(String(localized: "Enregistrement…"), category: .progress)
+        VoiceOver.announce(String(localized: "common.status.saving"), category: .progress)
         let outcome = await onSave(settings)
         isSaving = false
         VoiceOver.announce(outcome, priority: .high)

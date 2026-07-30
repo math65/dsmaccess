@@ -2,62 +2,62 @@
 //  DSMError.swift
 //  dsmaccess
 //
-//  Erreurs de la couche réseau/API, avec messages en français prêts à afficher
-//  (et à faire lire par VoiceOver).
+//  Network/API layer errors, with ready-to-display French messages
+//  (also meant to be read aloud by VoiceOver).
 //
 
 import Foundation
 
 enum DSMError: Error, LocalizedError, Equatable {
-    /// Adresse du NAS invalide (URL non construisible).
+    /// Invalid NAS address (URL cannot be built).
     case invalidEndpoint
-    /// Problème réseau (hôte injoignable, délai dépassé, certificat refusé…).
+    /// Network problem (unreachable host, timeout, rejected certificate…).
     case network(String)
-    /// Certificat auto-signé ou non approuvé qui nécessite une décision explicite.
+    /// Self-signed or untrusted certificate that requires an explicit decision.
     case untrustedCertificate(fingerprint: String)
-    /// Réponse illisible (JSON non décodable). `detail` décrit l'échec en termes de
-    /// champs et de chemin, sans aucune valeur : il alimente le signalement.
+    /// Unreadable response (JSON cannot be decoded). `detail` describes the failure in terms
+    /// of fields and path, without any value: it feeds the report.
     case decoding(detail: String?)
-    /// Réponse HTTP inattendue.
+    /// Unexpected HTTP response.
     case invalidResponse
-    /// Requête annulée (vue quittée / requête remplacée) — à ignorer, pas un vrai échec.
+    /// Cancelled request (view left / request replaced) — to be ignored, not a real failure.
     case cancelled
-    /// L'API n'est pas exposée par ce NAS ou le paquet correspondant n'est pas installé.
+    /// The API is not exposed by this NAS, or the matching package is not installed.
     case unsupportedAPI(String)
-    /// Les versions exposées par le NAS ne satisfont pas les besoins de cette fonctionnalité.
+    /// The versions exposed by the NAS do not meet the needs of this feature.
     case unsupportedAPIVersion(String)
-    /// La session DSM n'existe plus ou a été invalidée.
+    /// The DSM session no longer exists or has been invalidated.
     case sessionExpired
-    /// Identifiants incorrects (code 400).
+    /// Incorrect credentials (code 400).
     case invalidCredentials
-    /// Compte désactivé (code 401).
+    /// Disabled account (code 401).
     case accountDisabled
-    /// Permission refusée (code 402).
+    /// Permission denied (code 402).
     case permissionDenied
-    /// Code de vérification à deux facteurs requis (code 403).
+    /// Two-factor verification code required (code 403).
     case needsOTP
-    /// Code de vérification incorrect (code 404).
+    /// Incorrect verification code (code 404).
     case badOTP
-    /// Double authentification obligatoire à activer côté compte (code 406).
+    /// Two-factor authentication is mandatory and must be enabled on the account (code 406).
     case otpEnforced
-    /// DSM exige un nouveau mot de passe avant d'ouvrir la session (code 410) : arrive après
-    /// une réinitialisation par l'administrateur quand le NAS impose le changement.
+    /// DSM requires a new password before opening the session (code 410): happens after a
+    /// reset by the administrator when the NAS enforces the change.
     case passwordMustChange
-    /// Le mot de passe ne satisfait pas les règles de force configurées sur le NAS.
+    /// The password does not satisfy the strength rules configured on the NAS.
     case weakPassword
-    /// Le compte a bien été créé, mais son ajout aux groupes demandés a échoué : l'opération
-    /// ne peut être ni présentée comme réussie, ni retentée à l'identique.
+    /// The account was indeed created, but adding it to the requested groups failed: the
+    /// operation can neither be presented as successful, nor retried as is.
     case userCreatedWithoutGroups(name: String)
-    /// Autre erreur API renvoyée par DSM.
+    /// Any other API error returned by DSM.
     case apiError(code: Int)
-    /// Le Centre de paquets exige une décision ou un assistant que l'app ne doit pas deviner.
+    /// Package Center requires a decision or a wizard that the app must not guess.
     case packageCenter(String)
-    /// Échec d'une opération groupée avec le détail du premier élément refusé par DSM.
+    /// Failure of a batch operation, with the detail of the first item DSM rejected.
     case itemOperationFailed(code: Int, item: String?, itemCode: Int)
 
-    /// Une session reprise n'est validée que par un appel authentifié. Ces refus-là
-    /// viennent du NAS **après** nous avoir identifiés : ils prouvent que la session vit,
-    /// contrairement à un incident réseau, qui ne prouve rien.
+    /// A resumed session is only validated by an authenticated call. These particular refusals
+    /// come from the NAS **after** it has identified us: they prove the session is alive,
+    /// unlike a network incident, which proves nothing.
     var provesSessionIsAlive: Bool {
         switch self {
         case .permissionDenied, .unsupportedAPI, .unsupportedAPIVersion, .apiError:
@@ -70,54 +70,54 @@ enum DSMError: Error, LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .invalidEndpoint:
-            return String(localized: "Adresse du NAS invalide.")
+            return String(localized: "error.address.invalid")
         case .network(let detail):
-            return String(localized: "Impossible de joindre le NAS : \(detail)")
+            return String(localized: "error.network.unreachable", defaultValue: "Unable to reach the NAS: \(detail)")
         case .untrustedCertificate:
-            return String(localized: "Le certificat de sécurité de ce NAS n'est pas approuvé.")
+            return String(localized: "error.certificate.untrusted")
         case .decoding:
-            return String(localized: "La réponse du NAS n'a pas pu être lue.")
+            return String(localized: "error.response.unreadable")
         case .invalidResponse:
-            return String(localized: "Réponse inattendue du NAS.")
+            return String(localized: "error.response.unexpected")
         case .cancelled:
-            return String(localized: "Requête annulée.")
+            return String(localized: "error.request.cancelled")
         case .unsupportedAPI(let name):
-            return String(localized: "Cette fonctionnalité n'est pas disponible sur ce NAS (API \(name)).")
+            return String(localized: "error.api.unavailable", defaultValue: "This feature is not available on this NAS (API \(name)).")
         case .unsupportedAPIVersion(let name):
-            return String(localized: "La version DSM installée ne prend pas en charge cette fonctionnalité (API \(name)).")
+            return String(localized: "error.api.version_unsupported", defaultValue: "The installed DSM version does not support this feature (API \(name)).")
         case .sessionExpired:
-            return String(localized: "La session a expiré. Reconnectez-vous au NAS.")
+            return String(localized: "error.session.expired")
         case .invalidCredentials:
-            return String(localized: "Nom d'utilisateur ou mot de passe incorrect.")
+            return String(localized: "error.auth.invalid_credentials")
         case .accountDisabled:
-            return String(localized: "Ce compte est désactivé.")
+            return String(localized: "error.auth.account_disabled")
         case .permissionDenied:
-            return String(localized: "Permission refusée pour ce compte.")
+            return String(localized: "error.auth.permission_denied")
         case .needsOTP:
-            return String(localized: "Un code de vérification à deux facteurs est requis.")
+            return String(localized: "error.auth.otp_required")
         case .badOTP:
-            return String(localized: "Code de vérification incorrect. Réessayez.")
+            return String(localized: "error.auth.invalid_otp")
         case .otpEnforced:
-            return String(localized: "La double authentification est obligatoire pour ce compte. Activez-la dans DSM.")
+            return String(localized: "error.auth.otp_enforced")
         case .passwordMustChange:
-            return String(localized: "Ce compte doit changer son mot de passe avant de se connecter.")
+            return String(localized: "common.error.password_change_required")
         case .weakPassword:
-            return String(localized: "Le mot de passe ne respecte pas les règles de sécurité du NAS.")
+            return String(localized: "error.password.policy_rejected")
         case .userCreatedWithoutGroups(let name):
-            return String(localized: "Le compte \(name) a été créé, mais son ajout aux groupes a échoué.")
+            return String(localized: "error.user.created_without_groups", defaultValue: "The account \(name) was created, but adding it to the groups failed.")
         case .apiError(let code):
-            return String(localized: "Erreur du NAS (code \(code)).")
+            return String(localized: "error.nas.code", defaultValue: "NAS error (code \(code)).")
         case .packageCenter(let message):
             return message
         case .itemOperationFailed(let code, let item?, let itemCode):
-            return String(localized: "Échec de l’opération sur « \(item) » (codes \(code) et \(itemCode)).")
+            return String(localized: "error.operation.named_failed", defaultValue: "The operation on “\(item)” failed (codes \(code) and \(itemCode)).")
         case .itemOperationFailed(let code, nil, let itemCode):
-            return String(localized: "Échec de l’opération sur un élément (codes \(code) et \(itemCode)).")
+            return String(localized: "error.operation.item_failed", defaultValue: "An item operation failed (codes \(code) and \(itemCode)).")
         }
     }
 
-    /// Échec « définitif » lié au compte : inutile de retenter avec le même mot de passe
-    /// (sert à décider d'oublier un mot de passe mémorisé lors d'une reconnexion auto).
+    /// “Definitive” account-related failure: no point retrying with the same password
+    /// (used to decide whether to forget a stored password during an automatic reconnection).
     var isCredentialFailure: Bool {
         switch self {
         case .invalidCredentials, .accountDisabled, .permissionDenied, .otpEnforced:
@@ -127,8 +127,8 @@ enum DSMError: Error, LocalizedError, Equatable {
         }
     }
 
-    /// Vrai si l'erreur n'est qu'une annulation (tâche interrompue parce que la vue a été
-    /// quittée ou la requête remplacée). À traiter silencieusement : ni message, ni annonce.
+    /// True if the error is only a cancellation (task interrupted because the view was left
+    /// or the request replaced). To be handled silently: no message, no announcement.
     static func isCancellation(_ error: Error) -> Bool {
         if error is CancellationError { return true }
         if let url = error as? URLError, url.code == .cancelled { return true }

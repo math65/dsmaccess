@@ -4,8 +4,8 @@ import Testing
 
 @MainActor
 struct SystemProcessTests {
-    /// Formes relevées sur le DS920+ en DSM 7.4 le 29/07/2026. Les noms de comptes et de
-    /// machines n'y figurent pas : seule la forme de la réponse est reprise du NAS.
+    /// Shapes captured on the DS920+ running DSM 7.4 on 29/07/2026. No account or machine
+    /// names appear here: only the shape of the response is taken from the NAS.
     @Test func readsProcessesWithTheirMemoryInKibibytes() throws {
         let payload = Data(#"""
         {"process":[
@@ -24,9 +24,9 @@ struct SystemProcessTests {
         #expect(page.process.count == 2)
     }
 
-    /// DSM n'écrit ni zéro ni `null` pour un groupe qu'il ne mesure pas : il envoie la
-    /// chaîne « - ». Deux groupes sur vingt et un étaient dans ce cas. Décodée en zéro,
-    /// elle ferait passer une absence de mesure pour un service au repos.
+    /// DSM writes neither zero nor `null` for a group it does not measure: it sends the
+    /// string "-". Two groups out of twenty-one were in that case. Decoded as zero, it would
+    /// make a missing measurement look like an idle service.
     @Test func readsADashAsAMissingMeasurementNotAsZero() throws {
         let payload = Data(#"""
         {"slices":[
@@ -41,16 +41,15 @@ struct SystemProcessTests {
         #expect(group.cpuPercent == nil)
         #expect(group.cpuTime == nil)
         #expect(group.memoryBytes == nil)
-        // Le reste de la ligne survit : un champ non mesuré ne doit pas emporter le groupe.
+        // The rest of the row survives: one unmeasured field must not take the group down.
         #expect(group.displayName == "Sans mesure")
         #expect(group.readBytesPerSecond == 0)
     }
 
-    /// Deux échelles opposées pour la même grandeur, relevées le 30/07/2026 : la charge d'un
-    /// processus est déjà un pourcentage, celle d'un groupe est une fraction. Le client web de
-    /// DSM la nomme d'ailleurs `cpuFraction` et la multiplie par 100. Lue telle quelle, la
-    /// colonne « Processeur » des services s'écrit « 0,0 % » sur toute sa hauteur, y compris
-    /// pour un service qui consomme réellement.
+    /// Two opposite scales for the same quantity, captured on 30/07/2026: a process load is
+    /// already a percentage, a group load is a fraction. DSM's own web client even names it
+    /// `cpuFraction` and multiplies it by 100. Read as is, the "CPU" column of the services
+    /// reads "0.0 %" all the way down, including for a service that really is consuming.
     @Test func readsTheGroupCPUAsAFractionAndTheProcessCPUAsAPercentage() throws {
         let groupPayload = Data(#"""
         {"slices":[
@@ -72,15 +71,15 @@ struct SystemProcessTests {
         #expect(abs(desktop - 1.2091898428053204) < 0.000_001)
         let snmp = try #require(groups.last?.cpuPercent)
         #expect(abs(snmp - 0.1095290251916758) < 0.000_001)
-        // Le processus, lui, n'est pas converti : 10 vaut bien 10 %.
+        // The process value, on the other hand, is not converted: 10 really means 10 %.
         #expect(processes.first?.cpuPercent == 10)
     }
 
-    /// Les deux formes réellement observées, et elles s'excluent : soit `name` porte un nom
-    /// courant et `name_i18n` est vide, soit l'inverse — et alors `name_i18n` contient une
-    /// clé du catalogue DSM, pas une traduction. Affichée telle quelle, cette clé donnerait
-    /// « storage_pool:raid_process » au milieu de « SNMP » et « Plex Media Server ». Faute
-    /// de pouvoir la résoudre, on la rend lisible : seule sa ponctuation change.
+    /// The two forms actually observed, and they exclude each other: either `name` carries a
+    /// plain name and `name_i18n` is empty, or the reverse — and then `name_i18n` holds a DSM
+    /// catalog key, not a translation. Displayed as is, that key would show
+    /// "storage_pool:raid_process" among "SNMP" and "Plex Media Server". Since it cannot be
+    /// resolved, it is made readable: only its punctuation changes.
     @Test func namesAGroupFromWhicheverFieldTheNASFilledIn() throws {
         let payload = Data(#"""
         {"slices":[
@@ -103,7 +102,7 @@ struct SystemProcessTests {
         #expect(groups[1].displayName == "Raid process")
         #expect(groups[1].processCount == 2)
         #expect(groups[2].displayName == "Desktop service")
-        // Un nom déjà présentable n'est pas touché.
+        // A name that is already presentable is left untouched.
         #expect(groups[3].displayName == "Plex Media Server")
     }
 }

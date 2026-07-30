@@ -26,7 +26,7 @@ struct DSMPermissionServiceTests {
         #expect(parameters["api"] == "SYNO.Core.Share.Permission")
         #expect(parameters["method"] == "list_by_user")
         #expect(parameters["name"] == #""martine""#)
-        // Sans user_group_type, DSM répond 403 au lieu de choisir un défaut.
+        // Without user_group_type, DSM answers 403 instead of picking a default.
         #expect(parameters["user_group_type"] == #""local_user""#)
     }
 
@@ -56,13 +56,13 @@ struct DSMPermissionServiceTests {
         #expect(entries[0]["is_readonly"] as? Bool == true)
         #expect(entries[0]["is_writable"] as? Bool == false)
         #expect(entries[0]["is_deny"] as? Bool == false)
-        // Les permissions détaillées de File Station doivent survivre à un changement de niveau.
+        // File Station's fine-grained permissions must survive an access level change.
         #expect(entries[1]["is_custom"] as? Bool == true)
         #expect(entries[1]["is_readonly"] as? Bool == false)
     }
 
     @Test func readsSharePermissionsOfAGroup() async throws {
-        // Un groupe n'hérite de rien : DSM change de méthode et omet « inherit ».
+        // A group inherits nothing: DSM switches method and omits "inherit".
         let stub = DSMRequestStub(results: [
             .response(Data(
                 #"{"success":true,"data":{"shares":[{"name":"photo","share_path":"/volume1/photo","is_readonly":true,"is_writable":false,"is_deny":false,"is_custom":false}],"total":1}}"#.utf8
@@ -83,8 +83,8 @@ struct DSMPermissionServiceTests {
     }
 
     @Test func writesGroupPermissionsThroughTheSharedMethod() async throws {
-        // La lecture a deux méthodes, l'écriture une seule : c'est user_group_type qui
-        // distingue le groupe du compte.
+        // Reading has two methods, writing only one: user_group_type is what tells the
+        // group apart from the account.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),
         ])
@@ -112,7 +112,7 @@ struct DSMPermissionServiceTests {
     }
 
     @Test func appliesTheConflictRuleAnnouncedByDSM() {
-        // DSM résout un conflit compte/groupe dans l'ordre NA > RW > RO.
+        // DSM resolves an account/group conflict in the order NA > RW > RO.
         let denied = DSMSharePermission(name: "photo", inherited: .noAccess, granted: .readWrite)
         #expect(denied.effective == .noAccess)
 
@@ -141,10 +141,10 @@ struct DSMPermissionServiceTests {
 
         #expect(privileges.map(\.appID) == ["SYNO.Desktop", "SYNO.Finder.Application", "SYNO.FTP"])
         #expect(privileges[0].decision == .deny)
-        // Sans règle, l'application relève du défaut : ce n'est pas un refus.
+        // With no rule, the application falls under the default: this is not a denial.
         #expect(privileges[1].decision == nil)
         #expect(!privileges[1].isGrantedByDefault)
-        // Une règle limitée à une adresse ne doit pas être réécrite en « toutes ».
+        // A rule limited to one address must not be rewritten as "all".
         #expect(privileges[2].decision == .allow)
         #expect(privileges[2].restrictsAddresses)
         #expect(!privileges[0].restrictsAddresses)
@@ -160,7 +160,7 @@ struct DSMPermissionServiceTests {
     }
 
     @Test func deletesTheRuleWhenAnApplicationReturnsToItsDefault() async throws {
-        // DSM n'a pas de valeur « aucune règle » : seul le retrait de la règle rend le défaut.
+        // DSM has no "no rule" value: only removing the rule restores the default.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),

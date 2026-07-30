@@ -26,8 +26,8 @@ struct FileBrowserView: View {
     @State private var showingAdvancedSearch = false
     @State private var showingPasteOptions = false
     @State private var pasteMovesItems = false
-    /// Retenu au moment du geste : la feuille doit nommer le dossier visé alors, pas celui
-    /// que l'écran afficherait au moment de la validation.
+    /// Captured at the time of the gesture: the sheet must name the folder targeted then, not
+    /// the one the screen would be showing when the user confirms.
     @State private var pasteDestination = ""
     @State private var showingUploadOptions = false
     @State private var pendingUploadURLs = [URL]()
@@ -88,12 +88,12 @@ struct FileBrowserView: View {
             content
         }
             .navigationTitle(vm.title)
-            .searchable(text: $searchText, prompt: "Rechercher dans ce dossier")
+            .searchable(text: $searchText, prompt: "files.search.placeholder")
             .toolbar { fileToolbar }
             .focusedSceneValue(\.fileCommandActions, commandActions)
             .task {
                 VoiceOver.announce(
-                    String(localized: "Chargement des fichiers…"),
+                    String(localized: "files.progress.loading"),
                     category: .progress,
                     priority: .low
                 )
@@ -105,9 +105,9 @@ struct FileBrowserView: View {
                 resumeUnfinishedOperation()
             }
             .task(id: searchText) {
-                // Au premier affichage cette tâche part avec un champ vide, avant la fin
-                // du chargement : sans recherche à lancer ni à effacer, ne rien annoncer
-                // (sinon VoiceOver entend « Dossier vide » puis le vrai contenu).
+                // On first display this task starts with an empty field, before loading has
+                // finished: with no search to run and none to clear, announce nothing
+                // (otherwise VoiceOver hears "Empty folder" and then the real contents).
                 let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
                 if query.isEmpty && !vm.isShowingSearchResults { return }
                 do {
@@ -117,7 +117,7 @@ struct FileBrowserView: View {
                     try Task.checkCancellation()
                     if !query.isEmpty {
                         VoiceOver.announce(
-                            String(localized: "Recherche en cours…"),
+                            String(localized: "files.progress.searching"),
                             category: .progress,
                             priority: .low
                         )
@@ -144,16 +144,16 @@ struct FileBrowserView: View {
                     set: { if !$0 { pendingDeleteItems.removeAll() } }
                 )
             ) {
-                Button("Supprimer", role: .destructive) {
+                Button("common.button.delete", role: .destructive) {
                     let items = pendingDeleteItems
                     pendingDeleteItems.removeAll()
                     startOperation({ await vm.delete(items) }) {
                         selection.removeAll()
                     }
                 }
-                .help("Supprimer définitivement les éléments sélectionnés")
-                Button("Annuler", role: .cancel) { pendingDeleteItems.removeAll() }
-                    .help("Annuler la suppression")
+                .help("files.delete.button.hint")
+                Button("common.button.cancel", role: .cancel) { pendingDeleteItems.removeAll() }
+                    .help("common.button.cancel_deletion")
             } message: {
                 Text(deleteMessage)
             }
@@ -207,10 +207,10 @@ struct FileBrowserView: View {
             .sheet(isPresented: $showingPasteOptions) {
                 FileConflictPolicySheet(
                     title: pasteMovesItems
-                        ? String(localized: "Déplacer dans \(pasteDestination)")
-                        : String(localized: "Coller dans \(pasteDestination)"),
+                        ? String(localized: "files.button.move_into", defaultValue: "Move into \(pasteDestination)")
+                        : String(localized: "files.button.paste_into", defaultValue: "Paste into \(pasteDestination)"),
                     itemCount: vm.clipboard?.items.count ?? 0,
-                    confirmLabel: pasteMovesItems ? "Déplacer" : "Coller"
+                    confirmLabel: pasteMovesItems ? "files.button.move" : "common.button.paste"
                 ) { policy in
                     performPaste(conflictPolicy: policy)
                 }
@@ -239,9 +239,9 @@ struct FileBrowserView: View {
         if vm.isLoading && vm.items.isEmpty {
             ModuleLoadingView()
         } else if vm.isSearching && vm.items.isEmpty {
-            ModuleLoadingView("Recherche en cours…")
+            ModuleLoadingView("files.progress.searching")
         } else if vm.isWorking && vm.items.isEmpty {
-            ModuleLoadingView("Opération en cours…")
+            ModuleLoadingView("files.progress.working")
         } else if let error = vm.errorMessage {
             ModuleErrorView(message: error) {
                 Task { await refresh() }
@@ -249,11 +249,11 @@ struct FileBrowserView: View {
             .accessibilityFocused($focusEmptyState)
         } else if vm.sortedItems.isEmpty {
             EmptyModuleView(
-                title: vm.isShowingSearchResults ? "Aucun résultat" : "Dossier vide",
+                title: vm.isShowingSearchResults ? "common.empty.results" : "common.empty.folder",
                 systemImage: vm.isShowingSearchResults ? "magnifyingglass" : "folder",
                 description: vm.isShowingSearchResults
-                    ? "Aucun élément ne correspond à votre recherche."
-                    : "Ce dossier ne contient aucun élément."
+                    ? "files.search.empty"
+                    : "common.empty.folder.description"
             )
             .accessibilityFocused($focusEmptyState)
         } else {
@@ -293,30 +293,30 @@ struct FileBrowserView: View {
     private var fileToolbar: some ToolbarContent {
         ToolbarItem(placement: .navigation) {
             Button(action: goUp) {
-                Label("Dossier parent", systemImage: "chevron.up")
+                Label("common.button.parent_folder", systemImage: "chevron.up")
             }
             .disabled(!vm.canGoUp || vm.isLoading)
-            .help("Dossier parent")
-            .accessibilityHint("Remonte au dossier parent")
+            .help("common.button.parent_folder")
+            .accessibilityHint("files.button.parent_folder.hint")
         }
 
         ToolbarItem(placement: .primaryAction) {
             Menu {
-                Button("Nouveau dossier", systemImage: "folder.badge.plus") {
+                Button("common.button.new_folder", systemImage: "folder.badge.plus") {
                     activeSheet = .createFolder
                 }
                 .disabled(!vm.canCreateFolder)
-                .help("Créer un nouveau dossier")
-                Button("Envoyer des fichiers…", systemImage: "square.and.arrow.up") {
+                .help("common.button.new_folder.hint")
+                Button("common.button.upload_files", systemImage: "square.and.arrow.up") {
                     startUpload()
                 }
                 .disabled(!vm.canUpload || vm.hasActiveTransfers)
-                .help("Envoyer des fichiers dans ce dossier")
+                .help("common.button.upload_files.hint")
             } label: {
-                Label("Ajouter", systemImage: "plus")
+                Label("common.button.add", systemImage: "plus")
             }
             .disabled((!vm.canCreateFolder && !vm.canUpload) || vm.isWorking)
-            .help("Ajouter des éléments")
+            .help("files.menu.add_items")
         }
 
         ToolbarItem(placement: .primaryAction) {
@@ -329,107 +329,107 @@ struct FileBrowserView: View {
     }
 
     private var selectedItemActionsMenu: some View {
-        Menu("Actions sur la sélection", systemImage: "slider.horizontal.3") {
-            Button("Ouvrir", systemImage: "arrow.forward", action: activateSelection)
+        Menu("files.menu.selection_actions.label", systemImage: "slider.horizontal.3") {
+            Button("common.button.open", systemImage: "arrow.forward", action: activateSelection)
                 .disabled(singleSelectedItem == nil)
-                .help("Ouvrir l’élément sélectionné")
-            Button("Télécharger…", systemImage: "square.and.arrow.down") {
+                .help("common.button.open.hint")
+            Button("common.button.download", systemImage: "square.and.arrow.down") {
                 startDownload(selectedItems)
             }
             .disabled(!vm.canDownload || vm.hasActiveTransfers)
-            .help("Télécharger les éléments sélectionnés")
+            .help("common.button.download.hint")
             if selectedItems.count > 1 {
-                Button("Télécharger dans une archive…", systemImage: "archivebox") {
+                Button("files.button.download_as_archive", systemImage: "archivebox") {
                     startArchiveDownload(selectedItems)
                 }
                 .disabled(!vm.canDownload || vm.hasActiveTransfers)
-                .help("Télécharger la sélection dans une seule archive ZIP")
+                .help("files.button.download_as_archive.hint")
             }
             Divider()
-            Button("Copier", systemImage: "doc.on.doc") {
+            Button("common.button.copy", systemImage: "doc.on.doc") {
                 copyItems(selectedItems)
             }
             .disabled(!vm.canCopyMove)
-            .help("Copier les éléments sélectionnés")
-            Button("Créer un lien de partage", systemImage: "link") {
+            .help("common.button.copy.hint")
+            Button("common.action.create_share_link", systemImage: "link") {
                 shareItem = singleSelectedItem
             }
             .disabled(singleSelectedItem == nil || !vm.canShare)
-            .help("Créer un lien vers l’élément sélectionné")
-            Button("Renommer…", systemImage: "pencil") {
+            .help("files.share_link.create.hint")
+            Button("common.menu.rename", systemImage: "pencil") {
                 if let item = singleSelectedItem { activeSheet = .rename(item) }
             }
             .disabled(singleSelectedItem == nil || !vm.canRename)
-            .help("Renommer l’élément sélectionné")
+            .help("common.button.rename.hint")
             Divider()
-            Button("Compresser…", systemImage: "archivebox") {
+            Button("common.button.compress", systemImage: "archivebox") {
                 activeSheet = .compress(selectedItems)
             }
             .disabled(!vm.canCompress)
-            .help("Compresser les éléments sélectionnés")
-            Button("Extraire", systemImage: "archivebox.fill") {
+            .help("common.button.compress.hint")
+            Button("common.button.extract", systemImage: "archivebox.fill") {
                 if let item = singleSelectedItem { requestExtraction(item) }
             }
             .disabled(singleSelectedItem.map(vm.canExtract) != true || !vm.canExtractArchives)
-            .help("Extraire l’archive sélectionnée")
-            Button("Supprimer…", systemImage: "trash", role: .destructive) {
+            .help("common.button.extract.hint")
+            Button("common.menu.delete", systemImage: "trash", role: .destructive) {
                 pendingDeleteItems = selectedItems
             }
             .disabled(!vm.canDelete)
-            .help("Supprimer les éléments sélectionnés")
+            .help("common.button.delete.hint")
             Divider()
-            Button("Lire les informations", systemImage: "info.circle") {
+            Button("common.button.get_info", systemImage: "info.circle") {
                 infoItem = singleSelectedItem
             }
             .disabled(singleSelectedItem == nil)
-            .help("Lire les informations de l’élément sélectionné")
+            .help("common.button.get_info.hint")
         }
         .disabled(selectedItems.isEmpty || vm.isWorking)
-        .help("Actions sur les éléments sélectionnés")
+        .help("files.menu.selection_actions.hint")
     }
 
     private var moreOptionsMenu: some View {
-        Menu("Plus d’options", systemImage: "ellipsis.circle") {
-            Button("Coller", systemImage: "doc.on.clipboard", action: dispatchPaste)
+        Menu("common.button.more_options", systemImage: "ellipsis.circle") {
+            Button("common.button.paste", systemImage: "doc.on.clipboard", action: dispatchPaste)
                 .disabled((!vm.canPaste && !vm.canUpload) || vm.isWorking)
-                .help("Coller ici les éléments copiés ou les fichiers du Finder")
-            Button("Déplacer ici", systemImage: "arrow.forward.doc.on.clipboard", action: dispatchMove)
+                .help("common.button.paste.hint")
+            Button("common.button.move_here", systemImage: "arrow.forward.doc.on.clipboard", action: dispatchMove)
                 .disabled(!vm.canPaste || vm.isWorking)
-                .help("Déplacer ici les éléments copiés, en les retirant de leur emplacement d’origine")
+                .help("common.button.move_here.hint")
 
             favoritesMenu
 
-            Button("Dossiers virtuels…", systemImage: "externaldrive") {
+            Button("files.button.virtual_folders", systemImage: "externaldrive") {
                 showingVirtualFolders = true
             }
             .disabled(vm.availableVirtualFolderTypes.isEmpty)
-            .help("Parcourir les montages NFS, CIFS et ISO de File Station")
+            .help("files.virtual_folders.hint")
 
-            Button("Liens de partage", systemImage: "link") {
+            Button("common.action.share_links", systemImage: "link") {
                 showingShareLinks = true
             }
-            .help("Gérer les liens de partage")
+            .help("files.menu.manage_share_links")
 
-            Button("Transferts", systemImage: "arrow.up.arrow.down") {
+            Button("common.label.transfers", systemImage: "arrow.up.arrow.down") {
                 showingTransfers = true
             }
-            .help("Afficher la progression et l’historique des transferts")
+            .help("files.button.transfers.hint")
 
-            Button("Tâches File Station", systemImage: "list.bullet.rectangle") {
+            Button("common.action.file_station_tasks", systemImage: "list.bullet.rectangle") {
                 showingBackgroundTasks = true
             }
             .disabled(!vm.supports(.backgroundTasks))
-            .help("Afficher et gérer les opérations exécutées par le NAS")
+            .help("common.action.file_station_tasks.hint")
 
-            Button("Recherche avancée…", systemImage: "magnifyingglass") {
+            Button("files.button.advanced_search", systemImage: "magnifyingglass") {
                 searchText = ""
                 showingAdvancedSearch = true
             }
             .disabled(vm.currentLevel.path == nil || !vm.supports(.search) || vm.isSearching)
-            .help("Rechercher par type, taille, date, propriétaire ou groupe")
+            .help("files.button.advanced_search.hint")
 
             Divider()
-            Menu("Trier", systemImage: "arrow.up.arrow.down") {
+            Menu("files.sort.menu.label", systemImage: "arrow.up.arrow.down") {
                 ForEach(FileBrowserViewModel.SortMode.allCases) { mode in
                     Button {
                         vm.sortMode = mode
@@ -440,28 +440,28 @@ struct FileBrowserView: View {
                             Text(mode.title)
                         }
                     }
-                    .help(String(localized: "Trier par \(mode.title)"))
+                    .help(String(localized: "files.sort.by", defaultValue: "Sort by \(mode.title)"))
                 }
                 Divider()
                 Button(
-                    vm.sortAscending ? "Ordre décroissant" : "Ordre croissant",
+                    vm.sortAscending ? "files.sort.descending.label" : "common.sort.ascending",
                     systemImage: vm.sortAscending ? "arrow.down" : "arrow.up"
                 ) {
                     vm.sortAscending.toggle()
                 }
-                .help(vm.sortAscending ? "Passer à l’ordre décroissant" : "Passer à l’ordre croissant")
+                .help(vm.sortAscending ? "files.sort.switch_descending.hint" : "files.sort.switch_ascending.hint")
             }
-            .help("Choisir le tri des fichiers")
+            .help("files.sort.menu.hint")
         }
-        .help("Plus d’options pour ce dossier")
+        .help("files.menu.folder_options.hint")
     }
 
     private var favoritesMenu: some View {
         Menu {
-            Button("Gérer les favoris…", systemImage: "star.square") {
+            Button("files.menu.manage_favorites", systemImage: "star.square") {
                 showingFavorites = true
             }
-            .help("Renommer, classer ou retirer des favoris")
+            .help("files.menu.manage_favorites.hint")
             Divider()
 
             if let path = vm.currentLevel.path {
@@ -471,20 +471,20 @@ struct FileBrowserView: View {
                     }
                 } label: {
                     if vm.isFavorite(path: path) {
-                        Label("Retirer des favoris", systemImage: "star.slash")
+                        Label("files.favorites.remove.label", systemImage: "star.slash")
                     } else {
-                        Label("Ajouter aux favoris", systemImage: "star")
+                        Label("files.favorites.add.label", systemImage: "star")
                     }
                 }
-                .help(vm.isFavorite(path: path) ? "Retirer ce dossier des favoris" : "Ajouter ce dossier aux favoris")
+                .help(vm.isFavorite(path: path) ? "files.favorites.remove.hint" : "files.favorites.add.hint")
                 Divider()
             }
 
             if vm.favorites.isEmpty {
                 if let error = vm.favoritesError {
-                    Text(String(localized: "Favoris indisponibles : \(error)"))
+                    Text(String(localized: "files.favorites.unavailable.error", defaultValue: "Favorites unavailable: \(error)"))
                 } else {
-                    Text("Aucun favori")
+                    Text("common.empty.favorites")
                 }
             } else {
                 ForEach(vm.favorites) { favorite in
@@ -496,14 +496,14 @@ struct FileBrowserView: View {
                         }
                     }
                     .disabled(!favorite.isAvailable)
-                    .help(String(localized: "Ouvrir le favori \(favorite.name)"))
+                    .help(String(localized: "files.favorites.open.hint", defaultValue: "Open the \(favorite.name) favorite"))
                 }
             }
         } label: {
-            Label("Favoris", systemImage: "star")
+            Label("files.favorites.title", systemImage: "star")
         }
         .disabled(!vm.supports(.favorites))
-        .help("Favoris File Station")
+        .help("common.action.file_station_favorites")
     }
 
     @ViewBuilder
@@ -511,13 +511,13 @@ struct FileBrowserView: View {
         switch sheet {
         case .createFolder:
             NameEntrySheet(
-                title: "Créer un dossier",
-                fieldLabel: "Nom du dossier",
-                confirmLabel: "Créer",
-                announcement: String(localized: "Créer un dossier")
+                title: "files.button.new_folder",
+                fieldLabel: "files.new_folder.name.label",
+                confirmLabel: "common.button.create",
+                announcement: String(localized: "files.button.new_folder")
             ) { name in
                 VoiceOver.announce(
-                    String(localized: "Création du dossier en cours…"),
+                    String(localized: "files.progress.creating_folder"),
                     category: .progress,
                     priority: .low
                 )
@@ -527,14 +527,14 @@ struct FileBrowserView: View {
             }
         case .rename(let item):
             NameEntrySheet(
-                title: "Renommer",
-                fieldLabel: "Nouveau nom",
-                confirmLabel: "Renommer",
-                announcement: String(localized: "Renommer « \(item.name) »"),
+                title: "common.button.rename",
+                fieldLabel: "files.rename.name.label",
+                confirmLabel: "common.button.rename",
+                announcement: String(localized: "files.rename.dialog.title", defaultValue: "Rename “\(item.name)”"),
                 initialName: item.name
             ) { name in
                 VoiceOver.announce(
-                    String(localized: "Modification du nom en cours…"),
+                    String(localized: "files.progress.renaming"),
                     category: .progress,
                     priority: .low
                 )
@@ -548,7 +548,7 @@ struct FileBrowserView: View {
             FileCompressionOptionsSheet(initialName: suggestedArchiveName(for: items)) {
                 name, options in
                 VoiceOver.announce(
-                    String(localized: "Compression en cours…"),
+                    String(localized: "files.progress.compressing"),
                     category: .progress,
                     priority: .low
                 )
@@ -573,9 +573,9 @@ struct FileBrowserView: View {
             canRename: vm.canRename && !vm.isWorking,
             canCompress: vm.canCompress && !vm.isWorking,
             canDelete: vm.canDelete && !vm.isWorking,
-            // Le presse-papiers système n'est pas observable par SwiftUI : l'élément
-            // reste actif dès qu'un collage est envisageable, et un ⌘V sans contenu
-            // annonce « Rien à coller. » plutôt que d'être désactivé à tort.
+            // The system pasteboard is not observable by SwiftUI: the item stays enabled as
+            // soon as a paste is conceivable, and a ⌘V with nothing to paste announces
+            // "Nothing to paste." rather than being wrongly disabled.
             canPaste: (vm.canPaste || vm.canUpload) && !vm.isWorking,
             canMoveHere: vm.canPaste && !vm.isWorking,
             canExtract: selectedItems.count == 1
@@ -621,24 +621,24 @@ struct FileBrowserView: View {
 
     private var progressLabel: String {
         if vm.isSearching, let progress = vm.searchProgress, progress.total > 0 {
-            return String(localized: "Recherche en cours, résultats trouvés : \(progress.total)")
+            return String(localized: "files.search.progress.results", defaultValue: "Search in progress, results found: \(progress.total)")
         }
-        if vm.isSearching { return String(localized: "Recherche en cours…") }
-        if vm.isDownloading { return String(localized: "Téléchargement en cours…") }
-        return String(localized: "Opération en cours…")
+        if vm.isSearching { return String(localized: "files.progress.searching") }
+        if vm.isDownloading { return String(localized: "files.progress.downloading_single") }
+        return String(localized: "files.progress.working")
     }
 
     private var deleteTitle: String {
         pendingDeleteItems.count == 1
-            ? String(localized: "Supprimer cet élément ?")
-            : String(localized: "Supprimer \(pendingDeleteItems.count) éléments ?")
+            ? String(localized: "files.delete.confirm.title_single")
+            : String(localized: "files.delete.confirm.title_multiple", defaultValue: "Delete \(pendingDeleteItems.count) Items?")
     }
 
     private var deleteMessage: String {
         if pendingDeleteItems.count == 1, let item = pendingDeleteItems.first {
-            return String(localized: "« \(item.name) » sera supprimé définitivement. Cette action est irréversible.")
+            return String(localized: "files.delete.confirm.message_single", defaultValue: "“\(item.name)” will be permanently deleted. This action cannot be undone.")
         }
-        return String(localized: "Les éléments sélectionnés seront supprimés définitivement. Cette action est irréversible.")
+        return String(localized: "files.delete.confirm.message_multiple")
     }
 
     private func activate(_ item: FileStationItem) {
@@ -675,7 +675,7 @@ struct FileBrowserView: View {
     private func startAdvancedSearch(_ criteria: FileStationSearchCriteria) {
         advancedSearchTask?.cancel()
         VoiceOver.announce(
-            String(localized: "Recherche avancée en cours…"),
+            String(localized: "files.advanced_search.progress"),
             category: .progress,
             priority: .low
         )
@@ -702,32 +702,32 @@ struct FileBrowserView: View {
         case .pasteInternalClipboard:
             requestPaste(moving: false)
         case .nothing:
-            VoiceOver.announce(String(localized: "Rien à coller."), category: .result)
+            VoiceOver.announce(String(localized: "common.error.nothing_to_paste"), category: .result)
         }
     }
 
-    /// ⌘⌥V, comme dans le Finder. Déplacer des fichiers du Mac supposerait de
-    /// les supprimer après l'envoi : le geste est réservé à la copie interne.
+    /// ⌘⌥V, as in the Finder. Moving files from the Mac would mean deleting them after the
+    /// upload: the gesture is reserved for the internal clipboard.
     private func dispatchMove() {
         guard !vm.isWorking else { return }
         switch FinderPasteboard.currentIntent(hasInternalClipboard: vm.canPaste) {
         case .uploadFinderFiles:
             VoiceOver.announce(
-                String(localized: "Impossible de déplacer des fichiers du Finder. Utilisez Coller pour les envoyer."),
+                String(localized: "files.drop.finder_move.error"),
                 category: .error,
                 priority: .high
             )
         case .pasteInternalClipboard:
             requestPaste(moving: true)
         case .nothing:
-            VoiceOver.announce(String(localized: "Rien à déplacer."), category: .result)
+            VoiceOver.announce(String(localized: "files.move.empty"), category: .result)
         }
     }
 
     private func requestFinderUpload(_ urls: [URL]) {
         guard vm.canUpload else {
             VoiceOver.announce(
-                String(localized: "Impossible d’envoyer ici."),
+                String(localized: "common.error.upload_not_allowed_here"),
                 category: .error,
                 priority: .high
             )
@@ -735,7 +735,7 @@ struct FileBrowserView: View {
         }
         guard !vm.hasActiveTransfers else {
             VoiceOver.announce(
-                String(localized: "Attendez la fin des transferts en cours avant de coller des fichiers."),
+                String(localized: "files.paste.transfers_busy.error"),
                 category: .error,
                 priority: .high
             )
@@ -758,8 +758,8 @@ struct FileBrowserView: View {
     private func performPaste(conflictPolicy: FileConflictPolicy) {
         VoiceOver.announce(
             pasteMovesItems
-                ? String(localized: "Déplacement en cours…")
-                : String(localized: "Collage en cours…"),
+                ? String(localized: "files.progress.moving")
+                : String(localized: "files.progress.pasting"),
             category: .progress,
             priority: .low
         )
@@ -777,7 +777,7 @@ struct FileBrowserView: View {
         options: FileStationExtractionOptions
     ) {
         VoiceOver.announce(
-            String(localized: "Extraction en cours…"),
+            String(localized: "files.progress.extracting"),
             category: .progress,
             priority: .low
         )
@@ -795,7 +795,7 @@ struct FileBrowserView: View {
             guard panel.runModal() == .OK, let url = panel.url else { return }
             _ = url.startAccessingSecurityScopedResource()
             VoiceOver.announce(
-                String(localized: "Téléchargement en cours…"),
+                String(localized: "files.progress.downloading_single"),
                 category: .progress,
                 priority: .low
             )
@@ -813,12 +813,12 @@ struct FileBrowserView: View {
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = false
         panel.canCreateDirectories = true
-        panel.prompt = String(localized: "Choisir")
-        panel.message = String(localized: "Choisissez le dossier de destination des téléchargements.")
+        panel.prompt = String(localized: "files.button.choose")
+        panel.message = String(localized: "files.download_destination.description")
         guard panel.runModal() == .OK, let directory = panel.url else { return }
         _ = directory.startAccessingSecurityScopedResource()
         VoiceOver.announce(
-            String(localized: "Téléchargements en cours…"),
+            String(localized: "files.progress.downloading_multiple"),
             category: .progress,
             priority: .low
         )
@@ -833,16 +833,16 @@ struct FileBrowserView: View {
     private func startArchiveDownload(_ items: [FileStationItem]) {
         guard items.count > 1, !vm.hasActiveTransfers else { return }
         let panel = NSSavePanel()
-        panel.nameFieldStringValue = String(localized: "Archive File Station.zip")
+        panel.nameFieldStringValue = String(localized: "files.archive.default_name")
         panel.canCreateDirectories = true
         panel.allowedContentTypes = [.zip]
         panel.message = String(
-            localized: "File Station regroupera les éléments sélectionnés dans une seule archive ZIP."
+            localized: "files.compress.description"
         )
         guard panel.runModal() == .OK, let url = panel.url else { return }
         _ = url.startAccessingSecurityScopedResource()
         VoiceOver.announce(
-            String(localized: "Téléchargement de l’archive en cours…"),
+            String(localized: "files.progress.downloading_archive"),
             category: .progress,
             priority: .low
         )
@@ -871,7 +871,7 @@ struct FileBrowserView: View {
         panel.canChooseFiles = true
         panel.canChooseDirectories = true
         panel.allowsMultipleSelection = true
-        panel.prompt = String(localized: "Envoyer")
+        panel.prompt = String(localized: "common.button.upload")
         guard panel.runModal() == .OK, !panel.urls.isEmpty else { return }
         for url in panel.urls {
             _ = url.startAccessingSecurityScopedResource()
@@ -885,7 +885,7 @@ struct FileBrowserView: View {
         pendingUploadURLs.removeAll()
         guard !urls.isEmpty else { return }
         VoiceOver.announce(
-            String(localized: "Envoi en cours…"),
+            String(localized: "files.progress.uploading"),
             category: .progress,
             priority: .low
         )
@@ -922,12 +922,12 @@ struct FileBrowserView: View {
         }
     }
 
-    /// L'arrêt part au NAS avant que le suivi ne soit annulé : l'interrompre d'abord
-    /// effacerait la progression, donc l'identifiant de la tâche à arrêter.
+    /// The stop request goes to the NAS before the tracking is cancelled: interrupting it
+    /// first would clear the progress, and with it the identifier of the task to stop.
     private func cancelOperation() {
         guard stopTask == nil else { return }
         VoiceOver.announce(
-            String(localized: "Annulation de l’opération demandée"),
+            String(localized: "files.operation.cancel.announcement"),
             category: .progress,
             priority: .high
         )
@@ -939,8 +939,8 @@ struct FileBrowserView: View {
         }
     }
 
-    /// Une opération lancée avant de quitter le module tourne toujours sur le NAS :
-    /// le bandeau de progression la reprend au retour.
+    /// An operation started before leaving the module is still running on the NAS: the
+    /// progress banner picks it back up on return.
     private func resumeUnfinishedOperation() {
         guard operationTask == nil else { return }
         operationTask = Task {
@@ -956,7 +956,7 @@ struct FileBrowserView: View {
 
     private func suggestedArchiveName(for items: [FileStationItem]) -> String {
         guard items.count == 1, let item = items.first else {
-            return String(localized: "Archive.zip")
+            return String(localized: "files.archive.name.placeholder")
         }
         return "\(item.name).zip"
     }

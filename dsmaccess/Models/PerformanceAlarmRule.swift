@@ -2,40 +2,40 @@
 //  PerformanceAlarmRule.swift
 //  dsmaccess
 //
-//  Règles de l'alarme des performances (SYNO.ResourceMonitor.EventRule). Une règle dit à quel
-//  seuil le NAS doit consigner une alerte dans son historique : sans règle, ce journal reste
-//  vide quoi qu'il arrive.
+//  Performance alarm rules (SYNO.ResourceMonitor.EventRule). A rule states the threshold at
+//  which the NAS must record an alert in its history: without a rule, that log stays empty
+//  no matter what happens.
 //
-//  Contrat éprouvé sur DSM 7.4 le 30/07/2026, en créant puis supprimant de vraies règles.
-//  Quatre particularités, dont trois que le client web de DSM laissait mal deviner :
-//  — L'identifiant est une **chaîne composite** que le NAS fabrique :
-//    « type_service_ressource_gravité ». Modifier l'un de ces champs change donc l'identité de
-//    la règle, et deux règles qui partagent ce quadruplet entrent en collision (erreur 6106).
-//  — La cible part dans un **paramètre unique, `service`**, quel que soit le type.
-//  — `type` et `resource` sont des **entiers**, et le sens d'un code de ressource dépend du
-//    type : `4` est la mémoire en pourcentage pour le système, en mégaoctets pour un service.
-//  — `severity` ne connaît que deux valeurs, là où le journal en affiche trois.
+//  Contract proven against DSM 7.4 on 2026-07-30, by creating then deleting real rules.
+//  Four quirks, three of which DSM's web client made hard to guess:
+//  — The identifier is a **composite string** the NAS builds:
+//    "type_service_resource_severity". Changing any one of those fields therefore changes the
+//    rule's identity, and two rules sharing that quadruple collide (error 6106).
+//  — The target goes out in a **single parameter, `service`**, whatever the type.
+//  — `type` and `resource` are **integers**, and the meaning of a resource code depends on the
+//    type: `4` is memory as a percentage for the system, in megabytes for a service.
+//  — `severity` only knows two values, where the log displays three.
 //
 
 import Foundation
 
 struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
-    /// Chaîne composée par le NAS : « type_service_ressource_gravité ».
+    /// String composed by the NAS: "type_service_resource_severity".
     let id: String
     let isEnabled: Bool
     let severity: Severity
     let kind: Kind
     let resource: Resource
     let threshold: Int
-    /// Cible telle que le NAS l'a reçue : nom d'unité d'un service, chemin de volume, ou la
-    /// constante « general » d'une règle système.
+    /// Target as the NAS received it: a service's unit name, a volume path, or the "general"
+    /// constant of a system rule.
     let target: String
-    /// Libellé que le NAS attache à la cible. Souvent lisible, parfois une clé de son propre
-    /// catalogue — voir `displayTarget`.
+    /// Label the NAS attaches to the target. Often readable, sometimes a key from its own
+    /// catalogue — see `displayTarget`.
     let targetLabel: String?
 
-    /// Ce que la règle surveille. Le NAS envoie un entier ; une valeur inattendue serait une
-    /// évolution de DSM et reste lisible plutôt que rejetée.
+    /// What the rule watches. The NAS sends an integer; an unexpected value would be a DSM
+    /// evolution and stays readable rather than being rejected.
     enum Kind: Int, nonisolated Sendable, CaseIterable, Identifiable {
         case system = 0
         case service = 1
@@ -45,15 +45,15 @@ struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
 
         var id: Int { rawValue }
 
-        /// Types que l'app sait composer. iSCSI et l'usage interne restent lisibles et
-        /// supprimables, mais ne sont pas proposés à la création : le premier n'a pas pu être
-        /// éprouvé faute de LUN, le second est réservé à Synology.
+        /// Types the app knows how to compose. iSCSI and internal use stay readable and
+        /// deletable, but are not offered at creation: the first could not be proven for lack
+        /// of a LUN, the second is reserved for Synology.
         static let editable: [Kind] = [.system, .service, .volume]
 
         var isEditable: Bool { Self.editable.contains(self) }
 
-        /// Valeur que le NAS attend en cible pour les types qui n'en font pas choisir une.
-        /// Vérifié : une règle système enregistrée porte bien « general ».
+        /// Value the NAS expects as target for the types that let no target be chosen.
+        /// Verified: a saved system rule does carry "general".
         var fixedTarget: String? {
             switch self {
             case .system: "general"
@@ -70,8 +70,8 @@ struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
         var id: Int { rawValue }
     }
 
-    /// Grandeur surveillée. Le même code ne désigne pas la même chose d'un type à l'autre :
-    /// il ne prend son sens qu'associé au type de la règle.
+    /// Watched quantity. The same code does not designate the same thing from one type to the
+    /// next: it only takes on meaning together with the rule's type.
     enum Resource: Int, nonisolated Sendable {
         case processorUsage = 0
         case loadAverageOneMinute = 1
@@ -87,19 +87,19 @@ struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
         case graphicsUsage = 11
     }
 
-    /// Unité affichée à côté du seuil. DSM la tire du couple type / ressource et ne la laisse
-    /// jamais saisir.
+    /// Unit displayed next to the threshold. DSM derives it from the type / resource pair and
+    /// never lets it be entered.
     enum Unit: nonisolated Sendable {
         case percent
         case megabytes
         case megabytesPerSecond
         case milliseconds
-        /// Une charge moyenne ou un décompte n'ont pas d'unité.
+        /// A load average or a count has no unit.
         case none
     }
 
-    /// Une grandeur surveillable, avec ce que DSM accepte comme seuil. Les bornes viennent du
-    /// client web : un seuil hors bornes est refusé par le NAS.
+    /// A watchable quantity, with what DSM accepts as a threshold. The bounds come from the
+    /// web client: a threshold outside them is refused by the NAS.
     struct Measure: nonisolated Sendable, Identifiable {
         let resource: Resource
         let unit: Unit
@@ -109,9 +109,9 @@ struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
         var id: Int { resource.rawValue }
     }
 
-    /// Grandeurs proposées pour un type, dans l'ordre où DSM les présente. Le GPU n'est
-    /// proposé que sur un NAS qui en a un ; il n'apparaît donc pas ici, faute d'avoir pu
-    /// vérifier le drapeau `support_nvidia_gpu` sur un modèle concerné.
+    /// Quantities offered for a type, in the order DSM presents them. The GPU is only offered
+    /// on a NAS that has one; it therefore does not appear here, for lack of being able to
+    /// verify the `support_nvidia_gpu` flag on a model that has one.
     static func measures(for kind: Kind) -> [Measure] {
         switch kind {
         case .system:
@@ -144,24 +144,24 @@ struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
         }
     }
 
-    /// La grandeur telle que DSM la décrit pour ce couple, ou `nil` si le NAS a envoyé une
-    /// combinaison que le client web ne propose pas.
+    /// The quantity as DSM describes it for this pair, or `nil` if the NAS sent a combination
+    /// the web client does not offer.
     var measure: Measure? {
         Self.measures(for: kind).first { $0.resource == resource }
     }
 
-    /// Cible telle qu'elle mérite d'être lue. Le NAS renvoie tantôt un libellé (« SNMP »),
-    /// tantôt une clé de son propre catalogue (« firewall:firewall_service_opt_ssh ») que son
-    /// client web résout et que nous ne pouvons pas résoudre ; le nom d'unité, lui, reste
-    /// toujours parlant. Une règle système n'a pas de cible : « general » est une constante de
-    /// DSM, pas quelque chose que l'utilisateur reconnaîtrait.
+    /// Target as it deserves to be read. The NAS returns sometimes a label ("SNMP"), sometimes
+    /// a key from its own catalogue ("firewall:firewall_service_opt_ssh") that its web client
+    /// resolves and that we cannot resolve; the unit name, for its part, always stays
+    /// meaningful. A system rule has no target: "general" is a DSM constant, not something the
+    /// user would recognise.
     var displayTarget: String? {
         guard kind != .system, kind != .internalUse else { return nil }
         if let targetLabel, !targetLabel.isEmpty, !targetLabel.contains(":") {
             return targetLabel
         }
-        // Le nom d'unité systemd porte un suffixe qui n'apprend rien à la lecture :
-        // « sshd.slice » se lit « sshd ».
+        // The systemd unit name carries a suffix that teaches nothing when read:
+        // "sshd.slice" reads as "sshd".
         let unit = target.hasSuffix(Self.sliceSuffix)
             ? String(target.dropLast(Self.sliceSuffix.count))
             : target
@@ -170,12 +170,12 @@ struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
 
     private static let sliceSuffix = ".slice"
 
-    /// Clés de tri non optionnelles : une valeur absente se range en tête plutôt que
-    /// d'empêcher le tri de sa colonne.
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
     var sortableTarget: String { displayTarget ?? "" }
     var sortableKind: Int { kind.rawValue }
     var sortableSeverity: Int { severity.rawValue }
-    /// Trié comme un nombre : `Bool` n'est pas `Comparable`.
+    /// Sorted as a number: `Bool` is not `Comparable`.
     var sortableEnabled: Int { isEnabled ? 1 : 0 }
 
     enum CodingKeys: String, CodingKey {
@@ -184,8 +184,8 @@ struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
 
     nonisolated init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
-        // Sans identifiant, la règle ne peut être ni basculée ni supprimée : mieux vaut que le
-        // décodage échoue que d'afficher une ligne sur laquelle aucune action ne marchera.
+        // Without an identifier the rule can neither be toggled nor deleted: better that
+        // decoding fails than displaying a row on which no action will work.
         id = try c.requiredFlexString(.id)
         isEnabled = c.flexBool(.enable) ?? false
         severity = Severity(rawValue: c.flexInt(.severity) ?? 0) ?? .warning
@@ -200,7 +200,7 @@ struct PerformanceAlarmRule: nonisolated Decodable, Sendable, Identifiable {
 struct PerformanceAlarmRulePage: nonisolated Decodable, Sendable {
     let rules: [PerformanceAlarmRule]
     let total: Int?
-    /// Le NAS autorise les règles d'usage interne, réservées à Synology.
+    /// The NAS allows internal-use rules, reserved for Synology.
     let supportsInternalUse: Bool
 
     enum CodingKeys: String, CodingKey {
@@ -216,23 +216,23 @@ struct PerformanceAlarmRulePage: nonisolated Decodable, Sendable {
     }
 }
 
-/// Ce que `set` envoie pour créer ou modifier une règle. Sans `id`, DSM crée ; avec, il
-/// remplace. `enable` part dans les deux cas : vérifié, le NAS le réclame aussi en
-/// modification, contrairement à ce que laisse croire son propre formulaire.
+/// What `set` sends to create or modify a rule. Without `id`, DSM creates; with it, DSM
+/// replaces. `enable` goes out in both cases: verified, the NAS demands it on modification
+/// too, contrary to what its own form suggests.
 struct PerformanceAlarmRuleDraft: nonisolated Sendable, Equatable {
-    /// Identifiant de la règle modifiée, `nil` pour une création.
+    /// Identifier of the rule being modified, `nil` for a creation.
     var ruleID: String?
     var kind: PerformanceAlarmRule.Kind
     var resource: PerformanceAlarmRule.Resource
     var threshold: Int
     var severity: PerformanceAlarmRule.Severity
     var isEnabled: Bool
-    /// Service ou volume choisi. Vide pour un type dont DSM fixe lui-même la valeur.
+    /// Chosen service or volume. Empty for a type whose value DSM sets itself.
     var target: String
 
     var isCreation: Bool { ruleID == nil }
 
-    /// La cible telle que `set` l'attend : la constante du type quand il en impose une.
+    /// The target as `set` expects it: the type's constant when it imposes one.
     var resolvedTarget: String { kind.fixedTarget ?? target }
 
     init(
@@ -253,7 +253,7 @@ struct PerformanceAlarmRuleDraft: nonisolated Sendable, Equatable {
         self.target = target
     }
 
-    /// Reprend une règle existante pour la modifier.
+    /// Takes over an existing rule in order to modify it.
     init(editing rule: PerformanceAlarmRule) {
         self.init(
             ruleID: rule.id,

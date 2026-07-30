@@ -2,10 +2,10 @@
 //  ResourceUsage.swift
 //  dsmaccess
 //
-//  Charge utile de SYNO.Core.System.Utilization (method=get) : mesures instantanées
-//  du NAS (processeur, mémoire, réseau). API NON documentée : structure calée sur des
-//  réponses réelles, champs optionnels par prudence. Les nombres arrivent tantôt en
-//  entier JSON tantôt en chaîne selon la version de DSM → décodage souple (`flexInt`).
+//  Payload of SYNO.Core.System.Utilization (method=get): instantaneous NAS readings
+//  (processor, memory, network). UNDOCUMENTED API: structure pinned on real responses,
+//  fields optional out of caution. Numbers arrive sometimes as a JSON integer, sometimes
+//  as a string depending on the DSM version → lenient decoding (`flexInt`).
 //
 
 import Foundation
@@ -19,9 +19,9 @@ struct ResourceUsage: nonisolated Decodable, Sendable {
 
     enum CodingKeys: String, CodingKey { case cpu, memory, network, disk, space }
 
-    /// Activité d'un groupe de périphériques. DSM emploie la même forme pour les disques
-    /// (`disk`, chacun avec son `type`) et pour les volumes (`space`), avec dans les deux
-    /// cas une entrée cumulée `device == "total"` à part.
+    /// Activity of a group of devices. DSM uses the same shape for disks (`disk`, each with
+    /// its `type`) and for volumes (`space`), in both cases with a separate cumulative
+    /// `device == "total"` entry.
     struct Activity: nonisolated Decodable, Sendable {
         let devices: [Device]
         let total: Device?
@@ -37,9 +37,8 @@ struct ResourceUsage: nonisolated Decodable, Sendable {
         }
     }
 
-    /// Un disque ou un volume. `read_byte`/`write_byte` sont des débits en octets par
-    /// seconde, `read_access`/`write_access` des nombres d'accès, `utilization` un
-    /// pourcentage.
+    /// A disk or a volume. `read_byte`/`write_byte` are throughputs in bytes per second,
+    /// `read_access`/`write_access` are access counts, `utilization` is a percentage.
     struct Device: nonisolated Decodable, Sendable, Identifiable {
         let device: String?
         let displayName: String?
@@ -51,7 +50,7 @@ struct ResourceUsage: nonisolated Decodable, Sendable {
         let writeOperations: Int?
 
         var id: String { device ?? displayName ?? "" }
-        /// Nom lisible, avec repli sur l'identifiant matériel quand DSM n'en donne pas.
+        /// Readable name, falling back on the hardware identifier when DSM gives none.
         var name: String { displayName ?? device ?? "" }
 
         enum CodingKeys: String, CodingKey {
@@ -76,9 +75,9 @@ struct ResourceUsage: nonisolated Decodable, Sendable {
         }
     }
 
-    /// Charges processeur en pourcentage (utilisateur / système / autre), et les moyennes
-    /// de charge Unix. Celles-ci arrivent **multipliées par cent** (`57` vaut 0,57) : le
-    /// client web de DSM les divise avant affichage, contrat relevé dans son code.
+    /// Processor loads as percentages (user / system / other), and the Unix load averages.
+    /// The latter arrive **multiplied by one hundred** (`57` means 0.57): DSM's web client
+    /// divides them before display, a contract read off its code.
     struct CPU: nonisolated Decodable, Sendable {
         let userLoad: Int?
         let systemLoad: Int?
@@ -107,19 +106,19 @@ struct ResourceUsage: nonisolated Decodable, Sendable {
         }
     }
 
-    /// Mémoire vive : pourcentage utilisé et tailles réelles/échange (en Kio).
+    /// RAM: percentage used and real/swap sizes (in KiB).
     struct Memory: nonisolated Decodable, Sendable {
         let realUsage: Int?     // %
-        let totalReal: Int?     // Kio
-        let availReal: Int?     // Kio
-        let cached: Int?        // Kio
-        let buffer: Int?        // Kio
+        let totalReal: Int?     // KiB
+        let availReal: Int?     // KiB
+        let cached: Int?        // KiB
+        let buffer: Int?        // KiB
         let swapUsage: Int?     // %
 
-        /// Mémoire réellement occupée, cache et tampons exclus. C'est la définition de DSM :
-        /// sur un NAS où le cache disque occupe presque toute la mémoire, compter le cache
-        /// donnerait 96 % là où DSM annonce 17 %, et les deux chiffres se contrediraient
-        /// à l'écran. Vérifié sur DSM 7.4 le 29/07/2026.
+        /// Memory actually occupied, cache and buffers excluded. That is DSM's definition:
+        /// on a NAS where the disk cache takes up almost all the memory, counting the cache
+        /// would give 96% where DSM announces 17%, and the two figures would contradict each
+        /// other on screen. Verified on DSM 7.4 on 2026-07-29.
         var usedReal: Int? {
             guard let totalReal, let availReal else { return nil }
             let used = totalReal - availReal - (cached ?? 0) - (buffer ?? 0)
@@ -145,12 +144,12 @@ struct ResourceUsage: nonisolated Decodable, Sendable {
         }
     }
 
-    /// Débit d'une interface réseau (octets par seconde). DSM inclut une entrée
-    /// synthétique `device == "total"` cumulant toutes les interfaces.
+    /// Throughput of a network interface (bytes per second). DSM includes a synthetic
+    /// `device == "total"` entry summing all interfaces.
     struct Interface: nonisolated Decodable, Sendable {
         let device: String?
-        let rx: Int?            // octets/s reçus
-        let tx: Int?            // octets/s envoyés
+        let rx: Int?            // bytes/s received
+        let tx: Int?            // bytes/s sent
 
         enum CodingKeys: String, CodingKey { case device, rx, tx }
 

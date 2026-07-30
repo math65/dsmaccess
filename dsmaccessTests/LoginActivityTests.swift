@@ -2,12 +2,12 @@ import Foundation
 import Testing
 @testable import dsmaccess
 
-/// Formes relevées sur DSM 7.4 le 30/07/2026. Les valeurs sont inventées : les adresses,
-/// villes et coordonnées que le NAS renvoie réellement désignent des personnes.
+/// Shapes captured on DSM 7.4 on 2026/07/30. The values are invented: the addresses, cities
+/// and coordinates the NAS actually returns identify people.
 @MainActor
 struct LoginActivityTests {
-    /// Une connexion jugée inhabituelle. Le NAS ne fournit pas de phrase mais une clé de son
-    /// catalogue et un sac d'arguments : la phrase est rédigée par l'app.
+    /// A sign-in judged unusual. The NAS supplies no sentence but a key from its catalog and
+    /// a bag of arguments: the sentence is written by the app.
     @Test func readsAnAbnormalLoginAsTheNASSendsIt() throws {
         let payload = Data(#"""
         {"total":1,"items":[
@@ -31,12 +31,12 @@ struct LoginActivityTests {
         #expect(event.details.countryCode == "FR")
         #expect(event.details.protocolName == "DSM")
         #expect(event.recordedAt != nil)
-        // Une connexion inhabituelle porte une seule adresse, dans `ip`.
+        // An unusual sign-in carries a single address, in `ip`.
         #expect(event.details.allAddresses == ["192.0.2.10"])
     }
 
-    /// Une attaque par force brute. Ses arguments ne sont pas ceux d'une connexion
-    /// inhabituelle : les adresses arrivent en liste, avec un décompte et une fenêtre.
+    /// A brute-force attack. Its arguments are not those of an unusual sign-in: the
+    /// addresses arrive as a list, with a count and a window.
     @Test func readsABruteForceAttackWithItsOwnArguments() throws {
         let payload = Data(#"""
         {"total":1,"items":[
@@ -57,13 +57,13 @@ struct LoginActivityTests {
         #expect(event.details.thresholdMinutes == 5)
         #expect(event.details.addresses == ["192.0.2.20"])
         #expect(event.details.protocolNames == ["DSM"])
-        // Pas de ville ni d'adresse unique ici : ces arguments n'existent pas pour cette clé.
+        // No city or single address here: those arguments do not exist for this key.
         #expect(event.details.city == nil)
         #expect(event.details.address == nil)
     }
 
-    /// Une clé que l'app ne sait pas rédiger doit rester lisible et repérable, pour que
-    /// l'écran puisse le dire au lieu d'inventer une phrase.
+    /// A key the app cannot word must stay readable and identifiable, so the screen can say
+    /// so instead of inventing a sentence.
     @Test func keepsACatalogKeyItCannotPhrase() throws {
         let payload = Data(#"""
         {"total":1,"items":[
@@ -80,14 +80,14 @@ struct LoginActivityTests {
         #expect(event.details.allAddresses.isEmpty)
     }
 
-    /// Les gravités se trient par sévérité, et non par ordre alphabétique.
+    /// Severities sort by severity, not alphabetically.
     @Test func sortsSeveritiesBySeverity() {
         let severities: [LoginActivityEvent.Severity] = [.high, .low, .medium]
 
         #expect(severities.sorted { $0.rank < $1.rank } == [.low, .medium, .high])
     }
 
-    /// Le NAS n'attribue aucun identifiant, et deux alertes peuvent partager tous leurs champs.
+    /// The NAS assigns no identifier, and two alerts can share every one of their fields.
     @Test func distinguishesTwoIdenticalAlerts() throws {
         let payload = Data(#"""
         {"total":2,"items":[
@@ -102,8 +102,8 @@ struct LoginActivityTests {
         #expect(events[0].id != events[1].id)
     }
 
-    /// Une réponse sans arguments ne doit pas faire échouer la lecture : l'alerte reste
-    /// listée, seule sa phrase perd ses précisions.
+    /// A response without arguments must not fail the read: the alert stays listed, only its
+    /// sentence loses its details.
     @Test func survivesAnEventWithoutArguments() throws {
         let payload = Data(#"""
         {"total":1,"items":[{"create_time":"2026/07/27 18:41:49","severity":"medium",

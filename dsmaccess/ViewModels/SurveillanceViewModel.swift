@@ -2,7 +2,7 @@
 //  SurveillanceViewModel.swift
 //  dsmaccess
 //
-//  État, activation et instantanés des caméras.
+//  Camera state, enabling, and snapshots.
 //
 
 import Foundation
@@ -49,7 +49,7 @@ final class SurveillanceViewModel {
 
     func setEnabled(_ enabled: Bool, ids: Set<String>) async -> DSMOperationOutcome {
         guard !ids.isEmpty else {
-            return .failure(String(localized: "Aucune caméra sélectionnée"))
+            return .failure(String(localized: "surveillance.camera.selection.empty"))
         }
         busyIDs.formUnion(ids)
         defer { busyIDs.subtract(ids) }
@@ -61,13 +61,13 @@ final class SurveillanceViewModel {
             await load(silently: true)
             return .success(
                 enabled
-                    ? String(localized: "\(ids.count) caméras activées")
-                    : String(localized: "\(ids.count) caméras désactivées")
+                    ? String(localized: "surveillance.camera.enable_selected.result", defaultValue: "\(ids.count) cameras enabled")
+                    : String(localized: "surveillance.camera.disable_selected.result", defaultValue: "\(ids.count) cameras disabled")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de l’opération : \(reason)"))
+            return .failure(String(localized: "common.error.operation_failed", defaultValue: "The operation failed: \(reason)"))
         }
     }
 
@@ -97,6 +97,6 @@ final class SurveillanceViewModel {
     var summary: String {
         if let errorMessage { return errorMessage }
         let available = cameras.filter(\.isAvailable).count
-        return String(localized: "\(cameras.count) caméras, \(available) disponibles")
+        return String(localized: "surveillance.camera.count.summary", defaultValue: "\(cameras.count) cameras, \(available) available")
     }
 }

@@ -2,7 +2,7 @@
 //  DSMPermissionService.swift
 //  dsmaccess
 //
-//  Permissions accordées à un compte : dossiers partagés (SYNO.Core.Share.Permission).
+//  Permissions granted to an account: shared folders (SYNO.Core.Share.Permission).
 //
 
 import Foundation
@@ -25,7 +25,8 @@ final class DSMPermissionService {
             method: holder.listMethod,
             parameters: [
                 "name": .string(holder.name),
-                // Sans ce paramètre, DSM refuse la requête (403) au lieu de choisir un défaut.
+                // Without this parameter, DSM rejects the request (403) instead of picking
+                // a default.
                 "user_group_type": .string(holder.apiType),
             ],
             as: DSMSharePermissionList.self
@@ -33,8 +34,8 @@ final class DSMPermissionService {
         return result.shares.filter { !$0.name.isEmpty }
     }
 
-    /// N'envoie que les dossiers passés en argument : DSM applique la liste comme un
-    /// correctif et laisse les autres dossiers inchangés.
+    /// Sends only the folders passed as arguments: DSM applies the list as a patch and leaves
+    /// the other folders unchanged.
     func setSharePermissions(
         _ permissions: [DSMSharePermission],
         for holder: DSMPermissionHolder
@@ -53,8 +54,8 @@ final class DSMPermissionService {
 }
 
 extension DSMPermissionService {
-    /// Le catalogue dépend des paquets installés : une application absente du NAS n'a pas de
-    /// ligne, et les règles portant sur un identifiant inconnu sont ignorées.
+    /// The catalog depends on the installed packages: an application absent from the NAS has
+    /// no row, and rules referring to an unknown identifier are ignored.
     func applicationPrivileges(
         for holder: DSMPermissionHolder
     ) async throws -> [DSMApplicationPrivilege] {
@@ -85,8 +86,8 @@ extension DSMPermissionService {
         }
     }
 
-    /// Poser une décision et revenir au défaut sont deux méthodes distinctes : DSM n'a pas de
-    /// valeur « aucune règle », c'est la suppression de la règle qui rend l'application au défaut.
+    /// Setting a decision and reverting to the default are two distinct methods: DSM has no
+    /// "no rule" value, deleting the rule is what returns the application to its default.
     func setApplicationPrivileges(
         _ privileges: [DSMApplicationPrivilege],
         for holder: DSMPermissionHolder
@@ -113,7 +114,8 @@ extension DSMPermissionService {
     }
 }
 
-/// Identifie la règle à supprimer, sans décision : DSM n'attend que l'application et l'entité.
+/// Identifies the rule to delete, with no decision: DSM expects only the application and the
+/// entity.
 private struct ApplicationRuleReference: Encodable {
     let appID: String
     let entityType: String
@@ -132,7 +134,7 @@ private struct ApplicationRuleReference: Encodable {
     }
 }
 
-/// DSM exprime autoriser et refuser par deux listes d'adresses, « 0.0.0.0 » valant « toutes ».
+/// DSM expresses allow and deny through two address lists, with "0.0.0.0" meaning "all".
 private struct ApplicationRuleChange: Encodable {
     let appID: String
     let entityType: String
@@ -158,7 +160,7 @@ private struct ApplicationRuleChange: Encodable {
     }
 }
 
-/// Forme attendue par `set_by_user_group` : les trois niveaux y sont des booléens exclusifs.
+/// Shape expected by `set_by_user_group`: the three levels are mutually exclusive booleans.
 private struct SharePermissionChange: Encodable {
     let name: String
     let isReadOnly: Bool
@@ -171,8 +173,8 @@ private struct SharePermissionChange: Encodable {
         isReadOnly = permission.granted == .readOnly
         isWritable = permission.granted == .readWrite
         isDeny = permission.granted == .noAccess
-        // Les permissions détaillées se règlent dans File Station : les renvoyer telles
-        // quelles évite de les effacer en modifiant le niveau d'accès.
+        // Fine-grained permissions are set in File Station: sending them back unchanged
+        // avoids erasing them when the access level is modified.
         isCustom = permission.isCustom
     }
 

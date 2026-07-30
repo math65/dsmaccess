@@ -4,8 +4,8 @@ import Testing
 
 @MainActor
 struct LogsSecurityTests {
-    /// Forme réelle d'une page de journal, relevée sur le DS920+ en DSM 7.4. La racine est
-    /// `items`, et le NAS joint le décompte par gravité à chaque page.
+    /// Actual shape of a log page, captured on the DS920+ running DSM 7.4. The root is
+    /// `items`, and the NAS attaches the per-severity counts to every page.
     @Test func readsALogPageWithItsSeverityCounts() throws {
         let payload = Data(#"""
         {"errorCount":83,"infoCount":911,"warnCount":6,"total":6995,
@@ -25,13 +25,13 @@ struct LogsSecurityTests {
         #expect(page.entries.count == 2)
         #expect(page.entries[0].level == .info)
         #expect(page.entries[1].level == .error)
-        // Un compte vide vaut absence : la colonne affiche un tiret plutôt qu'un blanc.
+        // An empty account means absence: the column shows a dash rather than a blank.
         #expect(page.entries[0].account == nil)
         #expect(page.entries[1].account == "testeur")
     }
 
-    /// DSM code la gravité en trois valeurs courtes. Une quatrième serait une évolution de DSM,
-    /// conservée telle quelle plutôt que rangée d'office dans un niveau existant.
+    /// DSM encodes severity as three short values. A fourth one would be a DSM change, kept
+    /// as-is rather than forced into an existing level.
     @Test func mapsTheThreeLevelsDSMCodes() {
         #expect(SystemLogEntry.Level(rawValue: "info") == .info)
         #expect(SystemLogEntry.Level(rawValue: "warn") == .warning)
@@ -39,16 +39,16 @@ struct LogsSecurityTests {
         #expect(SystemLogEntry.Level(rawValue: "emerg") == .other("emerg"))
     }
 
-    /// La colonne Niveau se trie par gravité : classer « Erreur » avant « Information » parce
-    /// que E précède I n'aurait aucun sens à la lecture.
+    /// The Level column sorts by severity: ordering "Error" before "Information" because E
+    /// comes before I would make no sense to read.
     @Test func sortsLevelsBySeverityAndNotAlphabetically() {
         let levels: [SystemLogEntry.Level] = [.error, .info, .warning]
 
         #expect(levels.sorted { $0.severity < $1.severity } == [.info, .warning, .error])
     }
 
-    /// Le NAS n'attribue aucun identifiant, et deux entrées peuvent partager la seconde, le
-    /// niveau et le message. Sans identité distincte, le tableau confondrait les lignes.
+    /// The NAS assigns no identifier, and two entries can share the same second, level and
+    /// message. Without a distinct identity, the table would conflate the rows.
     @Test func distinguishesTwoIdenticalEntriesInTheSameSecond() throws {
         let payload = Data(#"""
         {"items":[
@@ -61,8 +61,8 @@ struct LogsSecurityTests {
         #expect(entries[0].id != entries[1].id)
     }
 
-    /// Contrat de la liste de blocage, éprouvé en ajoutant puis retirant une adresse réservée à
-    /// la documentation. Les horodatages arrivent en secondes Unix.
+    /// Block list contract, proven by adding then removing a documentation-reserved address.
+    /// Timestamps arrive as Unix seconds.
     @Test func readsABlockedAddressAsTheNASSendsIt() throws {
         let payload = Data(#"""
         {"ip_info":[{"country":"","expire_date":0,"expire_formated_date":"1970/01/01 01:00:00",
@@ -77,13 +77,13 @@ struct LogsSecurityTests {
         #expect(address.address == "192.0.2.7")
         #expect(address.isPublic)
         #expect(address.blockedAt == Date(timeIntervalSince1970: 1_785_403_952))
-        // Un pays vide vaut absence, pas une chaîne à afficher.
+        // An empty country means absence, not a string to display.
         #expect(address.country == nil)
     }
 
-    /// ⚠️ Le piège de cette API : `expire_date` à zéro signifie « définitivement », et le NAS
-    /// formate quand même sa date à 1970. Lue telle quelle, une adresse bloquée pour toujours
-    /// se présenterait comme expirée depuis un demi-siècle.
+    /// ⚠️ The trap in this API: `expire_date` set to zero means "permanently", and the NAS
+    /// still formats its date as 1970. Taken at face value, an address blocked forever would
+    /// look like it expired half a century ago.
     @Test func readsAZeroExpiryAsNoExpiryAtAll() throws {
         let payload = Data(#"""
         {"ip_info":[
@@ -97,12 +97,12 @@ struct LogsSecurityTests {
 
         #expect(addresses[0].expiresAt == nil)
         #expect(addresses[1].expiresAt == Date(timeIntervalSince1970: 1_785_490_352))
-        // Un blocage sans expiration se range après ceux qui expirent : il est le plus durable.
+        // A block with no expiry sorts after those that expire: it is the longest-lasting one.
         #expect(addresses[0].sortableExpiry > addresses[1].sortableExpiry)
     }
 
-    /// Sans adresse, la ligne ne peut être ni affichée ni débloquée : le décodage échoue plutôt
-    /// que de produire une entrée sur laquelle aucune action ne marchera.
+    /// Without an address, the row can neither be displayed nor unblocked: decoding fails
+    /// rather than producing an entry no action will work on.
     @Test func refusesABlockedAddressWithoutAnAddress() {
         #expect(throws: DecodingError.self) {
             try JSONDecoder().decode(
@@ -112,7 +112,7 @@ struct LogsSecurityTests {
         }
     }
 
-    /// Une liste vide est le cas courant d'un NAS sain, et non une anomalie.
+    /// An empty list is the normal case on a healthy NAS, not an anomaly.
     @Test func survivesAnEmptyBlockList() throws {
         let page = try JSONDecoder().decode(
             BlockedAddressPage.self, from: Data(#"{"ip_info":[],"offset":0,"total":0}"#.utf8)
@@ -122,11 +122,12 @@ struct LogsSecurityTests {
         #expect(page.total == 0)
     }
 
-    // MARK: - Requêtes
+    // MARK: - Requests
 
-    /// ⚠️ Le bug signalé par un utilisateur en beta.16 : la liste de blocage était demandée à
-    /// `SYNO.Core.Security.AutoBlock`, qui n'a pas de méthode `list` et répond 103. La liste
-    /// vit dans `AutoBlock.Rules`, qui exige `action` et `type` — sans eux, le NAS répond 5100.
+    /// ⚠️ The bug a user reported in beta.16: the block list was requested from
+    /// `SYNO.Core.Security.AutoBlock`, which has no `list` method and answers 103. The list
+    /// lives in `AutoBlock.Rules`, which requires `action` and `type` — without them, the NAS
+    /// answers 5100.
     @Test func asksTheAPIThatActuallyHoldsTheBlockList() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"ip_info":[],"offset":0,"total":0}}"#.utf8)),
@@ -142,8 +143,8 @@ struct LogsSecurityTests {
         #expect(parameters["type"] == "\"deny\"")
     }
 
-    /// Le mot-clé part au NAS, qui cherche dans tout le journal et non dans la seule page
-    /// chargée. Absent, il ne doit pas être envoyé vide.
+    /// The keyword goes to the NAS, which searches the whole log and not just the loaded
+    /// page. When there is none, it must not be sent empty.
     @Test func sendsTheSearchKeywordToTheNAS() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"items":[],"total":0}}"#.utf8)),
@@ -162,10 +163,10 @@ struct LogsSecurityTests {
         #expect(try query(from: requests[1])["keyword"] == nil)
     }
 
-    /// ⚠️ Sans `logtype`, le NAS ne renvoie que le journal système : sur le NAS de
-    /// développement, 6 997 entrées système contre plus de 114 000 au total. Le type doit donc
-    /// toujours partir, et sous la forme que le NAS attend — les journaux de transfert portent
-    /// le nom de leur protocole.
+    /// ⚠️ Without `logtype`, the NAS only returns the system log: on the development NAS,
+    /// 6,997 system entries against more than 114,000 in total. The type must therefore
+    /// always be sent, in the form the NAS expects — transfer logs are named after their
+    /// protocol.
     @Test func alwaysNamesTheLogItAsksFor() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"items":[],"total":0}}"#.utf8)),
@@ -178,13 +179,13 @@ struct LogsSecurityTests {
 
         let requests = await stub.requests
         #expect(try query(from: requests[0])["logtype"] == "\"connection\"")
-        // « filestation » est la valeur du NAS, que la casse Swift ne doit pas trahir.
+        // "filestation" is the NAS's value, which Swift casing must not distort.
         #expect(try query(from: requests[1])["logtype"] == "\"filestation\"")
     }
 
-    /// Les journaux de transfert n'existent que pour les protocoles dont la journalisation est
-    /// activée. Un journal désactivé renverrait zéro entrée sans erreur, ce qui se lirait comme
-    /// un journal vide : il ne doit pas être proposé.
+    /// Transfer logs only exist for protocols whose logging is enabled. A disabled log would
+    /// return zero entries without an error, which would read as an empty log: it must not be
+    /// offered.
     @Test func readsWhichTransferLogsTheNASKeeps() throws {
         let payload = Data(#"""
         {"afp":false,"cifs":true,"filestation":true,"ftp":false,"tftp":false,"webdav":false}
@@ -197,8 +198,8 @@ struct LogsSecurityTests {
         #expect(offered == [.system, .connection, .cifs, .fileStation])
     }
 
-    /// Un journal de transfert n'a pas la même forme : aucune gravité, mais l'adresse
-    /// d'origine, l'opération et la taille. Forme relevée sur le journal SMB du DS920+.
+    /// A transfer log does not have the same shape: no severity, but the originating address,
+    /// the operation and the size. Shape captured from the DS920+'s SMB log.
     @Test func readsATransferEntryWithItsOwnFields() throws {
         let payload = Data(#"""
         {"errorCount":0,"infoCount":0,"warnCount":0,"total":81420,
@@ -211,10 +212,10 @@ struct LogsSecurityTests {
             try JSONDecoder().decode(SystemLogPage.self, from: payload).entries.first
         )
 
-        // Pas de gravité : en inventer une serait un contresens.
+        // No severity: inventing one would be a misreading.
         #expect(entry.level == nil)
         #expect(entry.sortableLevel == -1)
-        // Le compte se lit dans `username` ici, et dans `who` ailleurs.
+        // The account is read from `username` here, and from `who` elsewhere.
         #expect(entry.account == "testeur")
         #expect(entry.address == "192.168.1.20")
         #expect(entry.operation == "read")
@@ -224,8 +225,8 @@ struct LogsSecurityTests {
         #expect(!SystemLogKind.system.isTransfer)
     }
 
-    /// Un dossier n'a pas de taille utile, et le NAS y écrit zéro : l'afficher comme « zéro
-    /// octet » ferait passer un dossier pour un fichier vide.
+    /// A folder has no useful size, and the NAS writes zero there: showing it as "zero bytes"
+    /// would make a folder look like an empty file.
     @Test func treatsAFolderAsHavingNoSize() throws {
         let payload = Data(#"""
         {"items":[{"cmd":"mkdir","descr":"/tmmac/dossier","filesize":0,"isdir":true,
@@ -240,8 +241,8 @@ struct LogsSecurityTests {
         #expect(entry.fileSize == nil)
     }
 
-    /// La tranche suivante se demande par rang. Sans décalage des identifiants, la deuxième
-    /// page porterait ceux de la première et le tableau confondrait ses lignes.
+    /// The next slice is requested by offset. Without shifting the identifiers, the second
+    /// page would carry those of the first and the table would conflate its rows.
     @Test func numbersTheNextSliceAfterTheOneAlreadyShown() throws {
         let payload = Data(#"""
         {"items":[{"descr":"a","level":"info","time":"2026/07/30 09:00:00"},
@@ -257,8 +258,8 @@ struct LogsSecurityTests {
         #expect(Set((firstSlice + secondSlice).map(\.id)).count == 4)
     }
 
-    /// Le rang demandé doit suivre ce qui est déjà affiché, et la recherche rester attachée à la
-    /// tranche : sans elle, la suite porterait sur un journal non filtré.
+    /// The requested offset must follow what is already displayed, and the search must stay
+    /// attached to the slice: without it, the continuation would cover an unfiltered log.
     @Test func asksForTheNextSliceAtTheRightOffset() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"items":[],"total":6995}}"#.utf8)),
@@ -278,13 +279,13 @@ struct LogsSecurityTests {
         #expect(parameters["keyword"] == "\"connexion\"")
     }
 
-    /// L'export porte sur le journal choisi, pas sur le journal système par défaut : sans
-    /// `logtype`, un utilisateur consultant les transferts SMB recevrait le journal système.
+    /// The export covers the chosen log, not the system log by default: without `logtype`, a
+    /// user browsing SMB transfers would receive the system log.
     @Test func exportsTheLogCurrentlyBeingRead() async throws {
         let destination = FileManager.default.temporaryDirectory
             .appendingPathComponent("export-test-\(UUID().uuidString).csv")
-        // Le NAS renvoie un fichier, pas du JSON : c'est le type de contenu qui distingue un
-        // export réussi d'un refus.
+        // The NAS returns a file, not JSON: the content type is what tells a successful export
+        // from a refusal.
         let stub = DSMRequestStub(results: [
             .HTTPResponse(
                 data: Data("heure,niveau\n".utf8),
@@ -302,16 +303,16 @@ struct LogsSecurityTests {
         #expect(parameters["api"] == "SYNO.Core.SyslogClient.Log")
         #expect(parameters["method"] == "export")
         #expect(parameters["logtype"] == "\"cifs\"")
-        // ⚠️ « format » et non « type » : avec `type`, le NAS ignore la demande sans erreur et
-        // renvoie du HTML. Un fichier nommé .csv contenant du HTML est passé en revue une fois.
+        // ⚠️ "format" and not "type": with `type`, the NAS ignores the request without an error
+        // and returns HTML. A file named .csv containing HTML got through review once.
         #expect(parameters["format"] == "\"csv\"")
         #expect(parameters["type"] == nil)
         try? FileManager.default.removeItem(at: destination)
     }
 
-    /// Les six protocoles partent ensemble, à leur valeur courante comprise. Vérifié sur le
-    /// NAS : `set` ignore les champs absents — un appel sans aucun paramètre réussit sans rien
-    /// changer — mais tout envoyer évite de dépendre de ce comportement.
+    /// All six protocols are sent together, including those at their current value. Verified
+    /// on the NAS: `set` ignores missing fields — a call with no parameter at all succeeds
+    /// without changing anything — but sending everything avoids relying on that behavior.
     @Test func sendsEveryTransferProtocolWhenSavingLogging() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),
@@ -333,8 +334,8 @@ struct LogsSecurityTests {
         #expect(parameters["webdav"] == "false")
     }
 
-    /// ⚠️ Zéro jour signifie « pas d'expiration » et non « expire aujourd'hui ». Le réglage doit
-    /// traverser la lecture et l'écriture sans que ce zéro se transforme en date.
+    /// ⚠️ Zero days means "no expiry" and not "expires today". The setting must survive a read
+    /// and a write without that zero turning into a date.
     @Test func readsAndWritesAutoBlockSettingsIncludingTheZeroExpiry() async throws {
         let decoded = try JSONDecoder().decode(
             AutoBlockSettings.self,
@@ -363,9 +364,8 @@ struct LogsSecurityTests {
         #expect(parameters["expire_day"] == "0")
     }
 
-    /// Débloquer est une mutation : un délai d'attente ne doit pas la rejouer. Le NAS peut
-    /// avoir retiré l'adresse avant de répondre, et le blocage automatique peut l'avoir
-    /// rebloquée entre-temps.
+    /// Unblocking is a mutation: a timeout must not replay it. The NAS may have removed the
+    /// address before answering, and auto-block may have re-blocked it in the meantime.
     @Test func neverReplaysAnUnblockAfterATimeout() async throws {
         let stub = DSMRequestStub(results: [.timeout, .response(Data(#"{"success":true}"#.utf8))])
         let service = makeService(stub: stub)
@@ -383,7 +383,7 @@ struct LogsSecurityTests {
         #expect(await stub.requestCount == 1)
     }
 
-    /// Le NAS attend une liste d'adresses, même pour une seule.
+    /// The NAS expects a list of addresses, even for a single one.
     @Test func unblocksAddressesAsAList() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),

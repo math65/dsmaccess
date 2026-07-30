@@ -2,14 +2,13 @@
 //  TaskManagerView.swift
 //  dsmaccess
 //
-//  Onglet « Tâches » du moniteur de ressources : les services tels que DSM les regroupe,
-//  puis les processus les plus actifs.
+//  "Tasks" tab of the resource monitor: the services as DSM groups them, then the most
+//  active processes.
 //
-//  En tableaux et non en lignes alignées : `Table` s'appuie sur NSTableView, donc les
-//  en-têtes trient d'un clic comme partout ailleurs sur le Mac, et chaque valeur reste
-//  dans sa colonne. Les deux tableaux sont séparés par un VSplitView : chacun a sa propre
-//  zone de défilement, avec un séparateur déplaçable, plutôt que deux listes empilées où
-//  l'on ne sait plus laquelle défile.
+//  Tables rather than aligned rows: `Table` builds on NSTableView, so the headers sort with
+//  a click like everywhere else on the Mac, and every value stays in its column. The two
+//  tables are separated by a VSplitView: each has its own scrolling area, with a movable
+//  divider, rather than two stacked lists where you no longer know which one is scrolling.
 //
 
 import SwiftUI
@@ -33,7 +32,7 @@ struct TaskManagerView: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.groups.isEmpty && vm.processes.isEmpty {
-            ModuleLoadingView("Chargement des tâches…")
+            ModuleLoadingView("tasks.loading")
         } else if let error = vm.errorMessage, vm.groups.isEmpty, vm.processes.isEmpty {
             ModuleErrorView(message: error) {
                 Task { await vm.load(announce: true) }
@@ -52,9 +51,9 @@ struct TaskManagerView: View {
                     processesTable
                 }
 
-                Toggle("Actualisation automatique", isOn: $vm.autoRefresh)
-                    .accessibilityHint("Met à jour les valeurs toutes les 5 secondes")
-                    .help("Actualiser automatiquement les tâches toutes les cinq secondes")
+                Toggle("common.label.automatic_refresh", isOn: $vm.autoRefresh)
+                    .accessibilityHint("common.label.automatic_refresh.hint")
+                    .help("tasks.auto_refresh.hint")
                     .padding(12)
             }
         }
@@ -62,7 +61,7 @@ struct TaskManagerView: View {
 
     private var servicesTable: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Services")
+            Text("tasks.services.tab")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.horizontal, 12)
@@ -70,28 +69,28 @@ struct TaskManagerView: View {
                 .accessibilityFocused($focusContent)
 
             Table(vm.groups.sorted(using: groupOrder), sortOrder: $groupOrder) {
-                TableColumn("Service", value: \.displayName) { group in
+                TableColumn("common.column.service", value: \.displayName) { group in
                     Text(group.displayName)
                 }
-                TableColumn("Processeur", value: \.sortableCPU) { group in
+                TableColumn("common.metric.processor", value: \.sortableCPU) { group in
                     Text(vm.cpuText(for: group))
                 }
-                TableColumn("Mémoire", value: \.sortableMemory) { group in
+                TableColumn("common.metric.memory", value: \.sortableMemory) { group in
                     Text(vm.memoryText(for: group))
                 }
-                TableColumn("Processus", value: \.processCount) { group in
+                TableColumn("tasks.processes.tab", value: \.processCount) { group in
                     Text(group.processCount, format: .number)
                 }
-                // Trois mesures que le NAS renvoie et qu'aucune colonne ne montrait. Ce sont
-                // elles qui répondent à « qu'est-ce qui travaille ? » quand la colonne
-                // Processeur affiche 0,0 % : un service peut écrire beaucoup sans calculer.
-                TableColumn("Temps processeur", value: \.sortableCPUTime) { group in
+                // Three measurements the NAS returns that no column used to show. They are the
+                // ones that answer "what is actually working?" when the Processor column shows
+                // 0.0%: a service can write a lot without computing.
+                TableColumn("tasks.column.cpu_time", value: \.sortableCPUTime) { group in
                     Text(vm.cpuTimeText(for: group))
                 }
-                TableColumn("Lecture", value: \.sortableReadRate) { group in
+                TableColumn("common.metric.read", value: \.sortableReadRate) { group in
                     Text(vm.readRateText(for: group))
                 }
-                TableColumn("Écriture", value: \.sortableWriteRate) { group in
+                TableColumn("common.metric.write", value: \.sortableWriteRate) { group in
                     Text(vm.writeRateText(for: group))
                 }
             }
@@ -101,37 +100,37 @@ struct TaskManagerView: View {
 
     private var processesTable: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Processus les plus actifs")
+            Text("tasks.processes.section.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
 
             Table(vm.processes.sorted(using: processOrder), sortOrder: $processOrder) {
-                TableColumn("Processus", value: \.name) { process in
+                TableColumn("tasks.processes.tab", value: \.name) { process in
                     Text(process.name)
                 }
-                TableColumn("Processeur", value: \.sortableCPU) { process in
+                TableColumn("common.metric.processor", value: \.sortableCPU) { process in
                     Text(vm.cpuText(for: process))
                 }
-                TableColumn("Mémoire", value: \.sortableMemory) { process in
+                TableColumn("common.metric.memory", value: \.sortableMemory) { process in
                     Text(vm.memoryText(for: process))
                 }
             }
 
-            // L'échelle est dite ici et non sur chaque ligne : le NAS renvoie une charge
-            // cumulée sur les cœurs, qu'un seul processus peut donc porter au-delà de 100 %.
-            // Relevé sur le DS920+ : 251 % pour Plex Media Server, soit deux cœurs et demi.
-            // Phrase distincte de celle du dessus, qui porte des interpolations : un signe
-            // pourcent littéral dans une clé de format doit être échappé, et l'oubli ne se
-            // voit qu'en anglais, où la chaîne ressort alors en français.
-            Text("Les \(TaskManagerViewModel.visibleProcessCount) processus consommant le plus de processeur, sur \(vm.totalProcessCount) en cours.")
+            // The scale is stated here and not on every row: the NAS returns a load summed
+            // over the cores, which a single process can therefore push beyond 100%.
+            // Observed on the DS920+: 251% for Plex Media Server, that is two and a half cores.
+            // A separate sentence from the one above, which carries interpolations: a literal
+            // percent sign in a format key must be escaped, and forgetting it only shows up in
+            // English, where the string then comes out in French.
+            Text(String(localized: "tasks.processes.section.description", defaultValue: "The \(TaskManagerViewModel.visibleProcessCount) processes using the most processor time, out of \(vm.totalProcessCount) running."))
                 .font(.callout)
                 .foregroundStyle(.readableSecondary)
                 .padding(.horizontal, 12)
                 .padding(.top, 6)
 
-            Text("Une valeur dépasse 100 % lorsqu’un processus occupe plusieurs cœurs du NAS.")
+            Text("tasks.processes.cpu_over_100.footer")
                 .font(.callout)
                 .foregroundStyle(.readableSecondary)
                 .padding(.horizontal, 12)

@@ -2,7 +2,7 @@
 //  PackageSourcesViewModel.swift
 //  dsmaccess
 //
-//  Charge et modifie les sources tierces du Centre de paquets.
+//  Loads and edits the Package Center third-party sources.
 //
 
 import Foundation
@@ -49,7 +49,7 @@ final class PackageSourcesViewModel {
     ) async -> DSMOperationOutcome {
         guard let source = Self.validatedSource(name: name, feed: feed) else {
             return .failure(
-                String(localized: "Saisissez un nom et une adresse HTTPS valides pour la source.")
+                String(localized: "common.validation.invalid_package_source")
             )
         }
         isSaving = true
@@ -66,13 +66,14 @@ final class PackageSourcesViewModel {
             await load()
             return .success(
                 originalFeed == nil
-                    ? String(localized: "Source \(source.name) ajoutée")
-                    : String(localized: "Source \(source.name) mise à jour")
+                    ? String(localized: "packages.sources.add.success", defaultValue: "Source \(source.name) added")
+                    : String(localized: "packages.sources.edit.success", defaultValue: "Source \(source.name) updated")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let message = String(
-                localized: "Échec de l’enregistrement de la source : \(Self.errorDescription(for: error))"
+                localized: "packages.sources.save.error",
+                defaultValue: "Failed to save the source: \(Self.errorDescription(for: error))"
             )
             operationErrorMessage = message
             return .failure(message)
@@ -88,11 +89,12 @@ final class PackageSourcesViewModel {
                 try await $0.deletePackageSources(feeds: [source.feed])
             }
             await load()
-            return .success(String(localized: "Source \(source.name) supprimée"))
+            return .success(String(localized: "packages.sources.remove.success", defaultValue: "Source \(source.name) removed"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let message = String(
-                localized: "Échec de la suppression de \(source.name) : \(Self.errorDescription(for: error))"
+                localized: "packages.sources.remove.error",
+                defaultValue: "Failed to remove \(source.name): \(Self.errorDescription(for: error))"
             )
             operationErrorMessage = message
             return .failure(message)

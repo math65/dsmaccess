@@ -2,16 +2,16 @@
 //  ResourceMonitorView.swift
 //  dsmaccess
 //
-//  Moniteur de ressources : mesures instantanées du processeur, de la mémoire, du réseau,
-//  des disques et des volumes. Regroupées par thème plutôt qu'en une longue liste plate,
-//  pour que les en-têtes servent de points de saut au lecteur d'écran.
+//  Resource monitor: instantaneous measurements of the processor, memory, network, disks and
+//  volumes. Grouped by topic rather than in one long flat list, so that the headings serve as
+//  jump points for the screen reader.
 //
 
 import SwiftUI
 
 struct ResourceMonitorView: View {
-    /// Les onglets de DSM, dans le même ordre. Chacun charge et actualise ses propres
-    /// mesures : passer à « Tâches » ne doit pas continuer d'interroger les ressources.
+    /// DSM's tabs, in the same order. Each one loads and refreshes its own measurements:
+    /// switching to "Tasks" must not keep polling the resources.
     private enum Pane: String, CaseIterable, Identifiable {
         case performance
         case tasks
@@ -24,12 +24,12 @@ struct ResourceMonitorView: View {
 
         var title: LocalizedStringKey {
             switch self {
-            case .performance: "Performances"
-            case .tasks: "Tâches"
-            case .connections: "Connexions"
-            case .openedFiles: "Fichiers ouverts"
-            case .history: "Historique"
-            case .alarm: "Alarme"
+            case .performance: "monitor.tab.performance"
+            case .tasks: "monitor.tab.tasks"
+            case .connections: "monitor.tab.connections"
+            case .openedFiles: "common.label.open_files"
+            case .history: "monitor.tab.history"
+            case .alarm: "monitor.tab.alarm"
             }
         }
     }
@@ -53,30 +53,30 @@ struct ResourceMonitorView: View {
     }
 
     var body: some View {
-        // Un TabView et non un sélecteur segmenté : celui-ci s'annonce en boutons radio,
-        // là où des onglets se présentent comme tels et se parcourent comme tels.
-        // Encapsulé dans un VStack pour que les onglets restent dans le contenu : posé à
-        // la racine du panneau, macOS les remonte dans la barre d'outils, où ils prennent
-        // la place du titre du module.
+        // A TabView and not a segmented picker: the latter announces itself as radio buttons,
+        // whereas tabs present themselves as tabs and are navigated as such.
+        // Wrapped in a VStack so the tabs stay inside the content: placed at the root of the
+        // pane, macOS lifts them into the toolbar, where they take the place of the module
+        // title.
         VStack(spacing: 0) {
             TabView(selection: $pane) {
                 performance
-                    .tabItem { Text("Performances") }
+                    .tabItem { Text("monitor.tab.performance") }
                     .tag(Pane.performance)
                 TaskManagerView(vm: tasks)
-                    .tabItem { Text("Tâches") }
+                    .tabItem { Text("monitor.tab.tasks") }
                     .tag(Pane.tasks)
                 ConnectionsView(vm: connections)
-                    .tabItem { Text("Connexions") }
+                    .tabItem { Text("monitor.tab.connections") }
                     .tag(Pane.connections)
                 OpenedFilesView(vm: openedFiles)
-                    .tabItem { Text("Fichiers ouverts") }
+                    .tabItem { Text("common.label.open_files") }
                     .tag(Pane.openedFiles)
                 ResourceMonitorHistoryView(vm: history)
-                    .tabItem { Text("Historique") }
+                    .tabItem { Text("monitor.tab.history") }
                     .tag(Pane.history)
                 PerformanceAlarmView(vm: alarm)
-                    .tabItem { Text("Alarme") }
+                    .tabItem { Text("monitor.tab.alarm") }
                     .tag(Pane.alarm)
             }
         }
@@ -94,9 +94,9 @@ struct ResourceMonitorView: View {
                         }
                     }
                 } label: {
-                    Label("Actualiser", systemImage: "arrow.clockwise")
+                    Label("common.button.refresh", systemImage: "arrow.clockwise")
                 }
-                .help("Actualiser les mesures affichées")
+                .help("monitor.refresh.hint")
             }
         }
     }
@@ -113,7 +113,7 @@ struct ResourceMonitorView: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.usage == nil {
-            ModuleLoadingView("Chargement des ressources…")
+            ModuleLoadingView("monitor.loading")
         } else if let error = vm.errorMessage, vm.usage == nil {
             ModuleErrorView(message: error) {
                 Task { await vm.load(announce: true) }
@@ -127,56 +127,56 @@ struct ResourceMonitorView: View {
                     }
                 }
 
-                Section("Processeur") {
-                    LabeledContent("Charge", value: vm.cpuText)
+                Section("common.metric.processor") {
+                    LabeledContent("monitor.load.label", value: vm.cpuText)
                     if let detail = vm.cpuDetailText {
-                        LabeledContent("Détail", value: detail)
+                        LabeledContent("monitor.column.detail", value: detail)
                     }
                     if let load = vm.loadAverageText {
-                        LabeledContent("Charge moyenne", value: load)
+                        LabeledContent("monitor.load_average.label", value: load)
                     }
                 }
 
-                Section("Mémoire") {
-                    LabeledContent("Utilisation", value: vm.memoryText)
+                Section("common.metric.memory") {
+                    LabeledContent("common.column.usage", value: vm.memoryText)
                     if let detail = vm.memoryDetailText {
-                        LabeledContent("Détail", value: detail)
+                        LabeledContent("monitor.column.detail", value: detail)
                     }
                     if let swap = vm.swapText {
-                        LabeledContent("Fichier d’échange", value: swap)
+                        LabeledContent("monitor.memory.swap", value: swap)
                     }
                 }
 
-                Section("Réseau") {
-                    LabeledContent("Réception", value: vm.networkDownText)
-                    LabeledContent("Envoi", value: vm.networkUpText)
+                Section("common.label.network") {
+                    LabeledContent("monitor.network.received", value: vm.networkDownText)
+                    LabeledContent("common.status.sending", value: vm.networkUpText)
                 }
 
                 if !vm.disks.isEmpty {
-                    Section("Disques") {
+                    Section("common.label.disks") {
                         ForEach(vm.disks) { disk in
                             LabeledContent(disk.name, value: vm.activityText(for: disk))
-                                .accessibilityLabel(Text("Disque \(disk.name)"))
+                                .accessibilityLabel(Text(String(localized: "monitor.disk.name", defaultValue: "Disk \(disk.name)")))
                         }
                         if vm.disks.count > 1, let total = vm.diskTotal {
-                            LabeledContent("Tous les disques", value: vm.activityText(for: total))
+                            LabeledContent("monitor.disk.all", value: vm.activityText(for: total))
                         }
                     }
                 }
 
                 if !vm.volumes.isEmpty {
-                    Section("Volumes") {
+                    Section("monitor.tab.volumes") {
                         ForEach(vm.volumes) { volume in
                             LabeledContent(volume.name, value: vm.activityText(for: volume))
-                                .accessibilityLabel(Text("Volume \(volume.name)"))
+                                .accessibilityLabel(Text(String(localized: "monitor.volume.name", defaultValue: "Volume \(volume.name)")))
                         }
                     }
                 }
 
                 Section {
-                    Toggle("Actualisation automatique", isOn: $vm.autoRefresh)
-                        .accessibilityHint("Met à jour les valeurs toutes les 5 secondes")
-                        .help("Actualiser automatiquement les ressources toutes les cinq secondes")
+                    Toggle("common.label.automatic_refresh", isOn: $vm.autoRefresh)
+                        .accessibilityHint("common.label.automatic_refresh.hint")
+                        .help("monitor.auto_refresh.hint")
                 }
             }
             .formStyle(.grouped)

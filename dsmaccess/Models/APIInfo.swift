@@ -2,14 +2,14 @@
 //  APIInfo.swift
 //  dsmaccess
 //
-//  Réponse de SYNO.API.Info : pour chaque API demandée, le chemin CGI réel et la
-//  fourchette de versions supportées. On ne code JAMAIS les chemins en dur car ils
-//  varient selon la version de DSM.
+//  Response of SYNO.API.Info: for each requested API, the real CGI path and the range of
+//  supported versions. The paths are NEVER hard-coded, because they vary with the DSM
+//  version.
 //
 
 import Foundation
 
-/// Détail d'une API renvoyé par SYNO.API.Info (chemin CGI relatif à /webapi/).
+/// Details of an API returned by SYNO.API.Info (CGI path relative to /webapi/).
 struct APIInfoEntry: nonisolated Decodable, Equatable, Sendable {
     let path: String
     let minVersion: Int

@@ -2,9 +2,9 @@
 //  TaskManagerViewModel.swift
 //  dsmaccess
 //
-//  Gestionnaire des tâches du moniteur de ressources : les services regroupés comme DSM
-//  les présente, et les processus les plus actifs. Comme pour les ressources, une
-//  actualisation périodique reste SILENCIEUSE ; seule une actualisation manuelle annonce.
+//  Task manager of the resource monitor: the services grouped the way DSM presents them, and
+//  the most active processes. As with resources, a periodic refresh stays SILENT; only a
+//  manual refresh announces.
 //
 
 import Foundation
@@ -13,9 +13,9 @@ import Observation
 @MainActor
 @Observable
 final class TaskManagerViewModel {
-    /// Le NAS renvoie plus de trois cents processus. En afficher la totalité dans un
-    /// formulaire serait illisible au clavier comme au lecteur d'écran : seuls les plus
-    /// actifs sont montrés, et l'écran le dit au lieu de tronquer en silence.
+    /// The NAS returns more than three hundred processes. Showing them all in a form would be
+    /// unreadable with the keyboard as well as with a screen reader: only the most active ones
+    /// are shown, and the screen says so instead of truncating silently.
     static let visibleProcessCount = 10
 
     private(set) var groups: [ProcessGroup] = []
@@ -46,17 +46,17 @@ final class TaskManagerViewModel {
         errorMessage = nil
         defer { if generation == loadGeneration { isLoading = false } }
         do {
-            // Les deux lectures sont indépendantes : les mener de front évite d'attendre
-            // deux allers-retours là où le NAS peut répondre en parallèle.
+            // The two reads are independent: running them together avoids waiting for two
+            // round trips where the NAS can answer in parallel.
             async let loadedGroups = session.withClient { try await $0.processGroups() }
             async let loadedProcesses = session.withClient { try await $0.processes() }
             let (fetchedGroups, fetchedProcesses) = try await (loadedGroups, loadedProcesses)
             guard generation == loadGeneration else { return }
-            // Tri par mémoire et non par processeur : la charge d'un service au repos varie
-            // d'un centième de point à chaque relevé, et un tri sur ces écarts réordonne la
-            // liste à chaque actualisation, ce qui rend le parcours au lecteur d'écran
-            // impraticable. La mémoire, elle, bouge lentement. Le tri visible reste celui
-            // que l'utilisateur choisit sur les en-têtes du tableau.
+            // Sorted by memory and not by processor: the load of an idle service varies by a
+            // hundredth of a point at each sample, and sorting on those differences reorders
+            // the list at every refresh, which makes screen-reader navigation impractical.
+            // Memory, by contrast, moves slowly. The visible sort remains the one the user
+            // picks on the table headers.
             groups = fetchedGroups.sorted { lhs, rhs in
                 let leftMemory = lhs.memoryBytes ?? -1
                 let rightMemory = rhs.memoryBytes ?? -1
@@ -81,7 +81,7 @@ final class TaskManagerViewModel {
 
     private func startAutoRefresh() {
         VoiceOver.announce(
-            String(localized: "Actualisation automatique activée"),
+            String(localized: "common.status.automatic_refresh_on"),
             category: .automaticRefresh
         )
         refreshTask?.cancel()
@@ -99,7 +99,7 @@ final class TaskManagerViewModel {
         refreshTask = nil
         if announce {
             VoiceOver.announce(
-                String(localized: "Actualisation automatique désactivée"),
+                String(localized: "common.status.automatic_refresh_off"),
                 category: .automaticRefresh
             )
         }
@@ -107,14 +107,14 @@ final class TaskManagerViewModel {
 
     func stop() { stopAutoRefresh(announce: false) }
 
-    // MARK: - Affichage formaté
+    // MARK: - Formatted display
 
-    /// Une mesure absente s'écrit « — » : DSM renvoie littéralement « - » pour les groupes
-    /// qu'il ne mesure pas, et écrire zéro à la place ferait passer une absence de mesure
-    /// pour un service au repos.
+    /// A missing measurement is written "—": DSM literally returns "-" for the groups it does
+    /// not measure, and writing zero instead would make a missing measurement look like an
+    /// idle service.
     func cpuText(for group: ProcessGroup) -> String {
         guard let cpu = group.cpuPercent else { return "—" }
-        return String(localized: "\(cpu.formatted(.number.precision(.fractionLength(1)))) %")
+        return String(localized: "tasks.percent.value", defaultValue: "\(cpu.formatted(.number.precision(.fractionLength(1))))%")
     }
 
     func memoryText(for group: ProcessGroup) -> String {
@@ -122,9 +122,9 @@ final class TaskManagerViewModel {
         return bytes.formatted(.byteCount(style: .memory, spellsOutZero: false))
     }
 
-    // MARK: - Mesures que DSM n'affiche pas
+    // MARK: - Measurements DSM does not display
 
-    /// Temps processeur cumulé depuis le démarrage du service.
+    /// Processor time accumulated since the service started.
     func cpuTimeText(for group: ProcessGroup) -> String {
         guard let seconds = group.cpuTime, seconds >= 0 else { return "—" }
         return Duration.seconds(seconds).formatted(
@@ -140,20 +140,20 @@ final class TaskManagerViewModel {
         rateText(group.writeBytesPerSecond)
     }
 
-    /// Un tiret quand DSM n'a pas mesuré, un débit sinon — y compris zéro, qui est ici une
-    /// mesure et non une absence : un service au repos n'écrit réellement rien.
+    /// A dash when DSM did not measure, a rate otherwise — including zero, which here is a
+    /// measurement and not an absence: an idle service really does write nothing.
     private func rateText(_ bytesPerSecond: Int64?) -> String {
         guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
         let formatted = bytesPerSecond.formatted(.byteCount(style: .memory, spellsOutZero: false))
-        return String(localized: "\(formatted)/s")
+        return String(localized: "common.unit.per_second", defaultValue: "\(formatted)/s")
     }
 
     func cpuText(for process: SystemProcess) -> String {
         guard let cpu = process.cpuPercent else { return "—" }
-        return String(localized: "\(cpu) %")
+        return String(localized: "common.unit.percent", defaultValue: "\(cpu)%")
     }
 
-    /// La mémoire des processus arrive en Kio, pas en octets comme celle des groupes.
+    /// Process memory comes in KiB, not in bytes like the memory of groups.
     func memoryText(for process: SystemProcess) -> String {
         guard let memoryKiB = process.memoryKiB, memoryKiB >= 0,
               let kib = Int64(exactly: memoryKiB) else { return "—" }
@@ -164,6 +164,6 @@ final class TaskManagerViewModel {
 
     var summary: String {
         if let errorMessage { return errorMessage }
-        return String(localized: "\(groups.count) services, \(totalProcessCount) processus")
+        return String(localized: "tasks.count.summary", defaultValue: "\(groups.count) services, \(totalProcessCount) processes")
     }
 }

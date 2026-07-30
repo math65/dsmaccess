@@ -4,9 +4,9 @@ import Testing
 
 @MainActor
 struct PerformanceAlarmRuleTests {
-    /// Charge utile telle que le DS920+ l'a renvoyée le 30/07/2026, après création de vraies
-    /// règles. L'identifiant est une chaîne composite fabriquée par le NAS, et la cible arrive
-    /// en double : sa valeur brute dans `service`, son libellé dans `name`.
+    /// Payload exactly as the DS920+ returned it on 2026-07-30, after creating real rules. The
+    /// identifier is a composite string built by the NAS, and the target arrives twice: its raw
+    /// value in `service`, its label in `name`.
     @Test func readsRulesAsTheNASSendsThem() throws {
         let payload = Data(#"""
         {"rules":[
@@ -22,7 +22,7 @@ struct PerformanceAlarmRuleTests {
         let page = try JSONDecoder().decode(PerformanceAlarmRulePage.self, from: payload)
 
         #expect(page.total == 3)
-        // `support_internal` arrive en nombre et non en booléen.
+        // `support_internal` arrives as a number, not a boolean.
         #expect(!page.supportsInternalUse)
 
         let system = try #require(page.rules.first)
@@ -31,7 +31,7 @@ struct PerformanceAlarmRuleTests {
         #expect(system.resource == .memory)
         #expect(system.severity == .warning)
         #expect(system.threshold == 1)
-        // « general » est une constante du formulaire de DSM, pas une cible à montrer.
+        // "general" is a constant of DSM's own form, not a target to show.
         #expect(system.displayTarget == nil)
 
         let service = page.rules[1]
@@ -46,9 +46,9 @@ struct PerformanceAlarmRuleTests {
         #expect(volume.displayTarget == "/volume1")
     }
 
-    /// Vérifié sur le NAS : `sshd.slice` ressort avec `name` valant une clé du catalogue DSM,
-    /// que son client web résout et que nous ne pouvons pas résoudre. Affichée telle quelle,
-    /// la règle se lirait « firewall:firewall_service_opt_ssh ».
+    /// Verified on the NAS: `sshd.slice` comes back with `name` holding a DSM catalog key,
+    /// which its web client resolves and we cannot. Shown as-is, the rule would read
+    /// "firewall:firewall_service_opt_ssh".
     @Test func neverShowsADSMCatalogKeyAsATargetName() throws {
         let payload = Data(#"""
         {"rules":[{"enable":true,"hash":"","id":"1_sshd.slice_0_0",
@@ -60,12 +60,12 @@ struct PerformanceAlarmRuleTests {
             try JSONDecoder().decode(PerformanceAlarmRulePage.self, from: payload).rules.first
         )
 
-        // Le nom d'unité reste parlant, une fois débarrassé de son suffixe systemd.
+        // The unit name is still meaningful once stripped of its systemd suffix.
         #expect(rule.displayTarget == "sshd")
     }
 
-    /// Sans identifiant, une règle ne peut être ni basculée ni supprimée : mieux vaut refuser
-    /// la ligne que l'afficher avec des commandes qui échoueront.
+    /// Without an identifier, a rule can neither be toggled nor deleted: better to reject the
+    /// row than to display it with commands that will fail.
     @Test func refusesARuleWithoutAnIdentifier() {
         #expect(throws: DecodingError.self) {
             try JSONDecoder().decode(
@@ -75,9 +75,9 @@ struct PerformanceAlarmRuleTests {
         }
     }
 
-    /// Le même code de ressource ne désigne pas la même grandeur selon le type : `4` est un
-    /// pourcentage de mémoire pour le système et un nombre de mégaoctets pour un service,
-    /// `5` un débit pour un service et un pourcentage pour un volume.
+    /// The same resource code does not denote the same quantity depending on the kind: `4` is
+    /// a memory percentage for the system and a number of megabytes for a service, `5` is a
+    /// throughput for a service and a percentage for a volume.
     @Test func readsTheSameResourceCodeDifferentlyPerKind() throws {
         let systemMemory = try #require(
             PerformanceAlarmRule.measures(for: .system).first { $0.resource == .memory }
@@ -100,17 +100,17 @@ struct PerformanceAlarmRuleTests {
         #expect(volumeDisk.unit == .percent)
     }
 
-    /// iSCSI et l'usage interne restent lisibles — une règle existante ne doit pas disparaître
-    /// de la liste — mais ne sont pas proposés à la composition, faute d'avoir pu les éprouver.
+    /// iSCSI and internal use stay readable — an existing rule must not vanish from the list —
+    /// but are not offered when composing one, for lack of having been able to test them.
     @Test func offersOnlyTheKindsItCanCompose() {
         #expect(PerformanceAlarmRule.Kind.editable == [.system, .service, .volume])
         #expect(!PerformanceAlarmRule.Kind.iSCSI.isEditable)
         #expect(!PerformanceAlarmRule.Kind.internalUse.isEditable)
-        // Leur catalogue reste connu, pour décrire une règle que le NAS renverrait.
+        // Their catalog stays known, so a rule the NAS returns can still be described.
         #expect(!PerformanceAlarmRule.measures(for: .iSCSI).isEmpty)
     }
 
-    /// DSM impose lui-même la cible de certains types : une règle système porte « general ».
+    /// DSM imposes the target for some kinds itself: a system rule carries "general".
     @Test func fillsTheTargetDSMImposes() {
         let system = PerformanceAlarmRuleDraft(kind: .system, target: "ignoré")
         let service = PerformanceAlarmRuleDraft(kind: .service, target: "snmp.slice")
@@ -119,8 +119,8 @@ struct PerformanceAlarmRuleTests {
         #expect(service.resolvedTarget == "snmp.slice")
     }
 
-    /// Modifier une règle reprend son identifiant : sans lui, le NAS créerait un doublon et
-    /// refuserait, le quadruplet étant déjà pris.
+    /// Editing a rule carries its identifier over: without it, the NAS would create a
+    /// duplicate and refuse, the quadruplet being already taken.
     @Test func carriesTheIdentifierWhenEditing() throws {
         let payload = Data(#"""
         {"rules":[{"enable":true,"id":"1_snmp.slice_0_1","name":"SNMP","resource":0,

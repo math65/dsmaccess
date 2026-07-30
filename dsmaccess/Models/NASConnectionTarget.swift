@@ -2,7 +2,7 @@
 //  NASConnectionTarget.swift
 //  dsmaccess
 //
-//  Identité stable utilisée pour retrouver un NAS et ses secrets associés.
+//  Stable identity used to find a NAS again along with its associated secrets.
 //
 
 import Foundation

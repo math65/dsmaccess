@@ -2,7 +2,7 @@
 //  PackageInstallStatus.swift
 //  dsmaccess
 //
-//  État d'une installation suivie par le Centre de paquets.
+//  State of an installation tracked by Package Center.
 //
 
 import Foundation

@@ -27,7 +27,7 @@ struct DSMAccountServiceTests {
         let requests = await stub.requests
         #expect(requests.count == 3)
         let listParameters = try query(from: requests[0])
-        // DSM ignore « members » dans l'additional : ne demander que ce qui est honoré.
+        // DSM ignores "members" in additional: only ask for what is honoured.
         #expect(listParameters["additional"] == #"["description"]"#)
         let firstMembers = try query(from: requests[1])
         #expect(firstMembers["api"] == "SYNO.Core.Group.Member")
@@ -77,8 +77,8 @@ struct DSMAccountServiceTests {
         #expect(creation["name"] == #""martine""#)
         #expect(creation["password"] == #""secret""#)
         #expect(creation["_sid"] == "session-id")
-        // DSM 7.4 ignore « group » ici : l'envoyer laisserait croire que l'appartenance
-        // est appliquée alors qu'elle ne l'est pas.
+        // DSM 7.4 ignores "group" here: sending it would suggest the membership is
+        // applied when it is not.
         #expect(creation["group"] == nil)
 
         let firstGroup = try query(from: requests[1])
@@ -104,8 +104,8 @@ struct DSMAccountServiceTests {
     }
 
     @Test func reportsAnAccountCreatedWithoutItsGroups() async throws {
-        // Le compte existe dès le premier appel : présenter un échec simple pousserait à
-        // resoumettre le formulaire, qui buterait alors sur un nom déjà pris.
+        // The account exists as of the first call: presenting a plain failure would push the
+        // user to resubmit the form, which would then hit a name already taken.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"name":"martine","uid":1031}}"#.utf8)),
             .response(Data(#"{"success":false,"error":{"code":402}}"#.utf8)),
@@ -127,7 +127,7 @@ struct DSMAccountServiceTests {
     }
 
     @Test func addsAndRemovesGroupsOfAnExistingAccount() async throws {
-        // DSM ne modifie qu'un groupe à la fois : c'est le groupe qui porte ses membres.
+        // DSM only changes one group at a time: it is the group that carries its members.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),
             .response(Data(#"{"success":true,"data":{}}"#.utf8)),
@@ -151,8 +151,8 @@ struct DSMAccountServiceTests {
     }
 
     @Test func reportsAPasswordRefusedByTheNASPolicy() async throws {
-        // 3121 : le mot de passe ne satisfait pas les règles de force du NAS. Sans ce
-        // mapping, l'app n'affiche qu'un code brut et la création paraît cassée.
+        // 3121: the password does not meet the NAS strength rules. Without this
+        // mapping, the app only shows a raw code and creation looks broken.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":false,"error":{"code":3121}}"#.utf8)),
         ])
@@ -195,7 +195,7 @@ struct DSMAccountServiceTests {
     }
 
     @Test func ignoresTheMinimumLengthWhenTheRuleIsOff() async throws {
-        // DSM conserve « min_length » même désactivé : ne pas annoncer une règle inactive.
+        // DSM keeps "min_length" even when disabled: do not announce an inactive rule.
         let stub = DSMRequestStub(results: [
             .response(Data(
                 #"{"success":true,"data":{"strong_password":{"min_length":8,"min_length_enable":false,"mixed_case":false,"included_numeric_char":false}}}"#.utf8

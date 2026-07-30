@@ -2,7 +2,7 @@
 //  USBCopyFilter.swift
 //  dsmaccess
 //
-//  Filtres de fichiers de USB Copy et conversion vers une sélection modifiable.
+//  USB Copy file filters and conversion into an editable selection.
 //
 
 import Foundation
@@ -62,10 +62,10 @@ enum USBCopyFileCategory: String, CaseIterable, Identifiable, Sendable {
 
     var localizedName: String {
         switch self {
-        case .audio: String(localized: "Audio")
-        case .video: String(localized: "Vidéo")
-        case .image: String(localized: "Image")
-        case .document: String(localized: "Document")
+        case .audio: String(localized: "usb_copy.filter.category.audio")
+        case .video: String(localized: "common.label.video")
+        case .image: String(localized: "common.label.image")
+        case .document: String(localized: "usb_copy.filter.category.document")
         }
     }
 

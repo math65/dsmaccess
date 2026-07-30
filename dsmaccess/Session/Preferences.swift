@@ -2,10 +2,10 @@
 //  Preferences.swift
 //  dsmaccess
 //
-//  Préférences persistantes (valeurs NON secrètes) au-dessus de UserDefaults.
-//  Un accès typé par réglage : `Preferences.lastHost` en lecture comme en écriture,
-//  le nom de clé n'est écrit qu'une seule fois (dans `Key`) pour éviter les fautes.
-//  Les secrets (mot de passe, jeton d'appareil) ne passent JAMAIS par ici → voir KeychainStore.
+//  Persistent preferences (NON-secret values) on top of UserDefaults.
+//  One typed accessor per setting: `Preferences.lastHost` for both reading and writing,
+//  the key name is written only once (in `Key`) to avoid typos.
+//  Secrets (password, device token) NEVER go through here → see KeychainStore.
 //
 
 import Foundation
@@ -13,7 +13,7 @@ import Foundation
 enum Preferences {
     private static let defaults = UserDefaults.standard
 
-    /// Noms de clés bruts : une seule source de vérité, partagée entre get et set.
+    /// Raw key names: a single source of truth, shared between get and set.
     private enum Key {
         static let lastHost = "lastHost"
         static let lastPort = "lastPort"
@@ -36,21 +36,21 @@ enum Preferences {
         static let feedbackEmail = "feedbackEmail"
     }
 
-    /// Dernière adresse (hôte) du NAS saisie au login.
+    /// Last NAS address (host) entered at login.
     static var lastHost: String {
         get { defaults.string(forKey: Key.lastHost) ?? "" }
         set { defaults.set(newValue, forKey: Key.lastHost) }
     }
 
-    /// Dernier port utilisé ; `nil` = retomber sur le port par défaut du schéma (HTTP/HTTPS).
-    /// On passe par `object(forKey:)` (et non `integer(forKey:)`) car ce dernier
-    /// renvoie 0 quand la clé est absente, ce qui écraserait la distinction « pas de port mémorisé ».
+    /// Last port used; `nil` = fall back to the scheme's default port (HTTP/HTTPS).
+    /// We go through `object(forKey:)` (and not `integer(forKey:)`) because the latter
+    /// returns 0 when the key is absent, which would erase the "no port stored" distinction.
     static var lastPort: Int? {
         get { defaults.object(forKey: Key.lastPort) as? Int }
         set { defaults.set(newValue, forKey: Key.lastPort) }
     }
 
-    /// Dernier choix HTTPS.
+    /// Last HTTPS choice.
     static var lastUseHTTPS: Bool {
         get {
             guard defaults.object(forKey: Key.lastUseHTTPS) != nil else { return true }
@@ -59,14 +59,14 @@ enum Preferences {
         set { defaults.set(newValue, forKey: Key.lastUseHTTPS) }
     }
 
-    /// Dernier nom de compte.
+    /// Last account name.
     static var lastAccount: String {
         get { defaults.string(forKey: Key.lastAccount) ?? "" }
         set { defaults.set(newValue, forKey: Key.lastAccount) }
     }
 
-    /// L'utilisateur a demandé « Rester connecté » : le mot de passe est mémorisé au
-    /// Trousseau et l'app tente une reconnexion automatique au lancement.
+    /// The user asked to "Stay signed in": the password is stored in the Keychain and the
+    /// app attempts an automatic reconnection at launch.
     static var rememberPassword: Bool {
         get { defaults.bool(forKey: Key.rememberPassword) }
         set { defaults.set(newValue, forKey: Key.rememberPassword) }
@@ -111,8 +111,8 @@ enum Preferences {
         set { defaults.set(newValue, forKey: Key.queueAnnouncements) }
     }
 
-    /// Notification système à la fin d'une opération longue. Active par défaut : elle ne
-    /// se déclenche que hors premier plan, et macOS garde la main via son propre réglage.
+    /// System notification at the end of a long operation. On by default: it only fires when
+    /// the app is not frontmost, and macOS keeps control through its own setting.
     static var notifiesFinishedOperations: Bool {
         get {
             guard defaults.object(forKey: Key.notifiesFinishedOperations) != nil else { return true }
@@ -121,9 +121,9 @@ enum Preferences {
         set { defaults.set(newValue, forKey: Key.notifiesFinishedOperations) }
     }
 
-    /// Son court à la fin d'une opération longue, quand l'app est au premier plan. Actif par
-    /// défaut : il double l'annonce VoiceOver pour qui regarde ailleurs sur son écran, et ne
-    /// dit rien à lui seul. Hors premier plan, c'est la notification qui prend le relais.
+    /// Short sound at the end of a long operation, when the app is frontmost. On by default:
+    /// it doubles the VoiceOver announcement for someone looking elsewhere on screen, and
+    /// says nothing on its own. When not frontmost, the notification takes over.
     static var playsCompletionSound: Bool {
         get {
             guard defaults.object(forKey: Key.playsCompletionSound) != nil else { return true }
@@ -132,8 +132,8 @@ enum Preferences {
         set { defaults.set(newValue, forKey: Key.playsCompletionSound) }
     }
 
-    /// Dernier mode d'authentification choisi sur l'écran de connexion. Une valeur inconnue
-    /// (réglage écrit par une version future) retombe sur le mot de passe, toujours proposé.
+    /// Last authentication mode chosen on the sign-in screen. An unknown value (a setting
+    /// written by a future version) falls back to the password, which is always offered.
     static var authenticationMethod: ConnectionViewModel.AuthenticationMethod {
         get {
             guard let raw = defaults.string(forKey: Key.authenticationMethod),
@@ -190,9 +190,9 @@ enum Preferences {
         set { defaults.set(newValue, forKey: Key.automaticallyHideUnavailableModules) }
     }
 
-    /// Identifiant d'installation anonyme pour les annonces du backend, généré au
-    /// premier accès puis stable. Le serveur n'en stocke qu'un hachage, pour
-    /// dédupliquer le compteur de portée d'une annonce.
+    /// Anonymous install identifier for backend announcements, generated on first access
+    /// then stable. The server only stores a hash of it, to deduplicate the reach counter
+    /// of an announcement.
     static var appBackendInstallID: String {
         if let existing = defaults.string(forKey: Key.appBackendInstallID), !existing.isEmpty {
             return existing
@@ -202,14 +202,14 @@ enum Preferences {
         return fresh
     }
 
-    /// Identifiants des annonces `once` déjà affichées (le serveur renvoie toujours
-    /// l'annonce active ; le « une seule fois » est appliqué côté client).
+    /// Identifiers of `once` announcements already shown (the server always returns the
+    /// active announcement; the "only once" rule is applied on the client side).
     static var seenBackendAnnouncementIDs: [String] {
         get { defaults.stringArray(forKey: Key.seenBackendAnnouncementIDs) ?? [] }
         set { defaults.set(newValue, forKey: Key.seenBackendAnnouncementIDs) }
     }
 
-    /// Adresse e-mail du formulaire de contact, mémorisée après un envoi réussi.
+    /// Email address from the contact form, stored after a successful send.
     static var feedbackEmail: String {
         get { defaults.string(forKey: Key.feedbackEmail) ?? "" }
         set { defaults.set(newValue, forKey: Key.feedbackEmail) }

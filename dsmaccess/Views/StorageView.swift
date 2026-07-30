@@ -2,7 +2,7 @@
 //  StorageView.swift
 //  dsmaccess
 //
-//  État des groupes de stockage, volumes et disques.
+//  State of the storage pools, volumes and disks.
 //
 
 import SwiftUI
@@ -27,9 +27,9 @@ struct StorageView: View {
                 .accessibilityFocused($focusContent)
             } else if vm.pools.isEmpty && vm.volumes.isEmpty && vm.disks.isEmpty {
                 EmptyModuleView(
-                    title: "Aucun stockage détecté",
+                    title: "storage.empty.title",
                     systemImage: "internaldrive",
-                    description: "DSM n’a renvoyé aucun volume ni disque."
+                    description: "storage.empty.description"
                 )
                 .accessibilityFocused($focusContent)
             } else {
@@ -39,7 +39,7 @@ struct StorageView: View {
                     ForEach(vm.disks) { diskSection($0) }
                 }
                 .labeledContentStyle(.readable)
-                .accessibilityLabel("Pools, volumes et disques")
+                .accessibilityLabel("storage.title")
                 .accessibilityFocused($focusContent)
             }
         }
@@ -48,9 +48,9 @@ struct StorageView: View {
                 Button {
                     Task { await load() }
                 } label: {
-                    Label("Actualiser", systemImage: "arrow.clockwise")
+                    Label("common.button.refresh", systemImage: "arrow.clockwise")
                 }
-                .help("Actualiser l’état du stockage")
+                .help("storage.refresh.button")
             }
         }
         .task { await load(restoresInitialFocus: true) }
@@ -58,11 +58,11 @@ struct StorageView: View {
 
     private func poolSection(_ pool: StoragePool) -> some View {
         Section {
-            LabeledContent("État", value: pool.statusText)
-            LabeledContent("Type RAID", value: pool.raidTypeText)
-            LabeledContent("Disques", value: pool.diskCountText)
+            LabeledContent("common.column.state", value: pool.statusText)
+            LabeledContent("storage.pool.raid_type", value: pool.raidTypeText)
+            LabeledContent("common.label.disks", value: pool.diskCountText)
             if let size = pool.sizeText {
-                LabeledContent("Capacité", value: size)
+                LabeledContent("common.column.capacity", value: size)
             }
         } header: {
             Label(pool.displayName, systemImage: "externaldrive.connected.to.line.below")
@@ -71,19 +71,19 @@ struct StorageView: View {
 
     private func volumeSection(_ volume: Volume) -> some View {
         Section {
-            LabeledContent("État", value: volume.statusText)
-            LabeledContent("Système de fichiers", value: volume.filesystemText)
+            LabeledContent("common.column.state", value: volume.statusText)
+            LabeledContent("storage.volume.file_system", value: volume.filesystemText)
             if let space = volume.spaceText {
-                LabeledContent("Espace", value: space)
+                LabeledContent("storage.volume.space", value: space)
             }
             if let percent = volume.usagePercentValue {
-                LabeledContent("Utilisation", value: "\(percent) %")
+                LabeledContent("common.column.usage", value: "\(percent) %")
             }
             if let operation = volume.operationText {
-                LabeledContent("Opération", value: operation)
+                LabeledContent("common.column.operation", value: operation)
             }
             if let inodes = volume.inodePercent {
-                LabeledContent("Inodes utilisés", value: "\(inodes) %")
+                LabeledContent("storage.volume.inodes_used", value: "\(inodes) %")
             }
         } header: {
             Label(volume.displayName, systemImage: "internaldrive")
@@ -92,15 +92,15 @@ struct StorageView: View {
 
     private func diskSection(_ disk: Disk) -> some View {
         Section {
-            LabeledContent("Santé", value: disk.healthText)
+            LabeledContent("storage.disk.health", value: disk.healthText)
             if let temperature = disk.temperatureText {
-                LabeledContent("Température", value: temperature)
+                LabeledContent("common.column.temperature", value: temperature)
             }
             if let size = disk.sizeText {
-                LabeledContent("Capacité", value: size)
+                LabeledContent("common.column.capacity", value: size)
             }
             if let badSectors = disk.uncText {
-                LabeledContent("Avertissement", value: badSectors)
+                LabeledContent("common.level.warning", value: badSectors)
             }
         } header: {
             Label(disk.displayName, systemImage: "internaldrive")
@@ -109,7 +109,7 @@ struct StorageView: View {
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement du stockage…"),
+            String(localized: "storage.loading"),
             category: .progress,
             priority: .low
         )

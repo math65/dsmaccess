@@ -2,10 +2,10 @@
 //  FeedbackView.swift
 //  dsmaccess
 //
-//  Formulaire « Contacter le développeur » : signalement de problème (avec
-//  instantané de diagnostic), suggestion ou question. Accessible dans tous les
-//  états : focus posé à l'ouverture, envoi annoncé, erreur visible, annoncée et
-//  focalisée, fermeture automatique après succès.
+//  "Contact the developer" form: problem report (with a diagnostic snapshot),
+//  suggestion or question. Accessible in every state: focus placed on opening,
+//  sending announced, error visible, announced and focused, automatic dismissal
+//  after success.
 //
 
 import SwiftUI
@@ -34,11 +34,11 @@ struct FeedbackView: View {
 
     private var form: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Contacter le développeur")
+            Text("common.action.contact_developer")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
 
-            Picker("Type de message", selection: $model.contactType) {
+            Picker("feedback.field.message_type", selection: $model.contactType) {
                 ForEach(AppBackendClient.ContactType.allCases) { type in
                     Text(type.title).tag(type)
                 }
@@ -46,13 +46,13 @@ struct FeedbackView: View {
             .focused($typeFocused)
             .accessibilityFocused($typeA11yFocused)
 
-            LabeledField(label: "Votre adresse e-mail (pour la réponse)") {
-                TextField("Votre adresse e-mail (pour la réponse)", text: $model.email)
+            LabeledField(label: "feedback.field.email") {
+                TextField("feedback.field.email", text: $model.email)
                     .textContentType(.emailAddress)
             }
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Message")
+                Text("feedback.field.message")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
@@ -60,17 +60,17 @@ struct FeedbackView: View {
                     .font(.body)
                     .frame(minHeight: 120)
                     .border(.separator)
-                    .accessibilityLabel("Message")
+                    .accessibilityLabel("feedback.field.message")
             }
 
             if model.contactType == .bug {
-                Text("Un instantané de diagnostic sera joint : versions de l’app et de macOS, langue et réglages. Aucune donnée de votre NAS n’est transmise.")
+                Text("feedback.diagnostic_snapshot.description")
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
             }
 
             if let incident = model.incident {
-                Text("La réponse illisible sera jointe : l’appel \(incident.api) \(incident.method) et le nom des champs reçus, sans leur contenu.")
+                Text(String(localized: "feedback.unreadable_reply.description", defaultValue: "The unreadable reply will be attached: the \(incident.api) \(incident.method) call and the names of the fields received, without their contents."))
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
             }
@@ -85,12 +85,12 @@ struct FeedbackView: View {
                 if model.isSending {
                     ProgressView()
                         .controlSize(.small)
-                        .accessibilityLabel("Envoi du message en cours")
+                        .accessibilityLabel("common.status.sending_message")
                 }
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Envoyer") {
+                Button("common.button.upload") {
                     Task {
                         await model.send(sessionConnected: session.isLoggedIn, settings: settings)
                     }
@@ -118,7 +118,7 @@ struct FeedbackView: View {
     }
 
     private var unavailable: some View {
-        Text("L’envoi de messages n’est pas disponible dans cette version de l’app.")
+        Text("common.error.messaging_unavailable")
             .frame(minHeight: 80)
     }
 }

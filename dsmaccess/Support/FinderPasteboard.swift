@@ -2,38 +2,38 @@
 //  FinderPasteboard.swift
 //  dsmaccess
 //
-//  Pont entre le module Fichiers et le presse-papiers système : détection des
-//  fichiers du Finder à coller, promesses de fichiers pour le glisser-déposer.
+//  Bridge between the Files module and the system pasteboard: detection of Finder
+//  files to paste, file promises for drag and drop.
 //
 
 import AppKit
 import UniformTypeIdentifiers
 
-/// ⌘C et ⌘X réclament le presse-papiers système en plus du presse-papiers
-/// interne (copie NAS→NAS) ; `intent` départage ensuite ⌘V selon la règle
-/// « le dernier copier gagne ».
+/// ⌘C and ⌘X claim the system pasteboard on top of the internal pasteboard
+/// (NAS→NAS copy); `intent` then settles ⌘V according to the rule
+/// "the last copy wins".
 enum FinderPasteboard {
-    /// Ce que Coller doit faire selon le contenu des deux presse-papiers.
+    /// What Paste must do depending on the contents of both pasteboards.
     enum PasteIntent: Equatable {
         case uploadFinderFiles([URL])
         case pasteInternalClipboard
         case nothing
     }
 
-    /// `changeCount` du presse-papiers après notre dernière écriture, pour
-    /// distinguer notre propre copie d'une copie faite dans le Finder.
+    /// The pasteboard's `changeCount` after our last write, so our own copy can be
+    /// told apart from a copy made in the Finder.
     private static var lastOwnChangeCount: Int?
 
-    /// Délégués des promesses d'un drag en cours de préparation : la table les
-    /// fabrique ligne par ligne avant que la session de drag ne commence.
+    /// Promise delegates of a drag being prepared: the table builds them row by row
+    /// before the drag session starts.
     private static var pendingDragDelegates = [FileStationFilePromiseDelegate]()
-    /// Délégués de la dernière session de drag. Le Finder honore les promesses
-    /// après la fin de la session ; ils ne sont libérés qu'au drag suivant,
-    /// comme les délégués d'un ⌘C le sont à la copie suivante.
+    /// Delegates of the last drag session. The Finder honours promises after the
+    /// session has ended; they are only released at the next drag, the way a ⌘C's
+    /// delegates are released at the next copy.
     private static var activeDragDelegates = [FileStationFilePromiseDelegate]()
 
-    /// Promesse de fichier pour une ligne glissée hors de l'app : le
-    /// téléchargement ne démarre que si l'élément est réellement déposé.
+    /// File promise for a row dragged out of the app: the download only starts if
+    /// the item is actually dropped.
     static func dragProvider(
         for item: FileStationItem,
         viewModel: FileBrowserViewModel
@@ -48,11 +48,11 @@ enum FinderPasteboard {
         pendingDragDelegates = []
     }
 
-    /// Une copie ou un couper interne réclame le presse-papiers : sans cela,
-    /// ⌘V après « copie dans le Finder puis ⌘C ou ⌘X ici » enverrait les
-    /// fichiers du Finder au lieu de coller la sélection interne. Le Finder
-    /// n'honorant pas les promesses au collage, il n'y a rien d'utile à y
-    /// écrire : les promesses ne servent qu'au glisser-déposer.
+    /// An internal copy or cut claims the pasteboard: without that, ⌘V after
+    /// "copy in the Finder then ⌘C or ⌘X here" would send the Finder's files
+    /// instead of pasting the internal selection. Since the Finder does not
+    /// honour promises on paste, there is nothing useful to write there:
+    /// promises only serve drag and drop.
     static func claimForInternalClipboard() {
         let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
@@ -95,8 +95,8 @@ enum FinderPasteboard {
     }
 }
 
-/// Honore une promesse de fichier : quand le Finder colle, il fournit l'URL de
-/// destination (couverte par son propre sandbox) et le téléchargement démarre alors.
+/// Honours a file promise: when the Finder pastes, it supplies the destination URL
+/// (covered by its own sandbox) and the download starts then.
 final class FileStationFilePromiseDelegate: NSObject, NSFilePromiseProviderDelegate {
     nonisolated let item: FileStationItem
     private weak var viewModel: FileBrowserViewModel?
@@ -118,19 +118,19 @@ final class FileStationFilePromiseDelegate: NSObject, NSFilePromiseProviderDeleg
         writePromiseTo url: URL,
         completionHandler: @escaping ((any Error)?) -> Void
     ) {
-        // La queue des promesses est en arrière-plan ; la session et le suivi
-        // des transferts vivent sur le MainActor.
+        // The promise queue is a background one; the session and the transfer
+        // tracking live on the MainActor.
         Task { @MainActor in
             guard let viewModel else {
                 completionHandler(FilePromiseError(
                     message: String(
-                        localized: "Le transfert vers le Finder a échoué : la session NAS n’est plus disponible."
+                        localized: "finder.paste.session.error"
                     )
                 ))
                 return
             }
             VoiceOver.announce(
-                String(localized: "Téléchargement pour le Finder en cours…"),
+                String(localized: "finder.paste.download.progress"),
                 category: .progress,
                 priority: .low
             )
@@ -148,8 +148,8 @@ final class FileStationFilePromiseDelegate: NSObject, NSFilePromiseProviderDeleg
     }
 }
 
-/// Erreur remise au Finder quand une promesse ne peut pas être honorée ;
-/// il en affiche la description dans sa propre alerte.
+/// Error handed to the Finder when a promise cannot be honoured; it displays the
+/// description in its own alert.
 private struct FilePromiseError: LocalizedError {
     let message: String
     var errorDescription: String? { message }

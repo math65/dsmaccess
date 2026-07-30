@@ -6,8 +6,8 @@ import Testing
 struct ConnectionValidationTests {
     @Test func acceptsOnlyValidTCPPorts() {
         let model = ConnectionViewModel(session: SessionStore())
-        // Le mode est posé explicitement : l'init reprend celui du profil persisté
-        // sur la machine, et ce test valide les champs de la connexion directe.
+        // The mode is set explicitly: init picks up the one from the profile persisted
+        // on the machine, and this test validates the direct connection fields.
         model.connectionMethod = .direct
         model.host = "nas.local"
         model.account = "alex"

@@ -1,7 +1,7 @@
 //
 //  PackagesView.swift
 //  dsmaccess
-//  Gestion des paquets installés sur DSM.
+//  Management of the packages installed on DSM.
 
 import SwiftUI
 import UniformTypeIdentifiers
@@ -41,8 +41,8 @@ struct PackagesView: View {
 
     private var baseContent: some View {
         VStack(spacing: 0) {
-            // Dans le contenu et non la barre d'outils : VoiceOver doit rencontrer le
-            // choix Installés/Catalogue dans l'ordre de lecture, comme un vrai sélecteur.
+            // In the content rather than the toolbar: VoiceOver must meet the
+            // Installed/Catalog choice in reading order, like a real picker.
             sectionPicker
             statusBanners
             content
@@ -68,66 +68,66 @@ struct PackagesView: View {
     private var confirmationContent: some View {
         baseContent
         .confirmationDialog(
-            "Désinstaller ce paquet ?",
+            "packages.uninstall.confirm",
             isPresented: Binding(
                 get: { pendingUninstall != nil },
                 set: { if !$0 { pendingUninstall = nil } }
             ),
             presenting: pendingUninstall
         ) { package in
-            Button("Désinstaller \(package.displayName)", role: .destructive) {
+            Button(String(localized: "packages.uninstall.action", defaultValue: "Uninstall \(package.displayName)"), role: .destructive) {
                 requestUninstall(package)
             }
-            .help(String(localized: "Désinstaller \(package.displayName)"))
-            Button("Annuler", role: .cancel) { }
-                .help("Conserver ce paquet")
+            .help(String(localized: "packages.uninstall.action", defaultValue: "Uninstall \(package.displayName)"))
+            Button("common.button.cancel", role: .cancel) { }
+                .help("packages.uninstall.confirm.cancel")
         } message: { package in
             Text(uninstallWarning(for: package))
         }
         .confirmationDialog(
-            "Mettre à jour ce paquet ?",
+            "packages.update.confirm",
             isPresented: Binding(
                 get: { pendingUpdate != nil },
                 set: { if !$0 { pendingUpdate = nil } }
             ),
             presenting: pendingUpdate
         ) { package in
-            Button("Mettre à jour \(package.displayName)") {
+            Button(String(localized: "packages.update.action", defaultValue: "Update \(package.displayName)")) {
                 requestUpdate(package)
             }
-            .help(String(localized: "Mettre à jour \(package.displayName)"))
-            Button("Annuler", role: .cancel) { }
-                .help("Ne pas mettre à jour ce paquet")
+            .help(String(localized: "packages.update.action", defaultValue: "Update \(package.displayName)"))
+            Button("common.button.cancel", role: .cancel) { }
+                .help("packages.update.confirm.cancel")
         } message: { package in
             Text(updateWarning(for: package))
         }
         .confirmationDialog(
-            "Réparer ce paquet ?",
+            "packages.repair.confirm",
             isPresented: Binding(
                 get: { pendingRepair != nil },
                 set: { if !$0 { pendingRepair = nil } }
             ),
             presenting: pendingRepair
         ) { package in
-            Button("Réparer \(package.displayName)") {
+            Button(String(localized: "packages.repair.action", defaultValue: "Repair \(package.displayName)")) {
                 requestRepair(package)
             }
-            Button("Annuler", role: .cancel) { }
+            Button("common.button.cancel", role: .cancel) { }
         } message: { package in
             Text(repairWarning(for: package))
         }
         .confirmationDialog(
-            "Installer ce fichier SPK ?",
+            "packages.install_spk.confirm",
             isPresented: Binding(
                 get: { pendingManualPackage != nil },
                 set: { if !$0 { pendingManualPackage = nil } }
             ),
             presenting: pendingManualPackage
         ) { fileURL in
-            Button("Installer \(fileURL.lastPathComponent)") {
+            Button(String(localized: "packages.install.action", defaultValue: "Install \(fileURL.lastPathComponent)")) {
                 requestManualInstallation(fileURL)
             }
-            Button("Annuler", role: .cancel) { }
+            Button("common.button.cancel", role: .cancel) { }
         } message: { fileURL in
             Text(manualInstallationWarning(for: fileURL))
         }
@@ -142,19 +142,22 @@ struct PackagesView: View {
             Button(catalogConfirmButtonTitle(for: request)) {
                 requestCatalogOperation(request)
             }
-            Button("Annuler", role: .cancel) { }
+            Button("common.button.cancel", role: .cancel) { }
         } message: { request in
             Text(catalogConfirmationMessage(for: request))
         }
         .confirmationDialog(
-            "Mettre à jour tous les paquets ?",
+            "packages.update_all.confirm",
             isPresented: $confirmsUpdateAll
         ) {
-            Button("Tout mettre à jour") { requestUpdateAll() }
-            Button("Annuler", role: .cancel) {}
+            Button("packages.update_all.button") { requestUpdateAll() }
+            Button("common.button.cancel", role: .cancel) {}
         } message: {
             Text(
-                "\(vm.updateCount) paquets seront mis à jour l’un après l’autre. Chaque téléchargement et chaque installation est lancé une seule fois."
+                String(
+                    localized: "packages.update_all.confirm.description",
+                    defaultValue: "\(vm.updateCount) packages will be updated one at a time. Each download and installation will be started only once."
+                )
             )
         }
     }
@@ -183,7 +186,7 @@ struct PackagesView: View {
     }
 
     private var sectionPicker: some View {
-        Picker("Centre de paquets", selection: $section) {
+        Picker("common.module.package_center", selection: $section) {
             ForEach(PackageCenterSection.allCases) { section in
                 Text(section.title).tag(section)
             }
@@ -200,21 +203,21 @@ struct PackagesView: View {
     private var packageToolbar: some ToolbarContent {
         ToolbarItem {
             if section == .installed {
-                Picker("Filtrer les paquets", selection: $filter) {
+                Picker("packages.filter.label", selection: $filter) {
                     ForEach(PackageFilter.allCases) { filter in
                         Text(filter.title).tag(filter)
                     }
                 }
                 .pickerStyle(.menu)
-                .help("Filtrer les paquets")
+                .help("packages.filter.label")
             } else {
-                Picker("Afficher", selection: $catalogFilter) {
+                Picker("common.button.show", selection: $catalogFilter) {
                     ForEach(CatalogFilter.allCases) { filter in
                         Text(filter.title).tag(filter)
                     }
                 }
                 .pickerStyle(.menu)
-                .help("Filtrer les paquets")
+                .help("packages.filter.label")
             }
         }
 
@@ -223,45 +226,45 @@ struct PackagesView: View {
                 Button {
                     confirmsUpdateAll = true
                 } label: {
-                    Label("Tout mettre à jour", systemImage: "arrow.triangle.2.circlepath")
+                    Label("packages.update_all.button", systemImage: "arrow.triangle.2.circlepath")
                 }
                 .disabled(vm.updateCount == 0 || !vm.canApplyUpdates || operationTask != nil)
-                .help("Mettre à jour tous les paquets compatibles")
+                .help("packages.update_all.hint")
             }
         }
 
         ToolbarItem {
             Menu {
-                Button("Installation manuelle…", systemImage: "shippingbox.and.arrow.forward") {
+                Button("packages.manual_install.button", systemImage: "shippingbox.and.arrow.forward") {
                     showPackageImporter = true
                 }
                 .disabled(
                     vm.capabilities?.canInstallManualPackages != true || operationTask != nil
                 )
-                Button("Sources de paquets…", systemImage: "link") {
+                Button("packages.menu.sources", systemImage: "link") {
                     showPackageSources = true
                 }
                 .disabled(
                     vm.capabilities?.canManagePackageSources != true || operationTask != nil
                 )
                 Divider()
-                Button("Réglages du Centre de paquets…", systemImage: "gearshape") {
+                Button("packages.menu.settings", systemImage: "gearshape") {
                     showSettings = true
                 }
                 .disabled(
                     vm.capabilities?.canManageSettings != true || operationTask != nil
                 )
             } label: {
-                Label("Plus d’actions", systemImage: "ellipsis.circle")
+                Label("packages.more_actions.label", systemImage: "ellipsis.circle")
             }
-            .help("Installation manuelle, sources et réglages du Centre de paquets")
+            .help("packages.more_actions.hint")
         }
 
         ToolbarItem {
             Button {
                 startRefresh()
             } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
+                Label("common.button.refresh", systemImage: "arrow.clockwise")
             }
             .disabled(vm.isLoading || refreshTask != nil || operationTask != nil)
             .help(refreshHelp)
@@ -269,13 +272,13 @@ struct PackagesView: View {
     }
 
     private var searchPrompt: LocalizedStringKey {
-        section == .installed ? "Rechercher des paquets" : "Rechercher dans le catalogue"
+        section == .installed ? "packages.search.field" : "packages.catalog.search.field"
     }
 
     private var refreshHelp: String {
         section == .installed
-            ? String(localized: "Actualiser les paquets")
-            : String(localized: "Forcer l’actualisation du catalogue sur le NAS")
+            ? String(localized: "packages.refresh.button")
+            : String(localized: "packages.catalog.refresh.hint")
     }
 
     @ViewBuilder
@@ -286,8 +289,8 @@ struct PackagesView: View {
                     .controlSize(.small)
                 Text(operationStatus)
                 Spacer()
-                Button("Arrêter le suivi") { stopTrackingOperation() }
-                    .help("Arrêter le suivi dans l’app ; l’installation peut continuer sur le NAS")
+                Button("packages.monitoring.stop.button") { stopTrackingOperation() }
+                    .help("packages.monitoring.stop.hint")
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -296,7 +299,7 @@ struct PackagesView: View {
         }
         if section == .installed, let catalogError = vm.catalogErrorMessage {
             Label(
-                String(localized: "Catalogue indisponible : \(catalogError)"),
+                String(localized: "packages.catalog.unavailable.error", defaultValue: "Catalog unavailable: \(catalogError)"),
                 systemImage: "exclamationmark.triangle"
             )
             .font(.callout)
@@ -312,7 +315,7 @@ struct PackagesView: View {
                     .foregroundStyle(.readableRed)
                     .accessibilityFocused($focusOperationError)
                 Spacer()
-                Button("Fermer l’erreur") { self.operationError = nil }
+                Button("common.button.dismiss_error") { self.operationError = nil }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
@@ -350,22 +353,22 @@ struct PackagesView: View {
             .accessibilityFocused($focusContent)
         } else if vm.packages.isEmpty {
             EmptyModuleView(
-                title: "Aucun paquet installé",
+                title: "packages.empty.title",
                 systemImage: "shippingbox",
-                description: "Installez un paquet depuis le catalogue officiel ou un fichier SPK."
+                description: "packages.empty.description"
             )
             .accessibilityFocused($focusContent)
         } else if filteredPackages.isEmpty {
             ContentUnavailableView(
-                "Aucun paquet correspondant",
+                "common.empty.matching_packages",
                 systemImage: "shippingbox",
-                description: Text("Modifiez la recherche ou le filtre.")
+                description: Text("packages.search.empty.description")
             )
         } else {
             List(filteredPackages) { package in
                 row(for: package)
             }
-            .accessibilityLabel("Paquets installés")
+            .accessibilityLabel("packages.installed.table.label")
             .accessibilityFocused($focusContent)
         }
     }
@@ -378,12 +381,12 @@ struct PackagesView: View {
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)
                 if let version = package.version, !version.isEmpty {
-                    Text("Version \(version)")
+                    Text(String(localized: "packages.version.label", defaultValue: "Version \(version)"))
                         .font(.caption)
                         .foregroundStyle(.readableSecondary)
                 }
                 if let newVersion = vm.updateVersion(for: package) {
-                    Text("Mise à jour disponible : \(newVersion)")
+                    Text(String(localized: "packages.update.available.label", defaultValue: "Update available: \(newVersion)"))
                         .font(.caption)
                         .foregroundStyle(.readableOrange)
                 }
@@ -391,29 +394,29 @@ struct PackagesView: View {
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)
                 if package.requiresAttention {
-                    Text("Réparation requise")
+                    Text("common.status.repair_required")
                         .font(.caption)
                         .foregroundStyle(.readableRed)
                 } else if package.hasUninstallOptions {
-                    Text("Assistant DSM requis pour la désinstallation")
+                    Text("packages.uninstall.assistant_required.title")
                         .font(.caption)
                         .foregroundStyle(.readableSecondary)
                 }
             }
             Spacer()
-            Button("Détails", systemImage: "info.circle") { detailsPackage = package }
+            Button("common.button.details", systemImage: "info.circle") { detailsPackage = package }
                 .labelStyle(.iconOnly)
-                .help("Afficher les détails de ce paquet")
+                .help("packages.details.button")
             control(for: package)
         }
         .contextMenu {
             if vm.canRepair(package) {
-                Button("Réparer…") { pendingRepair = package }
+                Button("packages.repair.menu") { pendingRepair = package }
                     .disabled(vm.busy.contains(package.id) || operationTask != nil)
                 Divider()
             }
             if let version = vm.updateVersion(for: package) {
-                Button("Mettre à jour…") { pendingUpdate = package }
+                Button("packages.update.menu") { pendingUpdate = package }
                     .disabled(
                         vm.busy.contains(package.id)
                             || !vm.canApplyUpdates
@@ -421,7 +424,8 @@ struct PackagesView: View {
                     )
                     .help(
                         String(
-                            localized: "Mettre à jour \(package.displayName) vers la version \(version)"
+                            localized: "common.action.update_package",
+                            defaultValue: "Update \(package.displayName) to version \(version)"
                         )
                     )
                 if package.canStartStop || package.canUninstall {
@@ -429,17 +433,17 @@ struct PackagesView: View {
                 }
             }
             if package.canStartStop, vm.capabilities?.canControlPackages == true {
-                Button(package.isRunning ? "Arrêter" : "Démarrer") {
+                Button(package.isRunning ? "common.button.stop" : "common.button.start") {
                     setRunning(package, running: !package.isRunning)
                 }
                 .disabled(vm.busy.contains(package.id) || operationTask != nil)
-                .help(package.isRunning ? "Arrêter ce paquet" : "Démarrer ce paquet")
+                .help(package.isRunning ? "packages.stop.hint" : "packages.start.hint")
             }
             if vm.canSafelyUninstall(package) {
                 if package.canStartStop { Divider() }
-                Button("Désinstaller…", role: .destructive) { pendingUninstall = package }
+                Button("packages.uninstall.menu", role: .destructive) { pendingUninstall = package }
                     .disabled(vm.busy.contains(package.id) || operationTask != nil)
-                    .help("Désinstaller ce paquet")
+                    .help("packages.uninstall.hint")
             }
         }
     }
@@ -467,37 +471,41 @@ struct PackagesView: View {
             if isBusy {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel("Opération en cours pour \(package.displayName)")
+                    .accessibilityLabel(String(localized: "common.status.operation_in_progress", defaultValue: "Operation in progress for \(package.displayName)"))
             }
             if let version = vm.updateVersion(for: package) {
-                Button("Mettre à jour") { pendingUpdate = package }
+                Button("common.button.update") { pendingUpdate = package }
                     .disabled(isBusy || !vm.canApplyUpdates || operationTask != nil)
                     .accessibilityLabel(
-                        "Mettre à jour \(package.displayName) vers la version \(version)"
+                        String(
+                            localized: "common.action.update_package",
+                            defaultValue: "Update \(package.displayName) to version \(version)"
+                        )
                     )
                     .help(
                         String(
-                            localized: "Mettre à jour \(package.displayName) vers la version \(version)"
+                            localized: "common.action.update_package",
+                            defaultValue: "Update \(package.displayName) to version \(version)"
                         )
                     )
             }
             if vm.canRepair(package) {
-                Button("Réparer") { pendingRepair = package }
+                Button("packages.repair.button") { pendingRepair = package }
                     .disabled(isBusy || operationTask != nil)
-                    .accessibilityLabel("Réparer \(package.displayName)")
-                    .help(String(localized: "Réparer \(package.displayName)"))
+                    .accessibilityLabel(String(localized: "packages.repair.action", defaultValue: "Repair \(package.displayName)"))
+                    .help(String(localized: "packages.repair.action", defaultValue: "Repair \(package.displayName)"))
             }
             if package.canStartStop, vm.capabilities?.canControlPackages == true {
                 if package.isRunning {
-                    Button("Arrêter") { setRunning(package, running: false) }
+                    Button("common.button.stop") { setRunning(package, running: false) }
                         .disabled(isBusy || operationTask != nil)
-                        .accessibilityLabel("Arrêter \(package.displayName)")
-                        .help(String(localized: "Arrêter \(package.displayName)"))
+                        .accessibilityLabel(String(localized: "packages.stop.action", defaultValue: "Stop \(package.displayName)"))
+                        .help(String(localized: "packages.stop.action", defaultValue: "Stop \(package.displayName)"))
                 } else {
-                    Button("Démarrer") { setRunning(package, running: true) }
+                    Button("common.button.start") { setRunning(package, running: true) }
                         .disabled(isBusy || operationTask != nil)
-                        .accessibilityLabel("Démarrer \(package.displayName)")
-                        .help(String(localized: "Démarrer \(package.displayName)"))
+                        .accessibilityLabel(String(localized: "packages.start.action", defaultValue: "Start \(package.displayName)"))
+                        .help(String(localized: "packages.start.action", defaultValue: "Start \(package.displayName)"))
                 }
             }
             if vm.canSafelyUninstall(package) {
@@ -507,8 +515,8 @@ struct PackagesView: View {
                     Image(systemName: "trash")
                 }
                 .disabled(isBusy || operationTask != nil)
-                .accessibilityLabel("Désinstaller \(package.displayName)")
-                .help(String(localized: "Désinstaller \(package.displayName)"))
+                .accessibilityLabel(String(localized: "packages.uninstall.action", defaultValue: "Uninstall \(package.displayName)"))
+                .help(String(localized: "packages.uninstall.action", defaultValue: "Uninstall \(package.displayName)"))
             }
         }
     }
@@ -529,7 +537,7 @@ struct PackagesView: View {
             } else {
                 focusContent = true
                 VoiceOver.announce(
-                    String(localized: "Catalogue actualisé : \(vm.catalog.count) paquets"),
+                    String(localized: "packages.catalog.refreshed.announcement", defaultValue: "Catalog refreshed: \(vm.catalog.count) packages"),
                     category: .result
                 )
             }
@@ -538,8 +546,8 @@ struct PackagesView: View {
 
     private func setRunning(_ package: PackageInfo, running: Bool) {
         let announcement = running
-            ? String(localized: "Démarrage de \(package.displayName) en cours…")
-            : String(localized: "Arrêt de \(package.displayName) en cours…")
+            ? String(localized: "packages.start.progress", defaultValue: "Starting \(package.displayName)…")
+            : String(localized: "packages.stop.progress", defaultValue: "Stopping \(package.displayName)…")
         startOperation(announcement: announcement) {
             await vm.setRunning(package, running: running)
         }
@@ -547,7 +555,7 @@ struct PackagesView: View {
 
     private func requestUninstall(_ package: PackageInfo) {
         startOperation(
-            announcement: String(localized: "Désinstallation de \(package.displayName) en cours…")
+            announcement: String(localized: "packages.uninstall.progress", defaultValue: "Uninstalling \(package.displayName)…")
         ) {
             await vm.uninstall(package)
         }
@@ -555,7 +563,7 @@ struct PackagesView: View {
 
     private func requestUpdate(_ package: PackageInfo) {
         startOperation(
-            announcement: String(localized: "Mise à jour de \(package.displayName) en cours…")
+            announcement: String(localized: "packages.update.progress", defaultValue: "Updating \(package.displayName)…")
         ) {
             await vm.applyUpdate(package)
         }
@@ -563,7 +571,7 @@ struct PackagesView: View {
 
     private func requestRepair(_ package: PackageInfo) {
         startOperation(
-            announcement: String(localized: "Réparation de \(package.displayName) en cours…")
+            announcement: String(localized: "packages.repair.progress", defaultValue: "Repairing \(package.displayName)…")
         ) {
             await vm.repair(package)
         }
@@ -571,28 +579,30 @@ struct PackagesView: View {
 
     private var catalogConfirmationTitle: String {
         guard let pendingCatalogAction else {
-            return String(localized: "Installer ce paquet ?")
+            return String(localized: "packages.install.confirm")
         }
         return pendingCatalogAction.installedPackage == nil
-            ? String(localized: "Installer ce paquet ?")
-            : String(localized: "Mettre à jour ce paquet ?")
+            ? String(localized: "packages.install.confirm")
+            : String(localized: "packages.update.confirm")
     }
 
     private func catalogConfirmButtonTitle(for request: CatalogActionRequest) -> String {
         if let installedPackage = request.installedPackage {
-            return String(localized: "Mettre à jour \(installedPackage.displayName)")
+            return String(localized: "packages.update.action", defaultValue: "Update \(installedPackage.displayName)")
         }
-        return String(localized: "Installer \(request.item.packageID)")
+        return String(localized: "packages.install.action", defaultValue: "Install \(request.item.packageID)")
     }
 
     private func catalogConfirmationMessage(for request: CatalogActionRequest) -> String {
         if let installedPackage = request.installedPackage {
             return String(
-                localized: "« \(installedPackage.displayName) » sera mis à jour vers la version \(request.item.version). Le paquet sera téléchargé, installé puis redémarré."
+                localized: "packages.update.confirm.description",
+                defaultValue: "“\(installedPackage.displayName)” will be updated to version \(request.item.version). The package will be downloaded, installed, and restarted."
             )
         }
         return String(
-            localized: "« \(request.item.packageID) » version \(request.item.version) sera téléchargé depuis le catalogue officiel, installé puis démarré si le paquet le permet."
+            localized: "packages.install.confirm.description",
+            defaultValue: "“\(request.item.packageID)” version \(request.item.version) will be downloaded from the official catalog, installed, and started if supported by the package."
         )
     }
 
@@ -600,7 +610,8 @@ struct PackagesView: View {
         if let installedPackage = request.installedPackage {
             startOperation(
                 announcement: String(
-                    localized: "Mise à jour de \(installedPackage.displayName) en cours…"
+                    localized: "packages.update.progress",
+                    defaultValue: "Updating \(installedPackage.displayName)…"
                 )
             ) {
                 await vm.applyUpdate(installedPackage)
@@ -608,7 +619,8 @@ struct PackagesView: View {
         } else {
             startOperation(
                 announcement: String(
-                    localized: "Installation de \(request.item.packageID) en cours…"
+                    localized: "packages.install.progress",
+                    defaultValue: "Installing \(request.item.packageID)…"
                 )
             ) {
                 await vm.install(request.item)
@@ -619,7 +631,8 @@ struct PackagesView: View {
     private func requestManualInstallation(_ fileURL: URL) {
         startOperation(
             announcement: String(
-                localized: "Installation de \(fileURL.lastPathComponent) en cours…"
+                localized: "packages.install.progress",
+                defaultValue: "Installing \(fileURL.lastPathComponent)…"
             )
         ) {
             await vm.installManualPackage(at: fileURL)
@@ -628,7 +641,7 @@ struct PackagesView: View {
 
     private func requestUpdateAll() {
         startOperation(
-            announcement: String(localized: "Mise à jour de tous les paquets en cours…")
+            announcement: String(localized: "packages.update_all.progress")
         ) {
             await vm.applyAllUpdates()
         }
@@ -660,7 +673,7 @@ struct PackagesView: View {
         operationTask?.cancel()
         VoiceOver.announce(
             String(
-                localized: "Suivi arrêté dans l’app. L’opération déjà envoyée au NAS peut continuer dans DSM."
+                localized: "packages.monitoring.stop.description"
             ),
             category: .progress,
             priority: .high
@@ -673,7 +686,7 @@ struct PackagesView: View {
         announcesResult: Bool = true
     ) async {
         VoiceOver.announce(
-            String(localized: "Chargement des paquets…"),
+            String(localized: "packages.loading.progress"),
             category: .progress,
             priority: .low
         )
@@ -690,9 +703,9 @@ struct PackagesView: View {
     }
 
     private func uninstallWarning(for package: PackageInfo) -> String {
-        var text = String(localized: "« \(package.displayName) » sera désinstallé. Les données stockées dans des dossiers partagés (photos, bases de données…) peuvent être conservées selon le paquet ; pour les supprimer, utilisez le module Partages. Vous pourrez réinstaller le paquet depuis DSM.")
+        var text = String(localized: "packages.uninstall.confirm.description", defaultValue: "“\(package.displayName)” will be uninstalled. Data stored in shared folders (photos, databases…) may be kept depending on the package; to delete it, use the Shares module. You can reinstall the package from DSM.")
         if package.hasUninstallOptions {
-            text += " " + String(localized: "Ce paquet propose un assistant de désinstallation dans DSM. DSM Access ne lancera pas sa désinstallation sans cet assistant.")
+            text += " " + String(localized: "packages.uninstall.assistant_required.description")
         }
         return text
     }
@@ -700,7 +713,8 @@ struct PackagesView: View {
     private func updateWarning(for package: PackageInfo) -> String {
         let version = vm.updateVersion(for: package) ?? ""
         return String(
-            localized: "« \(package.displayName) » sera mis à jour vers la version \(version). Le paquet sera téléchargé, installé puis redémarré. L’opération peut prendre plusieurs minutes. Si DSM exige un redémarrage du NAS, vous devrez l’effectuer depuis DSM."
+            localized: "packages.update.confirm.restart_description",
+            defaultValue: "“\(package.displayName)” will be updated to version \(version). The package will be downloaded, installed, and restarted. This may take several minutes. If DSM requires a NAS restart, you will need to do it from DSM."
         )
     }
 
@@ -708,17 +722,20 @@ struct PackagesView: View {
         let catalogVersion = vm.catalogItem(for: package)?.version ?? ""
         if vm.update(for: package) != nil {
             return String(
-                localized: "« \(package.displayName) » sera réparé avec la version \(catalogVersion) du catalogue officiel. Cette opération mettra aussi le paquet à jour et pourra le redémarrer."
+                localized: "packages.repair.confirm.update_description",
+                defaultValue: "“\(package.displayName)” will be repaired using version \(catalogVersion) from the official catalog. This will also update the package and may restart it."
             )
         }
         return String(
-            localized: "« \(package.displayName) » sera réinstallé depuis le catalogue officiel afin de remplacer ses fichiers endommagés. Le paquet pourra être redémarré."
+            localized: "packages.repair.confirm.reinstall_description",
+            defaultValue: "“\(package.displayName)” will be reinstalled from the official catalog to replace its damaged files. The package may be restarted."
         )
     }
 
     private func manualInstallationWarning(for fileURL: URL) -> String {
         String(
-            localized: "Le fichier « \(fileURL.lastPathComponent) » sera envoyé au NAS puis installé. Un paquet peut exécuter du logiciel avec accès aux ressources du NAS. Continuez uniquement si vous faites confiance à sa provenance."
+            localized: "packages.install_spk.confirm.description",
+            defaultValue: "The “\(fileURL.lastPathComponent)” file will be uploaded to the NAS and installed. A package can run software with access to NAS resources. Continue only if you trust its source."
         )
     }
 
@@ -728,7 +745,7 @@ struct PackagesView: View {
             guard let fileURL = urls.first,
                   fileURL.pathExtension.caseInsensitiveCompare("spk") == .orderedSame else {
                 presentOperationError(
-                    String(localized: "Sélectionnez un fichier de paquet portant l’extension .spk.")
+                    String(localized: "packages.manual_install.file_picker.hint")
                 )
                 return
             }
@@ -736,7 +753,7 @@ struct PackagesView: View {
         case .failure(let error):
             if (error as? CocoaError)?.code == .userCancelled { return }
             presentOperationError(
-                String(localized: "Impossible d’ouvrir le fichier de paquet : \(error.localizedDescription)")
+                String(localized: "packages.manual_install.file_open.error", defaultValue: "Unable to open the package file: \(error.localizedDescription)")
             )
         }
     }
@@ -756,15 +773,15 @@ private enum PackageCenterSection: CaseIterable, Hashable, Identifiable {
 
     var title: LocalizedStringKey {
         switch self {
-        case .installed: "Installés"
-        case .catalog: "Catalogue officiel"
+        case .installed: "common.filter.installed"
+        case .catalog: "common.label.official_catalog"
         }
     }
 
     var announcement: String {
         switch self {
-        case .installed: String(localized: "Installés")
-        case .catalog: String(localized: "Catalogue officiel")
+        case .installed: String(localized: "common.filter.installed")
+        case .catalog: String(localized: "common.label.official_catalog")
         }
     }
 }
@@ -780,11 +797,11 @@ private enum PackageFilter: String, CaseIterable, Identifiable {
 
     var title: LocalizedStringKey {
         switch self {
-        case .all: "Tous"
-        case .running: "En cours"
-        case .stopped: "Arrêtés"
-        case .updates: "Mises à jour"
-        case .attention: "À réparer"
+        case .all: "common.filter.all"
+        case .running: "common.status.in_progress"
+        case .stopped: "packages.filter.stopped"
+        case .updates: "common.label.updates"
+        case .attention: "packages.filter.needs_repair"
         }
     }
 }

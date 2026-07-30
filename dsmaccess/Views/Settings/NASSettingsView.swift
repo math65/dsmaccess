@@ -13,9 +13,9 @@ struct NASSettingsView: View {
         VStack(alignment: .leading, spacing: 16) {
             if session.profiles.isEmpty {
                 ContentUnavailableView(
-                    "Aucun NAS enregistré",
+                    "nas.settings.empty.title",
                     systemImage: "externaldrive",
-                    description: Text("Ajoutez un NAS depuis cette fenêtre ou depuis le menu NAS.")
+                    description: Text("nas.settings.empty.description")
                 )
             } else {
                 List(session.profiles) { profile in
@@ -29,8 +29,8 @@ struct NASSettingsView: View {
             }
 
             HStack {
-                Button("Ajouter un NAS…", systemImage: "plus", action: addNAS)
-                    .help("Ajouter un NAS à DSM Access")
+                Button("common.action.add_nas", systemImage: "plus", action: addNAS)
+                    .help("common.action.add_nas.hint")
                 Spacer()
             }
         }

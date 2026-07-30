@@ -2,7 +2,7 @@
 //  NASProfile.swift
 //  dsmaccess
 //
-//  Métadonnées non secrètes d'un NAS enregistré.
+//  Non-secret metadata of a saved NAS.
 //
 
 import Foundation

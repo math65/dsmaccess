@@ -2,7 +2,7 @@
 //  DSMSurveillanceService.swift
 //  dsmaccess
 //
-//  Inventaire, activation et instantanés des caméras Surveillance Station.
+//  Inventory, enabling and snapshots of Surveillance Station cameras.
 //
 
 import Foundation

@@ -31,9 +31,9 @@ struct DSMFileStationServiceTests {
         #expect(capabilities.information?.supportsSharing == true)
     }
 
-    /// Le module Fichiers ne doit pas dépendre des champs facultatifs de `Info`. Les exiger
-    /// rendait tout le navigateur inaccessible sur un NAS qui en omet un, alors que seule
-    /// la liste des protocoles virtuels est réellement utilisée.
+    /// The Files module must not depend on the optional fields of `Info`. Requiring them made
+    /// the whole browser unusable on a NAS that omits one, while only the list of virtual
+    /// protocols is actually used.
     @Test func loadsCapabilitiesFromAnInfoResponseWithoutOptionalFields() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"support_virtual":"cifs"}}"#.utf8)),
@@ -82,8 +82,8 @@ struct DSMFileStationServiceTests {
         #expect(start["method"] == "start")
         #expect(start["overwrite"] == "true")
         #expect(start["accurate_progress"] == "true")
-        // Le premier état est émis dès le démarrage, avant toute interrogation : il porte
-        // l'identifiant de tâche dont l'appelant a besoin pour pouvoir l'arrêter.
+        // The first state is emitted right at start, before any polling: it carries the task
+        // identifier the caller needs in order to stop it.
         #expect(updates.map(\.normalizedFraction) == [nil, 0.25, 1])
         #expect(updates.allSatisfy { $0.taskID == "copy-1" })
         #expect(updates.last?.isFinished == true)
@@ -127,8 +127,8 @@ struct DSMFileStationServiceTests {
             try await service.copyMove(path: "/source/folder", to: "/target", removeSource: false)
         }
 
-        // Quitter l'écran annule le suivi, pas la copie : aucune demande d'arrêt ne part
-        // au NAS, seul le bouton d'annulation en envoie une.
+        // Leaving the screen cancels the tracking, not the copy: no stop request goes to the
+        // NAS, only the cancel button sends one.
         let requests = await stub.requests
         #expect(requests.count == 2)
     }
@@ -164,8 +164,8 @@ struct DSMFileStationServiceTests {
     @Test func keepsTrackingAfterATransientStatusFailure() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"taskid":"copy-1"}}"#.utf8)),
-            // Les deux tentatives de la lecture idempotente échouent : l'incident est
-            // passager, le suivi doit repartir plutôt que d'abandonner la tâche.
+            // Both attempts of the idempotent read fail: the incident is transient, tracking
+            // must resume rather than give up on the task.
             .timeout,
             .timeout,
             .response(Data(#"{"success":true,"data":{"finished":true,"progress":1}}"#.utf8)),
@@ -194,17 +194,17 @@ struct DSMFileStationServiceTests {
             try await service.copyMove(path: "/source/folder", to: "/target", removeSource: false)
         }
 
-        // Ni nouvelle tentative sur un refus définitif, ni demande d'arrêt : la tâche
-        // reste en cours sur le NAS, visible dans les tâches en arrière-plan.
+        // Neither a retry on a definitive refusal, nor a stop request: the task stays running
+        // on the NAS, visible in the background tasks.
         let requests = await stub.requests
         #expect(requests.count == 2)
         #expect(try query(from: requests[1])["method"] == "status")
     }
 
-    /// Une compression longue se termine parfois sans jamais renvoyer `finished` : DSM retire
-    /// la tâche et `status` répond 599. Conclure à une interruption de suivi annoncerait une
-    /// compression réussie comme un incident, et renverrait l'utilisateur vers une liste de
-    /// tâches où la sienne n'existe plus.
+    /// A long compression sometimes ends without ever returning `finished`: DSM removes the
+    /// task and `status` answers 599. Concluding that tracking was interrupted would announce
+    /// a successful compression as an incident, and would send the user to a task list where
+    /// theirs no longer exists.
     @Test func endsTrackingWhenTheNASHasAlreadyRetiredTheTask() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"taskid":"compress-1"}}"#.utf8)),
@@ -228,16 +228,16 @@ struct DSMFileStationServiceTests {
         #expect(final.isFinished)
         #expect(final.fractionCompleted == 1)
         #expect(final.kind == .compress)
-        // Aucune demande d'arrêt sur une tâche que le NAS ne connaît plus.
+        // No stop request for a task the NAS no longer knows about.
         let requests = await stub.requests
         #expect(requests.count == 3)
         #expect(try query(from: requests[2])["method"] == "status")
     }
 
     @Test func listsAFolderHoldingAFileNameStoredInLatin1() async throws {
-        // Un nom resté encodé en latin-1 sur le volume : l'octet 0xE8 du « è » n'est pas de
-        // l'UTF-8 valide et faisait échouer le listing entier, un seul fichier suffisant à
-        // rendre le dossier inaccessible alors que DSM l'affiche.
+        // A name left latin-1 encoded on the volume: the 0xE8 byte of "è" is not valid UTF-8
+        // and made the entire listing fail, a single file being enough to make the folder
+        // unreachable even though DSM displays it.
         var payload = Data(#"{"success":true,"data":{"total":2,"offset":0,"files":[{"name":"P"#.utf8)
         payload.append(0xE8)
         payload.append(Data(#"re.mp4","path":"/video/Films/P"#.utf8))
@@ -299,9 +299,9 @@ struct DSMFileStationServiceTests {
         #expect(try JSONDecoder().decode([String].self, from: Data(encodedIDs.utf8)) == ["delete-1"])
     }
 
-    /// Une compression en cours n'expose aucun volume traité : DSM répond `total: -1` et ne
-    /// transmet l'avancement que par `progress`. La liste des tâches doit conserver cette
-    /// fraction telle quelle, un pourcentage déduit du total étant impossible.
+    /// A running compression exposes no processed volume: DSM answers `total: -1` and reports
+    /// progress only through `progress`. The task list must keep that fraction as it is, since
+    /// a percentage derived from the total is impossible.
     @Test func decodesRunningCompressionProgressDespiteAnUnknownTotal() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(
@@ -525,10 +525,10 @@ struct DSMFileStationServiceTests {
         #expect(try decodeStrings(rename["path"]) == ["/documents/One", "/documents/Two"])
     }
 
-    /// Réponse relevée sur DSM 7.4 le 29/07/2026 pour une création réussie : elle ne porte
-    /// aucun champ `error`, que le décodage exigeait pourtant. Toute création de lien
-    /// échouait donc sur « La réponse du NAS n'a pas pu être lue », le lien étant bel et
-    /// bien créé côté NAS. Absent, `error` vaut zéro : DSM ne le renseigne qu'en cas d'échec.
+    /// Response observed on DSM 7.4 on 2026/07/29 for a successful creation: it carries no
+    /// `error` field, which decoding nevertheless required. Every link creation therefore
+    /// failed with "The NAS response could not be read", while the link was in fact created on
+    /// the NAS. When absent, `error` means zero: DSM only fills it in on failure.
     @Test func createsAShareLinkFromAResponseWithoutAnErrorField() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(
@@ -741,9 +741,9 @@ struct DSMFileStationServiceTests {
         #expect(query["_sid"] == "session-id")
         let bodyData = try #require(await stub.uploadedBodies.first)
         let body = try #require(String(data: bodyData, encoding: .utf8))
-        // DSM 7.4 répond 101 quand l'identité d'API ou la session est dans le
-        // corps multipart, et 401 quand les valeurs portent les guillemets JSON
-        // du requestFormat : le corps ne contient que des champs métier bruts.
+        // DSM 7.4 answers 101 when the API identity or the session is in the
+        // multipart body, and 401 when the values carry the JSON quotes of
+        // requestFormat: the body only contains raw business fields.
         #expect(!body.contains("name=\"api\""))
         #expect(!body.contains("name=\"version\""))
         #expect(!body.contains("name=\"_sid\""))

@@ -37,29 +37,29 @@ struct USBCopyFolderPickerSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Choisir un dossier partagé")
+            Text("usb_copy.folder_picker.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($headingFocused)
                 .padding()
 
             Form {
-                Picker("Choisir un dossier partagé", selection: rootBinding) {
+                Picker("usb_copy.folder_picker.title", selection: rootBinding) {
                     ForEach(shareRoots, id: \.self) { root in
                         Text(verbatim: root).tag(root)
                     }
                 }
                 .disabled(shareRoots.count < 2)
 
-                LabeledContent("Chemin") {
+                LabeledContent("common.column.path") {
                     Text(verbatim: currentPath)
                         .textSelection(.enabled)
                 }
 
                 HStack {
-                    Button("Dossier parent", systemImage: "chevron.up", action: goUp)
+                    Button("common.button.parent_folder", systemImage: "chevron.up", action: goUp)
                         .disabled(!canGoUp || isLoading)
-                    Button("Actualiser", systemImage: "arrow.clockwise") {
+                    Button("common.button.refresh", systemImage: "arrow.clockwise") {
                         Task { await loadCurrentFolder() }
                     }
                     .disabled(isLoading)
@@ -70,7 +70,7 @@ struct USBCopyFolderPickerSheet: View {
 
             Divider()
             if isLoading {
-                ProgressView("Chargement…")
+                ProgressView("common.status.loading")
                     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
                     .accessibilityFocused($contentFocused)
             } else if let errorMessage {
@@ -78,12 +78,12 @@ struct USBCopyFolderPickerSheet: View {
                     Label(errorMessage, systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.readableRed)
                         .accessibilityFocused($errorFocused)
-                    Button("Réessayer") { Task { await loadCurrentFolder() } }
+                    Button("common.button.retry") { Task { await loadCurrentFolder() } }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
                 .padding()
             } else if folders.isEmpty {
-                ContentUnavailableView("Ce dossier ne contient aucun élément.", systemImage: "folder")
+                ContentUnavailableView("common.empty.folder.description", systemImage: "folder")
                     .accessibilityFocused($contentFocused)
             } else {
                 ScrollView {
@@ -99,7 +99,7 @@ struct USBCopyFolderPickerSheet: View {
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityHint("Ouvrir")
+                            .accessibilityHint("common.button.open")
 
                             Divider()
                         }
@@ -112,9 +112,9 @@ struct USBCopyFolderPickerSheet: View {
             Divider()
             HStack {
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Choisir ce dossier") {
+                Button("usb_copy.folder_picker.choose.action") {
                     onChoose(currentPath)
                     dismiss()
                 }
@@ -129,7 +129,7 @@ struct USBCopyFolderPickerSheet: View {
         }
         .onAppear {
             headingFocused = true
-            VoiceOver.announce(String(localized: "Choisir un dossier partagé"), category: .navigation)
+            VoiceOver.announce(String(localized: "usb_copy.folder_picker.title"), category: .navigation)
         }
     }
 
@@ -169,7 +169,7 @@ struct USBCopyFolderPickerSheet: View {
         isLoading = true
         errorMessage = nil
         contentFocused = true
-        VoiceOver.announce(String(localized: "Chargement…"), category: .progress)
+        VoiceOver.announce(String(localized: "common.status.loading"), category: .progress)
         defer {
             if currentPath == requestedPath {
                 isLoading = false
@@ -182,8 +182,8 @@ struct USBCopyFolderPickerSheet: View {
             contentFocused = true
             VoiceOver.announce(
                 loadedFolders.count == 1
-                    ? String(localized: "1 dossier disponible")
-                    : String(localized: "\(loadedFolders.count) dossiers disponibles"),
+                    ? String(localized: "usb_copy.folder_picker.count_one")
+                    : String(localized: "usb_copy.folder_picker.count", defaultValue: "\(loadedFolders.count) folders available"),
                 category: .result
             )
         } catch {
@@ -196,7 +196,7 @@ struct USBCopyFolderPickerSheet: View {
 
     private var folderCountAnnouncement: String {
         folders.count == 1
-            ? String(localized: "1 dossier disponible")
-            : String(localized: "\(folders.count) dossiers disponibles")
+            ? String(localized: "usb_copy.folder_picker.count_one")
+            : String(localized: "usb_copy.folder_picker.count", defaultValue: "\(folders.count) folders available")
     }
 }

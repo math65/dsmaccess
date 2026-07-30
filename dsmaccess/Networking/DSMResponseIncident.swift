@@ -2,9 +2,9 @@
 //  DSMResponseIncident.swift
 //  dsmaccess
 //
-//  Trace d'une réponse DSM que l'app n'a pas su décoder, proposée au signalement.
-//  Ne retient que des NOMS de champs : jamais une valeur, donc jamais un nom de
-//  fichier, un chemin, un compte ni un identifiant de session.
+//  Trace of a DSM response the app failed to decode, offered up for reporting.
+//  Keeps field NAMES only: never a value, hence never a file name, a path, an
+//  account or a session identifier.
 //
 
 import Foundation
@@ -14,16 +14,16 @@ struct DSMResponseIncident: Identifiable, Equatable, Sendable {
     let api: String
     let method: String
     let version: String
-    /// Champs reçus, par emplacement (« data », « data.links[] »…). Noms seuls.
+    /// Fields received, by location ("data", "data.links[]"…). Names only.
     let receivedFields: [String]
-    /// Description technique de l'échec, telle que produite par le décodeur.
+    /// Technical description of the failure, as produced by the decoder.
     let failure: String
 
     var signature: String { "\(api)/\(method)" }
 
-    /// Reconstruit la forme d'une réponse sans jamais lire une valeur : clés du
-    /// niveau racine, clés de `data`, puis clés du premier élément de chaque tableau.
-    /// Un tableau vide ou une valeur simple ne produit rien — il n'y a rien à décrire.
+    /// Rebuilds the shape of a response without ever reading a value: root-level keys,
+    /// keys of `data`, then keys of the first element of each array. An empty array or a
+    /// plain value produces nothing — there is nothing to describe.
     static func fields(in data: Data) -> [String] {
         guard let root = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else {
             return []
@@ -40,7 +40,7 @@ struct DSMResponseIncident: Identifiable, Equatable, Sendable {
         return described
     }
 
-    /// Décrit l'échec par le champ et le chemin en cause, sans jamais citer de valeur.
+    /// Describes the failure by the field and path involved, without ever quoting a value.
     nonisolated static func summary(of error: Error) -> String {
         guard let decoding = error as? DecodingError else { return "réponse illisible" }
         switch decoding {
@@ -68,10 +68,9 @@ struct DSMResponseIncident: Identifiable, Equatable, Sendable {
     }
 }
 
-/// Collecte les réponses illisibles et n'en propose qu'une à la fois. Une opération
-/// qui échoue en boucle ne doit pas empiler les alertes, et un incident déjà écarté
-/// ne doit plus revenir de la session : au lecteur d'écran, une alerte répétée rend
-/// l'app inutilisable.
+/// Collects unreadable responses and offers only one at a time. An operation failing in a
+/// loop must not pile up alerts, and an incident already dismissed must not come back for
+/// the rest of the session: with a screen reader, a repeated alert makes the app unusable.
 @MainActor
 @Observable
 final class DSMResponseIncidents {
@@ -99,7 +98,7 @@ final class DSMResponseIncidents {
         self.pending = nil
     }
 
-    /// Rend l'incident accepté au formulaire, une seule fois.
+    /// Hands the accepted incident to the form, once only.
     func consumeAccepted() -> DSMResponseIncident? {
         defer { accepted = nil }
         return accepted

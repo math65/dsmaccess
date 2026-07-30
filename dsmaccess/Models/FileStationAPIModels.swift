@@ -2,7 +2,7 @@
 //  FileStationAPIModels.swift
 //  dsmaccess
 //
-//  Options et résultats des API publiques de File Station.
+//  Options and results of File Station's public APIs.
 //
 
 import Foundation
@@ -325,9 +325,9 @@ struct FileStationCompressionOptions: Equatable, Sendable {
     var level: FileStationCompressionLevel
     var mode: FileStationCompressionMode
     var format: FileStationArchiveFormat
-    /// Page de code employée pour les noms de fichiers écrits dans l'archive. DSM applique
-    /// son propre défaut quand rien n'est transmis ; le client web, lui, envoie toujours la
-    /// langue de l'interface.
+    /// Codepage used for the file names written into the archive. DSM applies its own default
+    /// when nothing is sent; the web client, for its part, always sends the interface
+    /// language.
     var codepage: FileStationArchiveCodepage?
     var password: String?
 

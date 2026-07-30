@@ -2,18 +2,18 @@
 //  ReadableColors.swift
 //  dsmaccess
 //
-//  Couleurs de texte à contraste garanti. Les gris et couleurs d'état du
-//  système échouent au seuil AA (4,5:1) sur les petits corps de texte que
-//  l'app utilise pour les statuts et sous-titres ; ces variantes gardent la
-//  hiérarchie visuelle et la sémantique tout en restant lisibles pour les
-//  utilisateurs malvoyants, dans les deux apparences.
+//  Text colors with guaranteed contrast. The system greys and state colors
+//  fail the AA threshold (4.5:1) at the small text sizes the app uses for
+//  statuses and subtitles; these variants keep the visual hierarchy and the
+//  semantics while staying readable for low-vision users, in both
+//  appearances.
 //
 
 import AppKit
 import SwiftUI
 
 extension ShapeStyle where Self == Color {
-    /// Remplace `.secondary` pour un texte porteur d'information.
+    /// Replaces `.secondary` for text that carries information.
     static var readableSecondary: Color { Color.primary.opacity(0.8) }
 
     static var readableGreen: Color { .readable(.systemGreen) }
@@ -21,8 +21,8 @@ extension ShapeStyle where Self == Color {
     static var readableRed: Color { .readable(.systemRed) }
 }
 
-/// Reproduit la disposition étiquette/valeur des listes en garantissant le
-/// contraste des deux côtés, le style système rendant l'étiquette trop claire.
+/// Reproduces the label/value layout of lists while guaranteeing contrast on
+/// both sides, the system style rendering the label too light.
 struct ReadableLabeledContentStyle: LabeledContentStyle {
     func makeBody(configuration: Configuration) -> some View {
         HStack(alignment: .firstTextBaseline) {

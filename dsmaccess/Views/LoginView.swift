@@ -2,8 +2,8 @@
 //  LoginView.swift
 //  dsmaccess
 //
-//  Écran de connexion directe ou QuickConnect. Bascule vers la saisie du code de
-//  vérification si DSM le réclame (état needsOTP).
+//  Direct or QuickConnect sign-in screen. Switches to the verification code entry if DSM
+//  asks for it (needsOTP state).
 //
 
 import SwiftUI
@@ -36,36 +36,36 @@ struct LoginView: View {
         }
         .task { await vm.startupIfNeeded() }
         .alert(
-            "Certificat non approuvé",
+            "login.certificate.untrusted.title",
             isPresented: Binding(
                 get: { vm.pendingCertificateFingerprint != nil },
-                // Les boutons portent la décision. SwiftUI écrit aussi `false` pendant
-                // la fermeture de l'alerte, ce qui ne doit pas transformer une
-                // approbation en refus pendant la nouvelle tentative de connexion.
+                // The buttons carry the decision. SwiftUI also writes `false` while the
+                // alert is dismissing, which must not turn an approval into a refusal
+                // during the retried connection.
                 set: { _ in }
             )
         ) {
-            Button("Annuler", role: .cancel) {
+            Button("common.button.cancel", role: .cancel) {
                 vm.rejectPendingCertificate()
             }
-            .help("Refuser le certificat et revenir à la connexion")
-            Button("Approuver et se connecter") {
+            .help("login.certificate.reject.hint")
+            Button("login.certificate.trust.button") {
                 Task { await vm.approvePendingCertificate() }
             }
-            .help("Approuver ce certificat puis se connecter au NAS")
+            .help("login.certificate.trust.hint")
         } message: {
             if let fingerprint = vm.pendingCertificateFingerprint {
-                Text("DSM utilise un certificat qui n'est pas reconnu par macOS. Vérifiez cette empreinte SHA-256 avant de l'approuver : \(fingerprint)")
+                Text(String(localized: "login.certificate.untrusted.description", defaultValue: "DSM is using a certificate that macOS doesn't recognize. Verify this SHA-256 fingerprint before trusting it: \(fingerprint)"))
             }
         }
         .alert(
-            "Connexion sans mot de passe",
+            "common.label.passwordless_sign_in",
             isPresented: Binding(
                 get: { vm.secureSignInFailure != nil },
                 set: { if !$0 { vm.secureSignInFailure = nil } }
             )
         ) {
-            Button("OK", role: .cancel) { vm.secureSignInFailure = nil }
+            Button("common.button.ok", role: .cancel) { vm.secureSignInFailure = nil }
         } message: {
             if let failure = vm.secureSignInFailure {
                 Text(verbatim: failure)
@@ -73,12 +73,12 @@ struct LoginView: View {
         }
     }
 
-    /// Écran plein affiché pendant la reconnexion automatique au lancement.
+    /// Full screen shown during the automatic reconnection at launch.
     private var restoringView: some View {
         VStack(spacing: 16) {
             ProgressView()
-                .accessibilityLabel("Reconnexion en cours")
-            Text("Reconnexion à \(vm.connectionLabel)…")
+                .accessibilityLabel("login.reconnecting.title")
+            Text(String(localized: "login.reconnecting.message", defaultValue: "Reconnecting to \(vm.connectionLabel)…"))
                 .font(.title2.bold())
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusRestoring)
@@ -88,7 +88,7 @@ struct LoginView: View {
         .task {
             focusRestoring = true
             VoiceOver.announce(
-                String(localized: "Reconnexion en cours"),
+                String(localized: "login.reconnecting.title"),
                 category: .progress
             )
         }
@@ -99,37 +99,37 @@ struct LoginView: View {
         @Bindable var vm = vm
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                Text("Connexion au NAS")
+                Text("login.title")
                     .font(.largeTitle.bold())
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityIdentifier("login.title")
 
                 VStack(alignment: .leading, spacing: 12) {
-                    Picker("Méthode de connexion", selection: $vm.connectionMethod) {
-                        Text("Adresse directe").tag(ConnectionViewModel.ConnectionMethod.direct)
+                    Picker("login.connection_method.label", selection: $vm.connectionMethod) {
+                        Text("login.method.direct_address").tag(ConnectionViewModel.ConnectionMethod.direct)
                         Text("QuickConnect").tag(ConnectionViewModel.ConnectionMethod.quickConnect)
                     }
                     .pickerStyle(.segmented)
                     .accessibilityIdentifier("login.connection-method")
-                    .help("Choisir comment rechercher le NAS")
+                    .help("login.connection_method.hint")
 
                     if vm.connectionMethod == .direct {
-                        LabeledField(label: "Adresse du NAS (IP ou nom)") {
+                        LabeledField(label: "login.address.label") {
                             TextField("192.168.1.10", text: $vm.host)
                                 .textContentType(.URL)
                                 .focused($connectionFieldFocused)
                                 .accessibilityFocused($focusHost)
                                 .accessibilityIdentifier("login.host")
-                                .help("Adresse IP ou nom réseau du NAS")
+                                .help("login.address.hint")
                         }
-                        Toggle("Utiliser HTTPS (connexion sécurisée)", isOn: $vm.useHTTPS)
+                        Toggle("login.https.label", isOn: $vm.useHTTPS)
                             .onChange(of: vm.useHTTPS) { _, _ in vm.syncDefaultPortIfNeeded() }
                             .accessibilityIdentifier("login.https")
-                            .help("Utiliser une connexion HTTPS chiffrée")
-                        LabeledField(label: "Port") {
+                            .help("login.https.hint")
+                        LabeledField(label: "login.port.label") {
                             TextField("5000", text: $vm.portText)
                                 .accessibilityIdentifier("login.port")
-                                .help("Port réseau utilisé par DSM")
+                                .help("login.port.hint")
                         }
                         if let portError = vm.portValidationMessage {
                             Text(portError)
@@ -138,12 +138,12 @@ struct LoginView: View {
                                 .accessibilityIdentifier("login.port-error")
                         }
                     } else {
-                        LabeledField(label: "Identifiant QuickConnect") {
-                            TextField("MonNAS", text: $vm.quickConnectID)
+                        LabeledField(label: "login.quickconnect.label") {
+                            TextField("login.quickconnect.field.placeholder", text: $vm.quickConnectID)
                                 .focused($connectionFieldFocused)
                                 .accessibilityFocused($focusHost)
                                 .accessibilityIdentifier("login.quickconnect-id")
-                                .help("Identifiant QuickConnect configuré dans DSM")
+                                .help("login.quickconnect.hint")
                         }
                         if let quickConnectError = vm.quickConnectValidationMessage {
                             Text(quickConnectError)
@@ -151,45 +151,45 @@ struct LoginView: View {
                                 .foregroundStyle(.red)
                                 .accessibilityIdentifier("login.quickconnect-error")
                         }
-                        Text("Compatibilité non officielle : Synology peut modifier ce service sans préavis.")
+                        Text("login.quickconnect.footer")
                             .font(.callout)
                             .foregroundStyle(.secondary)
                     }
-                    LabeledField(label: "Nom d'utilisateur") {
+                    LabeledField(label: "login.username.label") {
                         TextField("", text: $vm.account)
                             .textContentType(.username)
                             .accessibilityIdentifier("login.account")
-                            .help("Nom du compte DSM")
+                            .help("login.username.hint")
                     }
-                    Picker("Authentification", selection: $vm.authenticationMethod) {
-                        Text("Mot de passe").tag(ConnectionViewModel.AuthenticationMethod.password)
-                        // Le nom du service Synology d'abord : c'est celui que l'utilisateur
-                        // voit dans DSM et dans l'app mobile qui lui demandera d'approuver.
-                        Text("Secure SignIn (sans mot de passe)")
+                    Picker("login.section.authentication", selection: $vm.authenticationMethod) {
+                        Text("common.field.password").tag(ConnectionViewModel.AuthenticationMethod.password)
+                        // The Synology service name first: it is the one the user sees in DSM
+                        // and in the mobile app that will ask them to approve.
+                        Text("login.method.secure_signin")
                             .tag(ConnectionViewModel.AuthenticationMethod.secureSignIn)
                     }
                     .pickerStyle(.menu)
                     .accessibilityIdentifier("login.authentication-method")
-                    .help("Choisir comment prouver votre identité auprès du NAS")
+                    .help("login.auth_method.hint")
 
                     if vm.authenticationMethod == .password {
-                        LabeledField(label: "Mot de passe") {
+                        LabeledField(label: "common.field.password") {
                             SecureField("", text: $vm.password)
                                 .textContentType(.password)
                                 .accessibilityIdentifier("login.password")
-                                .help("Mot de passe du compte DSM")
+                                .help("login.password.hint")
                         }
                     } else {
-                        Text("Une demande d'approbation sera envoyée à l'app Synology Secure SignIn de votre mobile.")
+                        Text("login.secure_signin.description")
                             .font(.callout)
                             .foregroundStyle(.readableSecondary)
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    Toggle("Rester connecté", isOn: $vm.rememberPassword)
-                        .accessibilityHint("Garde la session ouverte pour les prochaines ouvertures de l’app")
+                    Toggle("login.stay_signed_in.label", isOn: $vm.rememberPassword)
+                        .accessibilityHint("login.stay_signed_in.hint")
                         .accessibilityIdentifier("login.remember-password")
-                        .help("Conserver la session dans le Trousseau pour rouvrir l’app sans se reconnecter")
+                        .help("login.stay_signed_in.description")
                 }
                 .disabled(vm.state != .editing)
 
@@ -209,15 +209,15 @@ struct LoginView: View {
                             .accessibilityHidden(true)
                     }
                     Spacer()
-                    Button("Se connecter") {
+                    Button("login.connect.button") {
                         Task { await vm.submit() }
                     }
                     .keyboardShortcut(.defaultAction)
                     .disabled(!vm.canSubmit)
                     .accessibilityIdentifier("login.submit")
                     .help(vm.authenticationMethod == .password
-                          ? "Se connecter au NAS avec les informations saisies"
-                          : "Envoyer une demande d'approbation à l'app Synology Secure SignIn")
+                          ? "login.connect.hint"
+                          : "login.secure_signin.hint")
                 }
             }
             .padding(28)

@@ -2,7 +2,7 @@
 //  DownloadTask.swift
 //  dsmaccess
 //
-//  Modèles de Download Station. Les tailles et états restent tolérants entre versions.
+//  Download Station models. Sizes and states stay lenient across versions.
 //
 
 import Foundation
@@ -71,7 +71,7 @@ struct DownloadTask: nonisolated Decodable, Identifiable, Hashable, Sendable {
     nonisolated init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         id = try values.requiredFlexString(.id)
-        title = values.flexString(.title) ?? String(localized: "Téléchargement sans nom")
+        title = values.flexString(.title) ?? String(localized: "download.task.unnamed")
         type = values.flexString(.type)
         username = values.flexString(.username)
         size = values.flexInt64(.size) ?? 0

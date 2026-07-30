@@ -2,18 +2,18 @@
 //  DSMAuthenticationService.swift
 //  dsmaccess
 //
-//  Ouverture et fermeture d'une session DSM, y compris OTP, jeton d'appareil et CSRF.
+//  Opening and closing a DSM session, including OTP, device token and CSRF.
 //
 
 import Foundation
 
 @MainActor
 final class DSMAuthenticationService {
-    // DSM 7.4 accorde aux sessions ouvertes en v6 des droits réduits : les mutations de
-    // SYNO.Core.User/Group échouent en 402 même pour un administrateur. Le login v7 obtient
-    // une session complète ; les NAS plus anciens retombent sur leur version maximale.
+    // DSM 7.4 grants reduced rights to sessions opened in v6: SYNO.Core.User/Group mutations
+    // fail with 402 even for an administrator. The v7 login gets a full session; older NAS
+    // fall back to their highest supported version.
     private static let api = DSMAPI("SYNO.API.Auth", preferredVersion: 7, minimumVersion: 3)
-    // « reset » n'existe pas avant la v6 de SYNO.API.Auth : contrat relevé sur DSM 7.4.
+    // "reset" does not exist before v6 of SYNO.API.Auth: contract captured on DSM 7.4.
     private static let resetAPI = DSMAPI("SYNO.API.Auth", preferredVersion: 6, minimumVersion: 6)
     private static let secureSignInAPI = DSMAPI(
         "SYNO.SecureSignIn.Authenticator.Request",
@@ -34,9 +34,9 @@ final class DSMAuthenticationService {
         deviceID: String?,
         rememberDevice: Bool
     ) async throws -> LoginResult {
-        // Pas de paramètre « session » : DSM le traite comme une application soumise au
-        // contrôle de privilèges. Un nom qui ne correspond à aucune application installée
-        // passe pour un administrateur mais fait échouer tout compte standard en 402.
+        // No "session" parameter: DSM treats it as an application subject to privilege
+        // control. A name matching no installed application goes through for an administrator
+        // but makes every standard account fail with 402.
         var parameters: [String: DSMParameter] = [
             "account": .string(account),
             "passwd": .string(password),
@@ -69,14 +69,14 @@ final class DSMAuthenticationService {
         return result
     }
 
-    /// Vrai si le NAS expose la connexion sans mot de passe. Le compte, lui, peut ne pas
-    /// l'avoir activée : cela ne se sait qu'en demandant l'approbation.
+    /// True if the NAS exposes passwordless sign-in. The account itself may not have enabled
+    /// it: that is only known by requesting the approval.
     var supportsSecureSignIn: Bool {
         transport.capabilities.supports(Self.secureSignInAPI)
     }
 
-    /// Demande une approbation dans l'app mobile Synology. Le NAS envoie la notification
-    /// dès cet appel ; il ne renvoie pas encore de session.
+    /// Requests an approval in the Synology mobile app. The NAS sends the notification as
+    /// soon as this call is made; it does not return a session yet.
     func requestSecureSignIn(account: String, rememberDevice: Bool) async throws -> SecureSignInRequest {
         let payload = try await sendSecureSignInLogin(
             account: account,
@@ -92,8 +92,8 @@ final class DSMAuthenticationService {
         )
     }
 
-    /// Interroge la décision de l'utilisateur. Accessible sans session : c'est le propre
-    /// de cette étape, qui précède l'ouverture de la session.
+    /// Polls the user's decision. Reachable without a session: that is the very nature of
+    /// this step, which comes before the session is opened.
     func secureSignInStatus(
         account: String,
         requestID: String
@@ -112,7 +112,7 @@ final class DSMAuthenticationService {
         return status
     }
 
-    /// Échange le jeton d'approbation contre une session.
+    /// Exchanges the approval token for a session.
     func completeSecureSignIn(
         account: String,
         requestID: String,
@@ -131,8 +131,8 @@ final class DSMAuthenticationService {
         return result
     }
 
-    /// Annule une demande laissée en attente, pour que le NAS n'expose pas indéfiniment
-    /// une approbation dont l'app ne veut plus.
+    /// Cancels a request left pending, so the NAS does not keep offering indefinitely an
+    /// approval the app no longer wants.
     func revokeSecureSignIn(account: String, requestID: String) async {
         try? await transport.perform(
             api: Self.secureSignInAPI,
@@ -145,12 +145,12 @@ final class DSMAuthenticationService {
         )
     }
 
-    /// Les trois étapes passent par le même appel de login, seuls `action`, `request_id`
-    /// et `authenticator_token` changent. Le mot de passe reste vide : c'est tout l'objet
-    /// de cette connexion. Contrat relevé sur DSM 7.4 ; les champs partent en clair, le
-    /// chiffrement du portail web n'étant pas exigé par l'API. Ni `format` ni
-    /// `enable_syno_token` ne sont joints : le NAS renvoie déjà le SID et le jeton CSRF
-    /// sans eux, et ce chemin n'a été éprouvé que sous cette forme.
+    /// The three steps go through the same login call, only `action`, `request_id` and
+    /// `authenticator_token` change. The password stays empty: that is the whole point of
+    /// this sign-in. Contract captured on DSM 7.4; the fields are sent in clear, the web
+    /// portal's encryption not being required by the API. Neither `format` nor
+    /// `enable_syno_token` is attached: the NAS already returns the SID and the CSRF token
+    /// without them, and this path has only ever been proven in this form.
     private func sendSecureSignInLogin<Value: Decodable & Sendable>(
         account: String,
         action: String,
@@ -183,16 +183,16 @@ final class DSMAuthenticationService {
             as: type
         )
         guard response.success, let value = response.data else {
-            // Sur ce chemin, 400 rapporte une demande d'approbation périmée, pas un
-            // identifiant refusé : aucun mot de passe n'a été envoyé.
+            // On this path, 400 reports an expired approval request, not rejected
+            // credentials: no password was sent.
             if response.error?.code == 400 { throw SecureSignInExpired() }
             throw loginError(code: response.error?.code)
         }
         return value
     }
 
-    /// Nouveau mot de passe exigé par DSM avant l'ouverture de session (login en 410).
-    /// L'appel se fait hors session, avec l'ancien mot de passe comme preuve d'identité.
+    /// New password required by DSM before the session can open (login returning 410).
+    /// The call is made outside a session, with the old password as proof of identity.
     func resetPassword(account: String, currentPassword: String, newPassword: String) async throws {
         try await transport.perform(
             api: Self.resetAPI,

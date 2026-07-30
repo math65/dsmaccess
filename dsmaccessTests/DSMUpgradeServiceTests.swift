@@ -14,7 +14,7 @@ struct DSMUpgradeServiceTests {
 
         let request = try #require(await stub.requests.first)
         let parameters = try query(from: request)
-        // Placés dans le corps multipart, ces champs font répondre 101 à DSM.
+        // Put in the multipart body, these fields make DSM answer 101.
         #expect(parameters["api"] == "SYNO.Core.Upgrade.Patch")
         #expect(parameters["method"] == "upload")
         #expect(parameters["_sid"] == "session-id")
@@ -36,7 +36,7 @@ struct DSMUpgradeServiceTests {
     }
 
     @Test func startsTheUpgradeWithoutReplayingIt() async throws {
-        // Une mise à jour système ne se rejoue jamais après un délai dépassé.
+        // A system upgrade is never replayed after a timeout.
         let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
         let service = makeService(stub: stub)
 
@@ -64,7 +64,7 @@ struct DSMUpgradeServiceTests {
     }
 
     @Test func acceptsPackagesWrittenAsObjects() async throws {
-        // La forme exacte de la réponse n'a pas pu être mesurée : les deux écritures passent.
+        // The exact shape of the response could not be measured: both spellings are accepted.
         let stub = DSMRequestStub(results: [
             .response(Data(
                 #"{"success":true,"data":{"break_pkgs":[{"display_name":"PHP 7.4"},{"name":"MariaDB"}]}}"#.utf8
@@ -79,8 +79,8 @@ struct DSMUpgradeServiceTests {
     }
 
     @Test func survivesAPreCheckItCannotRead() async throws {
-        // Un format inconnu ne doit pas interrompre l'opération, mais doit se signaler comme
-        // non compris pour que l'écran renvoie l'utilisateur vers DSM.
+        // An unknown format must not interrupt the operation, but must report itself as not
+        // understood so the screen sends the user back to DSM.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"quelque_chose":42}}"#.utf8)),
         ])
@@ -114,8 +114,8 @@ struct DSMUpgradeServiceTests {
     }
 
     @Test func readsTheBootStateOfTheHost() throws {
-        // ⚠️ boot_done passe à true avant que DSM n'accepte une connexion : ce drapeau dit que
-        // l'hôte répond, pas que la mise à jour est terminée.
+        // ⚠️ boot_done turns true before DSM accepts a connection: this flag says the host
+        // answers, not that the upgrade is finished.
         let démarré = try JSONDecoder().decode(
             DSMBootState.self,
             from: Data(#"{"boot_done":true,"disk_hibernation":false,"success":true}"#.utf8)
@@ -154,8 +154,8 @@ struct DSMUpgradeServiceTests {
             session: .shared,
             capabilities: capabilities,
             requestData: { try await stub.data(for: $0) },
-            // Sans cette injection, l'envoi partirait vers le réseau réel et le test bloquerait
-            // jusqu'au délai de 900 s prévu pour un fichier de plusieurs centaines de mégaoctets.
+            // Without this injection, the upload would go out to the real network and the test
+            // would block until the 900 s timeout meant for a file of several hundred megabytes.
             uploadFile: { try await stub.upload(for: $0, fromFile: $1) }
         )
         transport.establishSession(LoginResult(sid: "session-id", did: nil, synotoken: nil))

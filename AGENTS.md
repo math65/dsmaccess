@@ -70,8 +70,8 @@ errors with this setup; the command-line build is authoritative.
 - Write direct, idiomatic Swift. Prefer small concrete types and explicit data flow over
   generic frameworks, indirection, or speculative extensibility.
 - Follow the naming, access control, layout, and ownership patterns in adjacent files. Swift
-  identifiers are idiomatic English; explanatory comments and user-facing source copy are
-  French.
+  identifiers are idiomatic English. **Comments are written in English**: this is an
+  international project, and its code is read by contributors who do not speak French.
 - Give state one owner. Derive values instead of mirroring state that can drift. Keep views
   declarative and move multi-step operations into the view model or service that owns them.
 - Extract a helper or component when it represents a real concept, removes meaningful
@@ -155,18 +155,24 @@ control, or keyboard trap is incomplete.
 
 ## Localization and product copy
 
-French is the source language. English is the supported translation in
-`dsmaccess/Localizable.xcstrings`.
+**Keys are symbolic identifiers, never sentences**: `common.button.cancel`,
+`logs.column.time`. Form is `domain.context.element`, lowercase, two to four levels. Strings
+used by several screens live under `common.`. French and English are both translations in
+`dsmaccess/Localizable.xcstrings`, and **both are required** for every key.
 
 - SwiftUI literals in `Text`, `Button`, `Label`, `Toggle`, alerts, and accessibility modifiers
-  are localization keys. Add or update their English catalog entries.
+  are localization keys. Add both catalog entries for each new key.
 - Strings created outside SwiftUI—including view-model summaries, errors, confirmation text,
-  and VoiceOver announcements—must use `String(localized:)` with interpolation inside the
-  localized string.
+  and VoiceOver announcements—must use `String(localized:)`.
+- **A string with arguments carries its format in `defaultValue`**, holding the English text
+  with the Swift expressions in the order English needs:
+  `String(localized: "logs.export.done", defaultValue: "Log exported to \(name)")`.
+- Two strings that differ in French keep two keys, even where English has one word
+  (`common.status.enabled.masculine` and `.feminine`). Merging them loses a French form.
 - Do not assemble a user-facing sentence from translated fragments. The English word order
-  may differ from French. Use one complete localization key or a format-style interpolation.
-- Write concise, natural French first, then an idiomatic English translation. Translate intent,
-  not syntax. Preserve DSM's official product and API names.
+  may differ from French. Use one complete key or a format-style interpolation.
+- Write both languages naturally rather than translating one into the other word for word.
+  Preserve DSM's official product and API names.
 - Labels name the control or action. Hints explain a non-obvious result. Errors state what
   failed and what the user can do next. Confirmation text states the actual consequence.
 - Avoid generic marketing language, exaggerated claims, choppy fragments, fake quotations,

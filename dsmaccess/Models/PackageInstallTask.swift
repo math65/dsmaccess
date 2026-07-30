@@ -2,7 +2,7 @@
 //  PackageInstallTask.swift
 //  dsmaccess
 //
-//  Identifiant d'une installation suivie par le Centre de paquets.
+//  Identifier of an installation tracked by Package Center.
 //
 
 import Foundation

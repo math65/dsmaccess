@@ -12,33 +12,33 @@ struct USBCopyFilterFields: View {
     @AccessibilityFocusState private var validationFocused: Bool
 
     var body: some View {
-        Toggle("Inclure les autres types de fichiers", isOn: $selection.includesOtherFiles)
-            .help("Inclure tous les types qui ne figurent pas dans les catégories ci-dessous")
+        Toggle("usb_copy.filter.include_others.label", isOn: $selection.includesOtherFiles)
+            .help("usb_copy.filter.include_others.description")
 
         ForEach(USBCopyFileCategory.allCases) { category in
             DisclosureGroup(category.localizedName) {
                 VStack(alignment: .leading) {
-                    Toggle("Tout inclure dans \(category.localizedName)", isOn: categoryBinding(category))
+                    Toggle(String(localized: "usb_copy.filter.category.include_all.action", defaultValue: "Include everything in \(category.localizedName)"), isOn: categoryBinding(category))
                     Divider()
                     ForEach(category.extensions.sorted(), id: \.self) { fileExtension in
-                        Toggle("*.\(fileExtension)", isOn: extensionBinding(fileExtension))
+                        Toggle(String(localized: "usb_copy.filter.rule.extension_pattern", defaultValue: "*.\(fileExtension)"), isOn: extensionBinding(fileExtension))
                     }
                 }
                 .padding(.leading)
             }
         }
 
-        GroupBox("Règles personnalisées") {
+        GroupBox("usb_copy.filter.custom_rules.title") {
             VStack(alignment: .leading) {
-                Text("Saisissez *.extension pour une extension, ou un nom de fichier exact.")
+                Text("usb_copy.filter.custom_rules.hint")
                     .foregroundStyle(.readableSecondary)
                 HStack {
-                    TextField("*.extension ou nom de fichier", text: $newRule)
+                    TextField("usb_copy.filter.rule.placeholder", text: $newRule)
                         .onSubmit(addRule)
-                        .help("Nouvelle extension ou nouveau nom de fichier à inclure")
-                    Button("Ajouter", action: addRule)
+                        .help("usb_copy.filter.rule.field.label")
+                    Button("common.button.add", action: addRule)
                         .disabled(trimmedRule.isEmpty)
-                        .help("Ajouter cette règle personnalisée")
+                        .help("usb_copy.filter.rule.add.action")
                 }
 
                 if let validationMessage {
@@ -66,9 +66,9 @@ struct USBCopyFilterFields: View {
         HStack {
             Text(rule)
             Spacer()
-            Button("Retirer \(rule)", systemImage: "minus.circle", action: remove)
+            Button(String(localized: "usb_copy.filter.rule.remove.action", defaultValue: "Remove \(rule)"), systemImage: "minus.circle", action: remove)
                 .labelStyle(.iconOnly)
-                .help(String(localized: "Retirer la règle \(rule)"))
+                .help(String(localized: "usb_copy.filter.rule.remove.label", defaultValue: "Remove the \(rule) rule"))
         }
     }
 
@@ -107,14 +107,14 @@ struct USBCopyFilterFields: View {
         guard !value.isEmpty else { return }
         let forbidden = CharacterSet(charactersIn: ":?\"<>|\\/")
         guard value.rangeOfCharacter(from: forbidden) == nil else {
-            showValidation(String(localized: "Cette règle contient un caractère non autorisé."))
+            showValidation(String(localized: "usb_copy.filter.rule.invalid_character.error"))
             return
         }
 
         if value.hasPrefix("*.") {
             let fileExtension = String(value.dropFirst(2)).lowercased()
             guard !fileExtension.isEmpty, !fileExtension.contains("*") else {
-                showValidation(String(localized: "Saisissez une extension après *."))
+                showValidation(String(localized: "usb_copy.filter.rule.missing_extension.error"))
                 return
             }
             if !selection.customExtensions.contains(fileExtension) {
@@ -123,7 +123,7 @@ struct USBCopyFilterFields: View {
             }
         } else {
             guard !value.contains("*") else {
-                showValidation(String(localized: "Utilisez *.extension pour filtrer une extension."))
+                showValidation(String(localized: "usb_copy.filter.rule.extension_format.error"))
                 return
             }
             if !selection.customNames.contains(value) {

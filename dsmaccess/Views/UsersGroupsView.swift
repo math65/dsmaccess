@@ -2,7 +2,7 @@
 //  UsersGroupsView.swift
 //  dsmaccess
 //
-//  Administration native des comptes locaux et groupes DSM.
+//  Native administration of DSM local accounts and groups.
 //
 
 import SwiftUI
@@ -23,8 +23,8 @@ struct UsersGroupsView: View {
     @State private var userToDelete: DSMUser?
     @State private var groupToDelete: DSMGroup?
     @State private var holderToConfigure: DSMPermissionHolder?
-    /// Compte dont les permissions s'ouvriront une fois la feuille de création refermée :
-    /// deux feuilles ne peuvent pas se succéder sans attendre la fermeture de la première.
+    /// Account whose permissions will open once the creation sheet is closed: two sheets
+    /// cannot follow each other without waiting for the first one to close.
     @State private var userAwaitingPermissions: String?
     @State private var operationFailure: String?
     @AccessibilityFocusState private var contentFocused: Bool
@@ -38,7 +38,7 @@ struct UsersGroupsView: View {
 
     var body: some View {
         content
-            .searchable(text: $searchText, prompt: "Rechercher un compte ou un groupe")
+            .searchable(text: $searchText, prompt: "users.search.label")
             .toolbar { toolbar }
             .task { await load(restoresInitialFocus: true) }
             .sheet(isPresented: $showCreateUser) {
@@ -51,8 +51,8 @@ struct UsersGroupsView: View {
                     passwordPolicy: viewModel.passwordPolicy,
                     onCreate: { draft in
                         let outcome = await viewModel.createUser(draft)
-                        // Un échec reste dans la feuille, qui conserve la saisie ; seule la
-                        // réussite est annoncée ici, une fois la feuille refermée.
+                        // A failure stays in the sheet, which keeps what was typed; only
+                        // success is announced here, once the sheet is closed.
                         if case .success = outcome { await announce(outcome) }
                         return outcome
                     },
@@ -80,14 +80,14 @@ struct UsersGroupsView: View {
                 }
             }
             .alert(
-                "Erreur",
+                "common.level.error",
                 isPresented: Binding(
                     get: { operationFailure != nil },
                     set: { if !$0 { operationFailure = nil } }
                 )
             ) {
-                Button("OK", role: .cancel) { }
-                    .help("Fermer le message d’erreur")
+                Button("common.button.ok", role: .cancel) { }
+                    .help("users.error.dismiss.label")
             } message: {
                 if let operationFailure {
                     Text(operationFailure)
@@ -98,7 +98,7 @@ struct UsersGroupsView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.users.isEmpty && viewModel.groups.isEmpty {
-            ModuleLoadingView("Chargement des comptes…")
+            ModuleLoadingView("users.loading.label")
                 .accessibilityFocused($contentFocused)
         } else if let errorMessage = viewModel.errorMessage {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
@@ -106,10 +106,10 @@ struct UsersGroupsView: View {
         } else {
             TabView(selection: $selectedTab) {
                 usersList
-                    .tabItem { Label("Utilisateurs", systemImage: "person.2") }
+                    .tabItem { Label("users.section.users.title", systemImage: "person.2") }
                     .tag(Tab.users)
                 groupsList
-                    .tabItem { Label("Groupes", systemImage: "person.3") }
+                    .tabItem { Label("common.label.groups", systemImage: "person.3") }
                     .tag(Tab.groups)
             }
             .accessibilityFocused($contentFocused)
@@ -120,11 +120,11 @@ struct UsersGroupsView: View {
     private var usersList: some View {
         if filteredUsers.isEmpty {
             EmptyModuleView(
-                title: searchText.isEmpty ? "Aucun utilisateur" : "Aucun résultat",
+                title: searchText.isEmpty ? "users.list.empty.title" : "common.empty.results",
                 systemImage: "person.2",
                 description: searchText.isEmpty
-                    ? "Créez un utilisateur local pour lui donner accès au NAS."
-                    : "Modifiez votre recherche et réessayez."
+                    ? "users.create_user.description"
+                    : "common.empty.results.description"
             )
         } else {
             List(filteredUsers, selection: $selectedUserID) { user in
@@ -132,7 +132,7 @@ struct UsersGroupsView: View {
                     .tag(user.id)
                     .contextMenu { userActions(user) }
             }
-            .accessibilityLabel("Utilisateurs")
+            .accessibilityLabel("users.section.users.title")
         }
     }
 
@@ -140,26 +140,26 @@ struct UsersGroupsView: View {
     private var groupsList: some View {
         if filteredGroups.isEmpty {
             EmptyModuleView(
-                title: searchText.isEmpty ? "Aucun groupe" : "Aucun résultat",
+                title: searchText.isEmpty ? "common.empty.groups" : "common.empty.results",
                 systemImage: "person.3",
                 description: searchText.isEmpty
-                    ? "Créez un groupe pour gérer les autorisations de plusieurs utilisateurs."
-                    : "Modifiez votre recherche et réessayez."
+                    ? "users.create_group.description"
+                    : "common.empty.results.description"
             )
         } else {
             List(filteredGroups, selection: $selectedGroupID) { group in
                 groupRow(group)
                     .tag(group.id)
                     .contextMenu {
-                        Button("Permissions…") { holderToConfigure = .group(group.name) }
-                            .help("Modifier les permissions de ce groupe sur les dossiers partagés")
+                        Button("users.permissions.button") { holderToConfigure = .group(group.name) }
+                            .help("users.group.permissions.hint")
                         Divider()
-                        Button("Supprimer le groupe…", role: .destructive) { groupToDelete = group }
+                        Button("users.group.delete.button", role: .destructive) { groupToDelete = group }
                             .disabled(isProtected(group))
-                            .help("Supprimer ce groupe")
+                            .help("users.group.delete.hint")
                     }
             }
-            .accessibilityLabel("Groupes")
+            .accessibilityLabel("common.label.groups")
         }
     }
 
@@ -167,14 +167,14 @@ struct UsersGroupsView: View {
     private var toolbar: some ToolbarContent {
         ToolbarItem {
             Menu {
-                Button("Nouvel utilisateur…") { showCreateUser = true }
-                    .help("Créer un nouvel utilisateur")
-                Button("Nouveau groupe…") { showCreateGroup = true }
-                    .help("Créer un nouveau groupe")
+                Button("users.toolbar.new_user.button") { showCreateUser = true }
+                    .help("users.toolbar.new_user.hint")
+                Button("users.toolbar.new_group.button") { showCreateGroup = true }
+                    .help("users.toolbar.new_group.hint")
             } label: {
-                Label("Ajouter", systemImage: "plus")
+                Label("common.button.add", systemImage: "plus")
             }
-            .help("Ajouter un utilisateur ou un groupe")
+            .help("users.toolbar.add.label")
         }
 
         if selectedTab == .users, let user = selectedUser {
@@ -182,21 +182,21 @@ struct UsersGroupsView: View {
                 Button {
                     holderToConfigure = .user(user.name)
                 } label: {
-                    Label("Permissions", systemImage: "folder.badge.person.crop")
+                    Label("users.permissions.label", systemImage: "folder.badge.person.crop")
                 }
-                .help("Modifier les permissions de ce compte sur les dossiers partagés")
+                .help("users.user.permissions.hint")
             }
             ToolbarItem {
                 Button {
                     Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
                 } label: {
                     Label(
-                        user.isDisabled ? "Activer l’utilisateur" : "Désactiver l’utilisateur",
+                        user.isDisabled ? "users.user.enable.button" : "users.user.disable.button",
                         systemImage: user.isDisabled ? "person.badge.checkmark" : "person.slash"
                     )
                 }
                 .disabled(isProtected(user) || isBusy(user))
-                .help(user.isDisabled ? "Activer l’utilisateur" : "Désactiver l’utilisateur")
+                .help(user.isDisabled ? "users.user.enable.button" : "users.user.disable.button")
             }
         }
 
@@ -205,9 +205,9 @@ struct UsersGroupsView: View {
                 Button {
                     holderToConfigure = .group(group.name)
                 } label: {
-                    Label("Permissions", systemImage: "folder.badge.person.crop")
+                    Label("users.permissions.label", systemImage: "folder.badge.person.crop")
                 }
-                .help("Modifier les permissions de ce groupe sur les dossiers partagés")
+                .help("users.group.permissions.hint")
             }
         }
 
@@ -215,9 +215,9 @@ struct UsersGroupsView: View {
             Button {
                 Task { await load() }
             } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
+                Label("common.button.refresh", systemImage: "arrow.clockwise")
             }
-            .help("Actualiser les utilisateurs et groupes")
+            .help("users.toolbar.refresh.label")
         }
     }
 
@@ -233,24 +233,24 @@ struct UsersGroupsView: View {
                 }
             }
             Spacer()
-            Text(user.isDisabled ? "Désactivé" : "Actif")
+            Text(user.isDisabled ? "common.status.disabled.masculine" : "users.column.active")
                 .font(.caption)
                 .foregroundStyle(user.isDisabled ? Color.readableSecondary : Color.readableGreen)
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(userAccessibilityLabel(user))
         .accessibilityActions {
-            Button("Permissions…") { holderToConfigure = .user(user.name) }
-                .help("Modifier les permissions de ce compte sur les dossiers partagés")
+            Button("users.permissions.button") { holderToConfigure = .user(user.name) }
+                .help("users.user.permissions.hint")
             if !isProtected(user), !isBusy(user) {
-                Button(user.isDisabled ? "Activer" : "Désactiver") {
+                Button(user.isDisabled ? "common.button.enable" : "common.button.disable") {
                     Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
                 }
-                .help(user.isDisabled ? "Activer cet utilisateur" : "Désactiver cet utilisateur")
-                Button("Supprimer l’utilisateur…", role: .destructive) {
+                .help(user.isDisabled ? "users.user.enable.hint" : "users.user.disable.hint")
+                Button("users.user.delete.button", role: .destructive) {
                     userToDelete = user
                 }
-                .help("Supprimer cet utilisateur")
+                .help("users.user.delete.hint")
             }
         }
     }
@@ -267,33 +267,33 @@ struct UsersGroupsView: View {
             }
         }
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(group.name), \(groupSummary(group))")
+        .accessibilityLabel(String(localized: "common.format.pair", defaultValue: "\(group.name), \(groupSummary(group))"))
         .accessibilityActions {
-            Button("Permissions…") { holderToConfigure = .group(group.name) }
-                .help("Modifier les permissions de ce groupe sur les dossiers partagés")
+            Button("users.permissions.button") { holderToConfigure = .group(group.name) }
+                .help("users.group.permissions.hint")
             if !isProtected(group) {
-                Button("Supprimer le groupe…", role: .destructive) {
+                Button("users.group.delete.button", role: .destructive) {
                     groupToDelete = group
                 }
-                .help("Supprimer ce groupe")
+                .help("users.group.delete.hint")
             }
         }
     }
 
     @ViewBuilder
     private func userActions(_ user: DSMUser) -> some View {
-        Button("Permissions…") { holderToConfigure = .user(user.name) }
-            .help("Modifier les permissions de ce compte sur les dossiers partagés")
+        Button("users.permissions.button") { holderToConfigure = .user(user.name) }
+            .help("users.user.permissions.hint")
         Divider()
-        Button(user.isDisabled ? "Activer" : "Désactiver") {
+        Button(user.isDisabled ? "common.button.enable" : "common.button.disable") {
             Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
         }
         .disabled(isProtected(user) || isBusy(user))
-        .help(user.isDisabled ? "Activer cet utilisateur" : "Désactiver cet utilisateur")
+        .help(user.isDisabled ? "users.user.enable.hint" : "users.user.disable.hint")
         Divider()
-        Button("Supprimer l’utilisateur…", role: .destructive) { userToDelete = user }
+        Button("users.user.delete.button", role: .destructive) { userToDelete = user }
             .disabled(isProtected(user) || isBusy(user))
-            .help("Supprimer cet utilisateur")
+            .help("users.user.delete.hint")
     }
 
     private var filteredUsers: [DSMUser] {
@@ -343,8 +343,8 @@ struct UsersGroupsView: View {
     }
 
     private func userAccessibilityLabel(_ user: DSMUser) -> String {
-        var parts = [user.name, user.isDisabled ? String(localized: "désactivé") : String(localized: "actif")]
-        if user.isAdministrator { parts.append(String(localized: "administrateur")) }
+        var parts = [user.name, user.isDisabled ? String(localized: "users.status.disabled") : String(localized: "users.status.active")]
+        if user.isAdministrator { parts.append(String(localized: "users.status.administrator")) }
         if let detail = userDetail(user) { parts.append(detail) }
         return parts.formatted(.list(type: .and))
     }
@@ -352,13 +352,13 @@ struct UsersGroupsView: View {
     private func groupSummary(_ group: DSMGroup) -> String {
         var parts: [String] = []
         if let description = group.description, !description.isEmpty { parts.append(description) }
-        parts.append(String(localized: "\(group.members.count) membres"))
+        parts.append(String(localized: "users.group.member_count", defaultValue: "\(group.members.count) members"))
         return parts.joined(separator: ", ")
     }
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement des utilisateurs et groupes…"),
+            String(localized: "users.loading.announcement"),
             category: .progress,
             priority: .low
         )
@@ -374,8 +374,8 @@ struct UsersGroupsView: View {
     }
 
     private func announce(_ outcome: DSMOperationOutcome) async {
-        // Un échec s'affiche dans une alerte, que VoiceOver lit de lui-même ; une annonce
-        // en plus ferait double narration.
+        // A failure shows up in an alert, which VoiceOver reads on its own; an extra
+        // announcement would make it narrate twice.
         if case .failure(let message) = outcome {
             operationFailure = message
         } else {
@@ -388,8 +388,9 @@ private struct CreateUserSheet: View {
     let groups: [DSMGroup]
     let passwordPolicy: DSMPasswordPolicy?
     let onCreate: (DSMUserDraft) async -> DSMOperationOutcome
-    /// Enchaîne sur les permissions du compte créé : sans cette suite, il faut le retrouver
-    /// dans la liste pour lui donner le moindre accès, et rien ne dit que c'est possible.
+    /// Moves straight on to the permissions of the account just created: without this
+    /// follow-up, you have to find it again in the list to grant it any access at all, and
+    /// nothing says that is possible.
     let onConfigurePermissions: (String) -> Void
 
     @State private var name = ""
@@ -413,39 +414,39 @@ private struct CreateUserSheet: View {
     var body: some View {
         VStack(spacing: 0) {
             Form {
-                Section("Compte") {
-                    TextField("Nom d’utilisateur", text: $name)
+                Section("common.column.account") {
+                    TextField("users.create_user.name.label", text: $name)
                         .focused($nameFocused)
                         .accessibilityFocused($accessibilityFocused)
-                        .help("Nom du nouvel utilisateur")
+                        .help("users.create_user.name.hint")
                     if revealsPassword {
-                        TextField("Mot de passe", text: $password)
-                            .help("Mot de passe du nouvel utilisateur")
-                        TextField("Confirmer le mot de passe", text: $passwordConfirmation)
-                            .help("Retaper le mot de passe du nouvel utilisateur")
+                        TextField("common.field.password", text: $password)
+                            .help("users.create_user.password.hint")
+                        TextField("users.create_user.password_confirm.label", text: $passwordConfirmation)
+                            .help("users.create_user.password_confirm.hint")
                     } else {
-                        SecureField("Mot de passe", text: $password)
-                            .help("Mot de passe du nouvel utilisateur")
-                        SecureField("Confirmer le mot de passe", text: $passwordConfirmation)
-                            .help("Retaper le mot de passe du nouvel utilisateur")
+                        SecureField("common.field.password", text: $password)
+                            .help("users.create_user.password.hint")
+                        SecureField("users.create_user.password_confirm.label", text: $passwordConfirmation)
+                            .help("users.create_user.password_confirm.hint")
                     }
-                    Toggle("Afficher le mot de passe", isOn: $revealsPassword)
-                        .help("Afficher le mot de passe en clair au lieu de le masquer")
+                    Toggle("users.create_user.reveal_password.label", isOn: $revealsPassword)
+                        .help("users.create_user.reveal_password.hint")
                     HStack {
-                        Button("Générer un mot de passe", action: generatePassword)
-                            .help("Créer un mot de passe aléatoire conforme aux règles du NAS")
-                        Button("Copier le mot de passe", action: copyPassword)
+                        Button("users.create_user.generate_password.button", action: generatePassword)
+                            .help("users.create_user.generate_password.hint")
+                        Button("users.create_user.copy_password.button", action: copyPassword)
                             .disabled(password.isEmpty)
-                            .help("Copier le mot de passe dans le presse-papiers")
+                            .help("users.create_user.copy_password.hint")
                     }
                     if !passwordConfirmation.isEmpty && !passwordsMatch {
-                        Text("Les mots de passe ne correspondent pas.")
+                        Text("users.create_user.password_mismatch.error")
                             .foregroundStyle(.readableRed)
-                            .accessibilityLabel("Erreur : les mots de passe ne correspondent pas.")
+                            .accessibilityLabel("users.create_user.password_mismatch.announcement")
                     }
                     if let passwordPolicy, passwordPolicy.hasRequirements {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Le NAS impose les règles suivantes :")
+                            Text("users.create_user.password_rules.title")
                             ForEach(passwordPolicy.requirements, id: \.self) { requirement in
                                 Text(requirement)
                             }
@@ -453,17 +454,17 @@ private struct CreateUserSheet: View {
                         .foregroundStyle(.readableSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                     }
-                    TextField("Adresse e-mail (facultative)", text: $email)
-                        .help("Adresse e-mail facultative du nouvel utilisateur")
-                    TextField("Description (facultative)", text: $description)
-                        .help("Description facultative du nouvel utilisateur")
+                    TextField("users.create_user.email.label", text: $email)
+                        .help("users.create_user.email.hint")
+                    TextField("common.field.description_optional", text: $description)
+                        .help("users.create_user.description_field.hint")
                 }
 
                 if !groups.isEmpty {
-                    Section("Groupes") {
+                    Section("common.label.groups") {
                         ForEach(groups) { group in
                             Toggle(group.name, isOn: groupBinding(group.name))
-                                .help(String(localized: "Ajouter ou retirer l’utilisateur du groupe \(group.name)"))
+                                .help(String(localized: "users.create_user.group_membership.hint", defaultValue: "Add the user to or remove the user from the \(group.name) group"))
                         }
                     }
                 }
@@ -484,21 +485,21 @@ private struct CreateUserSheet: View {
                 if isCreating {
                     ProgressView()
                         .controlSize(.small)
-                        .accessibilityLabel("Création en cours")
+                        .accessibilityLabel("users.create.progress.label")
                 }
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                    .help("Annuler la création de l’utilisateur")
-                Button("Créer et définir les permissions…") {
+                    .help("users.create_user.cancel.hint")
+                Button("users.create_user.create_with_permissions.button") {
                     create(thenConfiguringPermissions: true)
                 }
                 .disabled(!canCreate)
-                .help("Créer l’utilisateur puis ouvrir ses permissions")
-                Button("Créer") { create(thenConfiguringPermissions: false) }
+                .help("users.create_user.create_with_permissions.hint")
+                Button("common.button.create") { create(thenConfiguringPermissions: false) }
                     .keyboardShortcut(.defaultAction)
                     .disabled(!canCreate)
-                    .help("Créer l’utilisateur")
+                    .help("users.create_user.submit.button")
             }
             .padding()
         }
@@ -507,7 +508,7 @@ private struct CreateUserSheet: View {
             nameFocused = true
             accessibilityFocused = true
             VoiceOver.announce(
-                String(localized: "Créer un utilisateur"),
+                String(localized: "users.create_user.title"),
                 category: .navigation
             )
         }
@@ -525,12 +526,12 @@ private struct CreateUserSheet: View {
         let generated = DSMPasswordPolicy.generatedPassword(for: passwordPolicy)
         password = generated
         passwordConfirmation = generated
-        // Sans affichage en clair, un mot de passe qu'on n'a pas choisi est illisible :
-        // il faut pouvoir le relire avant de le transmettre.
+        // Without showing it in the clear, a password you did not choose is unreadable:
+        // it has to be possible to read it back before passing it on.
         revealsPassword = true
         failureMessage = nil
         VoiceOver.announce(
-            String(localized: "Mot de passe généré et affiché en clair."),
+            String(localized: "users.create_user.password_generated.announcement"),
             category: .result
         )
     }
@@ -538,7 +539,7 @@ private struct CreateUserSheet: View {
     private func copyPassword() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(password, forType: .string)
-        VoiceOver.announce(String(localized: "Mot de passe copié."), category: .result)
+        VoiceOver.announce(String(localized: "users.create_user.password_copied.announcement"), category: .result)
     }
 
     private func create(thenConfiguringPermissions configuresPermissions: Bool) {
@@ -560,7 +561,7 @@ private struct CreateUserSheet: View {
                 if configuresPermissions { onConfigurePermissions(draft.name) }
                 dismiss()
             case .failure(let message):
-                // La feuille reste ouverte : la saisie est conservée et corrigeable.
+                // The sheet stays open: what was typed is kept and can be corrected.
                 failureMessage = message
                 failureFocused = true
                 VoiceOver.announce(message, category: .error, priority: .high)
@@ -584,31 +585,31 @@ private struct CreateGroupSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Créer un groupe")
+            Text("users.create_group.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
-            LabeledField(label: "Nom du groupe") {
-                TextField("Nom du groupe", text: $name)
+            LabeledField(label: "users.create_group.name.label") {
+                TextField("users.create_group.name.label", text: $name)
                     .focused($nameFocused)
                     .accessibilityFocused($accessibilityFocused)
-                    .help("Nom du nouveau groupe")
+                    .help("users.create_group.name.hint")
             }
-            LabeledField(label: "Description (facultative)") {
-                TextField("Description (facultative)", text: $description)
-                    .help("Description facultative du nouveau groupe")
+            LabeledField(label: "common.field.description_optional") {
+                TextField("common.field.description_optional", text: $description)
+                    .help("users.create_group.description_field.hint")
             }
             HStack {
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                    .help("Annuler la création du groupe")
-                Button("Créer") {
+                    .help("users.create_group.cancel.hint")
+                Button("common.button.create") {
                     onCreate(DSMGroupDraft(name: trimmedName, description: description))
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(trimmedName.isEmpty)
-                .help("Créer le groupe")
+                .help("users.create_group.submit.button")
             }
         }
         .padding(20)
@@ -617,7 +618,7 @@ private struct CreateGroupSheet: View {
             nameFocused = true
             accessibilityFocused = true
             VoiceOver.announce(
-                String(localized: "Créer un groupe"),
+                String(localized: "users.create_group.title"),
                 category: .navigation
             )
         }
@@ -642,28 +643,28 @@ private struct AccountDeletionSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(kind == .user ? "Supprimer cet utilisateur ?" : "Supprimer ce groupe ?")
+            Text(kind == .user ? "users.user.delete.confirm.title" : "users.group.delete.confirm.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
             Text(warning)
                 .fixedSize(horizontal: false, vertical: true)
-            LabeledField(label: "Retapez le nom pour confirmer") {
+            LabeledField(label: "users.delete.name_field.placeholder") {
                 TextField(name, text: $confirmation)
                     .focused($fieldFocused)
                     .accessibilityFocused($accessibilityFocused)
-                    .help("Retaper le nom pour confirmer la suppression")
+                    .help("users.delete.name_field.hint")
             }
             HStack {
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                    .help("Annuler la suppression")
-                Button("Supprimer", role: .destructive) {
+                    .help("common.button.cancel_deletion")
+                Button("common.button.delete", role: .destructive) {
                     onDelete()
                     dismiss()
                 }
                 .disabled(!confirmed)
-                .help("Confirmer la suppression")
+                .help("users.delete.confirm.button")
             }
         }
         .padding(20)
@@ -672,7 +673,7 @@ private struct AccountDeletionSheet: View {
             fieldFocused = true
             accessibilityFocused = true
             VoiceOver.announce(
-                String(localized: "Confirmez la suppression en retapant le nom."),
+                String(localized: "users.delete.confirm.description"),
                 category: .navigation
             )
         }
@@ -681,9 +682,9 @@ private struct AccountDeletionSheet: View {
     private var warning: String {
         switch kind {
         case .user:
-            String(localized: "Le compte « \(name) » sera supprimé. Son dossier personnel peut également devenir inaccessible selon les réglages du NAS.")
+            String(localized: "users.user.delete.confirm.description", defaultValue: "The “\(name)” account will be deleted. Its home folder may also become inaccessible depending on the NAS settings.")
         case .group:
-            String(localized: "Le groupe « \(name) » sera supprimé. Les autorisations accordées par ce groupe seront retirées.")
+            String(localized: "users.group.delete.confirm.description", defaultValue: "The “\(name)” group will be deleted. Permissions granted through this group will be removed.")
         }
     }
 }

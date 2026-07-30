@@ -2,7 +2,7 @@
 //  FileBrowserViewModel.swift
 //  dsmaccess
 //
-//  Navigation, recherche et opérations File Station.
+//  File Station navigation, search and operations.
 //
 
 import Foundation
@@ -27,14 +27,13 @@ final class FileBrowserViewModel {
         let items: [FileStationItem]
     }
 
-    /// Résultat d'une opération longue, conservé à l'écran jusqu'à ce que l'utilisateur
-    /// le masque : une annonce VoiceOver émise pendant que l'app est en arrière-plan
-    /// n'est jamais entendue, et une copie de plusieurs heures se termine souvent hors
-    /// de la vue de l'utilisateur.
+    /// Result of a long operation, kept on screen until the user dismisses it: a VoiceOver
+    /// announcement posted while the app is in the background is never heard, and a copy
+    /// running for several hours often finishes out of the user's sight.
     struct OperationSummary: Equatable {
         let message: String
-        /// Le NAS poursuit la tâche sans que l'app puisse la suivre : l'écran des tâches
-        /// File Station est le seul endroit où en connaître l'avancement.
+        /// The NAS keeps running the task without the app being able to follow it: the
+        /// File Station tasks screen is the only place to learn how far along it is.
         let continuesInBackground: Bool
     }
 
@@ -48,10 +47,10 @@ final class FileBrowserViewModel {
 
         var title: String {
             switch self {
-            case .name: String(localized: "Nom")
-            case .modificationDate: String(localized: "Date de modification")
-            case .size: String(localized: "Taille")
-            case .kind: String(localized: "Type")
+            case .name: String(localized: "common.column.name")
+            case .modificationDate: String(localized: "common.column.date_modified")
+            case .size: String(localized: "common.column.size")
+            case .kind: String(localized: "common.column.kind")
             }
         }
     }
@@ -70,9 +69,9 @@ final class FileBrowserViewModel {
     private(set) var operationProgress: FileOperationProgress?
     private var operationRate = FileOperationRate()
 
-    /// Débit courant de l'opération suivie, quand DSM rapporte un volume traité.
+    /// Current throughput of the tracked operation, when DSM reports a processed volume.
     var operationBytesPerSecond: Double? { operationRate.bytesPerSecond }
-    /// Temps restant estimé, absent tant qu'il n'est pas fiable ou sous la minute.
+    /// Estimated time remaining, absent as long as it is not reliable or under a minute.
     var operationTimeRemaining: Duration? {
         operationProgress.flatMap(operationRate.remaining(for:))
     }
@@ -134,11 +133,11 @@ final class FileBrowserViewModel {
 
     init(session: SessionStore) {
         self.session = session
-        stack = [Level(name: String(localized: "Fichiers"), path: nil)]
+        stack = [Level(name: String(localized: "common.module.files"), path: nil)]
     }
 
     var currentLevel: Level {
-        stack.last ?? Level(name: String(localized: "Fichiers"), path: nil)
+        stack.last ?? Level(name: String(localized: "common.module.files"), path: nil)
     }
 
     var title: String { currentLevel.name }
@@ -151,8 +150,8 @@ final class FileBrowserViewModel {
     var breadcrumb: String { stack.map(\.name).joined(separator: " ▸ ") }
 
     var canDownload: Bool { supports(.download) }
-    // Compteur plutôt que booléen : les promesses de fichiers collées dans le
-    // Finder peuvent déclencher plusieurs téléchargements simultanés.
+    // A counter rather than a boolean: file promises dropped into the Finder
+    // can trigger several simultaneous downloads.
     var isDownloading: Bool { activeDownloadCount > 0 }
     var canUpload: Bool { canWrite && supports(.upload) }
     var canCreateFolder: Bool { canWrite && supports(.createFolder) }
@@ -302,7 +301,8 @@ final class FileBrowserViewModel {
         guard availableVirtualFolderTypes.contains(type) else {
             virtualFolders = []
             virtualFoldersError = String(
-                localized: "Ce NAS ne prend pas en charge les dossiers virtuels \(type.rawValue.uppercased())."
+                localized: "files.virtual_folder.unsupported.error",
+                defaultValue: "This NAS does not support \(type.rawValue.uppercased()) virtual folders."
             )
             return
         }
@@ -437,7 +437,7 @@ final class FileBrowserViewModel {
         searchQuery = ""
         operationSummary = nil
         stack = [
-            Level(name: String(localized: "Fichiers"), path: nil),
+            Level(name: String(localized: "common.module.files"), path: nil),
             Level(
                 name: favorite.name,
                 path: favorite.path,
@@ -455,7 +455,7 @@ final class FileBrowserViewModel {
         searchQuery = ""
         operationSummary = nil
         stack = [
-            Level(name: String(localized: "Fichiers"), path: nil),
+            Level(name: String(localized: "common.module.files"), path: nil),
             Level(
                 name: folder.name,
                 path: folder.path,
@@ -487,9 +487,8 @@ final class FileBrowserViewModel {
         return await performSingleDownload(item, to: destination)
     }
 
-    /// Téléchargement déclenché par une promesse de fichier collée dans le Finder.
-    /// Aucun scope de sécurité à gérer : l'URL de destination est couverte par le
-    /// sandbox du récepteur de la promesse.
+    /// Download triggered by a file promise dropped into the Finder. No security scope to
+    /// handle: the destination URL is covered by the sandbox of the promise's receiver.
     func downloadForFinderPromise(
         _ item: FileStationItem,
         to destination: URL
@@ -522,7 +521,7 @@ final class FileBrowserViewModel {
                 )
             }
             updateTransfer(id: transferID, state: .completed)
-            return .success(String(localized: "Téléchargement terminé : \(item.name)"))
+            return .success(String(localized: "files.download.single.announcement", defaultValue: "Download complete: \(item.name)"))
         } catch {
             if DSMError.isCancellation(error) {
                 updateTransfer(id: transferID, state: .cancelled)
@@ -530,7 +529,7 @@ final class FileBrowserViewModel {
             }
             let message = errorMessage(for: error)
             updateTransfer(id: transferID, state: .failed(message))
-            return .failure(String(localized: "Échec du téléchargement : \(message)"))
+            return .failure(String(localized: "files.download.error", defaultValue: "Download failed: \(message)"))
         }
     }
 
@@ -583,10 +582,13 @@ final class FileBrowserViewModel {
             }
         }
         if completed == selectedItems.count {
-            return .success(String(localized: "\(completed) éléments téléchargés"))
+            return .success(String(localized: "files.download.done.announcement", defaultValue: "\(completed) items downloaded"))
         }
         return .failure(
-            String(localized: "\(completed) téléchargés, \(selectedItems.count - completed) en échec. \(firstError ?? "")")
+            String(
+                localized: "files.download.partial_failure.announcement",
+                defaultValue: "\(completed) downloaded, \(selectedItems.count - completed) failed. \(firstError ?? "")"
+            )
         )
     }
 
@@ -596,13 +598,13 @@ final class FileBrowserViewModel {
     ) async -> DSMOperationOutcome {
         guard canDownload else { return unavailableOutcome(for: .download) }
         guard selectedItems.count > 1 else {
-            return .failure(String(localized: "Sélectionnez au moins deux éléments à archiver."))
+            return .failure(String(localized: "files.archive.min_selection.error"))
         }
         defer { destination.stopAccessingSecurityScopedResource() }
         let transferID = addTransfer(
             direction: .download,
             name: destination.lastPathComponent,
-            source: String(localized: "\(selectedItems.count) éléments File Station"),
+            source: String(localized: "files.pasteboard.item_count", defaultValue: "\(selectedItems.count) File Station items"),
             destination: destination.path
         )
         activeDownloadCount += 1
@@ -620,7 +622,10 @@ final class FileBrowserViewModel {
             }
             updateTransfer(id: transferID, state: .completed)
             return .success(
-                String(localized: "Archive téléchargée : \(destination.lastPathComponent)")
+                String(
+                    localized: "files.archive_download.done.announcement",
+                    defaultValue: "Archive downloaded: \(destination.lastPathComponent)"
+                )
             )
         } catch {
             if DSMError.isCancellation(error) {
@@ -629,18 +634,18 @@ final class FileBrowserViewModel {
             }
             let message = errorMessage(for: error)
             updateTransfer(id: transferID, state: .failed(message))
-            return .failure(String(localized: "Échec du téléchargement de l’archive : \(message)"))
+            return .failure(String(localized: "files.archive_download.error", defaultValue: "Failed to download archive: \(message)"))
         }
     }
 
     func createFolder(named name: String) async -> DSMOperationOutcome {
         guard canCreateFolder else { return unavailableOutcome(for: .createFolder) }
         guard let parent = currentLevel.path else {
-            return .failure(String(localized: "Impossible de créer le dossier ici."))
+            return .failure(String(localized: "files.new_folder.not_allowed.error"))
         }
         return await performAndReload {
             try await self.session.withClient { try await $0.createFolder(in: parent, name: name) }
-            return String(localized: "Dossier créé : \(name)")
+            return String(localized: "files.new_folder.done.announcement", defaultValue: "Folder created: \(name)")
         }
     }
 
@@ -648,19 +653,19 @@ final class FileBrowserViewModel {
         guard canRename else { return unavailableOutcome(for: .rename) }
         return await performAndReload {
             try await self.session.withClient { try await $0.rename(path: item.path, to: name) }
-            return String(localized: "Renommé en : \(name)")
+            return String(localized: "files.rename.done", defaultValue: "Renamed to: \(name)")
         }
     }
 
     func delete(_ selectedItems: [FileStationItem]) async -> DSMOperationOutcome {
         guard canDelete else { return unavailableOutcome(for: .delete) }
-        return await performProgressOperation(label: String(localized: "Suppression")) { progress in
+        return await performProgressOperation(label: String(localized: "common.operation.deletion")) { progress in
             try await self.session.withClient {
                 try await $0.delete(paths: selectedItems.map(\.path), progress: progress)
             }
             return selectedItems.count == 1
-                ? String(localized: "Supprimé : \(selectedItems[0].name)")
-                : String(localized: "\(selectedItems.count) éléments supprimés")
+                ? String(localized: "files.delete.single.announcement", defaultValue: "Deleted: \(selectedItems[0].name)")
+                : String(localized: "files.delete.done.announcement", defaultValue: "\(selectedItems.count) items deleted")
         }
     }
 
@@ -668,14 +673,14 @@ final class FileBrowserViewModel {
         urls: [URL],
         options: FileStationUploadOptions = FileStationUploadOptions(conflictPolicy: .skip)
     ) async -> DSMOperationOutcome {
-        // Les scopes de sécurité ont été ouverts par la vue sur les URL racines ;
-        // les fichiers énumérés dans un dossier sont couverts par le scope de leur racine.
+        // The security scopes were opened by the view on the root URLs; the files
+        // enumerated inside a folder are covered by the scope of their root.
         defer {
             for url in urls { url.stopAccessingSecurityScopedResource() }
         }
         guard canUpload else { return unavailableOutcome(for: .upload) }
         guard let parent = currentLevel.path else {
-            return .failure(String(localized: "Impossible d’envoyer ici."))
+            return .failure(String(localized: "common.error.upload_not_allowed_here"))
         }
         isWorking = true
         defer { isWorking = false }
@@ -683,8 +688,8 @@ final class FileBrowserViewModel {
         if !plan.folders.isEmpty {
             do {
                 try Task.checkCancellation()
-                // force_parent rend la création idempotente : un dossier déjà
-                // présent sur le NAS est fusionné, pas signalé en erreur.
+                // force_parent makes the creation idempotent: a folder already
+                // present on the NAS is merged, not reported as an error.
                 _ = try await session.withClient {
                     try await $0.createFolders(
                         plan.folderCreations(under: parent),
@@ -695,7 +700,10 @@ final class FileBrowserViewModel {
                 return .cancelled
             } catch {
                 return .failure(
-                    String(localized: "Impossible de créer les dossiers : \(errorMessage(for: error))")
+                    String(
+                        localized: "files.folder.create.error",
+                        defaultValue: "Unable to create the folders: \(errorMessage(for: error))"
+                    )
                 )
             }
         }
@@ -752,24 +760,35 @@ final class FileBrowserViewModel {
         let failed = plan.files.count - sent
         if failed > 0 {
             return .failure(
-                String(localized: "\(sent) envoyés, \(failed) en échec : \(firstFailure ?? "")")
+                String(
+                    localized: "files.upload.partial_failure.announcement",
+                    defaultValue: "\(sent) uploaded, \(failed) failed: \(firstFailure ?? "")"
+                )
             )
         }
         if plan.unreadableItems > 0 {
             return .failure(
-                String(localized: "Envoi incomplet : certains éléments n’ont pas pu être lus sur le Mac.")
+                String(localized: "files.upload.partial_read.error")
             )
         }
         if plan.folders.isEmpty {
             let message = sent == 1
-                ? String(localized: "Fichier envoyé : \(plan.files[0].source.lastPathComponent)")
-                : String(localized: "\(sent) fichiers envoyés")
+                ? String(
+                    localized: "files.upload.file_done.announcement",
+                    defaultValue: "File uploaded: \(plan.files[0].source.lastPathComponent)"
+                )
+                : String(localized: "files.upload.files_done.announcement", defaultValue: "\(sent) files uploaded")
             return .success(message)
         }
         if urls.count == 1 {
-            return .success(String(localized: "Dossier envoyé : \(urls[0].lastPathComponent)"))
+            return .success(
+                String(
+                    localized: "files.upload.folder_done.announcement",
+                    defaultValue: "Folder uploaded: \(urls[0].lastPathComponent)"
+                )
+            )
         }
-        return .success(String(localized: "\(urls.count) éléments envoyés"))
+        return .success(String(localized: "files.upload.items_done.announcement", defaultValue: "\(urls.count) items uploaded"))
     }
 
     func clearFinishedTransfers() {
@@ -788,7 +807,7 @@ final class FileBrowserViewModel {
         let generation = backgroundTasksGeneration
         guard supports(.backgroundTasks) else {
             backgroundTasks = []
-            backgroundTasksError = String(localized: "Les tâches File Station ne sont pas disponibles sur ce NAS.")
+            backgroundTasksError = String(localized: "files.tasks.unavailable.error")
             return
         }
         isLoadingBackgroundTasks = true
@@ -811,10 +830,10 @@ final class FileBrowserViewModel {
         }
     }
 
-    /// Relit la liste pendant qu'une tâche avance, sans afficher l'état de chargement ni
-    /// effacer les tâches déjà présentes : la fenêtre doit se mettre à jour en place, sans
-    /// clignoter et sans déplacer VoiceOver. Retourne `false` quand la relecture a échoué,
-    /// pour que l'écran le signale au lieu de laisser croire à des valeurs à jour.
+    /// Re-reads the list while a task progresses, without showing the loading state and
+    /// without clearing the tasks already listed: the window must update in place, without
+    /// flickering and without moving VoiceOver. Returns `false` when the re-read failed, so
+    /// the screen reports it instead of letting the values pass for up to date.
     func refreshBackgroundTasksQuietly() async -> Bool {
         guard supports(.backgroundTasks) else { return false }
         backgroundTasksGeneration += 1
@@ -831,17 +850,17 @@ final class FileBrowserViewModel {
         }
     }
 
-    /// Reprend le suivi d'une opération que le NAS traite encore. Quitter le module
-    /// détruit l'écran et son état, jamais la tâche : BackgroundTask en garde la trace,
-    /// y compris après un redémarrage de l'app.
+    /// Resumes tracking an operation the NAS is still processing. Leaving the module
+    /// destroys the screen and its state, never the task: BackgroundTask keeps a record of
+    /// it, including after the app restarts.
     func resumeUnfinishedOperation() async -> DSMOperationOutcome? {
         guard supports(.backgroundTasks), !isWorking else { return nil }
         let tasks: [FileStationBackgroundTask]
         do {
             tasks = try await session.withClient { try await $0.fileStationBackgroundTasks() }
         } catch {
-            // Reprise opportuniste : l'échec de cette lecture ne doit pas se substituer
-            // à l'erreur de chargement du dossier, seule information utile ici.
+            // Opportunistic resume: a failure of this read must not stand in for the
+            // folder loading error, the only useful information here.
             return nil
         }
         let unfinished = tasks
@@ -851,7 +870,7 @@ final class FileBrowserViewModel {
             return nil
         }
         VoiceOver.announce(
-            String(localized: "Opération en cours sur le NAS : \(kind.label)"),
+            String(localized: "files.operation.running", defaultValue: "Operation running on the NAS: \(kind.label)"),
             category: .progress,
             priority: .low
         )
@@ -867,14 +886,14 @@ final class FileBrowserViewModel {
         }
     }
 
-    /// Arrêt demandé explicitement par l'utilisateur : c'est la seule action qui
-    /// interrompt la tâche sur le NAS. Quitter l'écran n'arrête que son suivi.
+    /// Stop explicitly requested by the user: this is the only action that interrupts the
+    /// task on the NAS. Leaving the screen only stops tracking it.
     func stopActiveOperation() async -> DSMOperationOutcome {
         guard let progress = operationProgress else {
-            // Le NAS n'a pas encore renvoyé d'identifiant de tâche : il n'y a rien à
-            // arrêter à cet instant, mais l'opération, elle, est bien partie.
+            // The NAS has not returned a task identifier yet: there is nothing to stop
+            // at this instant, but the operation itself has indeed started.
             return .failure(
-                String(localized: "L’opération vient d’être lancée : arrêtez-la depuis les tâches File Station.")
+                String(localized: "files.operation.stop_too_early.error")
             )
         }
         do {
@@ -884,29 +903,35 @@ final class FileBrowserViewModel {
                     taskID: progress.taskID
                 )
             }
-            return .success(String(localized: "Opération arrêtée"))
+            return .success(String(localized: "files.operation.stopped"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de l’arrêt de l’opération : \(errorMessage(for: error))")
+                String(
+                    localized: "files.operation.stop.error",
+                    defaultValue: "Could not stop the operation: \(errorMessage(for: error))"
+                )
             )
         }
     }
 
     func stopBackgroundTask(_ task: FileStationBackgroundTask) async -> DSMOperationOutcome {
         guard let kind = FileOperationKind(rawValue: task.api) else {
-            return .failure(String(localized: "Ce type de tâche ne peut pas être arrêté depuis l’application."))
+            return .failure(String(localized: "files.task.stop_unsupported.error"))
         }
         do {
             try await session.withClient {
                 try await $0.stopFileStationOperation(kind: kind, taskID: task.taskID)
             }
             await loadBackgroundTasks()
-            return .success(String(localized: "Tâche File Station arrêtée"))
+            return .success(String(localized: "files.tasks.stop.announcement"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de l’arrêt de la tâche : \(errorMessage(for: error))")
+                String(
+                    localized: "files.tasks.stop.error",
+                    defaultValue: "Failed to stop the task: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -918,11 +943,14 @@ final class FileBrowserViewModel {
                 try await $0.clearFinishedFileStationBackgroundTasks(taskIDs: taskIDs)
             }
             await loadBackgroundTasks()
-            return .success(String(localized: "Tâches File Station terminées effacées"))
+            return .success(String(localized: "files.tasks.clear.announcement"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de l’effacement des tâches : \(errorMessage(for: error))")
+                String(
+                    localized: "files.tasks.clear.error",
+                    defaultValue: "Failed to clear tasks: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -989,7 +1017,10 @@ final class FileBrowserViewModel {
             guard generation == inspectorGeneration,
                   !DSMError.isCancellation(error) else { return }
             appendInspectorDetailError(
-                String(localized: "Taille du dossier indisponible : \(errorMessage(for: error))")
+                String(
+                    localized: "files.folder_size.error",
+                    defaultValue: "Folder size unavailable: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1013,7 +1044,10 @@ final class FileBrowserViewModel {
             guard generation == inspectorGeneration,
                   !DSMError.isCancellation(error) else { return }
             appendInspectorDetailError(
-                String(localized: "Somme MD5 indisponible : \(errorMessage(for: error))")
+                String(
+                    localized: "files.info.md5.error",
+                    defaultValue: "MD5 checksum unavailable: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1055,24 +1089,24 @@ final class FileBrowserViewModel {
     func copy(_ selectedItems: [FileStationItem]) -> String {
         clipboard = Clipboard(items: selectedItems)
         return selectedItems.count == 1
-            ? String(localized: "Copié : \(selectedItems[0].name)")
-            : String(localized: "\(selectedItems.count) éléments copiés")
+            ? String(localized: "files.copy.single.announcement", defaultValue: "Copied: \(selectedItems[0].name)")
+            : String(localized: "files.copy.done.announcement", defaultValue: "\(selectedItems.count) items copied")
     }
 
-    /// Comme dans le Finder, c'est le geste de collage qui décide entre copier
-    /// et déplacer (`moving`) la même sélection copiée.
+    /// As in the Finder, it is the paste gesture that decides between copying and
+    /// moving (`moving`) the same copied selection.
     func paste(
         moving: Bool = false,
         conflictPolicy: FileConflictPolicy = .skip
     ) async -> DSMOperationOutcome {
         guard canCopyMove else { return unavailableOutcome(for: .copyMove) }
-        guard let clipboard else { return .failure(String(localized: "Rien à coller.")) }
+        guard let clipboard else { return .failure(String(localized: "common.error.nothing_to_paste")) }
         guard let destination = currentLevel.path else {
-            return .failure(String(localized: "Impossible de coller ici."))
+            return .failure(String(localized: "files.paste.not_allowed.error"))
         }
         let label = moving
-            ? String(localized: "Déplacement")
-            : String(localized: "Copie")
+            ? String(localized: "common.operation.moving")
+            : String(localized: "common.operation.copy.noun")
         return await performProgressOperation(label: label) { progress in
             try await self.session.withClient {
                 try await $0.copyMove(
@@ -1083,11 +1117,11 @@ final class FileBrowserViewModel {
                     progress: progress
                 )
             }
-            // Après un déplacement, les chemins mémorisés n'existent plus.
+            // After a move, the remembered paths no longer exist.
             if moving { self.clipboard = nil }
             return moving
-                ? String(localized: "\(clipboard.items.count) éléments déplacés ici")
-                : String(localized: "\(clipboard.items.count) éléments copiés ici")
+                ? String(localized: "files.paste.move_done.announcement", defaultValue: "\(clipboard.items.count) items moved here")
+                : String(localized: "files.paste.copy_done.announcement", defaultValue: "\(clipboard.items.count) items copied here")
         }
     }
 
@@ -1098,7 +1132,7 @@ final class FileBrowserViewModel {
     ) async -> DSMOperationOutcome {
         guard canCompress else { return unavailableOutcome(for: .compress) }
         guard let folder = currentLevel.path else {
-            return .failure(String(localized: "Impossible de créer une archive ici."))
+            return .failure(String(localized: "files.compress.not_allowed.error"))
         }
         let trimmed = archiveName.trimmingCharacters(in: .whitespacesAndNewlines)
         let expectedExtension = options.format.rawValue
@@ -1108,7 +1142,7 @@ final class FileBrowserViewModel {
             : trimmed
         let filename = "\(basename).\(expectedExtension)"
         let destination = folder.appendingNASPathComponent(filename)
-        return await performProgressOperation(label: String(localized: "Compression")) { progress in
+        return await performProgressOperation(label: String(localized: "common.operation.compression")) { progress in
             try await self.session.withClient {
                 try await $0.compress(
                     paths: selectedItems.map(\.path),
@@ -1117,7 +1151,7 @@ final class FileBrowserViewModel {
                     progress: progress
                 )
             }
-            return String(localized: "Archive créée : \(filename)")
+            return String(localized: "files.compress.done.announcement", defaultValue: "Archive created: \(filename)")
         }
     }
 
@@ -1127,9 +1161,9 @@ final class FileBrowserViewModel {
     ) async -> DSMOperationOutcome {
         guard canExtractArchives else { return unavailableOutcome(for: .extract) }
         guard let folder = currentLevel.path else {
-            return .failure(String(localized: "Impossible d’extraire l’archive ici."))
+            return .failure(String(localized: "files.extract.destination.error"))
         }
-        return await performProgressOperation(label: String(localized: "Extraction")) { progress in
+        return await performProgressOperation(label: String(localized: "common.operation.extraction")) { progress in
             try await self.session.withClient {
                 try await $0.extract(
                     archivePath: item.path,
@@ -1138,7 +1172,7 @@ final class FileBrowserViewModel {
                     progress: progress
                 )
             }
-            return String(localized: "Archive extraite : \(item.name)")
+            return String(localized: "files.extract.done.announcement", defaultValue: "Archive extracted: \(item.name)")
         }
     }
 
@@ -1155,23 +1189,26 @@ final class FileBrowserViewModel {
     func toggleCurrentFavorite() async -> DSMOperationOutcome {
         guard supports(.favorites) else { return unavailableOutcome(for: .favorites) }
         guard let path = currentLevel.path else {
-            return .failure(String(localized: "Impossible d’ajouter ce dossier aux favoris."))
+            return .failure(String(localized: "files.favorites.add.error"))
         }
         do {
             if isFavorite(path: path) {
                 try await session.withClient { try await $0.removeFileStationFavorite(path: path) }
                 await loadFavorites()
-                return .success(String(localized: "Favori supprimé : \(currentLevel.name)"))
+                return .success(String(localized: "files.favorites.remove.announcement", defaultValue: "Favorite removed: \(currentLevel.name)"))
             }
             try await session.withClient {
                 try await $0.addFileStationFavorite(path: path, name: currentLevel.name)
             }
             await loadFavorites()
-            return .success(String(localized: "Favori ajouté : \(currentLevel.name)"))
+            return .success(String(localized: "files.favorites.add.announcement", defaultValue: "Favorite added: \(currentLevel.name)"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de la modification du favori : \(errorMessage(for: error))")
+                String(
+                    localized: "files.favorites.update.error",
+                    defaultValue: "Couldn't update the favorite: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1183,18 +1220,21 @@ final class FileBrowserViewModel {
         guard supports(.favorites) else { return unavailableOutcome(for: .favorites) }
         let name = proposedName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !name.isEmpty else {
-            return .failure(String(localized: "Saisissez un nom pour le favori."))
+            return .failure(String(localized: "files.favorites.name.error"))
         }
         do {
             try await session.withClient {
                 try await $0.editFileStationFavorite(path: favorite.path, name: name)
             }
             await reloadFavoriteLists()
-            return .success(String(localized: "Favori renommé : \(name)"))
+            return .success(String(localized: "files.favorites.rename.announcement", defaultValue: "Favorite renamed: \(name)"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec du renommage du favori : \(errorMessage(for: error))")
+                String(
+                    localized: "files.favorites.rename.error",
+                    defaultValue: "Failed to rename favorite: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1206,11 +1246,14 @@ final class FileBrowserViewModel {
                 try await $0.removeFileStationFavorite(path: favorite.path)
             }
             await reloadFavoriteLists()
-            return .success(String(localized: "Favori supprimé : \(favorite.name)"))
+            return .success(String(localized: "files.favorites.remove.announcement", defaultValue: "Favorite removed: \(favorite.name)"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de la suppression du favori : \(errorMessage(for: error))")
+                String(
+                    localized: "files.favorites.remove.error",
+                    defaultValue: "Failed to remove favorite: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1220,11 +1263,14 @@ final class FileBrowserViewModel {
         do {
             try await session.withClient { try await $0.clearBrokenFileStationFavorites() }
             await reloadFavoriteLists()
-            return .success(String(localized: "Favoris indisponibles effacés"))
+            return .success(String(localized: "files.favorites.cleared"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de l’effacement des favoris indisponibles : \(errorMessage(for: error))")
+                String(
+                    localized: "files.favorites.clear_unavailable.error",
+                    defaultValue: "Failed to clear unavailable favorites: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1233,11 +1279,11 @@ final class FileBrowserViewModel {
         guard supports(.favorites) else { return unavailableOutcome(for: .favorites) }
         guard managedFavoriteStatus == .all else {
             return .failure(
-                String(localized: "Affichez tous les favoris pour modifier leur ordre.")
+                String(localized: "files.favorites.reorder.hint")
             )
         }
         guard let sourceIndex = managedFavorites.firstIndex(where: { $0.id == favorite.id }) else {
-            return .failure(String(localized: "Ce favori n’est plus disponible."))
+            return .failure(String(localized: "files.favorite.missing.error"))
         }
         let destinationIndex = sourceIndex + offset
         guard managedFavorites.indices.contains(destinationIndex) else { return .cancelled }
@@ -1249,11 +1295,14 @@ final class FileBrowserViewModel {
                 try await $0.replaceFileStationFavorites(reordered)
             }
             await reloadFavoriteLists()
-            return .success(String(localized: "Ordre des favoris modifié"))
+            return .success(String(localized: "files.favorites.reorder.announcement"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec du classement des favoris : \(errorMessage(for: error))")
+                String(
+                    localized: "files.favorites.reorder.error",
+                    defaultValue: "Failed to reorder favorites: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1294,7 +1343,12 @@ final class FileBrowserViewModel {
             return .link(url)
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
-            return .failure(String(localized: "Échec de la création du lien : \(errorMessage(for: error))"))
+            return .failure(
+                String(
+                    localized: "files.share_link.create.error",
+                    defaultValue: "Failed to create the link: \(errorMessage(for: error))"
+                )
+            )
         }
     }
 
@@ -1359,11 +1413,14 @@ final class FileBrowserViewModel {
                 try await $0.editShareLinks(ids: [link.id], changes: changes)
             }
             await loadShareLinks(options: shareLinksOptions)
-            return .success(String(localized: "Lien de partage modifié"))
+            return .success(String(localized: "files.share.link_updated"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de la modification du lien : \(errorMessage(for: error))")
+                String(
+                    localized: "files.share_link.update.error",
+                    defaultValue: "Failed to update link: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1374,7 +1431,7 @@ final class FileBrowserViewModel {
 
     func deleteShareLinks(_ links: [SharingLink]) async -> DSMOperationOutcome {
         guard !links.isEmpty else {
-            return .failure(String(localized: "Aucun lien sélectionné."))
+            return .failure(String(localized: "files.share.no_selection.error"))
         }
         do {
             try await session.withClient {
@@ -1382,12 +1439,15 @@ final class FileBrowserViewModel {
             }
             await loadShareLinks(options: shareLinksOptions)
             return links.count == 1
-                ? .success(String(localized: "Lien supprimé"))
-                : .success(String(localized: "\(links.count) liens supprimés"))
+                ? .success(String(localized: "files.share_link.delete.announcement"))
+                : .success(String(localized: "files.share_link.delete_many.announcement", defaultValue: "\(links.count) links deleted"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de la suppression du lien : \(errorMessage(for: error))")
+                String(
+                    localized: "files.share_link.delete.error",
+                    defaultValue: "Failed to delete the link: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1396,11 +1456,14 @@ final class FileBrowserViewModel {
         do {
             try await session.withClient { try await $0.clearInvalidShareLinks() }
             await loadShareLinks(options: shareLinksOptions)
-            return .success(String(localized: "Liens invalides effacés"))
+            return .success(String(localized: "files.share_link.clear_invalid.announcement"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(
-                String(localized: "Échec de l’effacement des liens invalides : \(errorMessage(for: error))")
+                String(
+                    localized: "files.share_link.clear_invalid.error",
+                    defaultValue: "Failed to clear invalid links: \(errorMessage(for: error))"
+                )
             )
         }
     }
@@ -1409,13 +1472,13 @@ final class FileBrowserViewModel {
         if let errorMessage { return errorMessage }
         let count: String
         switch sortedItems.count {
-        case 0: count = isShowingSearchResults ? String(localized: "Aucun résultat") : String(localized: "Dossier vide")
-        case 1: count = String(localized: "1 élément")
-        default: count = String(localized: "\(sortedItems.count) éléments")
+        case 0: count = isShowingSearchResults ? String(localized: "common.empty.results") : String(localized: "common.empty.folder")
+        case 1: count = String(localized: "files.selection.item_count_one")
+        default: count = String(localized: "files.selection.item_count", defaultValue: "\(sortedItems.count) items")
         }
-        let base = String(localized: "\(title), \(count)")
+        let base = String(localized: "common.format.pair", defaultValue: "\(title), \(count)")
         guard let permissionMessage else { return base }
-        return String(localized: "\(base). \(permissionMessage)")
+        return String(localized: "files.announcement.combined", defaultValue: "\(base). \(permissionMessage)")
     }
 
     private func performAndReload(
@@ -1436,7 +1499,12 @@ final class FileBrowserViewModel {
             return .success(message)
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
-            return .failure(String(localized: "Échec de l’opération : \(errorMessage(for: error))"))
+            return .failure(
+                String(
+                    localized: "common.error.operation_failed",
+                    defaultValue: "The operation failed: \(errorMessage(for: error))"
+                )
+            )
         }
     }
 
@@ -1476,8 +1544,8 @@ final class FileBrowserViewModel {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let summary = operationSummary(for: error)
             if summary.continuesInBackground {
-                // La tâche avance encore côté NAS : montrer le contenu réel du dossier
-                // plutôt que la liste figée à l'instant où l'opération a été lancée.
+                // The task is still progressing on the NAS side: show the folder's real
+                // contents rather than the list frozen when the operation was started.
                 await loadCurrent()
             }
             operationSummary = summary
@@ -1490,20 +1558,24 @@ final class FileBrowserViewModel {
         }
     }
 
-    /// Sépare l'échec réel de la simple perte de suivi : dans le second cas le NAS
-    /// poursuit la tâche, et l'annoncer comme un échec pousserait l'utilisateur à
-    /// relancer une copie déjà en cours.
+    /// Separates a real failure from merely losing track: in the second case the NAS keeps
+    /// running the task, and announcing it as a failure would push the user into starting
+    /// again a copy that is already under way.
     func operationSummary(for error: Error) -> OperationSummary {
         guard let interruption = error as? FileOperationTrackingInterrupted else {
             return OperationSummary(
-                message: String(localized: "Échec de l’opération : \(errorMessage(for: error))"),
+                message: String(
+                    localized: "common.error.operation_failed",
+                    defaultValue: "The operation failed: \(errorMessage(for: error))"
+                ),
                 continuesInBackground: false
             )
         }
         let detail = errorMessage(for: interruption.underlying)
         return OperationSummary(
             message: String(
-                localized: "Le suivi de l’opération s’est interrompu : \(detail) Elle continue sur le NAS ; ouvrez les tâches File Station pour connaître son avancement."
+                localized: "files.operation.tracking_lost.error",
+                defaultValue: "The operation is no longer being tracked: \(detail) It is still running on the NAS; open File Station tasks to check its progress."
             ),
             continuesInBackground: true
         )
@@ -1538,7 +1610,8 @@ final class FileBrowserViewModel {
                   !DSMError.isCancellation(error) else { return }
             currentFolderIsWritable = false
             permissionMessage = String(
-                localized: "Ce compte ne peut pas modifier ce dossier : \(errorMessage(for: error))"
+                localized: "files.folder.write_denied.detailed_error",
+                defaultValue: "This account cannot modify this folder: \(errorMessage(for: error))"
             )
         }
     }
@@ -1566,7 +1639,10 @@ final class FileBrowserViewModel {
                 guard generation == inspectorGeneration,
                       !DSMError.isCancellation(error) else { return }
                 appendInspectorDetailError(
-                    String(localized: "Aperçu indisponible : \(errorMessage(for: error))")
+                    String(
+                        localized: "files.preview.error",
+                        defaultValue: "Preview unavailable: \(errorMessage(for: error))"
+                    )
                 )
             }
         }
@@ -1600,10 +1676,10 @@ final class FileBrowserViewModel {
     private func unavailableMessage(for feature: FileStationFeature) -> String {
         if currentFolderIsWritable == false {
             return permissionMessage
-                ?? String(localized: "Ce compte ne peut pas modifier ce dossier.")
+                ?? String(localized: "files.folder.write_denied.error")
         }
         return DSMError.unsupportedAPI(feature.requiredAPI.name).errorDescription
-            ?? String(localized: "Cette opération n’est pas disponible sur ce NAS.")
+            ?? String(localized: "files.operation.unsupported.error")
     }
 
     private func addTransfer(

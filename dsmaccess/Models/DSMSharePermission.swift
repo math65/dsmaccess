@@ -2,13 +2,13 @@
 //  DSMSharePermission.swift
 //  dsmaccess
 //
-//  Droits d'un compte sur les dossiers partagés (SYNO.Core.Share.Permission).
+//  Rights of an account on shared folders (SYNO.Core.Share.Permission).
 //
 
 import Foundation
 
-/// Ce à quoi des droits sont accordés. DSM lit les deux cas par des méthodes distinctes mais
-/// les écrit par la même, en distinguant l'un de l'autre par `user_group_type`.
+/// What rights are granted to. DSM reads both cases through distinct methods but writes them
+/// through the same one, telling one from the other by `user_group_type`.
 enum DSMPermissionHolder: Sendable, Hashable, Identifiable {
     case user(String)
     case group(String)
@@ -35,7 +35,7 @@ enum DSMPermissionHolder: Sendable, Hashable, Identifiable {
         }
     }
 
-    /// SYNO.Core.AppPriv nomme les mêmes entités autrement que SYNO.Core.Share.Permission.
+    /// SYNO.Core.AppPriv names the same entities differently from SYNO.Core.Share.Permission.
     var entityType: String {
         switch self {
         case .user: return "user"
@@ -43,15 +43,15 @@ enum DSMPermissionHolder: Sendable, Hashable, Identifiable {
         }
     }
 
-    /// Un groupe n'hérite de rien : DSM omet le droit hérité dans sa réponse, et l'écran n'a
-    /// donc ni colonne d'héritage ni choix « hériter ».
+    /// A group inherits nothing: DSM omits the inherited right from its response, so the
+    /// screen has neither an inheritance column nor an “inherit” choice.
     var inheritsFromGroups: Bool {
         if case .user = self { return true }
         return false
     }
 }
 
-/// Niveau d'accès à un dossier partagé, dans l'ordre où DSM présente ses colonnes.
+/// Access level to a shared folder, in the order in which DSM presents its columns.
 enum DSMSharePermissionLevel: String, Sendable, Hashable, CaseIterable, Identifiable {
     case noAccess
     case readWrite
@@ -61,13 +61,13 @@ enum DSMSharePermissionLevel: String, Sendable, Hashable, CaseIterable, Identifi
 
     var label: String {
         switch self {
-        case .noAccess: return String(localized: "Aucun accès")
-        case .readWrite: return String(localized: "Lecture/écriture")
-        case .readOnly: return String(localized: "Lecture seule")
+        case .noAccess: return String(localized: "permissions.share.no_access")
+        case .readWrite: return String(localized: "permissions.share.read_write")
+        case .readOnly: return String(localized: "common.permission.read_only")
         }
     }
 
-    /// Rang de la règle de conflit affichée par DSM : NA > RW > RO.
+    /// Rank of the conflict rule displayed by DSM: NA > RW > RO.
     private var priority: Int {
         switch self {
         case .noAccess: return 3
@@ -84,17 +84,17 @@ enum DSMSharePermissionLevel: String, Sendable, Hashable, CaseIterable, Identifi
 struct DSMSharePermission: nonisolated Decodable, Identifiable, Hashable, Sendable {
     let name: String
     let path: String?
-    /// Droit hérité des groupes du compte. DSM répond « - » quand il n'y en a aucun.
+    /// Right inherited from the account's groups. DSM answers “-” when there is none.
     let inherited: DSMSharePermissionLevel?
-    /// Droit propre au compte. `nil` quand aucune case n'est cochée : seul l'héritage compte.
+    /// Right specific to the account. `nil` when no box is checked: only inheritance counts.
     var granted: DSMSharePermissionLevel?
-    /// DSM signale ici les permissions détaillées posées dans File Station, sans les décrire.
+    /// DSM reports here the detailed permissions set in File Station, without describing them.
     let isCustom: Bool
 
     var id: String { name }
 
-    /// Droit réellement appliqué, par la règle que DSM affiche sous sa grille : NA > RW > RO.
-    /// Sans droit propre ni droit hérité, le compte n'a pas accès au dossier.
+    /// Right actually applied, by the rule DSM displays under its grid: NA > RW > RO.
+    /// With neither an own right nor an inherited one, the account has no access to the folder.
     var effective: DSMSharePermissionLevel {
         DSMSharePermissionLevel.strongest(granted, inherited) ?? .noAccess
     }

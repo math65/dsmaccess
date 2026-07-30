@@ -2,7 +2,7 @@
 //  DSMAPI.swift
 //  dsmaccess
 //
-//  Description d'une API DSM et résolution de sa route/version à partir de SYNO.API.Info.
+//  Description of a DSM API and resolution of its path/version from SYNO.API.Info.
 //
 
 import Foundation

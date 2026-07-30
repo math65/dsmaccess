@@ -2,7 +2,7 @@
 //  FileStationFavoritesView.swift
 //  dsmaccess
 //
-//  Gestion accessible de l’ensemble des favoris File Station.
+//  Accessible management of the whole set of File Station favorites.
 //
 
 import SwiftUI
@@ -35,47 +35,50 @@ struct FileStationFavoritesView: View {
         .task(id: status) { await load() }
         .sheet(item: $editingFavorite) { favorite in
             NameEntrySheet(
-                title: "Renommer le favori",
-                fieldLabel: "Nom du favori",
-                confirmLabel: "Renommer",
-                announcement: String(localized: "Renommer le favori « \(favorite.name) »"),
+                title: "favorites.rename.action",
+                fieldLabel: "favorites.rename.field.label",
+                confirmLabel: "common.button.rename",
+                announcement: String(localized: "favorites.rename.title", defaultValue: "Rename favorite “\(favorite.name)”"),
                 initialName: favorite.name
             ) { name in
                 Task { await rename(favorite, to: name) }
             }
         }
         .alert(
-            "Retirer ce favori ?",
+            "favorites.remove.confirm",
             isPresented: Binding(
                 get: { pendingRemoval != nil },
                 set: { if !$0 { pendingRemoval = nil } }
             )
         ) {
-            Button("Retirer", role: .destructive) {
+            Button("favorites.remove.button", role: .destructive) {
                 if let favorite = pendingRemoval {
                     pendingRemoval = nil
                     Task { await remove(favorite) }
                 }
             }
-            Button("Annuler", role: .cancel) { pendingRemoval = nil }
+            Button("common.button.cancel", role: .cancel) { pendingRemoval = nil }
         } message: {
             if let favorite = pendingRemoval {
                 Text(
-                    "« \(favorite.name) » sera retiré des favoris. Le dossier et son contenu ne seront pas supprimés."
+                    String(
+                        localized: "favorites.remove.confirm.description",
+                        defaultValue: "“\(favorite.name)” will be removed from favorites. The folder and its contents will not be deleted."
+                    )
                 )
             }
         }
-        .alert("Effacer les favoris indisponibles ?", isPresented: $confirmsBrokenCleanup) {
-            Button("Effacer", role: .destructive) { Task { await clearBrokenFavorites() } }
-            Button("Annuler", role: .cancel) {}
+        .alert("favorites.clear_unavailable.confirm", isPresented: $confirmsBrokenCleanup) {
+            Button("common.button.clear", role: .destructive) { Task { await clearBrokenFavorites() } }
+            Button("common.button.cancel", role: .cancel) {}
         } message: {
-            Text("Tous les favoris qui ne correspondent plus à un dossier seront retirés. Aucun fichier ne sera supprimé.")
+            Text("favorites.clear_unavailable.confirm.description")
         }
     }
 
     private var header: some View {
         HStack {
-            Text("Gérer les favoris")
+            Text("favorites.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusHeading)
@@ -83,9 +86,9 @@ struct FileStationFavoritesView: View {
             if vm.isLoadingManagedFavorites || isMutating {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel("Opération sur les favoris en cours…")
+                    .accessibilityLabel("favorites.operation.progress")
             }
-            Button("Fermer", role: .cancel) { dismiss() }
+            Button("common.button.close", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
                 .disabled(isMutating)
         }
@@ -94,16 +97,16 @@ struct FileStationFavoritesView: View {
 
     private var controls: some View {
         HStack {
-            Picker("Afficher", selection: $status) {
+            Picker("common.button.show", selection: $status) {
                 ForEach(FileStationFavoriteStatus.allCases, id: \.self) { value in
                     Text(value.localizedTitle).tag(value)
                 }
             }
             .frame(maxWidth: 280)
             Spacer()
-            Button("Actualiser", systemImage: "arrow.clockwise") { Task { await load() } }
+            Button("common.button.refresh", systemImage: "arrow.clockwise") { Task { await load() } }
                 .disabled(vm.isLoadingManagedFavorites || isMutating)
-                .help("Actualiser les favoris depuis File Station")
+                .help("favorites.refresh.label")
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
@@ -117,18 +120,18 @@ struct FileStationFavoritesView: View {
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .accessibilityFocused($focusStatus)
-                Button("Fermer l’erreur") { self.operationError = nil }
+                Button("common.button.dismiss_error") { self.operationError = nil }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else if vm.isLoadingManagedFavorites && vm.managedFavorites.isEmpty {
-            ModuleLoadingView("Chargement des favoris…")
+            ModuleLoadingView("favorites.loading")
                 .accessibilityFocused($focusStatus)
         } else if let error = vm.managedFavoritesError {
             VStack(spacing: 12) {
                 Text(error)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
-                Button("Réessayer") { Task { await load() } }
+                Button("common.button.retry") { Task { await load() } }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityFocused($focusStatus)
@@ -136,26 +139,26 @@ struct FileStationFavoritesView: View {
             ContentUnavailableView(
                 emptyTitle,
                 systemImage: "star",
-                description: Text("Ajoutez un dossier aux favoris pour le retrouver rapidement.")
+                description: Text("favorites.empty.description")
             )
             .accessibilityFocused($focusStatus)
         } else {
             List(vm.managedFavorites) { favorite in
                 favoriteRow(favorite)
             }
-            .accessibilityLabel("Favoris File Station")
+            .accessibilityLabel("common.action.file_station_favorites")
         }
     }
 
     private var footer: some View {
         HStack {
-            Button("Effacer les favoris indisponibles…", role: .destructive) {
+            Button("favorites.clear_unavailable.button", role: .destructive) {
                 confirmsBrokenCleanup = true
             }
             .disabled(isMutating || vm.isLoadingManagedFavorites)
-            .help("Retirer tous les favoris dont le dossier n’existe plus")
+            .help("favorites.clear_unavailable.hint")
             Spacer()
-            Button("Fermer", role: .cancel) { dismiss() }
+            Button("common.button.close", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
                 .disabled(isMutating)
         }
@@ -173,51 +176,51 @@ struct FileStationFavoritesView: View {
                     .truncationMode(.middle)
                 Text(
                     favorite.isAvailable
-                        ? String(localized: "Disponible")
-                        : String(localized: "Indisponible")
+                        ? String(localized: "favorites.status.available")
+                        : String(localized: "common.status.unavailable")
                 )
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button("Ouvrir", systemImage: "arrow.forward") {
+            Button("common.button.open", systemImage: "arrow.forward") {
                 open(favorite)
                 dismiss()
             }
             .labelStyle(.iconOnly)
             .disabled(!favorite.isAvailable || isMutating)
-            .help("Ouvrir ce favori")
-            Button("Renommer", systemImage: "pencil") { editingFavorite = favorite }
+            .help("favorites.open.label")
+            Button("common.button.rename", systemImage: "pencil") { editingFavorite = favorite }
                 .labelStyle(.iconOnly)
                 .disabled(isMutating)
-                .help("Renommer ce favori")
-            Button("Monter", systemImage: "arrow.up") {
+                .help("favorites.rename.label")
+            Button("common.button.move_up", systemImage: "arrow.up") {
                 Task { await move(favorite, by: -1) }
             }
             .labelStyle(.iconOnly)
             .disabled(!canMove(favorite, by: -1) || isMutating)
-            .help("Monter ce favori")
-            Button("Descendre", systemImage: "arrow.down") {
+            .help("favorites.move_up.label")
+            Button("common.button.move_down", systemImage: "arrow.down") {
                 Task { await move(favorite, by: 1) }
             }
             .labelStyle(.iconOnly)
             .disabled(!canMove(favorite, by: 1) || isMutating)
-            .help("Descendre ce favori")
-            Button("Retirer", systemImage: "trash", role: .destructive) {
+            .help("favorites.move_down.label")
+            Button("favorites.remove.button", systemImage: "trash", role: .destructive) {
                 pendingRemoval = favorite
             }
             .labelStyle(.iconOnly)
             .disabled(isMutating)
-            .help("Retirer ce favori")
+            .help("favorites.remove.label")
         }
         .accessibilityElement(children: .contain)
     }
 
     private var emptyTitle: LocalizedStringKey {
         switch status {
-        case .all: "Aucun favori"
-        case .valid: "Aucun favori disponible"
-        case .broken: "Aucun favori indisponible"
+        case .all: "common.empty.favorites"
+        case .valid: "favorites.available.empty"
+        case .broken: "favorites.unavailable.empty"
         }
     }
 
@@ -239,7 +242,7 @@ struct FileStationFavoritesView: View {
         } else {
             focusHeading = true
             VoiceOver.announce(
-                String(localized: "Favoris : \(vm.managedFavorites.count)"),
+                String(localized: "favorites.count", defaultValue: "Favorites: \(vm.managedFavorites.count)"),
                 category: .result
             )
         }
@@ -279,9 +282,9 @@ struct FileStationFavoritesView: View {
 private extension FileStationFavoriteStatus {
     var localizedTitle: String {
         switch self {
-        case .all: String(localized: "Tous les favoris")
-        case .valid: String(localized: "Favoris disponibles")
-        case .broken: String(localized: "Favoris indisponibles")
+        case .all: String(localized: "favorites.filter.all")
+        case .valid: String(localized: "favorites.section.available")
+        case .broken: String(localized: "favorites.section.unavailable")
         }
     }
 }

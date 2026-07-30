@@ -2,7 +2,7 @@
 //  FileTransfersView.swift
 //  dsmaccess
 //
-//  File d'attente accessible des transferts File Station.
+//  Accessible queue of File Station transfers.
 //
 
 import SwiftUI
@@ -16,48 +16,48 @@ struct FileTransfersView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Transferts")
+            Text("common.label.transfers")
                 .font(.title2.bold())
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusHeading)
 
             if vm.transfers.isEmpty {
                 ContentUnavailableView(
-                    "Aucun transfert",
+                    "transfers.empty",
                     systemImage: "arrow.up.arrow.down",
-                    description: Text("Les téléchargements et les envois apparaîtront ici.")
+                    description: Text("transfers.empty.description")
                 )
             } else {
                 List(vm.transfers) { transfer in
                     TransferRow(transfer: transfer)
                 }
-                .accessibilityLabel("Historique des transferts")
+                .accessibilityLabel("transfers.table.label")
             }
 
             HStack {
-                Button("Effacer les transferts terminés") {
+                Button("transfers.clear_finished.button") {
                     vm.clearFinishedTransfers()
                     VoiceOver.announce(
-                        String(localized: "Transferts terminés effacés"),
+                        String(localized: "transfers.clear_finished.announcement"),
                         category: .result
                     )
                 }
                 .disabled(!vm.transfers.contains(where: { !$0.state.isActive }))
-                .help("Conserver uniquement les transferts en attente ou en cours")
+                .help("transfers.clear_finished.hint")
 
                 Spacer()
 
-                Button("Annuler les transferts en cours", role: .destructive) {
+                Button("transfers.cancel.button", role: .destructive) {
                     cancelActiveTransfers()
                     VoiceOver.announce(
-                        String(localized: "Annulation des transferts demandée"),
+                        String(localized: "transfers.cancel.announcement"),
                         category: .progress
                     )
                 }
                 .disabled(!vm.hasActiveTransfers)
-                .help("Annuler le transfert actif et ceux qui restent en attente")
+                .help("transfers.cancel.hint")
 
-                Button("Fermer", role: .cancel) { dismiss() }
+                Button("common.button.close", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
             }
         }
@@ -98,7 +98,7 @@ private struct TransferRow: View {
                 Text(message)
                     .font(.caption)
                     .foregroundStyle(.red)
-                    .accessibilityLabel(String(localized: "Erreur : \(message)"))
+                    .accessibilityLabel(String(localized: "transfers.error", defaultValue: "Error: \(message)"))
             }
         }
         .padding(.vertical, 4)
@@ -108,16 +108,16 @@ private struct TransferRow: View {
     private var progressAccessibilityLabel: String {
         switch transfer.direction {
         case .upload:
-            String(localized: "Progression de l’envoi de \(transfer.name)")
+            String(localized: "transfers.upload.progress.label", defaultValue: "Upload progress for \(transfer.name)")
         case .download:
-            String(localized: "Progression du téléchargement de \(transfer.name)")
+            String(localized: "transfers.download.progress.label", defaultValue: "Download progress for \(transfer.name)")
         }
     }
 
     private func progressLabel(_ progress: DSMTransferProgress) -> String {
         let completed = progress.completedBytes.formatted(.byteCount(style: .file))
         guard let total = progress.totalBytes else { return completed }
-        return String(localized: "\(completed) sur \(total.formatted(.byteCount(style: .file)))")
+        return String(localized: "common.format.value_of_total", defaultValue: "\(completed) of \(total.formatted(.byteCount(style: .file)))")
     }
 }
 
@@ -141,11 +141,11 @@ private extension FileTransferState {
 
     var label: String {
         switch self {
-        case .queued: String(localized: "En attente")
-        case .running: String(localized: "En cours")
-        case .completed: String(localized: "Terminé")
-        case .cancelled: String(localized: "Annulé")
-        case .failed: String(localized: "Échec")
+        case .queued: String(localized: "common.status.waiting")
+        case .running: String(localized: "common.status.in_progress")
+        case .completed: String(localized: "common.status.done")
+        case .cancelled: String(localized: "transfers.status.cancelled")
+        case .failed: String(localized: "common.status.failed")
         }
     }
 }

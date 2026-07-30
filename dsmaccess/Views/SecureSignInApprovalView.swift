@@ -2,9 +2,9 @@
 //  SecureSignInApprovalView.swift
 //  dsmaccess
 //
-//  Attente de l'approbation envoyée à l'app mobile Synology Secure SignIn. Le NAS ne
-//  joint pas toujours un chiffre à confirmer : quand il le fait, c'est l'information
-//  décisive de l'écran, annoncée en priorité.
+//  Waiting for the approval sent to the Synology Secure SignIn mobile app. The NAS does
+//  not always attach a number to confirm: when it does, that is the screen's decisive
+//  piece of information, announced with priority.
 //
 
 import SwiftUI
@@ -16,18 +16,18 @@ struct SecureSignInApprovalView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Connexion sans mot de passe")
+            Text("common.label.passwordless_sign_in")
                 .font(.largeTitle.bold())
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusHeading)
 
-            Text("Une demande a été envoyée à l'app Synology Secure SignIn. Approuvez-la sur votre appareil mobile pour ouvrir la session.")
+            Text("secure_signin.approval.description")
                 .foregroundStyle(.readableSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             if let verifyNumber = vm.secureSignInRequest?.verifyNumber {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Chiffre à confirmer")
+                    Text("secure_signin.approval.number.label")
                         .font(.callout)
                         .foregroundStyle(.readableSecondary)
                     Text(verifyNumber, format: .number)
@@ -35,7 +35,7 @@ struct SecureSignInApprovalView: View {
                         .monospacedDigit()
                 }
                 .accessibilityElement(children: .combine)
-                .accessibilityLabel(Text("Chiffre à confirmer : \(verifyNumber)"))
+                .accessibilityLabel(Text(String(localized: "secure_signin.approval.number.value", defaultValue: "Number to confirm: \(verifyNumber)")))
                 .accessibilityIdentifier("securesignin.verify-number")
             }
 
@@ -48,17 +48,17 @@ struct SecureSignInApprovalView: View {
             HStack(spacing: 12) {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel("Attente de l'approbation")
-                Text("En attente de votre approbation…")
+                    .accessibilityLabel("secure_signin.approval.waiting.title")
+                Text("secure_signin.approval.waiting.progress")
                     .foregroundStyle(.readableSecondary)
                     .accessibilityHidden(true)
                 Spacer()
-                Button("Annuler") {
+                Button("common.button.cancel") {
                     Task { await vm.cancelSecureSignIn() }
                 }
                 .keyboardShortcut(.cancelAction)
                 .accessibilityIdentifier("securesignin.cancel")
-                .help("Annuler la demande d'approbation et revenir à la connexion")
+                .help("secure_signin.approval.cancel.hint")
             }
         }
         .padding(28)
@@ -67,12 +67,12 @@ struct SecureSignInApprovalView: View {
             focusHeading = true
             VoiceOver.announce(announcement, category: .navigation, priority: .high)
         }
-        // Le chiffre peut n'arriver qu'à la première interrogation du statut, après
-        // l'affichage de l'écran : il doit alors être annoncé à son tour.
+        // The number may only arrive at the first status poll, after the screen has been
+        // displayed: it must then be announced in its turn.
         .onChange(of: vm.secureSignInRequest?.verifyNumber) { previous, current in
             guard previous == nil, let current else { return }
             VoiceOver.announce(
-                String(localized: "Chiffre à confirmer : \(current)"),
+                String(localized: "secure_signin.approval.number.value", defaultValue: "Number to confirm: \(current)"),
                 category: .navigation,
                 priority: .high
             )
@@ -87,10 +87,11 @@ struct SecureSignInApprovalView: View {
 
     private var announcement: String {
         guard let verifyNumber = vm.secureSignInRequest?.verifyNumber else {
-            return String(localized: "Approuvez la connexion dans l’app Synology Secure SignIn.")
+            return String(localized: "secure_signin.approval.announcement")
         }
         return String(
-            localized: "Approuvez la connexion dans l’app Synology Secure SignIn. Chiffre à confirmer : \(verifyNumber)"
+            localized: "secure_signin.approval.number.announcement",
+            defaultValue: "Approve the sign-in in the Synology Secure SignIn app. Number to confirm: \(verifyNumber)"
         )
     }
 }

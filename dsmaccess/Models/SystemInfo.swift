@@ -2,12 +2,12 @@
 //  SystemInfo.swift
 //  dsmaccess
 //
-//  Charge utile de SYNO.DSM.Info (method=getinfo) : infos système de base du NAS.
+//  Payload of SYNO.DSM.Info (method=getinfo): the NAS's basic system information.
 //
 
 import Foundation
 
-/// Informations système de base du NAS.
+/// Basic system information about the NAS.
 struct SystemInfo: nonisolated Decodable, Sendable {
     let model: String
     let serial: String

@@ -2,7 +2,7 @@
 //  NetworkSettingsViewModel.swift
 //  dsmaccess
 //
-//  Charge l'identité et la configuration réseau du NAS.
+//  Loads the NAS identity and network configuration.
 //
 
 import Foundation
@@ -44,10 +44,10 @@ final class NetworkSettingsViewModel {
 
     var summary: String {
         if let errorMessage { return errorMessage }
-        guard let info else { return String(localized: "Configuration réseau indisponible") }
+        guard let info else { return String(localized: "common.error.network_configuration_unavailable") }
         if let name = info.serverName, !name.isEmpty {
-            return String(localized: "Serveur \(name)")
+            return String(localized: "network.identity.server_name.value", defaultValue: "Server \(name)")
         }
-        return String(localized: "Configuration réseau chargée")
+        return String(localized: "network.loaded.announcement")
     }
 }

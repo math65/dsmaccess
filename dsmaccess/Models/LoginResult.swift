@@ -2,18 +2,18 @@
 //  LoginResult.swift
 //  dsmaccess
 //
-//  Charge utile renvoyée par SYNO.API.Auth (method=login) en cas de succès.
+//  Payload returned by SYNO.API.Auth (method=login) on success.
 //
 
 import Foundation
 
-/// Résultat d'un login réussi.
+/// Result of a successful login.
 struct LoginResult: nonisolated Decodable, Sendable {
-    /// Identifiant de session à joindre (`_sid=`) à toutes les requêtes suivantes.
+    /// Session identifier to attach (`_sid=`) to every subsequent request.
     let sid: String
-    /// Jeton d'appareil (device token) renvoyé quand on demande à « se souvenir de l'appareil ».
-    /// Secret durable : à stocker au Trousseau, jamais en clair.
+    /// Device token returned when asking to "remember this device".
+    /// Long-lived secret: to be stored in the Keychain, never in the clear.
     let did: String?
-    /// Jeton anti-CSRF optionnel.
+    /// Optional anti-CSRF token.
     let synotoken: String?
 }

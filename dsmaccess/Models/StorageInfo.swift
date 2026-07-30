@@ -2,9 +2,9 @@
 //  StorageInfo.swift
 //  dsmaccess
 //
-//  Réponse de SYNO.Storage.CGI.Storage (method=load_info), l'API du Gestionnaire de stockage DSM.
-//  API NON documentée : structure calée sur des réponses réelles (les tailles sont des chaînes
-//  d'octets à convertir). Champs optionnels par prudence.
+//  Response of SYNO.Storage.CGI.Storage (method=load_info), the API behind DSM Storage Manager.
+//  UNDOCUMENTED API: the structure is modelled on real responses (sizes are byte strings that
+//  have to be converted). Fields are optional out of caution.
 //
 
 import Foundation
@@ -15,7 +15,7 @@ struct StorageInfo: nonisolated Decodable, Sendable {
     let storagePools: [StoragePool]?
 }
 
-/// Taille (octets et inodes en chaînes) partagée par volumes et pools.
+/// Size (bytes and inodes as strings) shared by volumes and pools.
 struct ByteSize: nonisolated Decodable, Sendable {
     let total: String?
     let used: String?
@@ -29,7 +29,7 @@ struct ByteSize: nonisolated Decodable, Sendable {
     }
 }
 
-/// Un disque physique.
+/// A physical disk.
 struct Disk: nonisolated Decodable, Identifiable, Sendable {
     let id: String
     let name: String?
@@ -41,9 +41,9 @@ struct Disk: nonisolated Decodable, Identifiable, Sendable {
     let smartStatus: String?
     let order: Int?
     let numId: Int?
-    // Santé étendue (les champs d'usure varient trop entre versions DSM → écartés pour l'instant).
-    let unc: Int?                     // secteurs non corrigibles
-    let usedBy: String?               // pool auquel il appartient
+    // Extended health (the wear fields vary too much across DSM versions → left out for now).
+    let unc: Int?                     // uncorrectable sectors
+    let usedBy: String?               // pool it belongs to
 
     enum CodingKeys: String, CodingKey {
         case id, name, model, temp, status, diskType, order, unc
@@ -56,7 +56,7 @@ struct Disk: nonisolated Decodable, Identifiable, Sendable {
     var sortOrder: Int { order ?? numId ?? Int.max }
 }
 
-/// Un volume logique.
+/// A logical volume.
 struct Volume: nonisolated Decodable, Identifiable, Sendable {
     let id: String
     let numId: Int?
@@ -65,8 +65,8 @@ struct Volume: nonisolated Decodable, Identifiable, Sendable {
     let fsType: String?
     let size: ByteSize?
     let progress: Progress?
-    /// Point de montage, « /volume1 ». C'est sous cette forme que les règles de l'alarme des
-    /// performances désignent un volume.
+    /// Mount point, "/volume1". This is the form in which the performance alarm rules refer
+    /// to a volume.
     let mountPath: String?
 
     struct Progress: nonisolated Decodable, Sendable {
@@ -82,14 +82,14 @@ struct Volume: nonisolated Decodable, Identifiable, Sendable {
     }
 }
 
-/// Un groupe de stockage (pool) et son RAID.
+/// A storage pool and its RAID.
 struct StoragePool: nonisolated Decodable, Identifiable, Sendable {
     let id: String
     let desc: String?
     let deviceType: String?          // "shr_with_2_disk_protect", "raid_5", "basic"…
     let status: String?
     let numId: Int?
-    let disks: [String]?             // ids des disques membres
+    let disks: [String]?             // ids of the member disks
     let size: ByteSize?
 
     enum CodingKeys: String, CodingKey {
@@ -101,28 +101,28 @@ struct StoragePool: nonisolated Decodable, Identifiable, Sendable {
     var sortOrder: Int { numId ?? Int.max }
 }
 
-// MARK: - Affichage / VoiceOver
+// MARK: - Display / VoiceOver
 
-/// Traduit un statut DSM brut en libellé localisé.
+/// Turns a raw DSM status into a localized label.
 func localizedStorageStatus(_ raw: String?) -> String {
     switch raw?.lowercased() {
-    case "normal": return String(localized: "Normal")
-    case "degrade", "degraded": return String(localized: "Dégradé")
-    case "repairing", "rebuilding": return String(localized: "Reconstruction")
-    case "expanding": return String(localized: "Extension")
-    case "crashed", "critical": return String(localized: "Critique")
-    case "attention", "warning": return String(localized: "Attention")
+    case "normal": return String(localized: "storage.status.normal")
+    case "degrade", "degraded": return String(localized: "storage.status.degraded")
+    case "repairing", "rebuilding": return String(localized: "storage.status.rebuilding")
+    case "expanding": return String(localized: "storage.status.expanding")
+    case "crashed", "critical": return String(localized: "common.level.critical")
+    case "attention", "warning": return String(localized: "storage.status.attention")
     case .some(let value) where !value.isEmpty: return value
     default: return "—"
     }
 }
 
-/// Formate en « X utilisés sur Y » à partir de deux chaînes d'octets.
+/// Formats as "X used of Y" from two byte strings.
 func formattedSpace(usedBytes: String?, totalBytes: String?) -> String? {
     guard let used = usedBytes.flatMap({ Int64($0) }),
           let total = totalBytes.flatMap({ Int64($0) }),
           used >= 0, total >= 0 else { return nil }
-    return String(localized: "\(used.formatted(.byteCount(style: .file))) utilisés sur \(total.formatted(.byteCount(style: .file)))")
+    return String(localized: "storage.volume.used_of_total", defaultValue: "\(used.formatted(.byteCount(style: .file))) used of \(total.formatted(.byteCount(style: .file)))")
 }
 
 func usagePercent(usedBytes: String?, totalBytes: String?) -> Int? {
@@ -141,33 +141,33 @@ extension Disk {
     }
     var temperatureText: String? {
         guard let temp else { return nil }
-        return String(localized: "\(temp) °C")
+        return String(localized: "common.unit.celsius", defaultValue: "\(temp) °C")
     }
     var healthText: String { localizedStorageStatus(smartStatus ?? status) }
     var sizeText: String? {
         sizeTotal.flatMap { Int64($0) }?.formatted(.byteCount(style: .file))
     }
-    /// Secteurs non corrigibles (nil si aucun).
+    /// Uncorrectable sectors (nil when there are none).
     var uncText: String? {
         guard let unc, unc > 0 else { return nil }
-        return String(localized: "\(unc) secteurs non corrigibles")
+        return String(localized: "storage.disk.uncorrectable_sectors", defaultValue: "\(unc) uncorrectable sectors")
     }
 }
 
 extension Volume {
-    var displayName: String { numId.map { String(localized: "Volume \($0)") } ?? id }
+    var displayName: String { numId.map { String(localized: "common.label.volume_number", defaultValue: "Volume \($0)") } ?? id }
     var spaceText: String? { formattedSpace(usedBytes: size?.used, totalBytes: size?.total) }
     var usagePercentValue: Int? { usagePercent(usedBytes: size?.used, totalBytes: size?.total) }
     var statusText: String { localizedStorageStatus(status) }
     var filesystemText: String { fsType?.uppercased() ?? "—" }
-    /// Progression d'une opération en cours (« Reconstruction 47 % »), sinon nil.
+    /// Progress of an operation under way ("Rebuilding 47 %"), otherwise nil.
     var operationText: String? {
         guard let step = progress?.step, step != "none",
               let pct = progress?.percent.flatMap({ Int($0) }),
               (0...100).contains(pct) else { return nil }
         return "\(localizedStorageStatus(step)) \(pct) %"
     }
-    /// Pourcentage d'inodes utilisés (nil si non disponible).
+    /// Percentage of inodes used (nil when unavailable).
     var inodePercent: Int? {
         guard let total = size?.totalInode.flatMap({ Int64($0) }), total > 0,
               let free = size?.freeInode.flatMap({ Int64($0) }),
@@ -177,16 +177,16 @@ extension Volume {
 }
 
 extension StoragePool {
-    var displayName: String { numId.map { String(localized: "Groupe de stockage \($0)") } ?? id }
+    var displayName: String { numId.map { String(localized: "storage.pool.name", defaultValue: "Storage pool \($0)") } ?? id }
     var statusText: String { localizedStorageStatus(status) }
     var raidTypeText: String {
         guard let type = deviceType, !type.isEmpty else { return "—" }
         if type.hasPrefix("shr") { return "SHR" }
         if type.hasPrefix("raid_") { return "RAID " + type.dropFirst("raid_".count).uppercased() }
-        if type == "basic" { return String(localized: "Basique") }
+        if type == "basic" { return String(localized: "storage.raid.basic") }
         return type
     }
-    var diskCountText: String { String(localized: "\(disks?.count ?? 0) disques") }
+    var diskCountText: String { String(localized: "storage.pool.disk_count", defaultValue: "\(disks?.count ?? 0) disks") }
     var sizeText: String? {
         size?.total.flatMap { Int64($0) }?.formatted(.byteCount(style: .file))
     }

@@ -2,7 +2,7 @@
 //  ContainersViewModel.swift
 //  dsmaccess
 //
-//  État, cycle de vie et journaux des conteneurs.
+//  Container state, lifecycle and logs.
 //
 
 import Foundation
@@ -57,14 +57,14 @@ final class ContainersViewModel {
             }
             await load(silently: true)
             switch action {
-            case .start: return .success(String(localized: "Conteneur démarré : \(container.name)"))
-            case .stop: return .success(String(localized: "Conteneur arrêté : \(container.name)"))
-            case .restart: return .success(String(localized: "Conteneur redémarré : \(container.name)"))
+            case .start: return .success(String(localized: "containers.action.start.success", defaultValue: "Container started: \(container.name)"))
+            case .stop: return .success(String(localized: "containers.action.stop.success", defaultValue: "Container stopped: \(container.name)"))
+            case .restart: return .success(String(localized: "containers.action.restart.success", defaultValue: "Container restarted: \(container.name)"))
             }
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec pour \(container.name) : \(reason)"))
+            return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(container.name): \(reason)"))
         }
     }
 
@@ -92,6 +92,6 @@ final class ContainersViewModel {
     var summary: String {
         if let errorMessage { return errorMessage }
         let running = containers.filter(\.isRunning).count
-        return String(localized: "\(containers.count) conteneurs, \(running) en fonctionnement")
+        return String(localized: "containers.summary.count", defaultValue: "\(containers.count) containers, \(running) running")
     }
 }

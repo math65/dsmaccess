@@ -2,7 +2,7 @@
 //  DSMRequestPolicy.swift
 //  dsmaccess
 //
-//  Politique de nouvelle tentative des requêtes DSM.
+//  Retry policy for DSM requests.
 //
 
 enum DSMRequestPolicy: Equatable, Sendable {

@@ -2,7 +2,7 @@
 //  UpdateSettingsView.swift
 //  dsmaccess
 //
-//  Réglages des mises à jour de l'app (Sparkle).
+//  Settings for the app's updates (Sparkle).
 //
 
 import SwiftUI
@@ -12,30 +12,30 @@ struct UpdateSettingsView: View {
 
     var body: some View {
         Form {
-            Section("Mises à jour automatiques") {
+            Section("updates.settings.section.title") {
                 Toggle(
-                    "Rechercher automatiquement les mises à jour",
+                    "updates.settings.auto_check",
                     isOn: $updater.automaticallyChecksForUpdates
                 )
-                .help("Vérifie au lancement, puis environ une fois par jour")
+                .help("updates.settings.auto_check.description")
                 Toggle(
-                    "Télécharger et installer automatiquement",
+                    "updates.settings.auto_install",
                     isOn: $updater.automaticallyDownloadsUpdates
                 )
                 .disabled(!updater.automaticallyChecksForUpdates)
-                .help("Installe la mise à jour à la fermeture de l’app, sans rien demander")
-                Text("Avec le téléchargement automatique, la nouvelle version s’installe à la fermeture de l’app : plus de dialogue à chaque mise à jour.")
+                .help("updates.settings.auto_install.description")
+                Text("updates.settings.section.footer")
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                LabeledContent("Version installée", value: Self.installedVersion)
-                Button("Rechercher maintenant…") {
+                LabeledContent("common.label.installed_version", value: Self.installedVersion)
+                Button("updates.settings.check_now.button") {
                     updater.checkForUpdates()
                 }
                 .disabled(!updater.canCheckForUpdates)
-                .help("Rechercher une nouvelle version de DSM Access")
+                .help("common.action.check_for_app_update")
             }
         }
         .formStyle(.grouped)
@@ -46,6 +46,6 @@ struct UpdateSettingsView: View {
         let info = Bundle.main.infoDictionary
         let version = info?["CFBundleShortVersionString"] as? String ?? "—"
         let build = info?["CFBundleVersion"] as? String ?? "—"
-        return String(localized: "\(version) (build \(build))")
+        return String(localized: "updates.settings.version.value", defaultValue: "\(version) (build \(build))")
     }
 }

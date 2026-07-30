@@ -2,7 +2,7 @@
 //  DSMVirtualMachineService.swift
 //  dsmaccess
 //
-//  Inventaire et alimentation des invités Virtual Machine Manager.
+//  Inventory and power control of Virtual Machine Manager guests.
 //
 
 import Foundation

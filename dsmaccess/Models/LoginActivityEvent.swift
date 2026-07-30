@@ -2,16 +2,16 @@
 //  LoginActivityEvent.swift
 //  dsmaccess
 //
-//  Activité de connexion relevée par le Conseiller de sécurité
+//  Login activity reported by Security Advisor
 //  (SYNO.SecurityAdvisor.LoginActivity list).
 //
-//  ⚠️ Le NAS ne renvoie pas de phrase : il renvoie une **clé de son catalogue**
-//  (`str_section` + `str_id`) et un sac d'arguments (`str_args`) que son client web assemble
-//  lui-même. Les phrases sont donc rédigées ici, clé par clé, et une clé inconnue est signalée
-//  comme telle plutôt que rendue par un texte inventé.
+//  ⚠️ The NAS does not return a sentence: it returns a **key from its own catalog**
+//  (`str_section` + `str_id`) and a bag of arguments (`str_args`) that its web client
+//  assembles itself. The sentences are therefore written here, key by key, and an unknown key
+//  is reported as such rather than rendered with invented text.
 //
-//  Contrat relevé sur DSM 7.4 le 30/07/2026, sur les deux seules clés que ce NAS a produites :
-//  `loganalyzer:abnormal_login` et `loganalyzer:brute_force_attack`.
+//  Contract captured on DSM 7.4 on 2026/07/30, on the only two keys this NAS produced:
+//  `loganalyzer:abnormal_login` and `loganalyzer:brute_force_attack`.
 //
 
 import Foundation
@@ -27,7 +27,7 @@ struct LoginActivityPage: nonisolated Decodable, Sendable {
     nonisolated init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let decoded = try c.decodeIfPresent([LoginActivityEvent].self, forKey: .items) ?? []
-        // Le NAS n'attribue pas d'identifiant : le rang distingue deux alertes identiques.
+        // The NAS assigns no identifier: the rank distinguishes two identical alerts.
         events = decoded.enumerated().map { offset, event in
             var positioned = event
             positioned.position = offset
@@ -39,10 +39,10 @@ struct LoginActivityPage: nonisolated Decodable, Sendable {
 
 struct LoginActivityEvent: nonisolated Decodable, Sendable, Identifiable {
     fileprivate(set) var position = 0
-    /// Horodatage brut, au format « aaaa/MM/jj HH:mm:ss ».
+    /// Raw timestamp, in "yyyy/MM/dd HH:mm:ss" format.
     let rawTime: String?
     let severity: Severity
-    /// Compte concerné, tel que le NAS le nomme hors des arguments.
+    /// Account involved, as the NAS names it outside the arguments.
     let account: String?
     let kind: Kind
     let details: Details
@@ -56,7 +56,7 @@ struct LoginActivityEvent: nonisolated Decodable, Sendable, Identifiable {
 
     var sortableDate: Date { recordedAt ?? .distantPast }
     var sortableAccount: String { account ?? details.user ?? "" }
-    /// Trié par gravité décroissante, et non par ordre alphabétique.
+    /// Sorted by decreasing severity, not alphabetically.
     var sortableSeverity: Int { severity.rank }
 
     enum Severity: nonisolated Sendable, Equatable, Hashable {
@@ -85,9 +85,9 @@ struct LoginActivityEvent: nonisolated Decodable, Sendable, Identifiable {
         }
     }
 
-    /// Nature de l'alerte, désignée par la clé du catalogue DSM. Une clé que nous ne savons pas
-    /// rédiger est conservée telle quelle : l'écran dira qu'il ne sait pas la formuler plutôt
-    /// que d'inventer une phrase.
+    /// Nature of the alert, designated by the DSM catalog key. A key we do not know how to
+    /// word is kept as is: the screen will say it cannot phrase it rather than invent a
+    /// sentence.
     enum Kind: nonisolated Sendable, Equatable, Hashable {
         case abnormalLogin
         case bruteForceAttack
@@ -103,13 +103,13 @@ struct LoginActivityEvent: nonisolated Decodable, Sendable, Identifiable {
         }
     }
 
-    /// Arguments que le NAS joint à la clé. Tous optionnels : ils diffèrent d'une clé à l'autre,
-    /// et une clé future en apporterait d'autres.
+    /// Arguments the NAS attaches to the key. All optional: they differ from one key to the
+    /// next, and a future key would bring others.
     struct Details: nonisolated Decodable, Sendable, Equatable {
         let user: String?
-        /// Adresse d'origine, pour une connexion inhabituelle.
+        /// Source address, for an unusual sign-in.
         let address: String?
-        /// Adresses d'origine, pour une attaque par force brute.
+        /// Source addresses, for a brute-force attack.
         let addresses: [String]
         let city: String?
         let countryCode: String?
@@ -143,7 +143,7 @@ struct LoginActivityEvent: nonisolated Decodable, Sendable, Identifiable {
             userAgent = Self.meaningful(c.flexString(.userAgent))
         }
 
-        /// Toutes les adresses connues de l'événement, quelle que soit la clé qui les porte.
+        /// Every address known for the event, whichever key carries it.
         var allAddresses: [String] {
             if !addresses.isEmpty { return addresses }
             return [address].compactMap { $0 }
@@ -155,7 +155,7 @@ struct LoginActivityEvent: nonisolated Decodable, Sendable, Identifiable {
             return trimmed.isEmpty ? nil : trimmed
         }
 
-        /// Détails vides, pour un événement dont le NAS n'a joint aucun argument.
+        /// Empty details, for an event the NAS attached no argument to.
         nonisolated static let empty = Details()
 
         nonisolated private init() {
@@ -189,8 +189,8 @@ struct LoginActivityEvent: nonisolated Decodable, Sendable, Identifiable {
             section: c.flexString(.section),
             identifier: c.flexString(.identifier)
         )
-        // Les arguments changent d'une clé à l'autre : leur absence n'empêche pas de lister
-        // l'alerte, elle prive seulement la phrase de ses précisions.
+        // The arguments change from one key to the next: their absence does not prevent
+        // listing the alert, it only deprives the sentence of its details.
         details = (try? c.decode(Details.self, forKey: .arguments)) ?? Details.empty
     }
 

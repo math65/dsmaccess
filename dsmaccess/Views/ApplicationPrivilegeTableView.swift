@@ -2,7 +2,7 @@
 //  ApplicationPrivilegeTableView.swift
 //  dsmaccess
 //
-//  Autorisations d'accès aux applications DSM, en NSTableView comme la grille des dossiers.
+//  Access privileges for DSM applications, in an NSTableView like the folder grid.
 //
 
 import AppKit
@@ -13,7 +13,7 @@ struct ApplicationPrivilegeTableView: NSViewRepresentable {
     let isEnabled: Bool
     let onChange: (DSMApplicationPrivilege, DSMApplicationDecision?) -> Void
 
-    /// Colonne du choix « pas de règle », que DSM obtient en supprimant la règle existante.
+    /// Column for the "no rule" choice, which DSM achieves by deleting the existing rule.
     private static let defaultColumn = "default"
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
@@ -25,15 +25,15 @@ struct ApplicationPrivilegeTableView: NSViewRepresentable {
         table.allowsEmptySelection = true
         table.usesAlternatingRowBackgroundColors = true
         table.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
-        table.setAccessibilityLabel(String(localized: "Autorisations par application"))
+        table.setAccessibilityLabel(String(localized: "permissions.application.table.label"))
         table.dataSource = context.coordinator
         table.delegate = context.coordinator
 
-        addColumn(to: table, identifier: "name", title: String(localized: "Application"), width: 220)
+        addColumn(to: table, identifier: "name", title: String(localized: "permissions.application.column.name"), width: 220)
         addColumn(
             to: table,
             identifier: Self.defaultColumn,
-            title: String(localized: "Par défaut"),
+            title: String(localized: "permissions.application.privilege.default"),
             width: 150
         )
         for decision in DSMApplicationDecision.allCases {
@@ -112,13 +112,13 @@ struct ApplicationPrivilegeTableView: NSViewRepresentable {
             let title = decision?.label ?? privilege.fallbackLabel
             cell.configure(
                 isOn: privilege.decision == decision,
-                // Une règle limitée à des adresses précises se perdrait si l'app la
-                // réécrivait en « toutes les adresses » : la ligne reste en lecture.
+                // A rule restricted to specific addresses would be lost if the app rewrote
+                // it as "all addresses": the row stays read-only.
                 isEnabled: parent.isEnabled && !privilege.restrictsAddresses,
                 title: decision == nil ? privilege.fallbackLabel : "",
-                label: String(localized: "\(privilege.name), \(title)"),
+                label: String(localized: "common.format.pair", defaultValue: "\(privilege.name), \(title)"),
                 help: privilege.restrictsAddresses
-                    ? String(localized: "Cette règle vise des adresses précises et se modifie dans DSM.")
+                    ? String(localized: "permissions.application.ip_rule.hint")
                     : nil,
                 target: self,
                 action: #selector(choiceChanged(_:))

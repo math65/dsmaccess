@@ -2,9 +2,9 @@
 //  ResourceMonitorHistoryView.swift
 //  dsmaccess
 //
-//  Onglet Historique du moniteur de ressources, en tableau triable comme les autres onglets
-//  du module. Un tableau et non une courbe : une série de points tracés ne dit rien à un
-//  lecteur d'écran, là où des lignes datées se parcourent et se trient.
+//  History tab of the resource monitor, as a sortable table like the module's other tabs.
+//  A table and not a curve: a series of plotted points says nothing to a screen reader,
+//  whereas dated rows can be browsed and sorted.
 //
 
 import SwiftUI
@@ -27,7 +27,7 @@ struct ResourceMonitorHistoryView: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.entries.isEmpty {
-            ModuleLoadingView("Chargement de l’historique…")
+            ModuleLoadingView("monitor.history.loading")
                 .accessibilityFocused($focusContent)
         } else if let error = vm.errorMessage, vm.entries.isEmpty {
             ModuleErrorView(message: error) {
@@ -35,8 +35,8 @@ struct ResourceMonitorHistoryView: View {
             }
             .accessibilityFocused($focusContent)
         } else {
-            // L'interrupteur d'enregistrement reste accessible dans tous les états, y compris
-            // quand le journal est vide : c'est précisément là qu'il sert.
+            // The recording switch stays reachable in every state, including when the log is
+            // empty: that is exactly where it is useful.
             VStack(alignment: .leading, spacing: 0) {
                 if let error = vm.errorMessage {
                     Text(error)
@@ -45,7 +45,7 @@ struct ResourceMonitorHistoryView: View {
                         .padding(.top, 8)
                 }
 
-                Text("Historique des alertes")
+                Text("monitor.history.title")
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, 12)
@@ -66,22 +66,22 @@ struct ResourceMonitorHistoryView: View {
     private var table: some View {
         VStack(alignment: .leading, spacing: 0) {
             Table(vm.entries.sorted(using: order), sortOrder: $order) {
-                TableColumn("Date", value: \.sortableDate) { entry in
+                TableColumn("common.column.date", value: \.sortableDate) { entry in
                     Text(vm.dateText(for: entry))
                 }
-                // Trié par gravité et non par ordre alphabétique : « Critique » doit se
-                // ranger après « Avertissement », pas avant.
-                TableColumn("Niveau", value: \.sortableLevel) { entry in
+                // Sorted by severity and not alphabetically: "Critical" must come after
+                // "Warning", not before.
+                TableColumn("common.column.level", value: \.sortableLevel) { entry in
                     Text(vm.levelText(for: entry))
                         .foregroundStyle(color(for: entry.level))
                 }
-                TableColumn("Alerte", value: \.sortableEvent) { entry in
+                TableColumn("common.level.alert", value: \.sortableEvent) { entry in
                     Text(vm.eventText(for: entry))
                 }
             }
 
             if vm.isTruncated {
-                Text("\(vm.entries.count) alertes affichées sur \(vm.totalCount) enregistrées.")
+                Text(String(localized: "monitor.history.count.filtered.footer", defaultValue: "\(vm.entries.count) of \(vm.totalCount) recorded alerts shown."))
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
                     .padding(.horizontal, 12)
@@ -90,30 +90,30 @@ struct ResourceMonitorHistoryView: View {
         }
     }
 
-    /// Trois vides très différents, qu'un message unique confondrait en laissant croire à un
-    /// NAS irréprochable : l'enregistrement est coupé, aucune règle ne peut rien détecter, ou
-    /// rien n'a franchi de seuil.
+    /// Three very different kinds of emptiness, which a single message would conflate into
+    /// the impression of a faultless NAS: recording is off, no rule can detect anything, or
+    /// nothing has crossed a threshold.
     @ViewBuilder
     private var emptyState: some View {
         if vm.historyEnabled == false {
             EmptyModuleView(
-                title: "Aucune alerte enregistrée",
+                title: "monitor.history.empty.title",
                 systemImage: "clock.badge.xmark",
-                description: "L’enregistrement de l’historique est désactivé sur le NAS : aucune alerte n’y est consignée. Activez-le ci-dessous pour que les prochaines le soient."
+                description: "monitor.history.empty.recording_off.description"
             )
             .accessibilityFocused($focusContent)
         } else if vm.alarmRuleCount == 0 {
             EmptyModuleView(
-                title: "Aucune alerte enregistrée",
+                title: "monitor.history.empty.title",
                 systemImage: "bell.slash",
-                description: "L’enregistrement est actif, mais aucune règle n’est définie dans l’alarme des performances : le NAS n’a aucun seuil à surveiller et ne consignera rien. Ce journal restera vide tant qu’aucune règle n’existe."
+                description: "monitor.history.empty.no_rule.description"
             )
             .accessibilityFocused($focusContent)
         } else {
             EmptyModuleView(
-                title: "Aucune alerte enregistrée",
+                title: "monitor.history.empty.title",
                 systemImage: "clock",
-                description: "Le NAS n’a consigné aucune alerte depuis l’activation de l’enregistrement. Une alerte y apparaît quand une ressource franchit un seuil défini dans l’alarme des performances."
+                description: "monitor.history.empty.description"
             )
             .accessibilityFocused($focusContent)
         }
@@ -121,7 +121,7 @@ struct ResourceMonitorHistoryView: View {
 
     private var recordingSetting: some View {
         Toggle(
-            "Enregistrer l’historique",
+            "monitor.history.recording.label",
             isOn: Binding(
                 get: { vm.historyEnabled ?? false },
                 set: { enabled in
@@ -133,13 +133,13 @@ struct ResourceMonitorHistoryView: View {
             )
         )
         .disabled(vm.isUpdatingSetting || vm.historyEnabled == nil)
-        .accessibilityHint("Le NAS consigne les alertes de ressources tant que ce réglage est actif")
-        .help("Consigner les alertes de ressources dans l’historique du NAS")
+        .accessibilityHint("monitor.history.recording.footer")
+        .help("monitor.history.recording.hint")
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
     }
 
-    /// La couleur double le mot, elle ne le remplace pas : le niveau est toujours écrit.
+    /// The colour backs up the word, it does not replace it: the level is always written out.
     private func color(for level: ResourceMonitorLogEntry.Level) -> Color {
         switch level {
         case .critical: .readableRed

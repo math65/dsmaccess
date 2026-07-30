@@ -28,13 +28,13 @@ struct USBCopyTriggerEditorSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Déclenchement de \(task.name)")
+            Text(String(localized: "usb_copy.trigger_editor.title", defaultValue: "Trigger for \(task.name)"))
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($headingFocused)
                 .padding()
             Form {
-                Section("Déclenchement") {
+                Section("common.label.trigger") {
                     USBCopyScheduleFields(
                         trigger: $trigger,
                         showsRunWhenPlugIn: task.isDefaultTask != true,
@@ -52,12 +52,12 @@ struct USBCopyTriggerEditorSheet: View {
             .formStyle(.grouped)
             Divider()
             HStack {
-                if isSaving { ProgressView("Enregistrement…").controlSize(.small) }
+                if isSaving { ProgressView("common.status.saving").controlSize(.small) }
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .disabled(isSaving)
-                Button("Enregistrer") { Task { await save() } }
+                Button("common.button.save") { Task { await save() } }
                     .keyboardShortcut(.defaultAction)
                     .disabled(isSaving)
             }
@@ -67,7 +67,7 @@ struct USBCopyTriggerEditorSheet: View {
         .onAppear {
             headingFocused = true
             VoiceOver.announce(
-                String(localized: "Modifier le déclenchement de \(task.name)"),
+                String(localized: "usb_copy.trigger_editor.title.edit", defaultValue: "Edit trigger for \(task.name)"),
                 category: .navigation
             )
         }
@@ -77,7 +77,7 @@ struct USBCopyTriggerEditorSheet: View {
         guard validate() else { return }
         isSaving = true
         errorMessage = nil
-        VoiceOver.announce(String(localized: "Enregistrement…"), category: .progress)
+        VoiceOver.announce(String(localized: "common.status.saving"), category: .progress)
         let outcome = await onSave(trigger)
         isSaving = false
         VoiceOver.announce(outcome, priority: .high)
@@ -94,10 +94,10 @@ struct USBCopyTriggerEditorSheet: View {
 
     private func validate() -> Bool {
         if trigger.scheduleEnabled && !trigger.scheduleContent.hasSelectedWeekday {
-            return failValidation(String(localized: "Choisissez au moins un jour d’exécution."))
+            return failValidation(String(localized: "common.validation.no_run_day_selected"))
         }
         if trigger.scheduleEnabled && !trigger.scheduleContent.hasValidReferenceDate {
-            return failValidation(String(localized: "Saisissez une date de référence valide au format AAAA/MM/JJ."))
+            return failValidation(String(localized: "common.validation.invalid_reference_date"))
         }
         return true
     }

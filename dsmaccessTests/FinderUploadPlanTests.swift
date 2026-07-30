@@ -3,8 +3,8 @@ import Testing
 @testable import dsmaccess
 
 struct FinderUploadPlanTests {
-    /// Crée une arborescence temporaire réelle : l'énumération du plan repose
-    /// sur FileManager, pas sur des doublures.
+    /// Creates a real temporary tree: the plan's enumeration relies on
+    /// FileManager, not on test doubles.
     private func makeTemporaryTree(
         files: [String],
         folders: [String] = []

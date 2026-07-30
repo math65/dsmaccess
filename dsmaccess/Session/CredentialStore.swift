@@ -2,10 +2,10 @@
 //  CredentialStore.swift
 //  dsmaccess
 //
-//  Mémorisation du mot de passe pour la reconnexion automatique (« Rester connecté »).
-//  Le mot de passe dort dans le Trousseau (chiffré) ; un indicateur non secret
-//  (`Preferences.rememberPassword`) dit si l'option est active. Les mots de passe et
-//  jetons d'appareil sont séparés par compte et identité stable du NAS.
+//  Password storage for automatic reconnection ("Stay signed in").
+//  The password rests in the Keychain (encrypted); a non-secret flag
+//  (`Preferences.rememberPassword`) says whether the option is on. Passwords and device
+//  tokens are kept separate per account and per stable NAS identity.
 //
 
 import Foundation
@@ -15,7 +15,7 @@ enum CredentialStore {
         "\(account)@\(endpoint.host):\(endpoint.port)"
     }
 
-    /// Mémorise le mot de passe et active la reconnexion automatique.
+    /// Stores the password and turns automatic reconnection on.
     @discardableResult
     static func remember(
         password: String,
@@ -28,19 +28,19 @@ enum CredentialStore {
         return saved
     }
 
-    /// Lit le mot de passe mémorisé pour ce NAS (nil si aucun).
+    /// Reads the password stored for this NAS (nil if there is none).
     static func password(account: String, target: NASConnectionTarget) -> String? {
         load(service: KeychainStore.passwordService, account: account, target: target)
     }
 
-    /// Oublie le mot de passe et désactive la reconnexion automatique.
+    /// Forgets the password and turns automatic reconnection off.
     static func forget(account: String, target: NASConnectionTarget) {
         delete(service: KeychainStore.passwordService, account: account, target: target)
         Preferences.rememberPassword = false
     }
 
-    /// Mémorise la session ouverte pour la reprendre au prochain lancement. Le jeton CSRF
-    /// accompagne le SID : sans lui, une session reprise se ferait refuser en 119.
+    /// Stores the open session so it can be resumed on the next launch. The CSRF token goes
+    /// along with the SID: without it, a resumed session would be refused with 119.
     @discardableResult
     static func rememberSession(
         _ session: StoredDSMSession,
@@ -53,8 +53,8 @@ enum CredentialStore {
                     account: account, target: target)
     }
 
-    /// Session mémorisée pour ce NAS, si elle existe. Sa validité ne se sait qu'en
-    /// l'essayant : DSM n'annonce aucune date d'expiration.
+    /// Session stored for this NAS, if there is one. Its validity can only be known by trying
+    /// it: DSM announces no expiry date.
     static func session(account: String, target: NASConnectionTarget) -> StoredDSMSession? {
         guard let stored = load(service: KeychainStore.sessionService,
                                 account: account, target: target),
@@ -110,8 +110,8 @@ enum CredentialStore {
             return value
         }
 
-        // Les anciennes clés n'indiquaient pas le schéma. Elles ne sont migrées que
-        // vers HTTPS afin qu'un secret existant ne puisse pas être repris en HTTP.
+        // The old keys did not record the scheme. They are only migrated to HTTPS so that an
+        // existing secret cannot be picked up over HTTP.
         guard let endpoint = target.directEndpoint,
               endpoint.useHTTPS,
               let value = KeychainStore.load(

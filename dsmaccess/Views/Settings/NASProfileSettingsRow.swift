@@ -29,36 +29,36 @@ struct NASProfileSettingsRow: View {
     var body: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                TextField("Nom du NAS", text: $name)
+                TextField("common.field.nas_name", text: $name)
                     .onSubmit(rename)
-                    .accessibilityLabel("Nom du NAS")
-                    .help("Modifier le nom affiché pour ce NAS")
+                    .accessibilityLabel("common.field.nas_name")
+                    .help("nas.profile.rename.hint")
                 connectionDescription
                     .font(.callout)
                     .foregroundStyle(.secondary)
             }
 
             if isConnected {
-                Text("Connecté")
+                Text("common.status.connected")
                     .foregroundStyle(.secondary)
-                    .accessibilityLabel("NAS connecté")
+                    .accessibilityLabel("nas.profile.connected")
             }
 
-            Button("Renommer", action: rename)
+            Button("common.button.rename", action: rename)
                 .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-                .help("Enregistrer le nouveau nom du NAS")
+                .help("common.button.save_nas_name")
 
-            Button("Supprimer", systemImage: "trash", role: .destructive, action: onDelete)
+            Button("common.button.delete", systemImage: "trash", role: .destructive, action: onDelete)
                 .labelStyle(.iconOnly)
                 .disabled(isConnected)
-                .help(isConnected ? "Déconnectez-vous avant de supprimer ce NAS" : "Supprimer ce NAS")
+                .help(isConnected ? "nas.profile.delete.disabled.hint" : "nas.profile.delete.button")
         }
     }
 
     private func rename() {
         onRename(name)
         VoiceOver.announce(
-            String(localized: "NAS renommé \(name)"),
+            String(localized: "common.status.nas_renamed", defaultValue: "NAS renamed \(name)"),
             category: .result
         )
     }
@@ -67,9 +67,9 @@ struct NASProfileSettingsRow: View {
     private var connectionDescription: some View {
         switch profile.connection {
         case .direct(let endpoint):
-            Text("\(profile.account) — \(endpoint.host):\(endpoint.port)")
+            Text(String(localized: "nas.profile.address.host_port", defaultValue: "\(profile.account) — \(endpoint.host):\(endpoint.port)"))
         case .quickConnect(let id):
-            Text("\(profile.account) — QuickConnect \(id)")
+            Text(String(localized: "nas.profile.address.quickconnect", defaultValue: "\(profile.account) — QuickConnect \(id)"))
         }
     }
 }

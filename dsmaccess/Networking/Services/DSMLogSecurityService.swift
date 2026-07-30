@@ -2,7 +2,7 @@
 //  DSMLogSecurityService.swift
 //  dsmaccess
 //
-//  Journal système du NAS et liste de blocage du blocage automatique.
+//  NAS system log and the auto-block block list.
 //
 
 import Foundation
@@ -13,8 +13,8 @@ final class DSMLogSecurityService {
     private static let blockListAPI = DSMAPI("SYNO.Core.Security.AutoBlock.Rules")
     private static let transferLoggingAPI = DSMAPI("SYNO.Core.SyslogClient.FileTransfer")
     private static let loginActivityAPI = DSMAPI("SYNO.SecurityAdvisor.LoginActivity")
-    /// ⚠️ Cette API porte les **réglages** du blocage automatique et n'a pas de méthode `list` :
-    /// la liste des adresses vit dans `AutoBlock.Rules`.
+    /// ⚠️ This API carries the auto-block **settings** and has no `list` method: the address
+    /// list lives in `AutoBlock.Rules`.
     private static let autoBlockAPI = DSMAPI("SYNO.Core.Security.AutoBlock")
 
     private let transport: DSMTransport
@@ -23,14 +23,14 @@ final class DSMLogSecurityService {
         self.transport = transport
     }
 
-    /// Page du journal système. `keyword` est filtré par le NAS lui-même ; le niveau, lui, ne
-    /// l'est pas : vérifié sur DSM 7.4, le paramètre `level` est accepté puis ignoré, et le
-    /// filtrage par gravité se fait donc côté app.
+    /// A page of the system log. `keyword` is filtered by the NAS itself; the level is not:
+    /// verified on DSM 7.4, the `level` parameter is accepted then ignored, so severity
+    /// filtering happens app-side.
     ///
-    /// ⚠️ `logtype` est indispensable : sans lui le NAS ne renvoie que le journal système, alors
-    /// qu'il en tient un par protocole en plus de celui des connexions. Un type que le NAS ne
-    /// connaît pas renvoie zéro entrée **sans erreur** — d'où l'intérêt de ne proposer que les
-    /// journaux réellement actifs.
+    /// ⚠️ `logtype` is essential: without it the NAS only returns the system log, even though
+    /// it keeps one log per protocol on top of the connection log. A type the NAS does not
+    /// know returns zero entries **without an error** — hence the point of only offering the
+    /// logs that are actually active.
     func systemLogs(
         kind: SystemLogKind,
         limit: Int,
@@ -55,16 +55,16 @@ final class DSMLogSecurityService {
         )
     }
 
-    /// Écrit le journal demandé dans un fichier produit par le NAS. L'export porte sur le
-    /// journal entier, non sur les tranches chargées : 1,9 Mo pour le journal système du NAS de
-    /// développement, sans avoir eu à le parcourir.
+    /// Writes the requested log to a file produced by the NAS. The export covers the whole
+    /// log, not the pages already loaded: 1.9 MB for the development NAS's system log, without
+    /// having had to page through it.
     ///
-    /// En cas de refus, DSM renvoie du JSON à la place du fichier : c'est le type de contenu
-    /// qui le trahit, comme pour les téléchargements de File Station.
+    /// On refusal, DSM returns JSON instead of the file: the content type is what gives it
+    /// away, as with File Station downloads.
     ///
-    /// ⚠️ Le format se demande dans **`format`**, et non dans `type` comme le fait
-    /// `SYNO.ResourceMonitor.Log`. Vérifié sur DSM 7.4 : avec `type`, le paramètre est ignoré
-    /// sans erreur et le NAS renvoie du HTML — un fichier nommé `.csv` contenant du HTML.
+    /// ⚠️ The format is requested in **`format`**, not in `type` the way
+    /// `SYNO.ResourceMonitor.Log` does. Verified on DSM 7.4: with `type`, the parameter is
+    /// ignored without an error and the NAS returns HTML — a file named `.csv` containing HTML.
     func exportSystemLog(
         kind: SystemLogKind,
         format: SystemLogExportFormat,
@@ -98,7 +98,7 @@ final class DSMLogSecurityService {
         }
     }
 
-    /// Protocoles dont les transferts sont journalisés. Détermine les journaux à proposer.
+    /// Protocols whose transfers are logged. Determines which logs to offer.
     func fileTransferLogging() async throws -> FileTransferLogging {
         try await transport.read(
             api: Self.transferLoggingAPI,
@@ -107,12 +107,12 @@ final class DSMLogSecurityService {
         )
     }
 
-    /// Adresses que le blocage automatique refuse.
+    /// Addresses that auto-block refuses.
     ///
-    /// ⚠️ `SYNO.Core.Security.AutoBlock` n'a **pas** de méthode `list` : elle ne sert qu'aux
-    /// réglages du blocage. L'appeler valait un code 103, signalé par un utilisateur avant
-    /// d'être reproduit sur le NAS de développement. La liste vit dans `AutoBlock.Rules`, qui
-    /// exige `action` et `type` — sans eux, le NAS répond 5100.
+    /// ⚠️ `SYNO.Core.Security.AutoBlock` has **no** `list` method: it only serves the blocking
+    /// settings. Calling it earned a 103, reported by a user before being reproduced on the
+    /// development NAS. The list lives in `AutoBlock.Rules`, which requires `action` and
+    /// `type` — without them, the NAS answers 5100.
     func blockedAddresses(limit: Int) async throws -> BlockedAddressPage {
         try await transport.read(
             api: Self.blockListAPI,
@@ -127,14 +127,14 @@ final class DSMLogSecurityService {
         )
     }
 
-    /// Choisit les protocoles dont les transferts sont journalisés. Activer un protocole fait
-    /// apparaître son journal ; le couper ne supprime pas les entrées déjà consignées.
+    /// Chooses which protocols have their transfers logged. Enabling a protocol makes its log
+    /// appear; turning it off does not remove the entries already recorded.
     ///
-    /// Les six champs partent ensemble : vérifié sur DSM 7.4, `set` ignore les champs absents
-    /// — un appel sans aucun paramètre réussit sans rien changer — mais tout envoyer évite de
-    /// dépendre de ce comportement.
+    /// The six fields go out together: verified on DSM 7.4, `set` ignores missing fields — a
+    /// call with no parameter at all succeeds without changing anything — but sending
+    /// everything avoids depending on that behavior.
     ///
-    /// Mutation : chemin sans nouvelle tentative.
+    /// Mutation: single-attempt path.
     func setFileTransferLogging(_ logging: FileTransferLogging) async throws {
         let parameters = logging.parameters.mapValues { DSMParameter.boolean($0) }
         try await transport.perform(
@@ -144,7 +144,7 @@ final class DSMLogSecurityService {
         )
     }
 
-    /// Réglages du blocage automatique.
+    /// Auto-block settings.
     func autoBlockSettings() async throws -> AutoBlockSettings {
         try await transport.read(
             api: Self.autoBlockAPI,
@@ -153,7 +153,7 @@ final class DSMLogSecurityService {
         )
     }
 
-    /// Mutation : chemin sans nouvelle tentative.
+    /// Mutation: single-attempt path.
     func setAutoBlockSettings(_ settings: AutoBlockSettings) async throws {
         try await transport.perform(
             api: Self.autoBlockAPI,
@@ -167,8 +167,8 @@ final class DSMLogSecurityService {
         )
     }
 
-    /// Activité de connexion relevée par le Conseiller de sécurité : connexions inhabituelles
-    /// et tentatives répétées. Lecture seule.
+    /// Sign-in activity recorded by Security Advisor: unusual sign-ins and repeated attempts.
+    /// Read-only.
     func loginActivity(limit: Int) async throws -> LoginActivityPage {
         try await transport.read(
             api: Self.loginActivityAPI,
@@ -178,7 +178,7 @@ final class DSMLogSecurityService {
         )
     }
 
-    /// Retire des adresses de la liste de blocage. Mutation : chemin sans nouvelle tentative.
+    /// Removes addresses from the block list. Mutation: single-attempt path.
     func unblockAddresses(_ addresses: [String]) async throws {
         try await transport.perform(
             api: Self.blockListAPI,
@@ -190,6 +190,6 @@ final class DSMLogSecurityService {
         )
     }
 
-    /// La même API sert la liste d'autorisation ; seule celle de blocage est exposée par l'app.
+    /// The same API serves the allow list; only the block list is exposed by the app.
     private static let denyList = "deny"
 }

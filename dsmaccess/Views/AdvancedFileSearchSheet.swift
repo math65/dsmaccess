@@ -2,7 +2,7 @@
 //  AdvancedFileSearchSheet.swift
 //  dsmaccess
 //
-//  Recherche File Station avec les critères publiés par Synology.
+//  File Station search using the criteria published by Synology.
 //
 
 import Foundation
@@ -99,17 +99,17 @@ enum AdvancedFileSearchValidationError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidMinimumSize:
-            String(localized: "Saisissez une taille minimale valide en octets.")
+            String(localized: "files.search.min_size.error")
         case .invalidMaximumSize:
-            String(localized: "Saisissez une taille maximale valide en octets.")
+            String(localized: "files.search.max_size.error")
         case .invalidSizeRange:
-            String(localized: "La taille minimale doit être inférieure ou égale à la taille maximale.")
+            String(localized: "files.search.size_range.error")
         case .invalidModifiedDateRange:
-            String(localized: "La date de modification de début doit précéder la date de fin.")
+            String(localized: "files.search.modified_range.error")
         case .invalidCreatedDateRange:
-            String(localized: "La date de création de début doit précéder la date de fin.")
+            String(localized: "files.search.created_range.error")
         case .invalidAccessedDateRange:
-            String(localized: "La date de dernier accès de début doit précéder la date de fin.")
+            String(localized: "files.search.accessed_range.error")
         }
     }
 }
@@ -126,7 +126,7 @@ struct AdvancedFileSearchSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Recherche avancée")
+            Text("files.search.advanced.title")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -144,62 +144,62 @@ struct AdvancedFileSearchSheet: View {
                     }
                 }
 
-                Section("Emplacement") {
-                    LabeledContent("Dossier", value: folderPath)
-                    Toggle("Inclure les sous-dossiers", isOn: $draft.recursive)
+                Section("common.column.location") {
+                    LabeledContent("common.value.folder", value: folderPath)
+                    Toggle("files.search.include_subfolders", isOn: $draft.recursive)
                 }
 
-                Section("Nom et type") {
-                    TextField("Nom ou motif", text: $draft.pattern, prompt: Text("Facultatif"))
-                        .help("Utilisez les caractères génériques pris en charge par File Station")
+                Section("files.search.name_and_type.section") {
+                    TextField("files.search.name_pattern.label", text: $draft.pattern, prompt: Text("files.search.field.optional"))
+                        .help("files.search.name_pattern.hint")
                     TextField(
-                        "Extensions",
+                        "files.search.extensions.label",
                         text: $draft.extensions,
                         prompt: Text("pdf, docx, jpg")
                     )
-                    .help("Séparez plusieurs extensions par une virgule")
-                    Picker("Type d’élément", selection: $draft.itemType) {
-                        Text("Tous").tag(FileStationItemType.all)
-                        Text("Fichiers").tag(FileStationItemType.file)
-                        Text("Dossiers").tag(FileStationItemType.directory)
+                    .help("files.search.extensions.hint")
+                    Picker("files.search.item_type.label", selection: $draft.itemType) {
+                        Text("common.filter.all").tag(FileStationItemType.all)
+                        Text("common.module.files").tag(FileStationItemType.file)
+                        Text("common.label.folders").tag(FileStationItemType.directory)
                     }
                 }
 
-                Section("Taille") {
+                Section("common.column.size") {
                     TextField(
-                        "Taille minimale en octets",
+                        "files.search.min_size.label",
                         text: $draft.minimumSize,
-                        prompt: Text("Aucune")
+                        prompt: Text("files.search.extensions.none")
                     )
                     TextField(
-                        "Taille maximale en octets",
+                        "files.search.max_size.label",
                         text: $draft.maximumSize,
-                        prompt: Text("Aucune")
+                        prompt: Text("files.search.extensions.none")
                     )
                 }
 
                 dateSection(
-                    title: "Date de modification",
+                    title: "common.column.date_modified",
                     isEnabled: $draft.filtersModifiedDate,
                     after: $draft.modifiedAfter,
                     before: $draft.modifiedBefore
                 )
                 dateSection(
-                    title: "Date de création",
+                    title: "common.column.creation_date",
                     isEnabled: $draft.filtersCreatedDate,
                     after: $draft.createdAfter,
                     before: $draft.createdBefore
                 )
                 dateSection(
-                    title: "Date de dernier accès",
+                    title: "files.search.last_accessed.label",
                     isEnabled: $draft.filtersAccessedDate,
                     after: $draft.accessedAfter,
                     before: $draft.accessedBefore
                 )
 
-                Section("Propriétaire") {
-                    TextField("Utilisateur", text: $draft.owner, prompt: Text("Tous"))
-                    TextField("Groupe", text: $draft.group, prompt: Text("Tous"))
+                Section("common.column.owner") {
+                    TextField("common.column.user", text: $draft.owner, prompt: Text("common.filter.all"))
+                    TextField("common.column.group", text: $draft.group, prompt: Text("common.filter.all"))
                 }
             }
             .formStyle(.grouped)
@@ -207,10 +207,10 @@ struct AdvancedFileSearchSheet: View {
             Divider()
 
             HStack {
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Spacer()
-                Button("Rechercher", action: submit)
+                Button("files.search.button.search", action: submit)
                     .keyboardShortcut(.defaultAction)
             }
             .padding()
@@ -229,10 +229,10 @@ struct AdvancedFileSearchSheet: View {
         before: Binding<Date>
     ) -> some View {
         Section(title) {
-            Toggle("Limiter cette date", isOn: isEnabled)
+            Toggle("files.search.date_range.enable", isOn: isEnabled)
             if isEnabled.wrappedValue {
-                DatePicker("Du", selection: after)
-                DatePicker("Au", selection: before)
+                DatePicker("files.search.date_range.from", selection: after)
+                DatePicker("files.search.date_range.to", selection: before)
             }
         }
     }

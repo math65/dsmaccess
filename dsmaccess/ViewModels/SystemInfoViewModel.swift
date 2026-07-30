@@ -2,7 +2,7 @@
 //  SystemInfoViewModel.swift
 //  dsmaccess
 //
-//  Charge et expose les infos système du NAS ; gère la déconnexion.
+//  Loads and exposes the NAS system information; handles signing out.
 //
 
 import Foundation
@@ -38,11 +38,11 @@ final class SystemInfoViewModel {
         }
     }
 
-    // MARK: - Affichage formaté
+    // MARK: - Formatted display
 
     var ramText: String {
         guard let ram = info?.ram else { return "—" }
-        return String(localized: "\(ram) Mo")
+        return String(localized: "system_info.memory.megabytes", defaultValue: "\(ram) MB")
     }
 
     var uptimeText: String {
@@ -51,24 +51,24 @@ final class SystemInfoViewModel {
         let hours = (uptime % 86_400) / 3_600
         let minutes = (uptime % 3_600) / 60
         if days > 0 {
-            return String(localized: "\(days) j \(hours) h \(minutes) min")
+            return String(localized: "system_info.uptime.days_hours_minutes", defaultValue: "\(days) d \(hours) h \(minutes) min")
         } else if hours > 0 {
-            return String(localized: "\(hours) h \(minutes) min")
+            return String(localized: "system_info.uptime.hours_minutes", defaultValue: "\(hours) h \(minutes) min")
         } else {
-            return String(localized: "\(minutes) min")
+            return String(localized: "system_info.uptime.minutes", defaultValue: "\(minutes) min")
         }
     }
 
     var temperatureText: String {
         guard let temp = info?.temperature else { return "—" }
-        let base = String(localized: "\(temp) °C")
-        let warn = info?.temperatureWarn == true ? String(localized: " (alerte)") : ""
+        let base = String(localized: "common.unit.celsius", defaultValue: "\(temp) °C")
+        let warn = info?.temperatureWarn == true ? String(localized: "system_info.status.alert_suffix") : ""
         return base + warn
     }
 
     var summary: String {
         if let errorMessage { return errorMessage }
-        guard let info else { return String(localized: "Informations système indisponibles") }
-        return String(localized: "\(info.model), DSM \(info.versionString)")
+        guard let info else { return String(localized: "system_info.unavailable.error") }
+        return String(localized: "system_info.model_and_dsm.summary", defaultValue: "\(info.model), DSM \(info.versionString)")
     }
 }

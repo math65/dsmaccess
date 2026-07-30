@@ -117,44 +117,44 @@ struct USBCopyTaskEditorSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text(task == nil ? "Créer une tâche USB Copy" : "Modifier la tâche USB Copy")
+            Text(task == nil ? "common.action.create_usb_copy_task" : "usb_copy.editor.title.edit")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($contentFocused)
                 .padding()
 
             Form {
-                Section("Tâche") {
-                    Picker("Direction", selection: $type) {
+                Section("usb_copy.editor.section.task") {
+                    Picker("usb_copy.editor.direction.label", selection: $type) {
                         ForEach(USBCopyTaskType.allCases) { taskType in
                             Text(taskType.localizedName).tag(taskType)
                         }
                     }
                     .disabled(task != nil)
-                    .help("Choisir le sens de la copie")
+                    .help("usb_copy.editor.direction.hint")
 
                     if task?.isDefaultTask == true {
-                        LabeledContent("Nom de la tâche") {
+                        LabeledContent("usb_copy.editor.task_name.label") {
                             Text(verbatim: name)
                                 .textSelection(.enabled)
                         }
                     } else {
-                        TextField("Nom de la tâche", text: $name)
+                        TextField("usb_copy.editor.task_name.label", text: $name)
                             .focused($nameFocused)
-                            .help("Nom de la tâche USB Copy, jusqu’à 64 caractères")
+                            .help("usb_copy.editor.task_name.hint")
                     }
 
                     USBCopyPathField(
-                        label: "Dossier source",
-                        pickerLabel: "Choisir le dossier source",
+                        label: "usb_copy.editor.source.label",
+                        pickerLabel: "usb_copy.editor.source.choose",
                         path: $sourcePath,
                         shares: sourceShares,
                         loadFolders: loadFolders,
                         isDisabled: task != nil
                     )
                     USBCopyPathField(
-                        label: "Dossier de destination",
-                        pickerLabel: "Choisir le dossier de destination",
+                        label: "usb_copy.editor.destination.label",
+                        pickerLabel: "usb_copy.editor.destination.choose",
                         path: $destinationPath,
                         shares: editableDestinationShares,
                         loadFolders: loadFolders,
@@ -163,7 +163,7 @@ struct USBCopyTaskEditorSheet: View {
 
                     if destinationPathIsDisabled {
                         Label(
-                            "Le périphérique associé à cette tâche n’est pas connecté. Le dossier de destination ne peut pas être modifié.",
+                            "usb_copy.editor.destination.disconnected.description",
                             systemImage: "externaldrive.badge.xmark"
                         )
                         .foregroundStyle(.readableSecondary)
@@ -171,7 +171,7 @@ struct USBCopyTaskEditorSheet: View {
 
                     if enablesDefaultTaskOnSave {
                         Label(
-                            "Choisissez un dossier sur le périphérique USB. La tâche sera enregistrée puis activée.",
+                            "usb_copy.editor.destination.choose.description",
                             systemImage: "externaldrive.badge.plus"
                         )
                         .foregroundStyle(.readableSecondary)
@@ -180,51 +180,51 @@ struct USBCopyTaskEditorSheet: View {
                     if externalShares.isEmpty {
                         Label(
                             task == nil
-                                ? "Aucun dossier USB ou carte SD n’est actuellement monté. La création d’une tâche exige normalement un périphérique connecté."
-                                : "Aucun dossier USB ou carte SD n’est actuellement monté. Connectez le périphérique pour choisir une autre destination.",
+                                ? "usb_copy.editor.create.no_device.description"
+                                : "usb_copy.editor.destination.no_device.description",
                             systemImage: "externaldrive.badge.questionmark"
                         )
                         .foregroundStyle(.readableSecondary)
                     }
 
-                    Picker("Mode de copie", selection: $strategy) {
+                    Picker("usb_copy.editor.copy_mode.label", selection: $strategy) {
                         ForEach(USBCopyStrategy.allCases) { copyStrategy in
                             Text(copyStrategy.localizedName).tag(copyStrategy)
                         }
                     }
                     .disabled(task != nil || type == .importPhoto)
-                    .help("Choisir comment USB Copy met à jour la destination")
+                    .help("usb_copy.editor.copy_mode.hint")
                 }
 
                 if strategy == .versioning {
-                    Section("Rotation des versions") {
-                        Toggle("Activer la rotation des versions", isOn: $enableRotation)
-                        Picker("Règle de rotation", selection: $rotationPolicy) {
+                    Section("usb_copy.editor.version_rotation.label") {
+                        Toggle("usb_copy.editor.version_rotation.enable", isOn: $enableRotation)
+                        Picker("usb_copy.editor.rotation_policy.label", selection: $rotationPolicy) {
                             ForEach(USBCopyRotationPolicy.allCases) { policy in
                                 Text(policy.localizedName).tag(policy)
                             }
                         }
                         .disabled(!enableRotation)
                         Stepper(value: $maxVersionCount, in: 1...65_535) {
-                            Text("Nombre maximal de versions : \(maxVersionCount)")
+                            Text(String(localized: "usb_copy.editor.max_versions.label", defaultValue: "Maximum versions: \(maxVersionCount)"))
                         }
                         .disabled(!enableRotation)
                     }
                 }
 
                 if strategy == .incremental {
-                    Section("Copie incrémentielle") {
-                        Toggle("Supprimer les fichiers source après la copie", isOn: $removeSourceFile)
-                            .help("Déplacer les fichiers au lieu de les conserver à la source")
-                        Toggle("Ne pas conserver la structure des dossiers", isOn: $notKeepDirectoryStructure)
+                    Section("common.label.incremental_copy") {
+                        Toggle("usb_copy.editor.delete_source.label", isOn: $removeSourceFile)
+                            .help("usb_copy.editor.delete_source.hint")
+                        Toggle("usb_copy.editor.photo_organize.flatten", isOn: $notKeepDirectoryStructure)
                             .disabled(type == .importPhoto)
                         if notKeepDirectoryStructure {
                             if type == .importPhoto {
-                                LabeledContent("Organisation") {
+                                LabeledContent("common.label.organization") {
                                     Text(USBCopyFlatOrganization.dateDirectoriesAndRename.localizedName)
                                 }
                             } else {
-                                Picker("Organisation", selection: organizationBinding) {
+                                Picker("common.label.organization", selection: organizationBinding) {
                                     ForEach(USBCopyFlatOrganization.allCases) { organization in
                                         Text(organization.localizedName).tag(organization)
                                     }
@@ -232,11 +232,11 @@ struct USBCopyTaskEditorSheet: View {
                             }
                         }
                         if type == .importPhoto {
-                            LabeledContent("En cas de conflit") {
+                            LabeledContent("usb_copy.editor.conflict.label") {
                                 Text(USBCopyConflictPolicy.rename.localizedName)
                             }
                         } else {
-                            Picker("En cas de conflit", selection: $conflictPolicy) {
+                            Picker("usb_copy.editor.conflict.label", selection: $conflictPolicy) {
                                 ForEach(USBCopyConflictPolicy.allCases) { policy in
                                     Text(policy.localizedName).tag(policy)
                                 }
@@ -246,13 +246,13 @@ struct USBCopyTaskEditorSheet: View {
                 }
 
                 if task == nil {
-                    Section("Déclenchement") {
+                    Section("common.label.trigger") {
                         USBCopyScheduleFields(
                             trigger: $trigger,
                             showsSchedule: type != .importPhoto
                         )
                     }
-                    Section("Filtre de fichiers") {
+                    Section("usb_copy.editor.file_filter.label") {
                         USBCopyFilterFields(selection: $filterSelection)
                     }
                 }
@@ -270,31 +270,31 @@ struct USBCopyTaskEditorSheet: View {
             Divider()
             HStack {
                 if isSaving {
-                    ProgressView("Enregistrement…")
+                    ProgressView("common.status.saving")
                         .controlSize(.small)
                 }
                 Spacer()
-                Button("Annuler", role: .cancel, action: dismiss.callAsFunction)
+                Button("common.button.cancel", role: .cancel, action: dismiss.callAsFunction)
                     .keyboardShortcut(.cancelAction)
                     .disabled(isSaving)
                 Button(
                     task == nil
-                        ? "Créer"
-                        : enablesDefaultTaskOnSave ? "Enregistrer et activer" : "Enregistrer",
+                        ? "common.button.create"
+                        : enablesDefaultTaskOnSave ? "usb_copy.editor.save_and_enable.button" : "common.button.save",
                     action: requestSave
                 )
                     .keyboardShortcut(.defaultAction)
                     .disabled(isSaving)
                     .confirmationDialog(
-                        "Créer une copie miroir ?",
+                        "usb_copy.editor.mirror_confirm.title",
                         isPresented: $showMirrorConfirmation
                     ) {
-                        Button("Créer la tâche miroir", role: .destructive) {
+                        Button("usb_copy.editor.mirror_confirm.button", role: .destructive) {
                             Task { await save() }
                         }
-                        Button("Annuler", role: .cancel) { }
+                        Button("common.button.cancel", role: .cancel) { }
                     } message: {
-                        Text("USB Copy supprimera de la destination les fichiers qui ne sont plus présents à la source. Vérifiez soigneusement le dossier de destination.")
+                        Text("usb_copy.editor.mirror_confirm.description")
                     }
             }
             .padding()
@@ -305,8 +305,8 @@ struct USBCopyTaskEditorSheet: View {
             contentFocused = true
             VoiceOver.announce(
                 task == nil
-                    ? String(localized: "Créer une tâche USB Copy")
-                    : String(localized: "Modifier la tâche USB Copy"),
+                    ? String(localized: "common.action.create_usb_copy_task")
+                    : String(localized: "usb_copy.editor.title.edit"),
                 category: .navigation
             )
         }
@@ -381,19 +381,19 @@ struct USBCopyTaskEditorSheet: View {
         let trimmedSource = sourcePath.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedDestination = destinationPath.trimmingCharacters(in: .whitespacesAndNewlines)
         if trimmedName.isEmpty || trimmedName.count > 64 {
-            return failValidation(String(localized: "Saisissez un nom de tâche de 1 à 64 caractères."))
+            return failValidation(String(localized: "usb_copy.editor.task_name.error"))
         }
         if trimmedSource.isEmpty || trimmedDestination.isEmpty {
-            return failValidation(String(localized: "Choisissez un dossier source et un dossier de destination."))
+            return failValidation(String(localized: "usb_copy.editor.folders.error"))
         }
         if trigger.scheduleEnabled && !trigger.scheduleContent.hasSelectedWeekday {
-            return failValidation(String(localized: "Choisissez au moins un jour d’exécution."))
+            return failValidation(String(localized: "common.validation.no_run_day_selected"))
         }
         if trigger.scheduleEnabled && !trigger.scheduleContent.hasValidReferenceDate {
-            return failValidation(String(localized: "Saisissez une date de référence valide au format AAAA/MM/JJ."))
+            return failValidation(String(localized: "common.validation.invalid_reference_date"))
         }
         if strategy == .versioning && !(1...65_535).contains(maxVersionCount) {
-            return failValidation(String(localized: "Le nombre maximal de versions doit être compris entre 1 et 65 535."))
+            return failValidation(String(localized: "usb_copy.editor.max_versions.error"))
         }
         return true
     }
@@ -409,7 +409,7 @@ struct USBCopyTaskEditorSheet: View {
         guard validate() else { return }
         isSaving = true
         errorMessage = nil
-        VoiceOver.announce(String(localized: "Enregistrement de la tâche USB Copy…"), category: .progress)
+        VoiceOver.announce(String(localized: "usb_copy.editor.saving.progress"), category: .progress)
         let outcome: DSMOperationOutcome
         if let task, let onSave {
             outcome = await onSave(USBCopyTaskSettings(
@@ -434,7 +434,7 @@ struct USBCopyTaskEditorSheet: View {
         } else if let onCreate {
             outcome = await onCreate(creation)
         } else {
-            outcome = .failure(String(localized: "Impossible d’enregistrer cette tâche."))
+            outcome = .failure(String(localized: "usb_copy.editor.save.error"))
         }
         isSaving = false
         handle(outcome)
@@ -505,7 +505,7 @@ private struct USBCopyPathField: View {
                 }
                 .labelStyle(.iconOnly)
                 .disabled(isDisabled || shares.isEmpty)
-                .help("Choisir un dossier partagé dans la liste")
+                .help("usb_copy.editor.shared_folder.hint")
             }
         }
         .sheet(isPresented: $showsFolderPicker) {
@@ -529,9 +529,9 @@ private enum USBCopyFlatOrganization: CaseIterable, Identifiable {
 
     var localizedName: LocalizedStringKey {
         switch self {
-        case .dateDirectories: "Créer des dossiers selon la date"
-        case .renamePhotoVideo: "Renommer les photos et vidéos selon la date"
-        case .dateDirectoriesAndRename: "Créer des dossiers et renommer les photos et vidéos selon la date"
+        case .dateDirectories: "usb_copy.editor.photo_organize.folders_by_date"
+        case .renamePhotoVideo: "usb_copy.editor.photo_organize.rename_by_date"
+        case .dateDirectoriesAndRename: "usb_copy.editor.photo_organize.folders_and_rename"
         }
     }
 }

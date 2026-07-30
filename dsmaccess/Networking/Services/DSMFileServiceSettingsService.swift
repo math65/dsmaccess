@@ -2,7 +2,7 @@
 //  DSMFileServiceSettingsService.swift
 //  dsmaccess
 //
-//  Réglages des protocoles de partage de fichiers DSM.
+//  Settings for the DSM file sharing protocols.
 //
 
 import Foundation

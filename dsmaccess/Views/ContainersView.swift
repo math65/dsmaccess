@@ -2,7 +2,7 @@
 //  ContainersView.swift
 //  dsmaccess
 //
-//  Gestion native des conteneurs et consultation de leurs journaux.
+//  Native container management and viewing of their logs.
 //
 
 import SwiftUI
@@ -28,7 +28,7 @@ struct ContainersView: View {
 
     var body: some View {
         content
-            .searchable(text: $searchText, prompt: "Rechercher un conteneur")
+            .searchable(text: $searchText, prompt: "containers.search.prompt")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
             .task { await load(restoresInitialFocus: true) }
@@ -46,18 +46,18 @@ struct ContainersView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.containers.isEmpty {
-            ModuleLoadingView("Chargement des conteneurs…")
+            ModuleLoadingView("containers.loading")
                 .accessibilityFocused($contentFocused)
         } else if let errorMessage = viewModel.errorMessage {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
                 .accessibilityFocused($contentFocused)
         } else if filteredContainers.isEmpty {
             EmptyModuleView(
-                title: searchText.isEmpty ? "Aucun conteneur" : "Aucun résultat",
+                title: searchText.isEmpty ? "containers.empty.title" : "common.empty.results",
                 systemImage: "shippingbox",
                 description: searchText.isEmpty
-                    ? "Créez un projet dans Container Manager pour gérer ses conteneurs ici."
-                    : "Modifiez votre recherche et réessayez."
+                    ? "containers.empty.description"
+                    : "common.empty.results.description"
             )
             .accessibilityFocused($contentFocused)
         } else {
@@ -66,7 +66,7 @@ struct ContainersView: View {
                     .tag(container.id)
                     .contextMenu { containerActions(container) }
             }
-            .accessibilityLabel("Conteneurs")
+            .accessibilityLabel("common.module.containers")
             .accessibilityFocused($contentFocused)
         }
     }
@@ -78,10 +78,10 @@ struct ContainersView: View {
                 guard let selectedContainer else { return }
                 Task { await perform(.start, on: selectedContainer) }
             } label: {
-                Label("Démarrer", systemImage: "play")
+                Label("common.button.start", systemImage: "play")
             }
             .disabled(selectedContainer?.isRunning != false || selectedIsBusy)
-            .help("Démarrer le conteneur")
+            .help("containers.action.start.hint")
         }
 
         ToolbarItem {
@@ -89,10 +89,10 @@ struct ContainersView: View {
                 guard let selectedContainer else { return }
                 Task { await perform(.stop, on: selectedContainer) }
             } label: {
-                Label("Arrêter", systemImage: "stop")
+                Label("common.button.stop", systemImage: "stop")
             }
             .disabled(selectedContainer?.isRunning != true || selectedIsBusy)
-            .help("Arrêter le conteneur")
+            .help("containers.action.stop.hint")
         }
 
         ToolbarItem {
@@ -100,10 +100,10 @@ struct ContainersView: View {
                 guard let selectedContainer else { return }
                 Task { await perform(.restart, on: selectedContainer) }
             } label: {
-                Label("Redémarrer", systemImage: "arrow.clockwise.circle")
+                Label("containers.action.restart", systemImage: "arrow.clockwise.circle")
             }
             .disabled(selectedContainer?.isRunning != true || selectedIsBusy)
-            .help("Redémarrer le conteneur")
+            .help("containers.action.restart.hint")
         }
 
         ToolbarItem {
@@ -111,29 +111,29 @@ struct ContainersView: View {
                 guard let selectedContainer else { return }
                 presentDetails(for: selectedContainer)
             } label: {
-                Label("Informations et journaux", systemImage: "info.circle")
+                Label("containers.detail.title", systemImage: "info.circle")
             }
             .disabled(selectedContainer == nil)
-            .help("Afficher les informations et journaux")
+            .help("containers.action.show_details")
         }
 
         ToolbarItem {
             Menu {
-                Toggle("Actualisation automatique", isOn: $autoRefresh)
-                    .help("Actualiser automatiquement les conteneurs")
+                Toggle("common.label.automatic_refresh", isOn: $autoRefresh)
+                    .help("containers.toolbar.auto_refresh")
             } label: {
-                Label("Options d’actualisation", systemImage: "ellipsis.circle")
+                Label("common.label.refresh_options", systemImage: "ellipsis.circle")
             }
-            .help("Options d’actualisation")
+            .help("common.label.refresh_options")
         }
 
         ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
+                Label("common.button.refresh", systemImage: "arrow.clockwise")
             }
-            .help("Actualiser les conteneurs")
+            .help("containers.toolbar.refresh")
         }
     }
 
@@ -145,7 +145,7 @@ struct ContainersView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(container.name).fontWeight(.medium)
                 HStack(spacing: 8) {
-                    Text(container.isRunning ? "En fonctionnement" : "Arrêté")
+                    Text(container.isRunning ? "common.status.running" : "common.status.stopped")
                     if let image = container.image, !image.isEmpty { Text(image) }
                 }
                 .font(.caption)
@@ -153,7 +153,7 @@ struct ContainersView: View {
             }
             Spacer()
             if let cpu = container.cpuPercent, container.isRunning {
-                Text("Processeur \(cpu.formatted(.number.precision(.fractionLength(1)))) %")
+                Text(String(localized: "containers.column.cpu", defaultValue: "Processor \(cpu.formatted(.number.precision(.fractionLength(1))))%"))
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)
             }
@@ -161,45 +161,45 @@ struct ContainersView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(containerAccessibilityLabel(container))
         .accessibilityActions {
-            Button(container.isRunning ? "Arrêter" : "Démarrer") {
+            Button(container.isRunning ? "common.button.stop" : "common.button.start") {
                 Task { await perform(container.isRunning ? .stop : .start, on: container) }
             }
-            .help(container.isRunning ? "Arrêter le conteneur" : "Démarrer le conteneur")
+            .help(container.isRunning ? "containers.action.stop.hint" : "containers.action.start.hint")
             if container.isRunning {
-                Button("Redémarrer") { Task { await perform(.restart, on: container) } }
-                    .help("Redémarrer le conteneur")
+                Button("containers.action.restart") { Task { await perform(.restart, on: container) } }
+                    .help("containers.action.restart.hint")
             }
-            Button("Informations et journaux") {
+            Button("containers.detail.title") {
                 presentDetails(for: container)
             }
-            .help("Afficher les informations et journaux du conteneur")
+            .help("containers.action.show_details.hint")
         }
     }
 
     @ViewBuilder
     private func containerActions(_ container: ContainerItem) -> some View {
         if container.isRunning {
-            Button("Arrêter") { Task { await perform(.stop, on: container) } }
-                .help("Arrêter le conteneur")
-            Button("Redémarrer") { Task { await perform(.restart, on: container) } }
-                .help("Redémarrer le conteneur")
+            Button("common.button.stop") { Task { await perform(.stop, on: container) } }
+                .help("containers.action.stop.hint")
+            Button("containers.action.restart") { Task { await perform(.restart, on: container) } }
+                .help("containers.action.restart.hint")
         } else {
-            Button("Démarrer") { Task { await perform(.start, on: container) } }
-                .help("Démarrer le conteneur")
+            Button("common.button.start") { Task { await perform(.start, on: container) } }
+                .help("containers.action.start.hint")
         }
         Divider()
-        Button("Informations et journaux") {
+        Button("containers.detail.title") {
             presentDetails(for: container)
         }
-        .help("Afficher les informations et journaux du conteneur")
+        .help("containers.action.show_details.hint")
     }
 
     private func detailsSheet(_ container: ContainerItem) -> some View {
         NavigationStack {
             VStack(spacing: 0) {
-                Picker("Informations et journaux", selection: $detailsSection) {
-                    Text("Informations").tag(DetailsSection.information)
-                    Text("Journal").tag(DetailsSection.logs)
+                Picker("containers.detail.title", selection: $detailsSection) {
+                    Text("common.label.information").tag(DetailsSection.information)
+                    Text("common.label.log").tag(DetailsSection.logs)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
@@ -210,27 +210,27 @@ struct ContainersView: View {
 
                 if detailsSection == .information {
                     Form {
-                        Section("Conteneur") {
-                            LabeledContent("Nom", value: container.name)
-                            LabeledContent("État", value: container.isRunning ? "En fonctionnement" : "Arrêté")
-                            if let image = container.image { LabeledContent("Image", value: image) }
-                            LabeledContent("Redémarrage automatique", value: container.autoRestart ? "Oui" : "Non")
+                        Section("containers.column.name") {
+                            LabeledContent("common.column.name", value: container.name)
+                            LabeledContent("common.column.state", value: container.isRunning ? String(localized: "common.status.running") : String(localized: "common.status.stopped"))
+                            if let image = container.image { LabeledContent("common.label.image", value: image) }
+                            LabeledContent("containers.detail.auto_restart", value: container.autoRestart ? "Oui" : "Non")
                         }
                         if hasResourceInformation(container) {
-                            Section("Ressources") {
+                            Section("common.label.resources") {
                                 if let cpu = container.cpuPercent {
                                     LabeledContent(
-                                        "Processeur",
+                                        "common.metric.processor",
                                         value: "\(cpu.formatted(.number.precision(.fractionLength(1)))) %"
                                     )
                                 }
                                 if let memory = container.memoryBytes {
-                                    LabeledContent("Mémoire", value: memory.formatted(.byteCount(style: .memory)))
+                                    LabeledContent("common.metric.memory", value: memory.formatted(.byteCount(style: .memory)))
                                 }
                                 if let uptime = uptimeText(container.uptimeSeconds) {
-                                    LabeledContent("Temps de fonctionnement", value: uptime)
+                                    LabeledContent("common.label.uptime", value: uptime)
                                 } else if let started = dateText(container.startedAt) {
-                                    LabeledContent("Démarré", value: started)
+                                    LabeledContent("containers.status.started", value: started)
                                 }
                             }
                         }
@@ -240,13 +240,13 @@ struct ContainersView: View {
                     logView(container)
                 }
             }
-            .accessibilityLabel("Informations et journaux de \(container.name)")
-            .navigationTitle("Informations et journaux de \(container.name)")
+            .accessibilityLabel(String(localized: "containers.detail.title_named", defaultValue: "Information and logs for \(container.name)"))
+            .navigationTitle(String(localized: "containers.detail.title_named", defaultValue: "Information and logs for \(container.name)"))
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Terminé") { detailsContainer = nil }
+                    Button("common.status.done") { detailsContainer = nil }
                         .keyboardShortcut(.defaultAction)
-                        .help("Fermer les informations")
+                        .help("common.button.close_information")
                 }
             }
         }
@@ -258,16 +258,16 @@ struct ContainersView: View {
     @ViewBuilder
     private func logView(_ container: ContainerItem) -> some View {
         if viewModel.isLoadingLogs && viewModel.logsContainerName == container.name {
-            ModuleLoadingView("Chargement du journal…")
+            ModuleLoadingView("common.status.loading_log")
         } else if let message = viewModel.logErrorMessage {
             ModuleErrorView(message: message) {
                 Task { await viewModel.loadLogs(for: container) }
             }
         } else if viewModel.logs.isEmpty || viewModel.logsContainerName != container.name {
             EmptyModuleView(
-                title: "Journal vide",
+                title: "containers.log.empty.title",
                 systemImage: "text.alignleft",
-                description: "Ce conteneur n’a produit aucune ligne de journal disponible."
+                description: "containers.log.empty.description"
             )
         } else {
             List(viewModel.logs) { entry in
@@ -284,7 +284,7 @@ struct ContainersView: View {
                 .accessibilityElement(children: .combine)
                 .accessibilityLabel(logAccessibilityLabel(entry))
             }
-            .accessibilityLabel("Journal de \(container.name)")
+            .accessibilityLabel(String(localized: "containers.log.title_named", defaultValue: "Log for \(container.name)"))
         }
     }
 
@@ -321,7 +321,7 @@ struct ContainersView: View {
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement des conteneurs…"),
+            String(localized: "containers.loading"),
             category: .progress,
             priority: .low
         )
@@ -361,15 +361,15 @@ struct ContainersView: View {
         guard detailsContainer?.id == container.id else { return }
         detailsSectionFocused = true
         VoiceOver.announce(
-            String(localized: "Informations et journaux de \(container.name)"),
+            String(localized: "containers.detail.title_named", defaultValue: "Information and logs for \(container.name)"),
             category: .navigation
         )
     }
 
     private func containerAccessibilityLabel(_ container: ContainerItem) -> String {
-        var parts = [container.name, container.isRunning ? String(localized: "en fonctionnement") : String(localized: "arrêté")]
-        if let image = container.image { parts.append(String(localized: "image \(image)")) }
-        if let cpu = container.cpuPercent { parts.append(String(localized: "processeur \(cpu.formatted()) pour cent")) }
+        var parts = [container.name, container.isRunning ? String(localized: "containers.status.running") : String(localized: "containers.status.stopped")]
+        if let image = container.image { parts.append(String(localized: "containers.row.image", defaultValue: "image \(image)")) }
+        if let cpu = container.cpuPercent { parts.append(String(localized: "containers.row.cpu_spoken", defaultValue: "processor \(cpu.formatted()) percent")) }
         if let memory = container.memoryBytes { parts.append(memory.formatted(.byteCount(style: .memory))) }
         return parts.formatted(.list(type: .and))
     }

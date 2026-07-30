@@ -2,31 +2,31 @@
 //  OperationNotifier.swift
 //  dsmaccess
 //
-//  Signal de fin d'une opération longue, par un canal choisi selon l'endroit où se trouve
-//  l'utilisateur.
+//  Signal for the end of a long operation, over a channel chosen according to where the user
+//  is.
 //
-//  En arrière-plan : une annonce VoiceOver n'est jamais entendue et le bandeau de résultat
-//  n'est vu qu'en revenant — quelqu'un qui lance une copie de vingt minutes et va faire autre
-//  chose n'apprend rien. La notification système est le seul canal qui le rejoigne.
+//  In the background: a VoiceOver announcement is never heard and the result banner is only
+//  seen on coming back — someone who starts a twenty-minute copy and goes off to do something
+//  else learns nothing. The system notification is the only channel that reaches them.
 //
-//  Au premier plan : l'annonce VoiceOver dit déjà tout, mais rien ne se fait entendre si
-//  l'attention est ailleurs sur l'écran. Un son court la double — sans notification, dont la
-//  bannière serait relue par VoiceOver et ferait entendre deux fois la même chose.
+//  In the foreground: the VoiceOver announcement already says everything, but nothing is heard
+//  if attention is elsewhere on screen. A short sound doubles it — with no notification, whose
+//  banner would be read out again by VoiceOver and make the same thing heard twice.
 //
 
 import AppKit
 import UserNotifications
 
 enum OperationNotifier {
-    /// Son de fin d'opération. `Glass` fait partie des quatorze sons publics de macOS,
-    /// chargeables par leur nom : rien n'est embarqué dans l'app. Les sons à trois notes de
-    /// `ToneLibrary` et ceux de Mail sont des ressources privées d'Apple — ni redistribuables,
-    /// ni à un chemin sur lequel compter.
+    /// End-of-operation sound. `Glass` is one of the fourteen public macOS sounds, loadable
+    /// by name: nothing is bundled in the app. The three-note sounds of `ToneLibrary` and
+    /// those of Mail are private Apple resources — neither redistributable, nor at a path to
+    /// count on.
     private static let successSoundName = "Glass"
     private static let failureSoundName = "Basso"
-    /// Demandée au premier lancement d'une opération longue, pas au démarrage de l'app :
-    /// à froid, l'utilisateur ne peut pas savoir ce qui lui sera notifié, et un refus
-    /// macOS est définitif. Ne redemande jamais une décision déjà prise.
+    /// Requested the first time a long operation is started, not at app launch: cold, the
+    /// user cannot know what they will be notified about, and a macOS refusal is final.
+    /// Never asks again for a decision already made.
     @MainActor
     static func prepare() async {
         guard Preferences.notifiesFinishedOperations else { return }
@@ -37,11 +37,12 @@ enum OperationNotifier {
         _ = try? await center.requestAuthorization(options: [.alert, .sound])
     }
 
-    /// Signale la fin d'une opération par le canal qui convient à l'endroit où se trouve
-    /// l'utilisateur : un son devant l'écran, une notification s'il est ailleurs. Jamais les
-    /// deux — la bannière serait relue par VoiceOver après l'annonce.
+    /// Signals the end of an operation over the channel that suits where the user is: a sound
+    /// in front of the screen, a notification if they are elsewhere. Never both — the banner
+    /// would be read out again by VoiceOver after the announcement.
     ///
-    /// Le son double l'annonce, il ne la remplace pas : rien n'est dit par le son seul.
+    /// The sound doubles the announcement, it does not replace it: nothing is said by the
+    /// sound alone.
     @MainActor
     static func signalCompletion(title: String, body: String, succeeded: Bool) async {
         if NSApp.isActive {
@@ -51,18 +52,18 @@ enum OperationNotifier {
         }
     }
 
-    /// `NSSound` sait charger un son système par son nom. Un nom inconnu — sur un macOS qui
-    /// aurait retiré celui-ci — rend `nil` et ne fait rien, ce qui est la bonne issue : le son
-    /// n'est qu'un renfort de l'annonce.
+    /// `NSSound` can load a system sound by name. An unknown name — on a macOS that would
+    /// have removed this one — returns `nil` and does nothing, which is the right outcome:
+    /// the sound is only a reinforcement of the announcement.
     @MainActor
     static func playCompletionSound(succeeded: Bool) {
         guard Preferences.playsCompletionSound else { return }
         NSSound(named: succeeded ? successSoundName : failureSoundName)?.play()
     }
 
-    /// Notifie seulement si l'app n'est pas au premier plan : devant l'écran, l'annonce
-    /// VoiceOver et le bandeau de résultat disent déjà tout, et une notification par-dessus
-    /// ne serait qu'une répétition à écouter deux fois.
+    /// Notifies only if the app is not in the foreground: in front of the screen, the
+    /// VoiceOver announcement and the result banner already say everything, and a
+    /// notification on top would only be a repetition to listen to twice.
     @MainActor
     static func postIfInBackground(title: String, body: String) async {
         guard Preferences.notifiesFinishedOperations, !NSApp.isActive else { return }
@@ -74,7 +75,7 @@ enum OperationNotifier {
         content.title = title
         content.body = body
         content.sound = .default
-        // Déclencheur nul : la tâche est déjà terminée, la notification part maintenant.
+        // Nil trigger: the task is already finished, the notification goes out now.
         try? await center.add(
             UNNotificationRequest(
                 identifier: UUID().uuidString,

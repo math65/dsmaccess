@@ -14,8 +14,8 @@ struct SessionStoreTests {
         session.dismissReconnectionNotice()
         #expect(session.reconnectionNotice == nil)
 
-        // Un avis encore affiché ne doit pas survivre à une déconnexion : il serait
-        // présenté hors contexte à la session suivante.
+        // A notice still on screen must not survive a sign-out: it would be shown out of
+        // context in the next session.
         session.publishAutomaticReconnectionNotice()
         session.clear()
         #expect(session.reconnectionNotice == nil)
