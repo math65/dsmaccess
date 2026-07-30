@@ -104,15 +104,66 @@ final class DSMSystemService {
         ).historyEnabled
     }
 
-    /// Nombre de règles d'alarme définies. Le journal ne consigne une alerte que lorsqu'une
-    /// règle est franchie : ce compte distingue un NAS sans incident d'un NAS où rien ne peut
-    /// être détecté.
-    func resourceMonitorAlarmRuleCount() async throws -> Int {
+    /// Règles de l'alarme des performances. Le journal ne consigne une alerte que lorsqu'une
+    /// règle est franchie : sans règle, il n'y a rien à détecter.
+    func performanceAlarmRules() async throws -> PerformanceAlarmRulePage {
         try await transport.read(
             api: Self.resourceAlarmAPI,
             method: "list",
-            as: ResourceMonitorAlarmRuleCount.self
-        ).total
+            as: PerformanceAlarmRulePage.self
+        )
+    }
+
+    /// Crée ou modifie une règle : DSM emploie la même méthode pour les deux et distingue par
+    /// la présence de `id`. La cible part toujours dans `service`, quel que soit le type, et
+    /// `enable` est exigé dans les deux cas — vérifié sur le NAS, l'omettre vaut un refus.
+    ///
+    /// Mutation : chemin sans nouvelle tentative.
+    func savePerformanceAlarmRule(_ draft: PerformanceAlarmRuleDraft) async throws {
+        var parameters: [String: DSMParameter] = [
+            "type": .integer(draft.kind.rawValue),
+            "service": .string(draft.resolvedTarget),
+            "resource": .integer(draft.resource.rawValue),
+            "threshold": .integer(draft.threshold),
+            "severity": .integer(draft.severity.rawValue),
+            "enable": .boolean(draft.isEnabled),
+        ]
+        if let ruleID = draft.ruleID {
+            parameters["id"] = .string(ruleID)
+        }
+
+        try await transport.perform(
+            api: Self.resourceAlarmAPI,
+            method: "set",
+            parameters: parameters
+        )
+    }
+
+    /// Active ou coupe des règles. DSM applique par lot : il attend la liste des règles
+    /// touchées avec leur nouvel état, et non une bascule à la fois.
+    ///
+    /// Mutation : chemin sans nouvelle tentative.
+    func setPerformanceAlarmRules(_ states: [(id: String, enabled: Bool)]) async throws {
+        let payload = states.map { RuleState(id: $0.id, enable: $0.enabled) }
+        try await transport.perform(
+            api: Self.resourceAlarmAPI,
+            method: "onoff",
+            parameters: ["id_list": try .json(payload)]
+        )
+    }
+
+    /// Supprime des règles. Mutation : chemin sans nouvelle tentative.
+    func deletePerformanceAlarmRules(ids: [String]) async throws {
+        try await transport.perform(
+            api: Self.resourceAlarmAPI,
+            method: "delete",
+            parameters: ["id_list": try .json(ids)]
+        )
+    }
+
+    private struct RuleState: Encodable {
+        let id: String
+        let enable: Bool
     }
 
     /// Mutation : chemin sans nouvelle tentative.

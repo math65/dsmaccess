@@ -30,34 +30,6 @@ struct ResourceMonitorSetting: nonisolated Decodable, Sendable {
     }
 }
 
-/// Nombre de règles d'alarme définies (SYNO.ResourceMonitor.EventRule list). Le journal ne se
-/// remplit que lorsqu'une règle est franchie : sans règle, il reste vide quoi qu'il arrive.
-/// L'écran Historique n'a besoin que de ce compte ; la forme complète d'une règle appartient
-/// à l'écran d'alarme.
-struct ResourceMonitorAlarmRuleCount: nonisolated Decodable, Sendable {
-    let total: Int
-
-    enum CodingKeys: String, CodingKey {
-        case rules, total
-    }
-
-    nonisolated init(from decoder: Decoder) throws {
-        let c = try decoder.container(keyedBy: CodingKeys.self)
-        if let announced = c.flexInt(.total) {
-            total = announced
-        } else {
-            // Le NAS annonce toujours `total`, mais le compte des règles reçues reste juste
-            // si une version le laissait tomber.
-            total = (try? c.decodeIfPresent([AnyRule].self, forKey: .rules))??.count ?? 0
-        }
-    }
-
-    /// Les champs d'une règle ne sont pas lus ici : seul le nombre d'éléments compte.
-    private struct AnyRule: nonisolated Decodable, Sendable {
-        nonisolated init(from decoder: Decoder) throws { }
-    }
-}
-
 struct ResourceMonitorLogPage: nonisolated Decodable, Sendable {
     let entries: [ResourceMonitorLogEntry]
     /// Nombre total d'entrées conservées par le NAS, indépendant de la page demandée.

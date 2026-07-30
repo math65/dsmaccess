@@ -98,37 +98,6 @@ struct ResourceMonitorLogTests {
         #expect(!disabled.historyEnabled)
     }
 
-    /// Sans règle d'alarme, aucun seuil ne peut être franchi et le journal reste vide quoi
-    /// qu'il arrive. C'est l'état du DS920+ relevé le 30/07/2026, et l'écran s'appuie sur ce
-    /// compte pour ne pas présenter un NAS sans surveillance comme un NAS sans incident.
-    @Test func readsTheNumberOfAlarmRules() throws {
-        let none = try JSONDecoder().decode(
-            ResourceMonitorAlarmRuleCount.self,
-            from: Data(#"{"rules":[],"support_internal":false,"total":0}"#.utf8)
-        )
-        let some = try JSONDecoder().decode(
-            ResourceMonitorAlarmRuleCount.self,
-            from: Data(#"""
-            {"rules":[{"id":1,"enable":true,"name":"Processeur","type":"System"},
-                      {"id":2,"enable":false,"name":"Mémoire","type":"System"}],"total":2}
-            """#.utf8)
-        )
-
-        #expect(none.total == 0)
-        #expect(some.total == 2)
-    }
-
-    /// Le compte des règles reçues sert de repli si une version de DSM cessait d'annoncer le
-    /// total : mieux vaut compter que conclure à l'absence de règle.
-    @Test func fallsBackToCountingTheRulesItReceived() throws {
-        let count = try JSONDecoder().decode(
-            ResourceMonitorAlarmRuleCount.self,
-            from: Data(#"{"rules":[{"id":1},{"id":2},{"id":3}]}"#.utf8)
-        )
-
-        #expect(count.total == 3)
-    }
-
     /// Un réglage absent de la réponse n'est pas un réglage désactivé. Le décodage échoue
     /// plutôt que de laisser l'écran affirmer que l'enregistrement est coupé.
     @Test func refusesAResponseWithoutTheSetting() {

@@ -197,8 +197,11 @@ protocol DSMClientProtocol: AnyObject {
     func openedFiles(limit: Int) async throws -> OpenedFilePage
     func resourceMonitorLogs(limit: Int) async throws -> ResourceMonitorLogPage
     func resourceMonitorHistoryEnabled() async throws -> Bool
-    func resourceMonitorAlarmRuleCount() async throws -> Int
     func setResourceMonitorHistory(enabled: Bool) async throws
+    func performanceAlarmRules() async throws -> PerformanceAlarmRulePage
+    func savePerformanceAlarmRule(_ draft: PerformanceAlarmRuleDraft) async throws
+    func setPerformanceAlarmRules(_ states: [(id: String, enabled: Bool)]) async throws
+    func deletePerformanceAlarmRules(ids: [String]) async throws
     func listSharedFolders() async throws -> [SharedFolder]
     func createSharedFolder(
         name: String,
@@ -829,8 +832,20 @@ final class DSMClient: DSMClientProtocol {
         try await system.resourceMonitorHistoryEnabled()
     }
 
-    func resourceMonitorAlarmRuleCount() async throws -> Int {
-        try await system.resourceMonitorAlarmRuleCount()
+    func performanceAlarmRules() async throws -> PerformanceAlarmRulePage {
+        try await system.performanceAlarmRules()
+    }
+
+    func savePerformanceAlarmRule(_ draft: PerformanceAlarmRuleDraft) async throws {
+        try await system.savePerformanceAlarmRule(draft)
+    }
+
+    func setPerformanceAlarmRules(_ states: [(id: String, enabled: Bool)]) async throws {
+        try await system.setPerformanceAlarmRules(states)
+    }
+
+    func deletePerformanceAlarmRules(ids: [String]) async throws {
+        try await system.deletePerformanceAlarmRules(ids: ids)
     }
 
     func setResourceMonitorHistory(enabled: Bool) async throws {

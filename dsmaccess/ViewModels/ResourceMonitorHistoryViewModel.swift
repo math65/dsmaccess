@@ -105,7 +105,7 @@ final class ResourceMonitorHistoryViewModel {
     /// de l'écran — le journal, lui, a bien été chargé, et l'état vide se contente alors du
     /// message général.
     private func alarmRules() async -> Int? {
-        try? await session.withClient { try await $0.resourceMonitorAlarmRuleCount() }
+        try? await session.withClient { try await $0.performanceAlarmRules().rules.count }
     }
 
     /// Horodatage rendu dans la langue du Mac. Un tiret quand DSM a envoyé une forme que nous

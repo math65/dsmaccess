@@ -180,6 +180,111 @@ struct DSMSystemServiceTests {
         #expect(parameters["enable_history"] == "false")
     }
 
+    /// Contrat éprouvé sur le NAS : la cible part dans un paramètre unique nommé `service`,
+    /// quel que soit le type de règle. Les noms de champs du formulaire web (`system`,
+    /// `service_name`, `volume`) ne sont pas des paramètres d'API — les envoyer vaut un refus.
+    @Test func sendsTheRuleTargetUnderTheSingleParameterDSMExpects() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.savePerformanceAlarmRule(
+            PerformanceAlarmRuleDraft(kind: .system, resource: .memory, threshold: 80)
+        )
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.ResourceMonitor.EventRule")
+        #expect(parameters["method"] == "set")
+        #expect(parameters["service"] == "\"general\"")
+        #expect(parameters["type"] == "0")
+        #expect(parameters["resource"] == "4")
+        #expect(parameters["threshold"] == "80")
+        #expect(parameters["system"] == nil)
+        #expect(parameters["service_name"] == nil)
+    }
+
+    /// Vérifié sur le NAS : `enable` est exigé aussi en modification, alors que le formulaire
+    /// web cache la case dans ce mode. L'omettre fait échouer la requête.
+    @Test func alwaysSendsTheEnabledFlagEvenWhenEditing() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.savePerformanceAlarmRule(
+            PerformanceAlarmRuleDraft(kind: .volume, resource: .diskActivity, target: "/volume1")
+        )
+        try await service.savePerformanceAlarmRule(
+            PerformanceAlarmRuleDraft(
+                ruleID: "3_/volume1_5_0",
+                kind: .volume,
+                resource: .diskActivity,
+                isEnabled: false,
+                target: "/volume1"
+            )
+        )
+
+        let requests = await stub.requests
+        let creation = try query(from: requests[0])
+        let edition = try query(from: requests[1])
+        #expect(creation["enable"] == "true")
+        #expect(creation["id"] == nil)
+        #expect(edition["enable"] == "false")
+        // Décodé plutôt que comparé brut : Foundation échappe la barre oblique d'un chemin
+        // quand elle encode une chaîne JSON.
+        #expect(try decode(String.self, from: edition["id"]) == "3_/volume1_5_0")
+        #expect(try decode(String.self, from: edition["service"]) == "/volume1")
+    }
+
+    /// Les identifiants de règle sont des chaînes composées par le NAS, pas des nombres.
+    @Test func togglesAndDeletesRulesByTheirStringIdentifiers() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.setPerformanceAlarmRules([(id: "0_general_4_0", enabled: false)])
+        try await service.deletePerformanceAlarmRules(ids: ["0_general_4_0", "1_snmp.slice_0_1"])
+
+        let requests = await stub.requests
+        let toggle = try query(from: requests[0])
+        #expect(toggle["method"] == "onoff")
+        #expect(try decode([RuleState].self, from: toggle["id_list"])
+            == [RuleState(id: "0_general_4_0", enable: false)])
+        let removal = try query(from: requests[1])
+        #expect(removal["method"] == "delete")
+        #expect(try decode([String].self, from: removal["id_list"])
+            == ["0_general_4_0", "1_snmp.slice_0_1"])
+    }
+
+    /// Enregistrer une règle est une mutation : un délai d'attente ne doit pas la rejouer. Le
+    /// NAS peut l'avoir créée avant de répondre, et la seconde tentative se heurterait alors à
+    /// la règle que la première vient d'écrire.
+    @Test func neverReplaysARuleSaveAfterATimeout() async throws {
+        let stub = DSMRequestStub(results: [.timeout, .response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        do {
+            try await service.savePerformanceAlarmRule(PerformanceAlarmRuleDraft())
+            Issue.record("L’enregistrement aurait dû échouer après le délai d’attente.")
+        } catch {
+            let dsmError = try #require(error as? DSMError)
+            guard case .network = dsmError else {
+                Issue.record("Erreur inattendue : \(dsmError)")
+                return
+            }
+        }
+        #expect(await stub.requestCount == 1)
+    }
+
+    private struct RuleState: Decodable, Equatable {
+        let id: String
+        let enable: Bool
+    }
+
     private struct WebReference: Decodable, Equatable {
         let did: String
         let who: String
@@ -221,6 +326,12 @@ struct DSMSystemServiceTests {
                 requestFormat: "JSON"
             ),
             "SYNO.ResourceMonitor.Setting": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.ResourceMonitor.EventRule": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1,
