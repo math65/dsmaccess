@@ -1,3 +1,70 @@
+## v1.1-beta.17 (build 18) — 30 juillet 2026
+
+### En bref
+
+- Journaux et sécurité a été refait. L'app ne lisait qu'un journal sur quatre —
+  sept mille entrées là où le NAS en garde plus de cent mille — et deux de ses
+  colonnes étaient vides depuis toujours.
+- Le Moniteur de ressources est complet : les fichiers ouverts, les alertes que
+  le NAS a enregistrées, et les seuils qui les déclenchent.
+
+### Signalez-moi les formulations qui clochent
+
+Tout le texte de l'app a changé de système cette semaine, pour qu'elle puisse un
+jour être traduite dans d'autres langues. Rien ne devrait avoir bougé à
+l'écran — mais si vous tombez sur un libellé qui ressemble à du code, sur une
+phrase restée en anglais ou sur un mot manquant, dites-le-moi. L'erreur est de
+mon côté, pas du vôtre, et elle se corrige vite.
+
+### Nouveautés
+
+- Journaux et sécurité : les quatre journaux tenus par le NAS sont désormais
+  accessibles, et plus seulement celui du système. Les transferts de fichiers y
+  sont, avec l'adresse, l'opération et la taille ; les connexions ont le leur.
+- Journaux et sécurité : un journal peut être exporté dans un fichier, en
+  tableur ou en page web. C'est le NAS qui écrit le fichier, vous obtenez donc
+  exactement ce qu'il contient.
+- Journaux et sécurité : ce que le Conseiller de sécurité a relevé sur les
+  connexions a maintenant son onglet — tentatives échouées, provenances
+  inhabituelles, comptes à surveiller.
+- Journaux et sécurité : deux écrans de réglages. L'un décide des transferts que
+  le NAS consigne ; l'autre, du nombre de connexions manquées avant qu'une
+  adresse soit bloquée, et pour combien de temps.
+- Journaux et sécurité : le champ de recherche est dans la barre d'outils, comme
+  partout ailleurs, et les entrées plus anciennes se chargent au fil du
+  défilement au lieu de s'arrêter à la première page.
+- Moniteur de ressources : un onglet Fichiers ouverts, qui liste ce que le NAS
+  tient ouvert en ce moment, et pour qui.
+- Moniteur de ressources : un onglet Historique, avec les alertes que le NAS a
+  enregistrées quand ses propres seuils ont été franchis.
+- Moniteur de ressources : un onglet Alarme des performances. Vous y ajoutez,
+  modifiez et supprimez les seuils que le NAS surveille — sur le système, sur un
+  service ou sur un volume.
+- Moniteur de ressources : une session connectée peut être coupée depuis
+  l'onglet Connexions.
+- Fichiers : une copie ou un déplacement joue un court son en se terminant, et
+  un autre s'il échoue. Le son se fait entendre quand l'app est au premier plan ;
+  sinon, c'est la notification qui porte le résultat, comme avant, et jamais les
+  deux. Les Réglages permettent de le couper.
+
+### Corrections
+
+- Journaux et sécurité : la liste de blocage revenait avec une erreur 103, et
+  cela pour tout le monde. L'app interrogeait le NAS de la mauvaise façon. C'est
+  réparé.
+- Journaux et sécurité : les colonnes Heure et Utilisateur étaient vides dans
+  tous les journaux. L'app lisait des champs que le NAS n'envoie pas.
+- Moniteur de ressources : la part de processeur d'un service s'affichait cent
+  fois trop petite.
+- Moniteur de ressources : un processus peut légitimement dépasser 100 % — cela
+  signifie qu'il occupe plus d'un cœur. L'écran le dit maintenant, au lieu de
+  vous laisser deviner.
+- Cinq libellés du Moniteur de ressources s'affichaient en anglais.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.17.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.17/dsmaccess-1.1-beta.17.zip)
+
 ## v1.1-beta.16 (build 17) — 29 juillet 2026
 
 ### En bref

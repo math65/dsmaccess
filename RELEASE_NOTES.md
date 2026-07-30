@@ -1,3 +1,68 @@
+## v1.1-beta.17 (build 18) — 2026-07-30
+
+### Highlights
+
+- Logs and Security was rebuilt. The app was reading one log out of four —
+  seven thousand entries where the NAS holds more than a hundred thousand —
+  and two of its columns had always been empty.
+- The Resource Monitor is complete: open files, the alerts the NAS recorded,
+  and the thresholds that produce them.
+
+### Please tell me if the wording looks wrong
+
+Every piece of text in the app moved to a new system this week, so that the
+app can one day be translated into other languages. Nothing should look
+different — but if you come across a label that reads like machine code, a
+sentence in the wrong language, or a word that is simply missing, please say
+so. Those are mistakes on my side, not on yours, and they are quick to fix.
+
+### New
+
+- Logs and Security: all four logs the NAS keeps are now available, not just
+  the system one. File transfers are there, with the address, the operation
+  and the size, and connections have their own log.
+- Logs and Security: a log can be exported to a file, as a spreadsheet or as
+  a web page. The NAS writes the file itself, so what you get is exactly what
+  it holds.
+- Logs and Security: Security Advisor's findings about sign-ins now have
+  their own tab — failed attempts, unusual sources, accounts worth a look.
+- Logs and Security: two settings panes. One decides which transfers the NAS
+  records; the other, how many failed sign-ins it takes before an address is
+  blocked, and for how long.
+- Logs and Security: the search field is in the toolbar, where it is in every
+  other module, and older entries load as you go rather than stopping at the
+  first page.
+- Resource Monitor: an Open files tab, listing what the NAS is currently
+  holding open and for whom.
+- Resource Monitor: a History tab, showing the alerts the NAS recorded against
+  its own thresholds.
+- Resource Monitor: a Performance alarm tab. You can add, change and remove
+  the thresholds the NAS watches — on the system, on a service, or on a
+  volume.
+- Resource Monitor: a connected session can be closed from the Connections
+  tab.
+- Files: a copy or a move now plays a short sound when it ends, and a
+  different one if it fails. It plays when the app is in front; when it is
+  not, the notification carries the result as before, never both. Settings
+  has a switch to turn the sound off.
+
+### Fixes
+
+- Logs and Security: the block list came back with an error 103 for everyone.
+  The app was asking the NAS for that list the wrong way. It works now.
+- Logs and Security: the Time and User columns were empty in every log. The
+  app was reading fields the NAS does not send.
+- Resource Monitor: a service's processor share was shown a hundred times too
+  small.
+- Resource Monitor: a process can legitimately exceed 100 % — it means it is
+  using more than one core. The screen now says so instead of leaving you to
+  guess.
+- Five labels in the Resource Monitor were showing in English to French users.
+
+### Download
+
+[dsmaccess-1.1-beta.17.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.17/dsmaccess-1.1-beta.17.zip)
+
 ## v1.1-beta.16 (build 17) — 2026-07-29
 
 ### Highlights
