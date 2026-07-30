@@ -278,6 +278,37 @@ struct LogsSecurityTests {
         #expect(parameters["keyword"] == "\"connexion\"")
     }
 
+    /// L'export porte sur le journal choisi, pas sur le journal système par défaut : sans
+    /// `logtype`, un utilisateur consultant les transferts SMB recevrait le journal système.
+    @Test func exportsTheLogCurrentlyBeingRead() async throws {
+        let destination = FileManager.default.temporaryDirectory
+            .appendingPathComponent("export-test-\(UUID().uuidString).csv")
+        // Le NAS renvoie un fichier, pas du JSON : c'est le type de contenu qui distingue un
+        // export réussi d'un refus.
+        let stub = DSMRequestStub(results: [
+            .HTTPResponse(
+                data: Data("heure,niveau\n".utf8),
+                statusCode: 200,
+                contentType: "text/csv"
+            ),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.exportSystemLog(kind: .cifs, format: .csv, to: destination)
+
+        #expect(FileManager.default.fileExists(atPath: destination.path))
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.Core.SyslogClient.Log")
+        #expect(parameters["method"] == "export")
+        #expect(parameters["logtype"] == "\"cifs\"")
+        // ⚠️ « format » et non « type » : avec `type`, le NAS ignore la demande sans erreur et
+        // renvoie du HTML. Un fichier nommé .csv contenant du HTML est passé en revue une fois.
+        #expect(parameters["format"] == "\"csv\"")
+        #expect(parameters["type"] == nil)
+        try? FileManager.default.removeItem(at: destination)
+    }
+
     /// Débloquer est une mutation : un délai d'attente ne doit pas la rejouer. Le NAS peut
     /// avoir retiré l'adresse avant de répondre, et le blocage automatique peut l'avoir
     /// rebloquée entre-temps.
@@ -330,7 +361,8 @@ struct LogsSecurityTests {
             endpoint: DSMEndpoint(useHTTPS: true, host: "nas.local", port: 5001),
             session: .shared,
             capabilities: capabilities,
-            requestData: { try await stub.data(for: $0) }
+            requestData: { try await stub.data(for: $0) },
+            downloadFile: { try await stub.download(from: $0) }
         )
         transport.establishSession(LoginResult(sid: "session-id", did: nil, synotoken: nil))
         return DSMLogSecurityService(transport: transport)

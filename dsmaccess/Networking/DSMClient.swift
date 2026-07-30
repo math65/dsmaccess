@@ -307,6 +307,11 @@ protocol DSMClientProtocol: AnyObject {
         keyword: String?
     ) async throws -> SystemLogPage
     func fileTransferLogging() async throws -> FileTransferLogging
+    func exportSystemLog(
+        kind: SystemLogKind,
+        format: SystemLogExportFormat,
+        to destination: URL
+    ) async throws
     func blockedAddresses(limit: Int) async throws -> BlockedAddressPage
     func unblockAddresses(_ addresses: [String]) async throws
     func networkInfo() async throws -> NetworkInfo
@@ -1205,6 +1210,14 @@ final class DSMClient: DSMClientProtocol {
 
     func fileTransferLogging() async throws -> FileTransferLogging {
         try await logsSecurity.fileTransferLogging()
+    }
+
+    func exportSystemLog(
+        kind: SystemLogKind,
+        format: SystemLogExportFormat,
+        to destination: URL
+    ) async throws {
+        try await logsSecurity.exportSystemLog(kind: kind, format: format, to: destination)
     }
 
     func blockedAddresses(limit: Int) async throws -> BlockedAddressPage {

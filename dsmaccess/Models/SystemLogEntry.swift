@@ -45,6 +45,17 @@ enum SystemLogKind: String, nonisolated Sendable, Hashable, Identifiable, CaseIt
     var isTransfer: Bool { Self.transfers.contains(self) }
 }
 
+/// Format d'export proposé par le NAS. La valeur brute est celle qu'il attend.
+enum SystemLogExportFormat: String, nonisolated Sendable, CaseIterable, Identifiable {
+    case csv
+    case html
+
+    var id: String { rawValue }
+
+    /// Extension du fichier proposé à l'enregistrement.
+    var fileExtension: String { rawValue }
+}
+
 /// Protocoles dont le NAS journalise les transferts (SYNO.Core.SyslogClient.FileTransfer get).
 /// Ce réglage décide quels journaux de transfert existent : demander un journal désactivé
 /// renvoie zéro entrée sans erreur, ce qui se lirait comme un journal vide.

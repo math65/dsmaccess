@@ -24,6 +24,8 @@ final class LogsSecurityViewModel {
     private(set) var totalLogCount = 0
     /// Vrai le temps d'aller chercher les entrées suivantes, pour désarmer le bouton.
     private(set) var isLoadingMore = false
+    /// Vrai le temps que le NAS produise le fichier d'export.
+    private(set) var isExporting = false
     private(set) var blockedAddresses: [BlockedAddress] = []
     private(set) var isLoading = false
     /// Adresses dont le déblocage est en cours, pour désarmer leurs commandes.
@@ -194,6 +196,33 @@ final class LogsSecurityViewModel {
             guard !Task.isCancelled else { return }
             await self?.load()
         }
+    }
+
+    /// Écrit le journal courant dans un fichier. L'export porte sur le journal entier, pas sur
+    /// les tranches chargées : le NAS produit le fichier lui-même.
+    func export(as format: SystemLogExportFormat, to destination: URL) async -> DSMOperationOutcome {
+        isExporting = true
+        defer { isExporting = false }
+        let exported = kind
+        do {
+            try await session.withClient {
+                try await $0.exportSystemLog(kind: exported, format: format, to: destination)
+            }
+            return .success(
+                String(localized: "Journal exporté vers \(destination.lastPathComponent)")
+            )
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "Échec de l’export : \(reason)"))
+        }
+    }
+
+    /// Nom de fichier proposé : le journal et la date, pour que deux exports ne se recouvrent
+    /// pas dans le dossier de destination.
+    func suggestedExportName(for format: SystemLogExportFormat) -> String {
+        let day = Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash))
+        return "\(kindTitle) \(day).\(format.fileExtension)"
     }
 
     func unblock(_ addresses: [BlockedAddress]) async -> DSMOperationOutcome {

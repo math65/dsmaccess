@@ -51,6 +51,49 @@ final class DSMLogSecurityService {
         )
     }
 
+    /// Écrit le journal demandé dans un fichier produit par le NAS. L'export porte sur le
+    /// journal entier, non sur les tranches chargées : 1,9 Mo pour le journal système du NAS de
+    /// développement, sans avoir eu à le parcourir.
+    ///
+    /// En cas de refus, DSM renvoie du JSON à la place du fichier : c'est le type de contenu
+    /// qui le trahit, comme pour les téléchargements de File Station.
+    ///
+    /// ⚠️ Le format se demande dans **`format`**, et non dans `type` comme le fait
+    /// `SYNO.ResourceMonitor.Log`. Vérifié sur DSM 7.4 : avec `type`, le paramètre est ignoré
+    /// sans erreur et le NAS renvoie du HTML — un fichier nommé `.csv` contenant du HTML.
+    func exportSystemLog(
+        kind: SystemLogKind,
+        format: SystemLogExportFormat,
+        to destination: URL
+    ) async throws {
+        let url = try await transport.makeURL(
+            api: Self.logAPI,
+            method: "export",
+            parameters: [
+                "logtype": .string(kind.rawValue),
+                "format": .string(format.rawValue),
+            ]
+        )
+        let (temporaryURL, response) = try await transport.download(from: url)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode) else {
+            throw DSMError.invalidResponse
+        }
+        if let mimeType = response.mimeType, mimeType.contains("json") {
+            let data = try await MultipartBodyFile.readData(at: temporaryURL)
+            let decoded = try await DSMTransport.decodeResponse(EmptyData.self, from: data)
+            guard !decoded.success else { throw DSMError.invalidResponse }
+            throw transport.error(from: decoded.error)
+        }
+
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: destination.path) {
+            _ = try fileManager.replaceItemAt(destination, withItemAt: temporaryURL)
+        } else {
+            try fileManager.moveItem(at: temporaryURL, to: destination)
+        }
+    }
+
     /// Protocoles dont les transferts sont journalisés. Détermine les journaux à proposer.
     func fileTransferLogging() async throws -> FileTransferLogging {
         try await transport.read(

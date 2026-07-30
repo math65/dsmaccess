@@ -8,6 +8,7 @@
 //  s'agit dessus, et mêler les deux obligeait à traverser l'un pour atteindre l'autre.
 //
 
+import AppKit
 import SwiftUI
 
 struct LogsSecurityView: View {
@@ -76,6 +77,17 @@ struct LogsSecurityView: View {
                         }
                     }
                     .help("N’afficher que les entrées de ce niveau")
+                }
+
+                ToolbarItem {
+                    Menu {
+                        Button("Exporter en CSV") { export(as: .csv) }
+                        Button("Exporter en HTML") { export(as: .html) }
+                    } label: {
+                        Label("Exporter", systemImage: "square.and.arrow.up")
+                    }
+                    .disabled(vm.isExporting)
+                    .help("Enregistrer tout le journal dans un fichier")
                 }
             }
 
@@ -295,6 +307,28 @@ struct LogsSecurityView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 8)
             }
+        }
+    }
+
+    /// L'export est produit par le NAS puis écrit là où l'utilisateur le demande. Le panneau
+    /// d'enregistrement est celui du système, comme pour les téléchargements de File Station.
+    private func export(as format: SystemLogExportFormat) {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = vm.suggestedExportName(for: format)
+        panel.canCreateDirectories = true
+        panel.message = String(
+            localized: "Le NAS exporte tout le journal, et non les seules entrées affichées."
+        )
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        _ = url.startAccessingSecurityScopedResource()
+        VoiceOver.announce(
+            String(localized: "Export en cours…"),
+            category: .progress,
+            priority: .low
+        )
+        Task {
+            let outcome = await vm.export(as: format, to: url)
+            VoiceOver.announce(outcome, priority: .high)
         }
     }
 
