@@ -52,10 +52,11 @@ final class TaskManagerViewModel {
             async let loadedProcesses = session.withClient { try await $0.processes() }
             let (fetchedGroups, fetchedProcesses) = try await (loadedGroups, loadedProcesses)
             guard generation == loadGeneration else { return }
-            // Tri par mémoire et non par processeur : sur un NAS au repos tous les
-            // services affichent « 0,0 % », et un tri sur des écarts invisibles donne une
-            // liste qui paraît aléatoire — et qui se réordonne à chaque actualisation,
-            // ce qui rend le parcours au lecteur d'écran impraticable.
+            // Tri par mémoire et non par processeur : la charge d'un service au repos varie
+            // d'un centième de point à chaque relevé, et un tri sur ces écarts réordonne la
+            // liste à chaque actualisation, ce qui rend le parcours au lecteur d'écran
+            // impraticable. La mémoire, elle, bouge lentement. Le tri visible reste celui
+            // que l'utilisateur choisit sur les en-têtes du tableau.
             groups = fetchedGroups.sorted { lhs, rhs in
                 let leftMemory = lhs.memoryBytes ?? -1
                 let rightMemory = rhs.memoryBytes ?? -1

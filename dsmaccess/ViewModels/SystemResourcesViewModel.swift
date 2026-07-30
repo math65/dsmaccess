@@ -103,8 +103,15 @@ final class SystemResourcesViewModel {
         cpuPercent.map { String(localized: "\($0) %") } ?? "—"
     }
 
+    /// Répartition entre temps utilisateur et temps système. DSM met parfois toute la charge
+    /// dans `other_load` et renvoie zéro pour les deux autres — relevé sur un DS920+ à 27 %
+    /// de charge, puis « utilisateur 6 %, système 31 % » quelques minutes plus tard sur la
+    /// même machine. C'est donc un état passager, pas une propriété du modèle. Quand les deux
+    /// valeurs sont nulles, la ligne disparaît : « Utilisateur 0 %, système 0 % » sous une
+    /// charge non nulle se lit comme une mesure cassée et contredit la ligne du dessus.
     var cpuDetailText: String? {
         guard let cpu = usage?.cpu, let user = cpu.userLoad, let system = cpu.systemLoad else { return nil }
+        guard user > 0 || system > 0 else { return nil }
         return String(localized: "Utilisateur \(user) %, système \(system) %")
     }
 

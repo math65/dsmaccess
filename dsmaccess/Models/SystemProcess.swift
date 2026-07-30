@@ -10,6 +10,10 @@
 //  « - ». Le décodage souple la ramène à `nil`, et l'affichage doit alors dire qu'il n'y
 //  a pas de valeur plutôt que d'écrire zéro, qui se lirait comme une mesure.
 //
+//  Troisième piège, et deux échelles opposées pour la même grandeur : la charge processeur
+//  d'un processus est déjà un pourcentage, celle d'un groupe est une fraction à multiplier
+//  par 100.
+//
 
 import Foundation
 
@@ -66,6 +70,10 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     /// et laisse `name` vide. Les deux ne sont jamais renseignés en même temps.
     let localizedName: String?
     let unitName: String?
+    /// Charge processeur en pourcentage. DSM l'envoie sous forme de **fraction** dans
+    /// `cpu_utilization` — son propre client la range dans un champ nommé `cpuFraction` et la
+    /// multiplie par 100 pour l'afficher. Lue telle quelle, la colonne entière s'écrit
+    /// « 0,0 % » : 1,2 % de charge arrive ici en 0,0121.
     let cpuPercent: Double?
     /// Temps processeur cumulé, en secondes.
     let cpuTime: Double?
@@ -115,7 +123,7 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
         name = c.flexString(.name)
         localizedName = c.flexString(.localizedName)
         unitName = c.flexString(.unitName)
-        cpuPercent = c.flexDouble(.cpuPercent)
+        cpuPercent = c.flexDouble(.cpuPercent).map { $0 * 100 }
         cpuTime = c.flexDouble(.cpuTime)
         memoryBytes = c.flexInt64(.memoryBytes)
         readBytesPerSecond = c.flexInt64(.readBytesPerSecond)

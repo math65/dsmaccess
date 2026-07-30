@@ -46,6 +46,36 @@ struct SystemProcessTests {
         #expect(group.readBytesPerSecond == 0)
     }
 
+    /// Deux échelles opposées pour la même grandeur, relevées le 30/07/2026 : la charge d'un
+    /// processus est déjà un pourcentage, celle d'un groupe est une fraction. Le client web de
+    /// DSM la nomme d'ailleurs `cpuFraction` et la multiplie par 100. Lue telle quelle, la
+    /// colonne « Processeur » des services s'écrit « 0,0 % » sur toute sa hauteur, y compris
+    /// pour un service qui consomme réellement.
+    @Test func readsTheGroupCPUAsAFractionAndTheProcessCPUAsAPercentage() throws {
+        let groupPayload = Data(#"""
+        {"slices":[
+          {"cpu_time":48.4,"cpu_utilization":0.012091898428053204,"memory":2048,
+           "name":"Service de bureau","name_i18n":"","process":[{}],"unit_name":"desktop.slice",
+           "byte_read_per_sec":0,"byte_write_per_sec":0},
+          {"cpu_time":271.21,"cpu_utilization":0.001095290251916758,"memory":1024,
+           "name":"SNMP","name_i18n":"","process":[{}],"unit_name":"snmp.slice",
+           "byte_read_per_sec":0,"byte_write_per_sec":0}]}
+        """#.utf8)
+        let processPayload = Data(#"""
+        {"process":[{"command":"synorelayd","cpu":10,"mem":14420,"mem_shared":0,"pid":1,"status":"R"}]}
+        """#.utf8)
+
+        let groups = try JSONDecoder().decode(ProcessGroupPage.self, from: groupPayload).slices
+        let processes = try JSONDecoder().decode(SystemProcessPage.self, from: processPayload).process
+
+        let desktop = try #require(groups.first?.cpuPercent)
+        #expect(abs(desktop - 1.2091898428053204) < 0.000_001)
+        let snmp = try #require(groups.last?.cpuPercent)
+        #expect(abs(snmp - 0.1095290251916758) < 0.000_001)
+        // Le processus, lui, n'est pas converti : 10 vaut bien 10 %.
+        #expect(processes.first?.cpuPercent == 10)
+    }
+
     /// Les deux formes réellement observées, et elles s'excluent : soit `name` porte un nom
     /// courant et `name_i18n` est vide, soit l'inverse — et alors `name_i18n` contient une
     /// clé du catalogue DSM, pas une traduction. Affichée telle quelle, cette clé donnerait
