@@ -54,7 +54,7 @@ final class BackendAnnouncementCoordinator {
         // Avec un lien, « OK » (fermer) reste l'action par défaut et le bouton
         // lien vient en second. Sans lien, NSAlert affiche son « OK » implicite.
         if let link = announcement.link {
-            alert.addButton(withTitle: String(localized: "OK"))
+            alert.addButton(withTitle: String(localized: "common.button.ok"))
             alert.addButton(withTitle: link.label)
         }
         NSApp.activate(ignoringOtherApps: true)

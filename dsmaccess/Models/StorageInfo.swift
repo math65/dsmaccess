@@ -106,12 +106,12 @@ struct StoragePool: nonisolated Decodable, Identifiable, Sendable {
 /// Traduit un statut DSM brut en libellé localisé.
 func localizedStorageStatus(_ raw: String?) -> String {
     switch raw?.lowercased() {
-    case "normal": return String(localized: "Normal")
-    case "degrade", "degraded": return String(localized: "Dégradé")
-    case "repairing", "rebuilding": return String(localized: "Reconstruction")
-    case "expanding": return String(localized: "Extension")
-    case "crashed", "critical": return String(localized: "Critique")
-    case "attention", "warning": return String(localized: "Attention")
+    case "normal": return String(localized: "storage.status.normal")
+    case "degrade", "degraded": return String(localized: "storage.status.degraded")
+    case "repairing", "rebuilding": return String(localized: "storage.status.rebuilding")
+    case "expanding": return String(localized: "storage.status.expanding")
+    case "crashed", "critical": return String(localized: "common.level.critical")
+    case "attention", "warning": return String(localized: "storage.status.attention")
     case .some(let value) where !value.isEmpty: return value
     default: return "—"
     }
@@ -122,7 +122,7 @@ func formattedSpace(usedBytes: String?, totalBytes: String?) -> String? {
     guard let used = usedBytes.flatMap({ Int64($0) }),
           let total = totalBytes.flatMap({ Int64($0) }),
           used >= 0, total >= 0 else { return nil }
-    return String(localized: "\(used.formatted(.byteCount(style: .file))) utilisés sur \(total.formatted(.byteCount(style: .file)))")
+    return String(localized: "storage.volume.used_of_total", defaultValue: "\(used.formatted(.byteCount(style: .file))) used of \(total.formatted(.byteCount(style: .file)))")
 }
 
 func usagePercent(usedBytes: String?, totalBytes: String?) -> Int? {
@@ -141,7 +141,7 @@ extension Disk {
     }
     var temperatureText: String? {
         guard let temp else { return nil }
-        return String(localized: "\(temp) °C")
+        return String(localized: "common.unit.celsius", defaultValue: "\(temp) °C")
     }
     var healthText: String { localizedStorageStatus(smartStatus ?? status) }
     var sizeText: String? {
@@ -150,12 +150,12 @@ extension Disk {
     /// Secteurs non corrigibles (nil si aucun).
     var uncText: String? {
         guard let unc, unc > 0 else { return nil }
-        return String(localized: "\(unc) secteurs non corrigibles")
+        return String(localized: "storage.disk.uncorrectable_sectors", defaultValue: "\(unc) uncorrectable sectors")
     }
 }
 
 extension Volume {
-    var displayName: String { numId.map { String(localized: "Volume \($0)") } ?? id }
+    var displayName: String { numId.map { String(localized: "common.label.volume_number", defaultValue: "Volume \($0)") } ?? id }
     var spaceText: String? { formattedSpace(usedBytes: size?.used, totalBytes: size?.total) }
     var usagePercentValue: Int? { usagePercent(usedBytes: size?.used, totalBytes: size?.total) }
     var statusText: String { localizedStorageStatus(status) }
@@ -177,16 +177,16 @@ extension Volume {
 }
 
 extension StoragePool {
-    var displayName: String { numId.map { String(localized: "Groupe de stockage \($0)") } ?? id }
+    var displayName: String { numId.map { String(localized: "storage.pool.name", defaultValue: "Storage pool \($0)") } ?? id }
     var statusText: String { localizedStorageStatus(status) }
     var raidTypeText: String {
         guard let type = deviceType, !type.isEmpty else { return "—" }
         if type.hasPrefix("shr") { return "SHR" }
         if type.hasPrefix("raid_") { return "RAID " + type.dropFirst("raid_".count).uppercased() }
-        if type == "basic" { return String(localized: "Basique") }
+        if type == "basic" { return String(localized: "storage.raid.basic") }
         return type
     }
-    var diskCountText: String { String(localized: "\(disks?.count ?? 0) disques") }
+    var diskCountText: String { String(localized: "storage.pool.disk_count", defaultValue: "\(disks?.count ?? 0) disks") }
     var sizeText: String? {
         size?.total.flatMap { Int64($0) }?.formatted(.byteCount(style: .file))
     }

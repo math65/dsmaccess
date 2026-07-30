@@ -50,7 +50,7 @@ struct FileTableView: NSViewRepresentable {
         table.allowsMultipleSelection = true
         table.allowsEmptySelection = true
         table.style = .inset
-        table.setAccessibilityLabel(String(localized: "Fichiers et dossiers"))
+        table.setAccessibilityLabel(String(localized: "files.table.label"))
         table.dataSource = context.coordinator
         table.delegate = context.coordinator
 
@@ -288,34 +288,34 @@ private func makeFileContextMenu(
 ) -> NSMenu {
     let menu = NSMenu()
     if let activate {
-        menu.addItem(closureMenuItem(title: String(localized: "Ouvrir"), handler: activate))
+        menu.addItem(closureMenuItem(title: String(localized: "common.button.open"), handler: activate))
     }
     if availability.canDownload {
-        menu.addItem(closureMenuItem(title: String(localized: "Télécharger"), handler: download))
+        menu.addItem(closureMenuItem(title: String(localized: "files.button.download"), handler: download))
     }
 
     if availability.canShare, let share {
-        menu.addItem(closureMenuItem(title: String(localized: "Créer un lien de partage"), handler: share))
+        menu.addItem(closureMenuItem(title: String(localized: "common.action.create_share_link"), handler: share))
     }
     if availability.canCompress || (availability.canExtract && canExtractSelectedItem) {
         menu.addItem(NSMenuItem.separator())
         if availability.canCompress {
-            menu.addItem(closureMenuItem(title: String(localized: "Compresser…"), handler: compress))
+            menu.addItem(closureMenuItem(title: String(localized: "common.button.compress"), handler: compress))
         }
         if availability.canExtract, canExtractSelectedItem, let extract {
-            menu.addItem(closureMenuItem(title: String(localized: "Extraire"), handler: extract))
+            menu.addItem(closureMenuItem(title: String(localized: "common.button.extract"), handler: extract))
         }
     }
     if availability.canCopyMove || availability.canRename || availability.canDelete {
         menu.addItem(NSMenuItem.separator())
         if availability.canCopyMove {
-            menu.addItem(closureMenuItem(title: String(localized: "Copier"), handler: copy))
+            menu.addItem(closureMenuItem(title: String(localized: "common.button.copy"), handler: copy))
         }
         if availability.canRename, let rename {
-            menu.addItem(closureMenuItem(title: String(localized: "Renommer…"), handler: rename))
+            menu.addItem(closureMenuItem(title: String(localized: "common.menu.rename"), handler: rename))
         }
         if availability.canDelete {
-            menu.addItem(closureMenuItem(title: String(localized: "Supprimer…"), handler: delete))
+            menu.addItem(closureMenuItem(title: String(localized: "common.menu.delete"), handler: delete))
         }
     }
 
@@ -323,7 +323,7 @@ private func makeFileContextMenu(
         if !menu.items.isEmpty {
             menu.addItem(NSMenuItem.separator())
         }
-        menu.addItem(closureMenuItem(title: String(localized: "Lire les informations"), handler: showInfo))
+        menu.addItem(closureMenuItem(title: String(localized: "common.button.get_info"), handler: showInfo))
     }
     return menu
 }
@@ -488,27 +488,27 @@ final class FileCellView: NSTableCellView {
     override func accessibilityCustomActions() -> [NSAccessibilityCustomAction]? {
         var actions = [NSAccessibilityCustomAction]()
         if actionAvailability.canDownload {
-            appendAction(named: String(localized: "Télécharger"), handler: onDownload, to: &actions)
+            appendAction(named: String(localized: "files.button.download"), handler: onDownload, to: &actions)
         }
         if actionAvailability.canShare {
-            appendAction(named: String(localized: "Créer un lien de partage"), handler: onShare, to: &actions)
+            appendAction(named: String(localized: "common.action.create_share_link"), handler: onShare, to: &actions)
         }
         if actionAvailability.canCompress {
-            appendAction(named: String(localized: "Compresser"), handler: onCompress, to: &actions)
+            appendAction(named: String(localized: "files.button.compress"), handler: onCompress, to: &actions)
         }
         if actionAvailability.canExtract, canExtractSelectedItem {
-            appendAction(named: String(localized: "Extraire"), handler: onExtract, to: &actions)
+            appendAction(named: String(localized: "common.button.extract"), handler: onExtract, to: &actions)
         }
         if actionAvailability.canCopyMove {
-            appendAction(named: String(localized: "Copier"), handler: onCopy, to: &actions)
+            appendAction(named: String(localized: "common.button.copy"), handler: onCopy, to: &actions)
         }
         if actionAvailability.canRename {
-            appendAction(named: String(localized: "Renommer"), handler: onRename, to: &actions)
+            appendAction(named: String(localized: "common.button.rename"), handler: onRename, to: &actions)
         }
         if actionAvailability.canDelete {
-            appendAction(named: String(localized: "Supprimer"), handler: onDelete, to: &actions)
+            appendAction(named: String(localized: "common.button.delete"), handler: onDelete, to: &actions)
         }
-        appendAction(named: String(localized: "Lire les informations"), handler: onShowInfo, to: &actions)
+        appendAction(named: String(localized: "common.button.get_info"), handler: onShowInfo, to: &actions)
         return actions.isEmpty ? nil : actions
     }
 

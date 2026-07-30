@@ -68,7 +68,7 @@ final class OpenedFilesViewModel {
     func accountText(for file: OpenedFile) -> String { file.account ?? "—" }
     func hostText(for file: OpenedFile) -> String { file.host ?? "—" }
     func serviceText(for file: OpenedFile) -> String {
-        file.service ?? String(localized: "Service inconnu")
+        file.service ?? String(localized: "opened_files.service.unknown")
     }
     func folderText(for file: OpenedFile) -> String { file.folder ?? "—" }
 
@@ -78,8 +78,8 @@ final class OpenedFilesViewModel {
     var summary: String {
         if let errorMessage { return errorMessage }
         if isTruncated {
-            return String(localized: "\(files.count) fichiers affichés sur \(totalCount) ouverts")
+            return String(localized: "opened_files.filtered_count.summary", defaultValue: "\(files.count) of \(totalCount) open files shown")
         }
-        return String(localized: "\(files.count) fichiers ouverts")
+        return String(localized: "opened_files.count.summary", defaultValue: "\(files.count) open files")
     }
 }

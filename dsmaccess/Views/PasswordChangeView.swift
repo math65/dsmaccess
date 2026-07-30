@@ -25,24 +25,24 @@ struct PasswordChangeView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Nouveau mot de passe requis")
+            Text("password_change.title")
                 .font(.largeTitle.bold())
                 .accessibilityAddTraits(.isHeader)
 
-            Text("DSM demande de changer le mot de passe de ce compte avant de se connecter.")
+            Text("password_change.description")
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            LabeledField(label: "Nouveau mot de passe") {
-                SecureField("Nouveau mot de passe", text: $vm.newPassword)
+            LabeledField(label: "common.field.new_password") {
+                SecureField("common.field.new_password", text: $vm.newPassword)
                     .accessibilityFocused($focusNewPassword)
-                    .help("Saisir le nouveau mot de passe du compte")
+                    .help("password_change.new_field.hint")
             }
 
-            LabeledField(label: "Confirmer le nouveau mot de passe") {
-                SecureField("Confirmer le nouveau mot de passe", text: $vm.newPasswordConfirmation)
+            LabeledField(label: "password_change.confirm_field.label") {
+                SecureField("password_change.confirm_field.label", text: $vm.newPasswordConfirmation)
                     .onSubmit { Task { await vm.submitPasswordChange() } }
-                    .help("Saisir à nouveau le mot de passe pour confirmation")
+                    .help("password_change.confirm_field.hint")
             }
 
             if let error = vm.errorMessage {
@@ -55,20 +55,20 @@ struct PasswordChangeView: View {
                 if vm.state == .connecting {
                     ProgressView()
                         .controlSize(.small)
-                        .accessibilityLabel("Changement du mot de passe en cours")
-                    Text("Changement du mot de passe en cours…")
+                        .accessibilityLabel("password_change.progress.label")
+                    Text("password_change.progress.announcement")
                         .foregroundStyle(.secondary)
                         .accessibilityHidden(true)
                 }
                 Spacer()
-                Button("Annuler") { vm.cancelPasswordChange() }
-                    .help("Renoncer au changement et revenir à la connexion")
-                Button("Changer le mot de passe") {
+                Button("common.button.cancel") { vm.cancelPasswordChange() }
+                    .help("password_change.cancel.hint")
+                Button("password_change.submit.button") {
                     Task { await vm.submitPasswordChange() }
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(!canSubmit)
-                .help("Enregistrer le nouveau mot de passe puis se connecter")
+                .help("password_change.submit.hint")
             }
         }
         .padding(28)
@@ -76,7 +76,7 @@ struct PasswordChangeView: View {
         .onAppear {
             focusNewPassword = true
             VoiceOver.announce(
-                String(localized: "Ce compte doit changer son mot de passe avant de se connecter."),
+                String(localized: "common.error.password_change_required"),
                 category: .navigation
             )
         }

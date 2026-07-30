@@ -35,7 +35,7 @@ struct PerformanceAlarmRuleSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(draft.isCreation ? "Nouvelle règle d’alarme" : "Modifier la règle")
+            Text(draft.isCreation ? "alarm.rule.new.title" : "alarm.rule.edit.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.horizontal, 20)
@@ -43,7 +43,7 @@ struct PerformanceAlarmRuleSheet: View {
 
             Form {
                 Section {
-                    Picker("Surveiller", selection: $draft.kind) {
+                    Picker("alarm.rule.target.label", selection: $draft.kind) {
                         ForEach(PerformanceAlarmRule.Kind.editable) { kind in
                             Text(vm.kindText(kind)).tag(kind)
                         }
@@ -53,16 +53,16 @@ struct PerformanceAlarmRuleSheet: View {
 
                     switch draft.kind {
                     case .service:
-                        targetPicker(title: "Service", targets: vm.services)
+                        targetPicker(title: "common.column.service", targets: vm.services)
                     case .volume:
-                        targetPicker(title: "Volume", targets: vm.volumes)
+                        targetPicker(title: "common.column.volume", targets: vm.volumes)
                     default:
                         EmptyView()
                     }
                 }
 
                 Section {
-                    Picker("Ressource", selection: $draft.resource) {
+                    Picker("common.column.resource", selection: $draft.resource) {
                         ForEach(measures) { measure in
                             Text(vm.resourceText(measure.resource, for: draft.kind))
                                 .tag(measure.resource)
@@ -70,9 +70,9 @@ struct PerformanceAlarmRuleSheet: View {
                     }
                     .onChange(of: draft.resource) { _, _ in adoptThresholdDefault() }
 
-                    LabeledContent("Seuil") {
+                    LabeledContent("alarm.rule.threshold.label") {
                         HStack(spacing: 6) {
-                            TextField("Seuil", text: $thresholdText)
+                            TextField("alarm.rule.threshold.label", text: $thresholdText)
                                 .labelsHidden()
                                 .frame(width: 90)
                             if !unit.isEmpty {
@@ -86,13 +86,13 @@ struct PerformanceAlarmRuleSheet: View {
                         .font(.callout)
                         .foregroundStyle(.readableSecondary)
 
-                    Picker("Gravité", selection: $draft.severity) {
-                        Text("Avertissement").tag(PerformanceAlarmRule.Severity.warning)
-                        Text("Critique").tag(PerformanceAlarmRule.Severity.critical)
+                    Picker("common.column.severity", selection: $draft.severity) {
+                        Text("common.level.warning").tag(PerformanceAlarmRule.Severity.warning)
+                        Text("common.level.critical").tag(PerformanceAlarmRule.Severity.critical)
                     }
 
-                    Toggle("Règle active", isOn: $draft.isEnabled)
-                        .accessibilityHint("Une règle inactive reste enregistrée mais ne déclenche aucune alerte")
+                    Toggle("alarm.rule.active.label", isOn: $draft.isEnabled)
+                        .accessibilityHint("alarm.rule.active.hint")
                 }
 
                 if let validationMessage {
@@ -108,9 +108,9 @@ struct PerformanceAlarmRuleSheet: View {
 
             HStack {
                 Spacer()
-                Button("Annuler", role: .cancel) { completion(nil) }
+                Button("common.button.cancel", role: .cancel) { completion(nil) }
                     .keyboardShortcut(.cancelAction)
-                Button(draft.isCreation ? "Créer" : "Enregistrer") { submit() }
+                Button(draft.isCreation ? "common.button.create" : "common.button.save") { submit() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(vm.isLoadingTargets)
             }
@@ -128,14 +128,14 @@ struct PerformanceAlarmRuleSheet: View {
     private func targetPicker(title: LocalizedStringKey, targets: [PerformanceAlarmViewModel.Target]) -> some View {
         if vm.isLoadingTargets {
             LabeledContent(title) {
-                Text("Chargement…")
+                Text("common.status.loading")
                     .foregroundStyle(.readableSecondary)
             }
         } else if targets.isEmpty {
             // Le NAS n'a rien à proposer : le dire, plutôt que présenter une liste vide dont
             // on ne saurait pas si elle a échoué ou si elle est vide.
             LabeledContent(title) {
-                Text("Aucune cible disponible")
+                Text("alarm.rule.target.empty")
                     .foregroundStyle(.readableOrange)
             }
         } else {
@@ -162,9 +162,9 @@ struct PerformanceAlarmRuleSheet: View {
     private var boundsHint: String {
         guard let measure = currentMeasure else { return "" }
         if unit.isEmpty {
-            return String(localized: "Entre \(measure.range.lowerBound) et \(measure.range.upperBound)")
+            return String(localized: "alarm.rule.threshold.range.hint", defaultValue: "Between \(measure.range.lowerBound) and \(measure.range.upperBound)")
         }
-        return String(localized: "Entre \(measure.range.lowerBound) et \(measure.range.upperBound) \(unit)")
+        return String(localized: "alarm.rule.threshold.range_with_unit.hint", defaultValue: "Between \(measure.range.lowerBound) and \(measure.range.upperBound) \(unit)")
     }
 
     /// Le catalogue des ressources change avec le type : une ressource qui n'existe pas pour
@@ -194,19 +194,19 @@ struct PerformanceAlarmRuleSheet: View {
 
     private func submit() {
         guard let measure = currentMeasure else {
-            fail(String(localized: "Cette ressource n’est pas disponible pour ce type de règle."))
+            fail(String(localized: "alarm.rule.resource.error.unavailable"))
             return
         }
         guard let threshold = Int(thresholdText.trimmingCharacters(in: .whitespaces)) else {
-            fail(String(localized: "Le seuil doit être un nombre entier."))
+            fail(String(localized: "alarm.rule.threshold.error.not_integer"))
             return
         }
         guard measure.range.contains(threshold) else {
-            fail(String(localized: "Le seuil doit être compris entre \(measure.range.lowerBound) et \(measure.range.upperBound)."))
+            fail(String(localized: "alarm.rule.threshold.error.out_of_range", defaultValue: "The threshold must be between \(measure.range.lowerBound) and \(measure.range.upperBound)."))
             return
         }
         if draft.kind.fixedTarget == nil, draft.target.isEmpty {
-            fail(String(localized: "Choisissez la cible à surveiller."))
+            fail(String(localized: "alarm.rule.target.hint"))
             return
         }
 

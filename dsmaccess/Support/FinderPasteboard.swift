@@ -124,13 +124,13 @@ final class FileStationFilePromiseDelegate: NSObject, NSFilePromiseProviderDeleg
             guard let viewModel else {
                 completionHandler(FilePromiseError(
                     message: String(
-                        localized: "Le transfert vers le Finder a échoué : la session NAS n’est plus disponible."
+                        localized: "finder.paste.session.error"
                     )
                 ))
                 return
             }
             VoiceOver.announce(
-                String(localized: "Téléchargement pour le Finder en cours…"),
+                String(localized: "finder.paste.download.progress"),
                 category: .progress,
                 priority: .low
             )

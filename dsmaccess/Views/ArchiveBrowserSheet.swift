@@ -18,7 +18,7 @@ struct ArchiveBrowserSheet: View {
     let onExtract: (FileStationExtractionOptions) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @State private var levels = [Level(name: String(localized: "Racine"), itemID: nil)]
+    @State private var levels = [Level(name: String(localized: "files.archive.path.root"), itemID: nil)]
     @State private var selection = Set<Int>()
     @State private var sort = FileStationArchiveSort.name
     @State private var ascending = true
@@ -60,11 +60,11 @@ struct ArchiveBrowserSheet: View {
 
     private var header: some View {
         HStack(spacing: 12) {
-            Button("Dossier parent", systemImage: "chevron.up", action: goUp)
+            Button("common.button.parent_folder", systemImage: "chevron.up", action: goUp)
                 .disabled(levels.count == 1 || vm.isLoadingArchive)
-                .help("Afficher le dossier parent dans l’archive")
+                .help("files.archive.button.parent_folder.hint")
             VStack(alignment: .leading, spacing: 2) {
-                Text("Contenu de \(archive.name)")
+                Text(String(localized: "files.archive.contents_of.title", defaultValue: "Contents of \(archive.name)"))
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
                     .accessibilityFocused($focusHeading)
@@ -73,11 +73,11 @@ struct ArchiveBrowserSheet: View {
                     .foregroundStyle(.secondary)
             }
             Spacer()
-            Button("Actualiser", systemImage: "arrow.clockwise") {
+            Button("common.button.refresh", systemImage: "arrow.clockwise") {
                 Task { await load() }
             }
             .disabled(vm.isLoadingArchive)
-            .help("Relire le contenu de l’archive")
+            .help("files.archive.button.reload.hint")
         }
         .padding()
     }
@@ -85,11 +85,11 @@ struct ArchiveBrowserSheet: View {
     private var optionsBar: some View {
         Form {
             HStack(alignment: .top, spacing: 16) {
-                SecureField("Mot de passe facultatif", text: $password)
+                SecureField("common.field.optional_password", text: $password)
                     .frame(maxWidth: 240)
-                Toggle("Choisir l’encodage", isOn: $usesCodepage)
+                Toggle("files.archive.encoding.label", isOn: $usesCodepage)
                 if usesCodepage {
-                    Picker("Encodage", selection: $codepage) {
+                    Picker("common.field.encoding", selection: $codepage) {
                         ForEach(FileStationArchiveCodepage.allCases) { value in
                             Text(value.localizedTitle).tag(value)
                         }
@@ -98,14 +98,14 @@ struct ArchiveBrowserSheet: View {
                 }
             }
             HStack(spacing: 16) {
-                Picker("Trier par", selection: $sort) {
+                Picker("common.label.sort_by", selection: $sort) {
                     ForEach(FileStationArchiveSort.allCases, id: \.self) { value in
                         Text(value.localizedTitle).tag(value)
                     }
                 }
                 .frame(maxWidth: 220)
-                Toggle("Ordre croissant", isOn: $ascending)
-                Button("Appliquer") { Task { await load() } }
+                Toggle("common.sort.ascending", isOn: $ascending)
+                Button("common.button.apply") { Task { await load() } }
                     .disabled(vm.isLoadingArchive)
             }
         }
@@ -116,24 +116,24 @@ struct ArchiveBrowserSheet: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoadingArchive && vm.archiveItems.isEmpty {
-            ModuleLoadingView("Lecture de l’archive…")
+            ModuleLoadingView("files.archive.loading.label")
                 .accessibilityFocused($focusStatus)
         } else if let error = vm.archiveError {
             VStack(spacing: 12) {
                 Text(error)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
-                Text("Vérifiez le mot de passe ou l’encodage, puis réessayez.")
+                Text("files.archive.read_failed.hint")
                     .foregroundStyle(.secondary)
-                Button("Réessayer") { Task { await load() } }
+                Button("common.button.retry") { Task { await load() } }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityFocused($focusStatus)
         } else if vm.archiveItems.isEmpty {
             ContentUnavailableView(
-                "Dossier vide dans l’archive",
+                "files.archive.folder.empty",
                 systemImage: "archivebox",
-                description: Text("Ce niveau ne contient aucun élément.")
+                description: Text("files.archive.empty")
             )
             .accessibilityFocused($focusStatus)
         } else {
@@ -146,7 +146,7 @@ struct ArchiveBrowserSheet: View {
                         Text(item.name)
                         HStack(spacing: 8) {
                             Text(item.size, format: .byteCount(style: .file))
-                            Text(String(localized: "Compressé : \(item.packedSize.formatted(.byteCount(style: .file)))"))
+                            Text(String(localized: "files.archive.compressed_size.value", defaultValue: "Compressed: \(item.packedSize.formatted(.byteCount(style: .file)))"))
                             Text(item.modificationTime)
                         }
                         .font(.caption)
@@ -154,49 +154,49 @@ struct ArchiveBrowserSheet: View {
                     }
                     Spacer()
                     if item.isDirectory {
-                        Button("Ouvrir") { open(item) }
-                            .help(String(localized: "Ouvrir \(item.name) dans l’archive"))
+                        Button("common.button.open") { open(item) }
+                            .help(String(localized: "files.archive.entry.open.hint", defaultValue: "Open \(item.name) in the archive"))
                     }
                 }
                 .tag(item.itemID)
                 .accessibilityElement(children: .contain)
             }
-            .accessibilityLabel("Contenu de l’archive")
+            .accessibilityLabel("files.archive.title")
         }
     }
 
     private var footer: some View {
         HStack {
-            Button("Tout sélectionner") {
+            Button("files.archive.button.select_all") {
                 selection.formUnion(vm.archiveItems.map(\.itemID))
             }
             .disabled(vm.archiveItems.isEmpty)
-            Button("Effacer la sélection") { selection.removeAll() }
+            Button("files.archive.button.clear_selection") { selection.removeAll() }
                 .disabled(selection.isEmpty)
             Spacer()
-            Button("Annuler", role: .cancel) { dismiss() }
+            Button("common.button.cancel", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
             Button {
                 showingExtractionOptions = true
             } label: {
                 Text(
                     selection.isEmpty
-                        ? String(localized: "Extraire tout")
-                        : String(localized: "Extraire la sélection")
+                        ? String(localized: "files.archive.button.extract_all")
+                        : String(localized: "files.archive.button.extract_selection")
                 )
             }
             .disabled(vm.isLoadingArchive || vm.archiveError != nil)
             .keyboardShortcut(.defaultAction)
             .help(selection.isEmpty
-                  ? String(localized: "Extraire tout le contenu de l’archive")
-                  : String(localized: "Extraire uniquement les éléments sélectionnés"))
+                  ? String(localized: "files.archive.button.extract_all.hint")
+                  : String(localized: "files.archive.button.extract_selection.hint"))
         }
         .padding()
     }
 
     private func load() async {
         VoiceOver.announce(
-            String(localized: "Lecture de l’archive en cours…"),
+            String(localized: "files.archive.loading.announcement"),
             category: .progress,
             priority: .low
         )
@@ -217,7 +217,7 @@ struct ArchiveBrowserSheet: View {
         } else {
             focusHeading = true
             VoiceOver.announce(
-                String(localized: "Éléments dans ce dossier : \(vm.archiveItems.count)"),
+                String(localized: "files.archive.folder.item_count", defaultValue: "Items in this folder: \(vm.archiveItems.count)"),
                 category: .result
             )
         }
@@ -239,10 +239,10 @@ struct ArchiveBrowserSheet: View {
 private extension FileStationArchiveSort {
     var localizedTitle: String {
         switch self {
-        case .name: String(localized: "Nom")
-        case .size: String(localized: "Taille d’origine")
-        case .packedSize: String(localized: "Taille compressée")
-        case .modifiedTime: String(localized: "Date de modification")
+        case .name: String(localized: "common.column.name")
+        case .size: String(localized: "files.archive.column.original_size")
+        case .packedSize: String(localized: "files.archive.column.compressed_size")
+        case .modifiedTime: String(localized: "common.column.date_modified")
         }
     }
 }

@@ -56,9 +56,9 @@ struct NameEntrySheet: View {
 
             HStack {
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                    .help("Annuler cette opération")
+                    .help("name_entry.cancel.hint")
                 Button(confirmLabel, action: confirm)
                     .keyboardShortcut(.defaultAction)
                     .disabled(trimmedName.isEmpty)

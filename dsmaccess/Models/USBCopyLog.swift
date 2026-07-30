@@ -17,10 +17,10 @@ enum USBCopyLogType: Int, CaseIterable, Identifiable, Sendable {
 
     var localizedName: String {
         switch self {
-        case .information: String(localized: "Informations")
-        case .error: String(localized: "Erreurs")
-        case .warning: String(localized: "Avertissements")
-        case .all: String(localized: "Tous les événements")
+        case .information: String(localized: "common.label.information")
+        case .error: String(localized: "common.level.errors")
+        case .warning: String(localized: "common.level.warnings")
+        case .all: String(localized: "usb_copy.log.filter.all_events")
         }
     }
 }

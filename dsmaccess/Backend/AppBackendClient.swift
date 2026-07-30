@@ -27,10 +27,10 @@ final class AppBackendClient {
 
         var title: LocalizedStringResource {
             switch self {
-            case .bug: "Signalement de problème"
-            case .suggestion: "Suggestion"
-            case .question: "Question"
-            case .other: "Autre"
+            case .bug: "feedback.kind.problem"
+            case .suggestion: "feedback.kind.suggestion"
+            case .question: "feedback.kind.question"
+            case .other: "feedback.kind.other"
             }
         }
     }
@@ -45,15 +45,15 @@ final class AppBackendClient {
         var localizedMessage: String {
             switch self {
             case .notConfigured:
-                String(localized: "L’envoi de messages n’est pas disponible dans cette version de l’app.")
+                String(localized: "common.error.messaging_unavailable")
             case .network:
-                String(localized: "Impossible de joindre le serveur. Vérifiez votre connexion Internet, puis réessayez.")
+                String(localized: "feedback.send.unreachable.error")
             case .rateLimited:
-                String(localized: "Trop de messages envoyés récemment. Réessayez dans une heure.")
+                String(localized: "feedback.send.rate_limited.error")
             case .validation:
-                String(localized: "Le message n’a pas pu être accepté. Vérifiez l’adresse e-mail et le contenu, puis réessayez.")
+                String(localized: "feedback.send.rejected.error")
             case .server:
-                String(localized: "Le serveur a rencontré une erreur. Réessayez plus tard.")
+                String(localized: "feedback.send.server.error")
             }
         }
     }

@@ -18,7 +18,7 @@ struct NetworkSettingsView: View {
     var body: some View {
         Group {
             if vm.isLoading && vm.info == nil {
-                ModuleLoadingView("Chargement de la configuration réseau…")
+                ModuleLoadingView("network.loading")
                     .accessibilityFocused($focusContent)
             } else if let error = vm.errorMessage {
                 ModuleErrorView(message: error) {
@@ -33,60 +33,60 @@ struct NetworkSettingsView: View {
                 .accessibilityFocused($focusContent)
             } else {
                 EmptyModuleView(
-                    title: "Configuration réseau indisponible",
+                    title: "common.error.network_configuration_unavailable",
                     systemImage: "network.slash",
-                    description: "Le NAS n’a renvoyé aucune information réseau."
+                    description: "network.empty.description"
                 )
                 .accessibilityFocused($focusContent)
             }
         }
-        .navigationTitle("Réseau et identité")
+        .navigationTitle("common.section.network_identity")
         .toolbar {
             ToolbarItem {
                 Button {
                     Task { await load() }
                 } label: {
-                    Label("Actualiser", systemImage: "arrow.clockwise")
+                    Label("common.button.refresh", systemImage: "arrow.clockwise")
                 }
-                .help("Actualiser la configuration réseau")
+                .help("network.refresh.button")
             }
         }
         .task { await load(restoresInitialFocus: true) }
     }
 
     private func identitySection(_ info: NetworkInfo) -> some View {
-        Section("Identité") {
+        Section("network.identity.section") {
             if let name = info.serverName, !name.isEmpty {
-                LabeledContent("Nom du serveur", value: name)
+                LabeledContent("network.identity.server_name", value: name)
             }
             if info.enableWinDomain == true {
-                LabeledContent("Domaine Windows", value: String(localized: "Activé"))
+                LabeledContent("network.identity.windows_domain", value: String(localized: "common.status.enabled.masculine"))
             }
         }
     }
 
     private func networkSection(_ info: NetworkInfo) -> some View {
-        Section("Réseau") {
+        Section("common.label.network") {
             if let ip = info.gatewayInfo?.ip, !ip.isEmpty {
-                LabeledContent("Adresse IP", value: ip)
+                LabeledContent("network.interface.ip_address", value: ip)
             }
             if let mask = info.gatewayInfo?.mask, !mask.isEmpty {
-                LabeledContent("Masque de sous-réseau", value: mask)
+                LabeledContent("network.interface.subnet_mask", value: mask)
             }
             if let gateway = info.gateway, !gateway.isEmpty {
-                LabeledContent("Passerelle par défaut", value: gateway)
+                LabeledContent("network.gateway.default", value: gateway)
             }
             if let dns = dnsText(info) {
-                LabeledContent("Serveur DNS", value: dns)
+                LabeledContent("network.dns.server", value: dns)
             }
             if let mode = dnsModeText(info) {
-                LabeledContent("Configuration DNS", value: mode)
+                LabeledContent("network.dns.configuration", value: mode)
             }
             if let v6 = info.v6gateway, !v6.isEmpty {
-                LabeledContent("Passerelle IPv6", value: v6)
+                LabeledContent("network.gateway.ipv6", value: v6)
             }
             if let interface = interfaceText(info) {
-                LabeledContent("Interface", value: interface)
+                LabeledContent("network.interface.label", value: interface)
             }
         }
     }
@@ -100,20 +100,20 @@ struct NetworkSettingsView: View {
 
     private func dnsModeText(_ info: NetworkInfo) -> String? {
         guard let manual = info.dnsManual else { return nil }
-        return manual ? String(localized: "Manuelle") : String(localized: "Automatique (DHCP)")
+        return manual ? String(localized: "network.configuration.manual") : String(localized: "network.configuration.automatic")
     }
 
     private func interfaceText(_ info: NetworkInfo) -> String? {
         guard let name = info.gatewayInfo?.ifname, !name.isEmpty else { return nil }
         if info.gatewayInfo?.useDhcp == true {
-            return String(localized: "\(name) (DHCP)")
+            return String(localized: "network.interface.address.dhcp", defaultValue: "\(name) (DHCP)")
         }
         return name
     }
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement de la configuration réseau…"),
+            String(localized: "network.loading"),
             category: .progress,
             priority: .low
         )

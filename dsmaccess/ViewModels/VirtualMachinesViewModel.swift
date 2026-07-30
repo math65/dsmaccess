@@ -52,20 +52,20 @@ final class VirtualMachinesViewModel {
             }
             await load(silently: true)
             switch action {
-            case .powerOn: return .success(String(localized: "Démarrage demandé pour \(machine.name)"))
-            case .shutdown: return .success(String(localized: "Arrêt propre demandé pour \(machine.name)"))
-            case .powerOff: return .success(String(localized: "Extinction forcée demandée pour \(machine.name)"))
+            case .powerOn: return .success(String(localized: "vm.start.requested.announcement", defaultValue: "Start requested for \(machine.name)"))
+            case .shutdown: return .success(String(localized: "vm.shutdown.requested.announcement", defaultValue: "Graceful shutdown requested for \(machine.name)"))
+            case .powerOff: return .success(String(localized: "vm.force_off.requested.announcement", defaultValue: "Forced power off requested for \(machine.name)"))
             }
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec pour \(machine.name) : \(reason)"))
+            return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(machine.name): \(reason)"))
         }
     }
 
     var summary: String {
         if let errorMessage { return errorMessage }
         let running = machines.filter(\.isRunning).count
-        return String(localized: "\(machines.count) machines virtuelles, \(running) en fonctionnement")
+        return String(localized: "vm.summary.counts", defaultValue: "\(machines.count) virtual machines, \(running) running")
     }
 }

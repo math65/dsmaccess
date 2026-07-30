@@ -129,22 +129,22 @@ struct DSMPasswordPolicy: nonisolated Decodable, Equatable, Sendable {
     var requirements: [String] {
         var rules: [String] = []
         if let minimumLength {
-            rules.append(String(localized: "Au moins \(minimumLength) caractères."))
+            rules.append(String(localized: "account.password_rule.min_length", defaultValue: "At least \(minimumLength) characters."))
         }
         if requiresMixedCase {
-            rules.append(String(localized: "Des majuscules et des minuscules."))
+            rules.append(String(localized: "account.password_rule.mixed_case"))
         }
         if requiresDigit {
-            rules.append(String(localized: "Au moins un chiffre."))
+            rules.append(String(localized: "account.password_rule.digit"))
         }
         if requiresSpecialCharacter {
-            rules.append(String(localized: "Au moins un caractère spécial."))
+            rules.append(String(localized: "account.password_rule.special_character"))
         }
         if excludesUserName {
-            rules.append(String(localized: "Ni le nom ni la description du compte."))
+            rules.append(String(localized: "account.password_rule.exclude_account_info"))
         }
         if excludesCommonPasswords {
-            rules.append(String(localized: "Pas un mot de passe courant."))
+            rules.append(String(localized: "account.password_rule.not_common"))
         }
         return rules
     }

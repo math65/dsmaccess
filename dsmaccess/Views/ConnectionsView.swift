@@ -35,8 +35,8 @@ struct ConnectionsView: View {
                     pendingKick = []
                     Task { await kick(targets) }
                 }
-                Button("Annuler", role: .cancel) { }
-                    .help("Laisser ces sessions ouvertes")
+                Button("common.button.cancel", role: .cancel) { }
+                    .help("connections.disconnect.confirm.cancel")
             } message: {
                 Text(kickMessage)
             }
@@ -45,20 +45,20 @@ struct ConnectionsView: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.connections.isEmpty {
-            ModuleLoadingView("Chargement des connexions…")
+            ModuleLoadingView("connections.loading")
         } else if let error = vm.errorMessage, vm.connections.isEmpty {
             ModuleErrorView(message: error) {
                 Task { await vm.load(announce: true) }
             }
         } else if vm.connections.isEmpty {
             ContentUnavailableView(
-                "Aucune connexion",
+                "connections.empty.title",
                 systemImage: "person.crop.circle.badge.questionmark",
-                description: Text("Le NAS ne signale aucune session ouverte.")
+                description: Text("connections.empty.description")
             )
         } else {
             VStack(alignment: .leading, spacing: 0) {
-                Text("Sessions ouvertes")
+                Text("connections.table.label")
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, 12)
@@ -70,31 +70,31 @@ struct ConnectionsView: View {
                     selection: $selection,
                     sortOrder: $order
                 ) {
-                    TableColumn("Compte", value: \.sortableAccount) { connection in
+                    TableColumn("common.column.account", value: \.sortableAccount) { connection in
                         Text(vm.accountText(for: connection))
                     }
-                    TableColumn("Protocole", value: \.sortableType) { connection in
-                        Text(connection.type ?? String(localized: "Protocole inconnu"))
+                    TableColumn("common.column.protocol", value: \.sortableType) { connection in
+                        Text(connection.type ?? String(localized: "connections.protocol.unknown"))
                     }
-                    TableColumn("Adresse", value: \.sortableAddress) { connection in
-                        Text(connection.address ?? String(localized: "adresse inconnue"))
+                    TableColumn("common.column.address", value: \.sortableAddress) { connection in
+                        Text(connection.address ?? String(localized: "connections.address.unknown"))
                     }
-                    TableColumn("Ressource", value: \.sortableDescription) { connection in
+                    TableColumn("common.column.resource", value: \.sortableDescription) { connection in
                         Text(connection.descriptionText ?? "—")
                     }
-                    TableColumn("Ouverte le", value: \.sortableDate) { connection in
+                    TableColumn("connections.column.opened", value: \.sortableDate) { connection in
                         Text(vm.openedAtText(for: connection))
                     }
                     // Trois valeurs que DSM n'affiche pas. « Client » et « Lieu » restent vides
                     // sur un accès local — le NAS ne les renseigne que pour certaines sessions —
                     // d'où le tiret, cohérent avec les autres colonnes de ce module.
-                    TableColumn("Client", value: \.sortableUserAgent) { connection in
+                    TableColumn("connections.column.client", value: \.sortableUserAgent) { connection in
                         Text(vm.clientText(for: connection))
                     }
-                    TableColumn("Lieu", value: \.sortableLocation) { connection in
+                    TableColumn("common.column.place", value: \.sortableLocation) { connection in
                         Text(vm.locationText(for: connection))
                     }
-                    TableColumn("Deux étapes", value: \.sortableTwoFactor) { connection in
+                    TableColumn("connections.column.two_step", value: \.sortableTwoFactor) { connection in
                         Text(vm.twoFactorText(for: connection))
                     }
                     // Pas de colonne « session courante » : vérifié sur DSM 7.4, le NAS ne
@@ -104,7 +104,7 @@ struct ConnectionsView: View {
                 .contextMenu(forSelectionType: String.self) { ids in
                     let targets = connections(for: ids)
                     if targets.contains(where: vm.canKick) {
-                        Button("Couper la session…", role: .destructive) {
+                        Button("connections.button.disconnect", role: .destructive) {
                             pendingKick = targets.filter(vm.canKick)
                         }
                     }
@@ -112,7 +112,7 @@ struct ConnectionsView: View {
 
                 actionBar
 
-                Text("Une même machine peut apparaître plusieurs fois : une ligne par protocole.")
+                Text("connections.table.footer")
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
                     .padding(12)
@@ -126,7 +126,7 @@ struct ConnectionsView: View {
                 pendingKick = selectedConnections.filter(vm.canKick)
             }
             .disabled(!selectedConnections.contains(where: vm.canKick))
-            .help("Fermer les sessions sélectionnées sur le NAS")
+            .help("connections.button.disconnect.hint")
             Spacer()
         }
         .padding(.horizontal, 12)
@@ -143,20 +143,36 @@ struct ConnectionsView: View {
 
     /// Le libellé porte le nombre : sans lui, le bouton s'annonce « Couper » sans dire sur
     /// quoi il porte, et rien ne distingue une session de six.
-    private var kickButtonLabel: LocalizedStringKey {
+    private var kickButtonLabel: String {
         let count = selectedConnections.filter(vm.canKick).count
-        return count <= 1 ? "Couper la session sélectionnée…" : "Couper les \(count) sessions sélectionnées…"
+        return count <= 1
+            ? String(localized: "connections.button.disconnect_selected_single")
+            : String(
+                localized: "connections.button.disconnect_selected_multiple",
+                defaultValue: "Disconnect the \(count) selected sessions…"
+            )
     }
 
-    private var kickTitle: LocalizedStringKey {
-        pendingKick.count <= 1 ? "Couper cette session ?" : "Couper ces \(pendingKick.count) sessions ?"
+    private var kickTitle: String {
+        pendingKick.count <= 1
+            ? String(localized: "connections.disconnect.single.confirm.title")
+            : String(
+                localized: "connections.disconnect.multiple.confirm.title",
+                defaultValue: "Disconnect these \(pendingKick.count) sessions?"
+            )
     }
 
-    private var kickConfirmationLabel: LocalizedStringKey {
+    private var kickConfirmationLabel: String {
         guard let only = pendingKick.first, pendingKick.count == 1 else {
-            return "Couper les \(pendingKick.count) sessions"
+            return String(
+                localized: "connections.disconnect.multiple.confirm.button",
+                defaultValue: "Disconnect the \(pendingKick.count) sessions"
+            )
         }
-        return "Couper la session de \(vm.accountText(for: only))"
+        return String(
+            localized: "connections.row.disconnect.label",
+            defaultValue: "Disconnect \(vm.accountText(for: only))’s session"
+        )
     }
 
     /// La confirmation nomme les sessions visées et dit ce qui se passe : un transfert en
@@ -167,14 +183,16 @@ struct ConnectionsView: View {
         if let only = pendingKick.first, pendingKick.count == 1 {
             sentences.append(
                 String(
-                    localized: "La session de \(vm.accountText(for: only)) ouverte depuis \(only.address ?? String(localized: "une adresse inconnue")) sera fermée, et tout transfert en cours sur cette session interrompu."
+                    localized: "connections.disconnect.single.confirm.message",
+                    defaultValue: "\(vm.accountText(for: only))’s session from \(only.address ?? String(localized: "connections.address.unknown.inline")) will be closed, and any transfer in progress on it interrupted."
                 )
             )
         } else {
             let accounts = pendingKick.map { vm.accountText(for: $0) }
             sentences.append(
                 String(
-                    localized: "Ces sessions seront fermées et tout transfert en cours interrompu. Comptes concernés : \(accounts.formatted(.list(type: .and)))."
+                    localized: "connections.disconnect.multiple.confirm.message",
+                    defaultValue: "These sessions will be closed and any transfer in progress interrupted. Accounts affected: \(accounts.formatted(.list(type: .and)))."
                 )
             )
         }
@@ -185,10 +203,10 @@ struct ConnectionsView: View {
             sentences.append(
                 pendingKick.count == 1
                     ? String(
-                        localized: "Cette session peut être celle de cette app : vous seriez alors déconnecté du NAS."
+                        localized: "connections.disconnect.single.confirm.self_warning"
                     )
                     : String(
-                        localized: "L’une de ces sessions peut être celle de cette app : vous seriez alors déconnecté du NAS."
+                        localized: "connections.disconnect.multiple.confirm.self_warning"
                     )
             )
         }

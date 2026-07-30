@@ -32,23 +32,23 @@ nonisolated enum QuickConnectError: Error, LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .invalidID:
-            String(localized: "L’identifiant QuickConnect n’est pas valide.")
+            String(localized: "common.error.invalid_quickconnect_id")
         case .unknownID:
-            String(localized: "Cet identifiant QuickConnect est introuvable.")
+            String(localized: "quickconnect.error.id_not_found")
         case .nasUnavailable:
-            String(localized: "Le NAS associé à cet identifiant QuickConnect est hors ligne.")
+            String(localized: "quickconnect.error.nas_offline")
         case .serviceUnavailable:
-            String(localized: "L’accès à DSM par QuickConnect n’est pas activé sur ce NAS.")
+            String(localized: "quickconnect.error.dsm_access_disabled")
         case .relayDisabled:
-            String(localized: "Le relais QuickConnect n’est pas activé sur ce NAS.")
+            String(localized: "quickconnect.error.relay_disabled")
         case .secureRouteUnavailable:
-            String(localized: "QuickConnect n’a fourni aucune route HTTPS vérifiable vers ce NAS.")
+            String(localized: "quickconnect.error.no_https_route")
         case .invalidResponse:
-            String(localized: "La réponse de QuickConnect n’a pas pu être vérifiée.")
+            String(localized: "quickconnect.error.unverified_response")
         case .server(let code):
-            String(localized: "QuickConnect a refusé la connexion (code \(code)).")
+            String(localized: "quickconnect.error.refused", defaultValue: "QuickConnect refused the connection (code \(code)).")
         case .network(let detail):
-            String(localized: "Impossible de joindre QuickConnect : \(detail)")
+            String(localized: "quickconnect.error.unreachable", defaultValue: "Could not reach QuickConnect: \(detail)")
         }
     }
 }

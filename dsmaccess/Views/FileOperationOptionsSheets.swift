@@ -27,13 +27,13 @@ struct FileConflictPolicySheet: View {
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusTitle)
 
-            LabeledContent("Éléments") { Text(itemCount, format: .number) }
+            LabeledContent("files.selection.items") { Text(itemCount, format: .number) }
                 .labeledContentStyle(.readable)
 
             ConflictPolicyPicker(selection: $conflictPolicy)
 
             HStack {
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Spacer()
                 Button(confirmLabel) {
@@ -67,7 +67,7 @@ struct FileUploadOptionsSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Options d’envoi")
+            Text("files.upload.options.title")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -77,38 +77,38 @@ struct FileUploadOptionsSheet: View {
             Divider()
 
             Form {
-                Section("Éléments sélectionnés") {
+                Section("files.selection.section") {
                     if fileCount > 0 {
-                        LabeledContent("Fichiers") { Text(fileCount, format: .number) }
+                        LabeledContent("common.module.files") { Text(fileCount, format: .number) }
                     }
                     if folderCount > 0 {
-                        LabeledContent("Dossiers (contenu inclus)") {
+                        LabeledContent("files.selection.folders") {
                             Text(folderCount, format: .number)
                         }
                     }
                 }
 
-                Section("Conflits de noms") {
+                Section("files.conflict.section") {
                     ConflictPolicyPicker(selection: $conflictPolicy)
                 }
 
-                Section("Dossiers") {
-                    Toggle("Créer les dossiers parents manquants", isOn: $createsParentFolders)
+                Section("common.label.folders") {
+                    Toggle("files.upload.create_parents", isOn: $createsParentFolders)
                 }
 
-                Section("Dates appliquées aux fichiers envoyés") {
+                Section("files.upload.dates.section") {
                     dateOption(
-                        "Définir la date de modification",
+                        "files.upload.dates.set_modification",
                         isEnabled: $setsModificationDate,
                         date: $modificationDate
                     )
                     dateOption(
-                        "Définir la date de création",
+                        "files.upload.dates.set_creation",
                         isEnabled: $setsCreationDate,
                         date: $creationDate
                     )
                     dateOption(
-                        "Définir la date de dernier accès",
+                        "files.upload.dates.set_last_access",
                         isEnabled: $setsAccessDate,
                         date: $accessDate
                     )
@@ -119,10 +119,10 @@ struct FileUploadOptionsSheet: View {
             Divider()
 
             HStack {
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Spacer()
-                Button("Envoyer", action: submit)
+                Button("common.button.upload", action: submit)
                     .keyboardShortcut(.defaultAction)
             }
             .padding()
@@ -139,7 +139,7 @@ struct FileUploadOptionsSheet: View {
         VStack(alignment: .leading) {
             Toggle(title, isOn: isEnabled)
             if isEnabled.wrappedValue {
-                DatePicker("Date et heure", selection: date)
+                DatePicker("files.upload.dates.mode.date_time", selection: date)
                     .padding(.leading, 20)
             }
         }
@@ -186,7 +186,7 @@ struct FileCompressionOptionsSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Créer une archive")
+            Text("files.archive.create.title")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -203,17 +203,17 @@ struct FileCompressionOptionsSheet: View {
                     }
                 }
 
-                Section("Archive") {
-                    TextField("Nom de l’archive", text: $archiveName)
+                Section("files.archive.section") {
+                    TextField("files.archive.name.label", text: $archiveName)
                         .focused($nameIsFocused)
-                    Picker("Format", selection: $format) {
-                        Text("ZIP").tag(FileStationArchiveFormat.zip)
-                        Text("7z").tag(FileStationArchiveFormat.sevenZip)
+                    Picker("files.archive.format.label", selection: $format) {
+                        Text("files.archive.format.zip").tag(FileStationArchiveFormat.zip)
+                        Text("files.archive.format.7z").tag(FileStationArchiveFormat.sevenZip)
                     }
-                    SecureField("Mot de passe facultatif", text: $password)
-                    Toggle("Choisir l’encodage des noms", isOn: $usesCodepage)
+                    SecureField("common.field.optional_password", text: $password)
+                    Toggle("files.extract.codepage.label", isOn: $usesCodepage)
                     if usesCodepage {
-                        Picker("Encodage", selection: $codepage) {
+                        Picker("common.field.encoding", selection: $codepage) {
                             ForEach(FileStationArchiveCodepage.allCases) { value in
                                 Text(value.localizedTitle).tag(value)
                             }
@@ -221,13 +221,13 @@ struct FileCompressionOptionsSheet: View {
                     }
                 }
 
-                Section("Compression") {
-                    Picker("Niveau", selection: $level) {
+                Section("common.operation.compression") {
+                    Picker("common.column.level", selection: $level) {
                         ForEach(FileStationCompressionLevel.allCases, id: \.self) { value in
                             Text(value.localizedTitle).tag(value)
                         }
                     }
-                    Picker("Mode", selection: $mode) {
+                    Picker("files.archive.mode.label", selection: $mode) {
                         ForEach(FileStationCompressionMode.allCases, id: \.self) { value in
                             Text(value.localizedTitle).tag(value)
                         }
@@ -239,10 +239,10 @@ struct FileCompressionOptionsSheet: View {
             Divider()
 
             HStack {
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Spacer()
-                Button("Créer l’archive", action: submit)
+                Button("files.archive.create.button", action: submit)
                     .keyboardShortcut(.defaultAction)
             }
             .padding()
@@ -257,7 +257,7 @@ struct FileCompressionOptionsSheet: View {
     private func submit() {
         let trimmed = archiveName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else {
-            let message = String(localized: "Le nom de l’archive est requis.")
+            let message = String(localized: "files.archive.name.required.error")
             validationMessage = message
             focusError = true
             VoiceOver.announce(message, category: .error, priority: .high)
@@ -308,7 +308,7 @@ struct FileExtractionOptionsSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Extraire \(archiveName)")
+            Text(String(localized: "files.extract.title", defaultValue: "Extract \(archiveName)"))
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -318,18 +318,18 @@ struct FileExtractionOptionsSheet: View {
             Divider()
 
             Form {
-                Section("Conflits de noms") {
+                Section("files.conflict.section") {
                     ConflictPolicyPicker(selection: $conflictPolicy)
                 }
-                Section("Organisation") {
-                    Toggle("Conserver la structure des dossiers", isOn: $keepsDirectoryStructure)
-                    Toggle("Créer un sous-dossier pour l’archive", isOn: $createsSubfolder)
+                Section("common.label.organization") {
+                    Toggle("files.upload.keep_structure", isOn: $keepsDirectoryStructure)
+                    Toggle("files.extract.create_subfolder", isOn: $createsSubfolder)
                 }
-                Section("Archive protégée ou ancienne") {
-                    SecureField("Mot de passe facultatif", text: $password)
-                    Toggle("Choisir l’encodage des noms", isOn: $usesCodepage)
+                Section("files.extract.codepage.section") {
+                    SecureField("common.field.optional_password", text: $password)
+                    Toggle("files.extract.codepage.label", isOn: $usesCodepage)
                     if usesCodepage {
-                        Picker("Encodage", selection: $codepage) {
+                        Picker("common.field.encoding", selection: $codepage) {
                             ForEach(FileStationArchiveCodepage.allCases) { value in
                                 Text(value.localizedTitle).tag(value)
                             }
@@ -342,10 +342,10 @@ struct FileExtractionOptionsSheet: View {
             Divider()
 
             HStack {
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                 Spacer()
-                Button("Extraire", action: submit)
+                Button("common.button.extract", action: submit)
                     .keyboardShortcut(.defaultAction)
             }
             .padding()
@@ -382,17 +382,17 @@ struct FileOperationProgressBanner: View {
                 Text(label)
                     .font(.headline)
                 Spacer()
-                Button("Annuler l’opération", role: .destructive, action: cancel)
-                    .help("Arrêter l’opération en cours sur le NAS")
+                Button("files.operation.cancel.button", role: .destructive, action: cancel)
+                    .help("files.operation.cancel.button.hint")
             }
 
             if let fraction = progress?.normalizedFraction {
                 ProgressView(value: fraction)
-                    .accessibilityLabel(String(localized: "Progression de \(label)"))
+                    .accessibilityLabel(String(localized: "common.label.progress_for", defaultValue: "\(label) progress"))
                     .accessibilityValue(fraction.formatted(.percent.precision(.fractionLength(0))))
             } else {
                 ProgressView()
-                    .accessibilityLabel(String(localized: "\(label) en cours…"))
+                    .accessibilityLabel(String(localized: "files.operation.progress.title", defaultValue: "\(label) in progress…"))
             }
 
             if let detail {
@@ -419,27 +419,28 @@ struct FileOperationProgressBanner: View {
         guard let bytesPerSecond else { return nil }
         let speed = Int64(bytesPerSecond).formatted(.byteCount(style: .file))
         guard let timeRemaining else {
-            return String(localized: "\(speed)/s")
+            return String(localized: "common.unit.per_second", defaultValue: "\(speed)/s")
         }
         // Sous la minute, annoncer des secondes qui défilent n'aide personne ; dire que
         // la fin est proche, si.
         guard timeRemaining >= .seconds(60) else {
-            return String(localized: "\(speed)/s, il reste moins d’une minute")
+            return String(localized: "files.operation.progress.remaining_under_minute", defaultValue: "\(speed)/s, less than a minute left")
         }
         let left = timeRemaining.formatted(
             .units(allowed: [.hours, .minutes], width: .wide, maximumUnitCount: 2)
         )
-        return String(localized: "\(speed)/s, il reste environ \(left)")
+        return String(localized: "files.operation.progress.remaining", defaultValue: "\(speed)/s, about \(left) left")
     }
 
     private var detail: String? {
         if let processed = progress?.processedSize, let total = progress?.totalSize, total > 0 {
             return String(
-                localized: "\(processed.formatted(.byteCount(style: .file))) sur \(total.formatted(.byteCount(style: .file)))"
+                localized: "common.format.value_of_total",
+                defaultValue: "\(processed.formatted(.byteCount(style: .file))) of \(total.formatted(.byteCount(style: .file)))"
             )
         }
         if let processed = progress?.processedItemCount, let total = progress?.totalItemCount {
-            return String(localized: "\(processed) sur \(total) éléments")
+            return String(localized: "files.operation.progress.items", defaultValue: "\(processed) of \(total) items")
         }
         return progress?.currentPath
     }
@@ -459,16 +460,16 @@ struct FileOperationSummaryBanner: View {
                 .font(.callout)
                 .frame(maxWidth: .infinity, alignment: .leading)
             if summary.continuesInBackground {
-                Button("Tâches File Station", action: showBackgroundTasks)
-                    .help("Afficher et gérer les opérations exécutées par le NAS")
+                Button("common.action.file_station_tasks", action: showBackgroundTasks)
+                    .help("common.action.file_station_tasks.hint")
             }
-            Button("Masquer", action: dismiss)
-                .help("Masquer le résultat de l’opération")
+            Button("files.operation.result.hide.button", action: dismiss)
+                .help("files.operation.result.hide.button.hint")
         }
         .padding(12)
         .background(.bar)
         .accessibilityElement(children: .contain)
-        .accessibilityLabel("Résultat de l’opération")
+        .accessibilityLabel("files.operation.result.title")
     }
 }
 
@@ -476,13 +477,13 @@ private struct ConflictPolicyPicker: View {
     @Binding var selection: FileConflictPolicy
 
     var body: some View {
-        Picker("Si un élément existe déjà", selection: $selection) {
-            Text("Conserver l’élément existant").tag(FileConflictPolicy.skip)
-            Text("Remplacer l’élément existant").tag(FileConflictPolicy.overwrite)
+        Picker("files.conflict.mode.label", selection: $selection) {
+            Text("files.conflict.mode.keep").tag(FileConflictPolicy.skip)
+            Text("files.conflict.mode.replace").tag(FileConflictPolicy.overwrite)
         }
         Text(selection == .skip
-             ? "Les éléments en conflit ne seront pas modifiés."
-             : "Les éléments existants portant le même nom seront remplacés.")
+             ? "files.conflict.keep.description"
+             : "files.conflict.replace.description")
             .font(.callout)
             .foregroundStyle(selection == .overwrite ? .red : .secondary)
     }
@@ -491,10 +492,10 @@ private struct ConflictPolicyPicker: View {
 private extension FileStationCompressionLevel {
     var localizedTitle: String {
         switch self {
-        case .moderate: String(localized: "Équilibré")
-        case .store: String(localized: "Sans compression")
-        case .fastest: String(localized: "Le plus rapide")
-        case .best: String(localized: "Meilleure compression")
+        case .moderate: String(localized: "files.archive.level.balanced")
+        case .store: String(localized: "files.archive.level.none")
+        case .fastest: String(localized: "files.archive.level.fastest")
+        case .best: String(localized: "files.archive.level.best")
         }
     }
 }
@@ -502,10 +503,10 @@ private extension FileStationCompressionLevel {
 private extension FileStationCompressionMode {
     var localizedTitle: String {
         switch self {
-        case .add: String(localized: "Ajouter et remplacer")
-        case .update: String(localized: "Mettre à jour")
-        case .refreshen: String(localized: "Actualiser les fichiers existants")
-        case .synchronize: String(localized: "Synchroniser le contenu")
+        case .add: String(localized: "files.archive.update_mode.add_replace")
+        case .update: String(localized: "common.button.update")
+        case .refreshen: String(localized: "files.archive.update_mode.refresh")
+        case .synchronize: String(localized: "files.archive.update_mode.synchronize")
         }
     }
 }
@@ -513,26 +514,26 @@ private extension FileStationCompressionMode {
 extension FileStationArchiveCodepage {
     var localizedTitle: String {
         switch self {
-        case .english: String(localized: "Anglais")
-        case .traditionalChinese: String(localized: "Chinois traditionnel")
-        case .simplifiedChinese: String(localized: "Chinois simplifié")
-        case .korean: String(localized: "Coréen")
-        case .german: String(localized: "Allemand")
-        case .french: String(localized: "Français")
-        case .italian: String(localized: "Italien")
-        case .spanish: String(localized: "Espagnol")
-        case .japanese: String(localized: "Japonais")
-        case .danish: String(localized: "Danois")
-        case .norwegian: String(localized: "Norvégien")
-        case .swedish: String(localized: "Suédois")
-        case .dutch: String(localized: "Néerlandais")
-        case .russian: String(localized: "Russe")
-        case .polish: String(localized: "Polonais")
-        case .brazilianPortuguese: String(localized: "Portugais du Brésil")
-        case .portuguese: String(localized: "Portugais")
-        case .hungarian: String(localized: "Hongrois")
-        case .turkish: String(localized: "Turc")
-        case .czech: String(localized: "Tchèque")
+        case .english: String(localized: "files.extract.codepage.english")
+        case .traditionalChinese: String(localized: "files.extract.codepage.traditional_chinese")
+        case .simplifiedChinese: String(localized: "files.extract.codepage.simplified_chinese")
+        case .korean: String(localized: "files.extract.codepage.korean")
+        case .german: String(localized: "files.extract.codepage.german")
+        case .french: String(localized: "files.extract.codepage.french")
+        case .italian: String(localized: "files.extract.codepage.italian")
+        case .spanish: String(localized: "files.extract.codepage.spanish")
+        case .japanese: String(localized: "files.extract.codepage.japanese")
+        case .danish: String(localized: "files.extract.codepage.danish")
+        case .norwegian: String(localized: "files.extract.codepage.norwegian")
+        case .swedish: String(localized: "files.extract.codepage.swedish")
+        case .dutch: String(localized: "files.extract.codepage.dutch")
+        case .russian: String(localized: "files.extract.codepage.russian")
+        case .polish: String(localized: "files.extract.codepage.polish")
+        case .brazilianPortuguese: String(localized: "files.extract.codepage.brazilian_portuguese")
+        case .portuguese: String(localized: "files.extract.codepage.portuguese")
+        case .hungarian: String(localized: "files.extract.codepage.hungarian")
+        case .turkish: String(localized: "files.extract.codepage.turkish")
+        case .czech: String(localized: "files.extract.codepage.czech")
         }
     }
 }

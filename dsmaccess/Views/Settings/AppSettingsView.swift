@@ -64,7 +64,7 @@ struct AppSettingsView: View {
 
     private func announceSelection(_ pane: AppSettingsPane) {
         VoiceOver.announce(
-            String(localized: "Réglages, \(pane.localizedTitle)"),
+            String(localized: "settings.window.title", defaultValue: "Settings, \(pane.localizedTitle)"),
             category: .navigation
         )
     }

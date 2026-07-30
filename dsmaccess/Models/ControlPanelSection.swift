@@ -15,15 +15,15 @@ enum ControlPanelSection: Hashable, CaseIterable, Identifiable {
 
     var title: LocalizedStringKey {
         switch self {
-        case .network: "Réseau et identité"
-        case .dsmUpdate: "Mise à jour de DSM"
+        case .network: "common.section.network_identity"
+        case .dsmUpdate: "common.section.dsm_update"
         }
     }
 
     var localizedTitle: String {
         switch self {
-        case .network: String(localized: "Réseau et identité")
-        case .dsmUpdate: String(localized: "Mise à jour de DSM")
+        case .network: String(localized: "common.section.network_identity")
+        case .dsmUpdate: String(localized: "common.section.dsm_update")
         }
     }
 
@@ -36,8 +36,8 @@ enum ControlPanelSection: Hashable, CaseIterable, Identifiable {
 
     var hint: LocalizedStringKey {
         switch self {
-        case .network: "Nom du serveur, adresse IP, passerelle et DNS"
-        case .dsmUpdate: "Installer une mise à jour de DSM depuis un fichier"
+        case .network: "control_panel.network.description"
+        case .dsmUpdate: "control_panel.dsm_update.description"
         }
     }
 }

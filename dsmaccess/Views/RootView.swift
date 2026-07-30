@@ -40,12 +40,12 @@ struct RootView: View {
         guard let incident = incidents.pending else { return }
         let alert = NSAlert()
         alert.alertStyle = .warning
-        alert.messageText = String(localized: "Une réponse du NAS n’a pas pu être lue")
+        alert.messageText = String(localized: "root.decoding_failure.title")
         alert.informativeText = String(
-            localized: "L’opération a échoué : DSM Access n’a pas su lire ce que \(incident.api) a répondu. Signaler transmet l’appel concerné et les noms des champs reçus, jamais leur contenu."
+            localized: "root.decoding_failure.message", defaultValue: "The operation failed: DSM Access could not read what \(incident.api) replied. Reporting sends the call involved and the names of the fields received, never their contents."
         )
-        alert.addButton(withTitle: String(localized: "Signaler"))
-        alert.addButton(withTitle: String(localized: "Ignorer"))
+        alert.addButton(withTitle: String(localized: "root.decoding_failure.report.button"))
+        alert.addButton(withTitle: String(localized: "root.decoding_failure.dismiss.button"))
         alert.buttons.last?.keyEquivalent = "\u{1b}"
         NSApp.activate(ignoringOtherApps: true)
 

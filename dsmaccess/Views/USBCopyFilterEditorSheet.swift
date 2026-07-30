@@ -28,13 +28,13 @@ struct USBCopyFilterEditorSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Filtre de fichiers de \(task.name)")
+            Text(String(localized: "usb_copy.filter.sheet.title", defaultValue: "File filter for \(task.name)"))
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($headingFocused)
                 .padding()
             Form {
-                Section("Types de fichiers à copier") {
+                Section("usb_copy.filter.file_types.title") {
                     USBCopyFilterFields(selection: $selection)
                 }
                 if let errorMessage {
@@ -48,12 +48,12 @@ struct USBCopyFilterEditorSheet: View {
             .formStyle(.grouped)
             Divider()
             HStack {
-                if isSaving { ProgressView("Enregistrement…").controlSize(.small) }
+                if isSaving { ProgressView("common.status.saving").controlSize(.small) }
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .disabled(isSaving)
-                Button("Enregistrer") { Task { await save() } }
+                Button("common.button.save") { Task { await save() } }
                     .keyboardShortcut(.defaultAction)
                     .disabled(isSaving)
             }
@@ -63,7 +63,7 @@ struct USBCopyFilterEditorSheet: View {
         .onAppear {
             headingFocused = true
             VoiceOver.announce(
-                String(localized: "Modifier le filtre de fichiers de \(task.name)"),
+                String(localized: "usb_copy.filter.edit.action", defaultValue: "Edit file filter for \(task.name)"),
                 category: .navigation
             )
         }
@@ -72,7 +72,7 @@ struct USBCopyFilterEditorSheet: View {
     private func save() async {
         isSaving = true
         errorMessage = nil
-        VoiceOver.announce(String(localized: "Enregistrement…"), category: .progress)
+        VoiceOver.announce(String(localized: "common.status.saving"), category: .progress)
         let outcome = await onSave(selection.filter)
         isSaving = false
         VoiceOver.announce(outcome, priority: .high)

@@ -25,9 +25,9 @@ struct FileInfoSheet: View {
             Divider()
             HStack {
                 Spacer()
-                Button("Fermer", role: .cancel) { dismiss() }
+                Button("common.button.close", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                    .help("Fermer les informations")
+                    .help("common.button.close_information")
             }
             .padding()
         }
@@ -53,7 +53,7 @@ struct FileInfoSheet: View {
             if vm.isLoadingInspectorDetails {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel("Chargement des détails du fichier…")
+                    .accessibilityLabel("files.info.loading")
             }
         }
         .padding()
@@ -62,63 +62,63 @@ struct FileInfoSheet: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoadingInspector && vm.inspectorItem == nil {
-            ModuleLoadingView("Chargement des informations…")
+            ModuleLoadingView("common.status.loading_information")
         } else if let error = vm.inspectorError {
             VStack(spacing: 12) {
                 Text(error)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .accessibilityFocused($focusError)
-                Button("Réessayer") { Task { await load() } }
-                    .help("Recharger les informations depuis le NAS")
+                Button("common.button.retry") { Task { await load() } }
+                    .help("files.info.reload.button")
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             Form {
                 if let thumbnailImage {
-                    Section("Aperçu") {
+                    Section("files.info.preview.section") {
                         Image(nsImage: thumbnailImage)
                             .resizable()
                             .scaledToFit()
                             .frame(maxWidth: 420, maxHeight: 220)
-                            .accessibilityLabel(String(localized: "Aperçu de \(item.name)"))
+                            .accessibilityLabel(String(localized: "files.info.preview.label", defaultValue: "Preview of \(item.name)"))
                     }
                 }
 
-                Section("Informations générales") {
-                    LabeledContent("Nom", value: item.name)
-                    LabeledContent("Type", value: kind)
+                Section("files.info.general.section") {
+                    LabeledContent("common.column.name", value: item.name)
+                    LabeledContent("common.column.kind", value: kind)
                     if let size = item.additional?.size, !item.isdir {
-                        LabeledContent("Taille") {
+                        LabeledContent("common.column.size") {
                             Text(size, format: .byteCount(style: .file, includesActualByteCount: true))
                         }
                     }
-                    LabeledContent("Emplacement", value: item.path)
+                    LabeledContent("common.column.location", value: item.path)
                     if let realPath = item.additional?.realPath, realPath != item.path {
-                        LabeledContent("Chemin réel", value: realPath)
+                        LabeledContent("files.info.real_path", value: realPath)
                     }
                     if let mountPointType = item.additional?.mountPointType {
-                        LabeledContent("Type de montage", value: mountPointType)
+                        LabeledContent("files.info.mount_type", value: mountPointType)
                     }
                 }
 
                 if item.isdir, vm.supports(.directorySize) {
-                    Section("Contenu du dossier") {
+                    Section("files.info.folder_contents.section") {
                         if let directorySize = vm.inspectorDirectorySize {
-                            LabeledContent("Taille totale") {
+                            LabeledContent("files.info.total_size") {
                                 Text(
                                     directorySize.totalSize,
                                     format: .byteCount(style: .file, includesActualByteCount: true)
                                 )
                             }
-                            LabeledContent("Fichiers") {
+                            LabeledContent("common.module.files") {
                                 Text(directorySize.fileCount, format: .number)
                             }
-                            LabeledContent("Sous-dossiers") {
+                            LabeledContent("files.info.subfolders") {
                                 Text(directorySize.directoryCount, format: .number)
                             }
                         } else {
-                            Button("Calculer la taille du dossier") {
+                            Button("files.info.folder_size.button") {
                                 calculationTask = Task {
                                     await vm.calculateInspectorDirectorySize()
                                     announceDirectorySizeResult()
@@ -126,28 +126,28 @@ struct FileInfoSheet: View {
                                 }
                             }
                             .disabled(vm.isCalculatingInspectorSize)
-                            .help("Calculer le nombre d’éléments et leur taille totale")
+                            .help("files.info.folder_size.button.hint")
                         }
                         if vm.isCalculatingInspectorSize {
-                            ProgressView("Calcul de la taille du dossier…")
+                            ProgressView("files.info.folder_size.loading")
                         }
                     }
                 }
 
                 if !item.isdir, vm.supports(.checksum) {
-                    Section("Intégrité") {
+                    Section("files.info.integrity.section") {
                         if let checksum = vm.inspectorChecksum {
-                            LabeledContent("Somme MD5") {
+                            LabeledContent("files.info.md5") {
                                 HStack {
                                     Text(checksum)
                                         .font(.body.monospaced())
                                         .textSelection(.enabled)
-                                    Button("Copier") { copyToClipboard(checksum) }
-                                        .help("Copier la somme MD5")
+                                    Button("common.button.copy") { copyToClipboard(checksum) }
+                                        .help("files.info.md5.copy.button")
                                 }
                             }
                         } else {
-                            Button("Calculer la somme MD5") {
+                            Button("files.info.md5.button") {
                                 calculationTask = Task {
                                     await vm.calculateInspectorChecksum()
                                     announceChecksumResult()
@@ -155,83 +155,83 @@ struct FileInfoSheet: View {
                                 }
                             }
                             .disabled(vm.isCalculatingInspectorChecksum)
-                            .help("Calculer l’empreinte MD5 du fichier")
+                            .help("files.info.md5.button.hint")
                         }
                         if vm.isCalculatingInspectorChecksum {
-                            ProgressView("Calcul de la somme MD5…")
+                            ProgressView("files.info.md5.loading")
                         }
                     }
                 }
 
                 if let time = item.additional?.time {
-                    Section("Dates") {
-                        dateRow("Modification", timestamp: time.mtime)
-                        dateRow("Création", timestamp: time.crtime ?? time.ctime)
-                        dateRow("Dernier accès", timestamp: time.atime)
-                        dateRow("Changement des métadonnées", timestamp: time.ctime)
+                    Section("files.info.dates.section") {
+                        dateRow("files.info.modified", timestamp: time.mtime)
+                        dateRow("common.label.creation", timestamp: time.crtime ?? time.ctime)
+                        dateRow("files.info.last_accessed", timestamp: time.atime)
+                        dateRow("files.info.metadata_changed", timestamp: time.ctime)
                     }
                 }
 
                 if let owner = item.additional?.owner,
                    owner.user != nil || owner.group != nil || owner.uid != nil || owner.gid != nil {
-                    Section("Propriétaire") {
-                        if let user = owner.user { LabeledContent("Utilisateur", value: user) }
+                    Section("common.column.owner") {
+                        if let user = owner.user { LabeledContent("common.column.user", value: user) }
                         if let uid = owner.uid {
-                            LabeledContent("UID") { Text(uid, format: .number.grouping(.never)) }
+                            LabeledContent("files.info.uid") { Text(uid, format: .number.grouping(.never)) }
                         }
-                        if let group = owner.group { LabeledContent("Groupe", value: group) }
+                        if let group = owner.group { LabeledContent("common.column.group", value: group) }
                         if let gid = owner.gid {
-                            LabeledContent("GID") { Text(gid, format: .number.grouping(.never)) }
+                            LabeledContent("files.info.gid") { Text(gid, format: .number.grouping(.never)) }
                         }
                     }
                 }
 
                 if let permission = item.additional?.permission {
-                    Section("Autorisations") {
+                    Section("files.info.permissions.section") {
                         if let posix = permission.posix {
-                            LabeledContent("Mode POSIX") {
+                            LabeledContent("files.info.posix_mode") {
                                 Text(posix, format: .number.grouping(.never))
                             }
                         }
                         if let shareRight = permission.shareRight {
-                            LabeledContent("Droit du dossier partagé", value: shareRight)
+                            LabeledContent("files.info.shared_folder_permission", value: shareRight)
                         }
                         if let accessList = accessList(for: permission.acl) {
-                            LabeledContent("Accès", value: accessList)
+                            LabeledContent("files.info.access.section", value: accessList)
                         }
                         if let restrictions = restrictions(for: permission.advancedRight) {
-                            LabeledContent("Restrictions", value: restrictions)
+                            LabeledContent("files.info.restrictions.section", value: restrictions)
                         }
                         if let aclEnabled = permission.aclEnabled ?? permission.isACLMode {
-                            LabeledContent("Liste de contrôle d’accès") {
-                                Text(aclEnabled ? "Activée" : "Désactivée")
+                            LabeledContent("files.info.acl") {
+                                Text(aclEnabled ? "common.status.enabled.feminine" : "common.status.disabled.feminine")
                             }
                         }
                     }
                 }
 
                 if let volume = item.additional?.volumeStatus {
-                    Section("Volume") {
+                    Section("common.column.volume") {
                         if let freeSpace = volume.freeSpace {
-                            LabeledContent("Espace disponible") {
+                            LabeledContent("files.info.available_space") {
                                 Text(freeSpace, format: .byteCount(style: .file))
                             }
                         }
                         if let totalSpace = volume.totalSpace {
-                            LabeledContent("Capacité") {
+                            LabeledContent("common.column.capacity") {
                                 Text(totalSpace, format: .byteCount(style: .file))
                             }
                         }
                         if let isReadOnly = volume.isReadOnly {
-                            LabeledContent("Accès au volume") {
-                                Text(isReadOnly ? "Lecture seule" : "Lecture et écriture")
+                            LabeledContent("files.info.volume_access") {
+                                Text(isReadOnly ? "common.permission.read_only" : "files.info.permission.read_write")
                             }
                         }
                     }
                 }
 
                 if !vm.inspectorDetailErrors.isEmpty {
-                    Section("Détails indisponibles") {
+                    Section("files.info.partial.title") {
                         ForEach(vm.inspectorDetailErrors, id: \.self) { error in
                             Text(error)
                                 .foregroundStyle(.red)
@@ -240,7 +240,7 @@ struct FileInfoSheet: View {
                 }
             }
             .formStyle(.grouped)
-            .accessibilityLabel(String(localized: "Informations sur \(item.name)"))
+            .accessibilityLabel(String(localized: "common.title.information_for", defaultValue: "Information for \(item.name)"))
         }
     }
 
@@ -263,36 +263,36 @@ struct FileInfoSheet: View {
     }
 
     private var kind: String {
-        if item.isdir { return String(localized: "Dossier") }
+        if item.isdir { return String(localized: "common.value.folder") }
         if let type = item.additional?.type, !type.isEmpty { return type }
         let pathExtension = (item.name as NSString).pathExtension
         return pathExtension.isEmpty
-            ? String(localized: "Fichier")
+            ? String(localized: "common.value.file")
             : pathExtension.uppercased()
     }
 
     private func accessList(for acl: FileStationItem.ACLInfo?) -> String? {
         guard let acl else { return nil }
         var access = [String]()
-        if acl.read == true { access.append(String(localized: "Lecture")) }
-        if acl.write == true { access.append(String(localized: "Écriture")) }
-        if acl.append == true { access.append(String(localized: "Ajout")) }
-        if acl.execute == true { access.append(String(localized: "Exécution")) }
-        if acl.delete == true { access.append(String(localized: "Suppression")) }
-        return access.isEmpty ? String(localized: "Aucun") : access.formatted(.list(type: .and))
+        if acl.read == true { access.append(String(localized: "common.metric.read")) }
+        if acl.write == true { access.append(String(localized: "common.metric.write")) }
+        if acl.append == true { access.append(String(localized: "files.info.permission.append")) }
+        if acl.execute == true { access.append(String(localized: "files.info.permission.execute")) }
+        if acl.delete == true { access.append(String(localized: "common.operation.deletion")) }
+        return access.isEmpty ? String(localized: "common.value.none") : access.formatted(.list(type: .and))
     }
 
     private func restrictions(for rights: FileStationItem.AdvancedRight?) -> String? {
         guard let rights else { return nil }
         var restrictions = [String]()
         if rights.disablesDownload == true {
-            restrictions.append(String(localized: "Téléchargement interdit"))
+            restrictions.append(String(localized: "files.info.restriction.download_denied"))
         }
         if rights.disablesList == true {
-            restrictions.append(String(localized: "Liste interdite"))
+            restrictions.append(String(localized: "files.info.restriction.listing_denied"))
         }
         if rights.disablesModify == true {
-            restrictions.append(String(localized: "Modification interdite"))
+            restrictions.append(String(localized: "files.info.restriction.write_denied"))
         }
         return restrictions.isEmpty ? nil : restrictions.formatted(.list(type: .and))
     }
@@ -300,7 +300,7 @@ struct FileInfoSheet: View {
     private func load() async {
         focusTitle = true
         VoiceOver.announce(
-            String(localized: "Chargement des informations sur \(selectedItem.name)…"),
+            String(localized: "files.info.loading.named", defaultValue: "Loading information about \(selectedItem.name)…"),
             category: .progress,
             priority: .low
         )
@@ -312,12 +312,12 @@ struct FileInfoSheet: View {
         } else {
             focusTitle = true
             VoiceOver.announce(
-                String(localized: "Informations actualisées sur \(selectedItem.name)"),
+                String(localized: "files.info.reloaded", defaultValue: "Information about \(selectedItem.name) updated"),
                 category: .result
             )
             if !vm.inspectorDetailErrors.isEmpty {
                 VoiceOver.announce(
-                    String(localized: "Certains détails ne sont pas disponibles."),
+                    String(localized: "files.info.partial.description"),
                     category: .error
                 )
             }
@@ -327,14 +327,15 @@ struct FileInfoSheet: View {
     private func copyToClipboard(_ value: String) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(value, forType: .string)
-        VoiceOver.announce(String(localized: "Somme MD5 copiée"), category: .result)
+        VoiceOver.announce(String(localized: "files.info.md5.copied"), category: .result)
     }
 
     private func announceDirectorySizeResult() {
         if let size = vm.inspectorDirectorySize {
             VoiceOver.announce(
                 String(
-                    localized: "Taille du dossier calculée : \(size.totalSize.formatted(.byteCount(style: .file)))"
+                    localized: "files.info.folder_size.done",
+                    defaultValue: "Folder size calculated: \(size.totalSize.formatted(.byteCount(style: .file)))"
                 ),
                 category: .result
             )
@@ -345,7 +346,7 @@ struct FileInfoSheet: View {
 
     private func announceChecksumResult() {
         if vm.inspectorChecksum != nil {
-            VoiceOver.announce(String(localized: "Somme MD5 calculée"), category: .result)
+            VoiceOver.announce(String(localized: "files.info.md5.done"), category: .result)
         } else if let error = vm.inspectorDetailErrors.last {
             VoiceOver.announce(error, category: .error, priority: .high)
         }

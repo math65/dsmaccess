@@ -10,20 +10,20 @@ struct UnavailableModuleView: View {
     var body: some View {
         ContentUnavailableView {
             Label(
-                String(localized: "\(module.localizedTitle) indisponible"),
+                String(localized: "module.unavailable.title", defaultValue: "\(module.localizedTitle) unavailable"),
                 systemImage: module.systemImage
             )
         } description: {
             Text(module.unavailableHelp)
         } actions: {
             SettingsLink {
-                Text("Modifier la barre latérale…")
+                Text("module.unavailable.edit_sidebar.button")
             }
-            .help("Ouvrir les réglages de la barre latérale")
+            .help("module.unavailable.edit_sidebar.hint")
         }
         .task {
             VoiceOver.announce(
-                String(localized: "\(module.localizedTitle) n’est pas disponible sur ce NAS"),
+                String(localized: "module.unavailable.description", defaultValue: "\(module.localizedTitle) is not available on this NAS"),
                 category: .navigation
             )
         }

@@ -68,7 +68,7 @@ struct ShareCreateInfo: Encodable {
 /// « /volume1 » → « Volume 1 » pour l'affichage ; renvoie le chemin brut sinon.
 func volumeLabel(for path: String) -> String {
     if path.hasPrefix("/volume"), let n = Int(path.dropFirst("/volume".count)) {
-        return String(localized: "Volume \(n)")
+        return String(localized: "common.label.volume_number", defaultValue: "Volume \(n)")
     }
     return path
 }
@@ -93,7 +93,7 @@ extension SharedFolder {
     /// Libellé VoiceOver complet : « Sauvegardes, sur Volume 1, Sauvegardes Mac ».
     var accessibilityLabel: String {
         var label = displayName
-        if let vol = volumeText { label += ", " + String(localized: "sur \(vol)") }
+        if let vol = volumeText { label += ", " + String(localized: "share.info.on_server", defaultValue: "on \(vol)") }
         if let d = desc, !d.isEmpty { label += ", \(d)" }
         return label
     }

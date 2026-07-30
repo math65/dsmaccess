@@ -28,7 +28,7 @@ struct FileStationVirtualFoldersView: View {
             Divider()
             HStack {
                 Spacer()
-                Button("Fermer", role: .cancel) { dismiss() }
+                Button("common.button.close", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
             }
             .padding()
@@ -47,7 +47,7 @@ struct FileStationVirtualFoldersView: View {
 
     private var header: some View {
         HStack {
-            Text("Dossiers virtuels")
+            Text("virtual_folders.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusHeading)
@@ -55,9 +55,9 @@ struct FileStationVirtualFoldersView: View {
             if vm.isLoadingVirtualFolders {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel("Chargement des dossiers virtuels…")
+                    .accessibilityLabel("virtual_folders.loading")
             }
-            Button("Fermer", role: .cancel) { dismiss() }
+            Button("common.button.close", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
         }
         .padding()
@@ -65,25 +65,25 @@ struct FileStationVirtualFoldersView: View {
 
     private var controls: some View {
         HStack(spacing: 14) {
-            Picker("Protocole", selection: $selectedType) {
+            Picker("common.column.protocol", selection: $selectedType) {
                 ForEach(vm.availableVirtualFolderTypes) { type in
                     Text(type.displayName).tag(type)
                 }
             }
             .frame(maxWidth: 180)
-            Picker("Trier par", selection: $sort) {
+            Picker("common.label.sort_by", selection: $sort) {
                 ForEach(FileStationListSort.allCases, id: \.self) { value in
                     Text(value.localizedTitle).tag(value)
                 }
             }
             .frame(maxWidth: 230)
-            Toggle("Ordre croissant", isOn: $ascending)
-            Button("Appliquer") { Task { await load() } }
+            Toggle("common.sort.ascending", isOn: $ascending)
+            Button("common.button.apply") { Task { await load() } }
                 .disabled(vm.isLoadingVirtualFolders)
             Spacer()
-            Button("Actualiser", systemImage: "arrow.clockwise") { Task { await load() } }
+            Button("common.button.refresh", systemImage: "arrow.clockwise") { Task { await load() } }
                 .disabled(vm.isLoadingVirtualFolders)
-                .help("Actualiser les dossiers virtuels depuis File Station")
+                .help("virtual_folders.refresh.label")
         }
         .padding(.horizontal)
         .padding(.vertical, 10)
@@ -93,35 +93,35 @@ struct FileStationVirtualFoldersView: View {
     private var content: some View {
         if vm.availableVirtualFolderTypes.isEmpty {
             ContentUnavailableView(
-                "Aucun protocole de dossier virtuel",
+                "virtual_folders.empty",
                 systemImage: "externaldrive.badge.questionmark",
-                description: Text("Ce NAS n’annonce aucun montage NFS, CIFS ou ISO pris en charge.")
+                description: Text("virtual_folders.empty.description")
             )
             .accessibilityFocused($focusStatus)
         } else if vm.isLoadingVirtualFolders && vm.virtualFolders.isEmpty {
-            ModuleLoadingView("Chargement des dossiers virtuels…")
+            ModuleLoadingView("virtual_folders.loading")
                 .accessibilityFocused($focusStatus)
         } else if let error = vm.virtualFoldersError {
             VStack(spacing: 12) {
                 Text(error)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
-                Button("Réessayer") { Task { await load() } }
+                Button("common.button.retry") { Task { await load() } }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityFocused($focusStatus)
         } else if vm.virtualFolders.isEmpty {
             ContentUnavailableView(
-                "Aucun dossier \(selectedType.displayName)",
+                String(localized: "virtual_folders.protocol.empty", defaultValue: "No \(selectedType.displayName) folders"),
                 systemImage: "externaldrive",
-                description: Text("File Station n’a renvoyé aucun montage pour ce protocole.")
+                description: Text("virtual_folders.protocol.empty.description")
             )
             .accessibilityFocused($focusStatus)
         } else {
             List(vm.virtualFolders) { folder in
                 virtualFolderRow(folder)
             }
-            .accessibilityLabel("Dossiers virtuels File Station")
+            .accessibilityLabel("virtual_folders.table.label")
         }
     }
 
@@ -141,11 +141,11 @@ struct FileStationVirtualFoldersView: View {
                 }
             }
             Spacer()
-            Button("Ouvrir", systemImage: "arrow.forward") {
+            Button("common.button.open", systemImage: "arrow.forward") {
                 open(folder)
                 dismiss()
             }
-            .help("Ouvrir ce dossier virtuel")
+            .help("virtual_folders.open.label")
         }
         .accessibilityElement(children: .contain)
     }
@@ -169,7 +169,7 @@ struct FileStationVirtualFoldersView: View {
         } else {
             focusHeading = true
             VoiceOver.announce(
-                String(localized: "Dossiers virtuels : \(vm.virtualFolders.count)"),
+                String(localized: "virtual_folders.count", defaultValue: "Virtual folders: \(vm.virtualFolders.count)"),
                 category: .result
             )
         }
@@ -180,11 +180,11 @@ struct FileStationVirtualFoldersView: View {
         var parts = [String]()
         if let freeSpace = volume.freeSpace {
             parts.append(
-                String(localized: "Libre : \(freeSpace.formatted(.byteCount(style: .file)))")
+                String(localized: "virtual_folders.free_space", defaultValue: "Free: \(freeSpace.formatted(.byteCount(style: .file)))")
             )
         }
         if volume.isReadOnly == true {
-            parts.append(String(localized: "Lecture seule"))
+            parts.append(String(localized: "common.permission.read_only"))
         }
         return parts.isEmpty ? nil : parts.formatted(.list(type: .and))
     }
@@ -197,16 +197,16 @@ private extension FileStationVirtualFolderType {
 private extension FileStationListSort {
     var localizedTitle: String {
         switch self {
-        case .name: String(localized: "Nom")
-        case .size: String(localized: "Taille")
-        case .user: String(localized: "Propriétaire")
-        case .group: String(localized: "Groupe")
-        case .modifiedTime: String(localized: "Date de modification")
-        case .accessedTime: String(localized: "Date d’accès")
-        case .changedTime: String(localized: "Date de changement")
-        case .createdTime: String(localized: "Date de création")
+        case .name: String(localized: "common.column.name")
+        case .size: String(localized: "common.column.size")
+        case .user: String(localized: "common.column.owner")
+        case .group: String(localized: "common.column.group")
+        case .modifiedTime: String(localized: "common.column.date_modified")
+        case .accessedTime: String(localized: "virtual_folders.column.access_date")
+        case .changedTime: String(localized: "virtual_folders.column.change_date")
+        case .createdTime: String(localized: "common.column.creation_date")
         case .posix: "POSIX"
-        case .type: String(localized: "Type")
+        case .type: String(localized: "common.column.kind")
         }
     }
 }

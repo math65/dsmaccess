@@ -25,15 +25,15 @@ struct ApplicationPrivilegeTableView: NSViewRepresentable {
         table.allowsEmptySelection = true
         table.usesAlternatingRowBackgroundColors = true
         table.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
-        table.setAccessibilityLabel(String(localized: "Autorisations par application"))
+        table.setAccessibilityLabel(String(localized: "permissions.application.table.label"))
         table.dataSource = context.coordinator
         table.delegate = context.coordinator
 
-        addColumn(to: table, identifier: "name", title: String(localized: "Application"), width: 220)
+        addColumn(to: table, identifier: "name", title: String(localized: "permissions.application.column.name"), width: 220)
         addColumn(
             to: table,
             identifier: Self.defaultColumn,
-            title: String(localized: "Par défaut"),
+            title: String(localized: "permissions.application.privilege.default"),
             width: 150
         )
         for decision in DSMApplicationDecision.allCases {
@@ -116,9 +116,9 @@ struct ApplicationPrivilegeTableView: NSViewRepresentable {
                 // réécrivait en « toutes les adresses » : la ligne reste en lecture.
                 isEnabled: parent.isEnabled && !privilege.restrictsAddresses,
                 title: decision == nil ? privilege.fallbackLabel : "",
-                label: String(localized: "\(privilege.name), \(title)"),
+                label: String(localized: "common.format.pair", defaultValue: "\(privilege.name), \(title)"),
                 help: privilege.restrictsAddresses
-                    ? String(localized: "Cette règle vise des adresses précises et se modifie dans DSM.")
+                    ? String(localized: "permissions.application.ip_rule.hint")
                     : nil,
                 target: self,
                 action: #selector(choiceChanged(_:))

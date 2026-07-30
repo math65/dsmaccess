@@ -76,10 +76,10 @@ struct CheckForUpdatesView: View {
     @ObservedObject var updater: UpdaterViewModel
 
     var body: some View {
-        Button("Rechercher les mises à jour…") {
+        Button("updates.menu.check.button") {
             updater.checkForUpdates()
         }
         .disabled(!updater.canCheckForUpdates)
-        .help("Rechercher une nouvelle version de DSM Access")
+        .help("common.action.check_for_app_update")
     }
 }

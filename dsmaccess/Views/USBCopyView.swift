@@ -22,7 +22,7 @@ struct USBCopyView: View {
 
     var body: some View {
         content
-            .searchable(text: $searchText, prompt: "Rechercher une tâche USB Copy")
+            .searchable(text: $searchText, prompt: "usb_copy.list.search.label")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
             .task { await load(restoresInitialFocus: true) }
@@ -31,38 +31,38 @@ struct USBCopyView: View {
                 sheetContent(sheet)
             }
             .confirmationDialog(
-                "Supprimer la tâche USB Copy ?",
+                "usb_copy.list.delete_task.confirm.title",
                 isPresented: deletionPresented
             ) {
-                Button("Supprimer la tâche", role: .destructive) {
+                Button("usb_copy.list.delete_task.button", role: .destructive) {
                     if let task = pendingDeletion {
                         Task { await announce(viewModel.delete(task)) }
                     }
                     pendingDeletion = nil
                 }
-                Button("Annuler", role: .cancel) { pendingDeletion = nil }
+                Button("common.button.cancel", role: .cancel) { pendingDeletion = nil }
             } message: {
                 if let task = pendingDeletion {
-                    Text("La tâche « \(task.name) » sera définitivement supprimée de USB Copy. Cette action est irréversible. Vérifiez que vous n’avez plus besoin de sa configuration ni de son historique.")
+                    Text(String(localized: "usb_copy.list.delete_task.confirm.description", defaultValue: "The “\(task.name)” task will be permanently removed from USB Copy. This action cannot be undone. Make sure you no longer need its configuration or history."))
                 }
             }
             .confirmationDialog(
-                "Exécuter cette tâche USB Copy ?",
+                "usb_copy.list.run_task.confirm.title",
                 isPresented: highImpactRunPresented
             ) {
-                Button("Exécuter la tâche", role: .destructive) {
+                Button("usb_copy.list.run_task.button", role: .destructive) {
                     if let task = pendingHighImpactRun {
                         Task { await announce(viewModel.run(task)) }
                     }
                     pendingHighImpactRun = nil
                 }
-                Button("Annuler", role: .cancel) { pendingHighImpactRun = nil }
+                Button("common.button.cancel", role: .cancel) { pendingHighImpactRun = nil }
             } message: {
                 if let task = pendingHighImpactRun {
                     if task.knownStrategy == .mirror {
-                        Text("La tâche « \(task.name) » supprimera de la destination les fichiers qui ne sont plus présents à la source.")
+                        Text(String(localized: "usb_copy.list.run_task.confirm.mirror.description", defaultValue: "The “\(task.name)” task will delete files from the destination when they are no longer present at the source."))
                     } else {
-                        Text("La tâche « \(task.name) » supprimera les fichiers source après leur copie vers la destination.")
+                        Text(String(localized: "usb_copy.list.run_task.confirm.delete_source.description", defaultValue: "The “\(task.name)” task will delete source files after copying them to the destination."))
                     }
                 }
             }
@@ -76,18 +76,18 @@ struct USBCopyView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.tasks.isEmpty {
-            ModuleLoadingView("Chargement des tâches USB Copy…")
+            ModuleLoadingView("usb_copy.list.loading")
                 .accessibilityFocused($contentFocused)
         } else if let errorMessage = viewModel.errorMessage, viewModel.tasks.isEmpty {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
                 .accessibilityFocused($contentFocused)
         } else if filteredTasks.isEmpty {
             EmptyModuleView(
-                title: searchText.isEmpty ? "Aucune tâche USB Copy" : "Aucun résultat",
+                title: searchText.isEmpty ? "usb_copy.list.empty.title" : "common.empty.results",
                 systemImage: "externaldrive.badge.arrowtriangle.2.circlepath",
                 description: searchText.isEmpty
-                    ? "Créez une tâche pour importer ou exporter des fichiers avec un périphérique USB."
-                    : "Modifiez votre recherche et réessayez."
+                    ? "usb_copy.list.empty.description"
+                    : "common.empty.results.description"
             )
             .accessibilityFocused($contentFocused)
         } else {
@@ -97,7 +97,7 @@ struct USBCopyView: View {
                     .contextMenu { contextMenu(for: task) }
                     .accessibilityActions { accessibilityActions(for: task) }
             }
-            .accessibilityLabel("Tâches USB Copy")
+            .accessibilityLabel("usb_copy.list.title")
             .accessibilityFocused($contentFocused)
         }
     }
@@ -105,86 +105,86 @@ struct USBCopyView: View {
     @ToolbarContentBuilder
     private var toolbar: some ToolbarContent {
         ToolbarItem {
-            Button("Créer une tâche", systemImage: "plus") {
+            Button("usb_copy.list.create_task.button", systemImage: "plus") {
                 presentedSheet = .create
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
-            .help("Créer une tâche USB Copy")
+            .help("common.action.create_usb_copy_task")
         }
 
         ToolbarItem {
             if selectedTask?.canCancel == true {
-                Button("Annuler la copie", systemImage: "stop.fill") {
+                Button("usb_copy.list.cancel_copy.button", systemImage: "stop.fill") {
                     if let task = selectedTask { Task { await announce(viewModel.cancel(task)) } }
                 }
                 .disabled(selectedTaskIsBusy)
-                .help("Arrêter la tâche USB Copy sélectionnée")
+                .help("usb_copy.list.stop_task.hint")
             } else {
-                Button("Exécuter", systemImage: "play.fill") {
+                Button("usb_copy.list.run.button", systemImage: "play.fill") {
                     if let task = selectedTask { requestRun(task) }
                 }
                 .disabled(selectedTask?.canRun != true || selectedTaskIsBusy)
-                .help("Exécuter la tâche USB Copy sélectionnée")
+                .help("usb_copy.list.run_task.hint")
             }
         }
 
         ToolbarItem {
-            Menu("Modifier la tâche", systemImage: "slider.horizontal.3") {
-                Button("Réglages de la tâche…") { presentSelected(.edit) }
-                Button("Déclenchement…") { presentSelected(.trigger) }
-                Button("Filtre de fichiers…") { presentSelected(.filter) }
+            Menu("usb_copy.list.edit_task.button", systemImage: "slider.horizontal.3") {
+                Button("usb_copy.list.task_settings.menu") { presentSelected(.edit) }
+                Button("usb_copy.list.trigger.menu") { presentSelected(.trigger) }
+                Button("usb_copy.list.file_filter.menu") { presentSelected(.filter) }
             }
             .disabled(selectedTask == nil || selectedTask?.isActive == true || selectedTaskIsBusy)
             .help(
                 selectedTask?.isActive == true
-                    ? "Annulez la copie avant de modifier cette tâche"
-                    : "Modifier la tâche USB Copy sélectionnée"
+                    ? "usb_copy.list.edit_task.busy.hint"
+                    : "usb_copy.list.edit_task.hint"
             )
         }
 
         ToolbarItem {
-            Menu("État de la tâche", systemImage: "power") {
+            Menu("usb_copy.list.column.status", systemImage: "power") {
                 if selectedTask?.canEnable == true {
-                    Button("Activer") {
+                    Button("common.button.enable") {
                         if let task = selectedTask { requestEnable(task) }
                     }
                 } else if selectedTask?.canDisable == true {
-                    Button("Désactiver") {
+                    Button("common.button.disable") {
                         if let task = selectedTask { Task { await announce(viewModel.disable(task)) } }
                     }
                 }
             }
             .disabled(selectedTask?.canToggleEnabled != true || selectedTaskIsBusy)
-            .help("Activer ou désactiver la tâche USB Copy sélectionnée")
+            .help("usb_copy.list.toggle_task.hint")
         }
 
         ToolbarItem {
             Button(role: .destructive) {
                 pendingDeletion = selectedTask
             } label: {
-                Label("Supprimer la tâche", systemImage: "trash")
+                Label("usb_copy.list.delete_task.button", systemImage: "trash")
             }
             .disabled(selectedTask?.canDelete != true || selectedTaskIsBusy)
-            .help("Supprimer la tâche USB Copy sélectionnée")
+            .help("usb_copy.list.delete_task.hint")
         }
 
         ToolbarItem {
-            Menu("Plus d’options", systemImage: "ellipsis.circle") {
-                Button("Journal USB Copy…", systemImage: "list.bullet.rectangle") {
+            Menu("common.button.more_options", systemImage: "ellipsis.circle") {
+                Button("usb_copy.list.log.menu", systemImage: "list.bullet.rectangle") {
                     presentedSheet = .logs
                 }
-                Button("Réglages généraux…", systemImage: "gearshape") {
+                Button("usb_copy.list.global_settings.menu", systemImage: "gearshape") {
                     presentedSheet = .globalSettings
                 }
             }
-            .help("Ouvrir le journal ou les réglages généraux de USB Copy")
+            .help("usb_copy.list.more_menu.hint")
         }
 
         ToolbarItem {
-            Button("Actualiser", systemImage: "arrow.clockwise") {
+            Button("common.button.refresh", systemImage: "arrow.clockwise") {
                 Task { await load() }
             }
-            .help("Actualiser les tâches USB Copy")
+            .help("usb_copy.list.refresh.hint")
         }
     }
 
@@ -244,7 +244,7 @@ struct USBCopyView: View {
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement des tâches USB Copy…"),
+            String(localized: "usb_copy.list.loading"),
             category: .progress,
             priority: .low
         )
@@ -327,45 +327,45 @@ struct USBCopyView: View {
     @ViewBuilder
     private func contextMenu(for task: USBCopyTask) -> some View {
         if task.canCancel {
-            Button("Annuler la copie") { Task { await announce(viewModel.cancel(task)) } }
+            Button("usb_copy.list.cancel_copy.button") { Task { await announce(viewModel.cancel(task)) } }
         } else if task.canRun {
-            Button("Exécuter") { requestRun(task) }
+            Button("usb_copy.list.run.button") { requestRun(task) }
         }
         if !task.isActive {
             Divider()
-            Button("Réglages de la tâche…") { presentedSheet = .edit(task.id) }
-            Button("Déclenchement…") { presentedSheet = .trigger(task.id) }
-            Button("Filtre de fichiers…") { presentedSheet = .filter(task.id) }
+            Button("usb_copy.list.task_settings.menu") { presentedSheet = .edit(task.id) }
+            Button("usb_copy.list.trigger.menu") { presentedSheet = .trigger(task.id) }
+            Button("usb_copy.list.file_filter.menu") { presentedSheet = .filter(task.id) }
         }
         if task.canToggleEnabled || task.canDelete {
             Divider()
         }
         if task.canEnable {
-            Button("Activer") { requestEnable(task) }
+            Button("common.button.enable") { requestEnable(task) }
         } else if task.canDisable {
-            Button("Désactiver") { Task { await announce(viewModel.disable(task)) } }
+            Button("common.button.disable") { Task { await announce(viewModel.disable(task)) } }
         }
         if task.canDelete {
-            Button("Supprimer…", role: .destructive) { pendingDeletion = task }
+            Button("common.menu.delete", role: .destructive) { pendingDeletion = task }
         }
     }
 
     @ViewBuilder
     private func accessibilityActions(for task: USBCopyTask) -> some View {
         if task.canCancel {
-            Button("Annuler la copie") { Task { await announce(viewModel.cancel(task)) } }
+            Button("usb_copy.list.cancel_copy.button") { Task { await announce(viewModel.cancel(task)) } }
         } else if task.canRun {
-            Button("Exécuter") { requestRun(task) }
+            Button("usb_copy.list.run.button") { requestRun(task) }
         }
         if !task.isActive {
-            Button("Modifier les réglages") { presentedSheet = .edit(task.id) }
-            Button("Modifier le déclenchement") { presentedSheet = .trigger(task.id) }
-            Button("Modifier le filtre") { presentedSheet = .filter(task.id) }
+            Button("usb_copy.list.edit_settings.button") { presentedSheet = .edit(task.id) }
+            Button("usb_copy.list.edit_trigger.button") { presentedSheet = .trigger(task.id) }
+            Button("usb_copy.list.edit_filter.button") { presentedSheet = .filter(task.id) }
         }
     }
 
     private func selectedTaskStatus(_ task: USBCopyTask) -> String {
-        task.knownStatus?.localizedName ?? String(localized: "État inconnu : \(task.status)")
+        task.knownStatus?.localizedName ?? String(localized: "usb_copy.task.status.unknown", defaultValue: "Unknown status: \(task.status)")
     }
 
     private func requestEnable(_ task: USBCopyTask) {
@@ -401,7 +401,7 @@ private struct USBCopyTaskRow: View {
                 Text(task.name).bold()
                 Text(task.knownType?.localizedName ?? task.type)
                     .foregroundStyle(.readableSecondary)
-                Text("\(task.sourcePath) → \(task.destinationPath)")
+                Text(String(localized: "usb_copy.task.path_pair", defaultValue: "\(task.sourcePath) → \(task.destinationPath)"))
                 HStack {
                     Text(task.knownStatus?.localizedName ?? task.status)
                     Text(task.knownStrategy?.localizedName ?? task.copyStrategy)
@@ -422,7 +422,7 @@ private struct USBCopyTaskRow: View {
         [
             task.name,
             task.knownType?.localizedName ?? task.type,
-            String(localized: "de \(task.sourcePath) vers \(task.destinationPath)"),
+            String(localized: "usb_copy.task.path_pair.label", defaultValue: "from \(task.sourcePath) to \(task.destinationPath)"),
             task.knownStatus?.localizedName ?? task.status,
             task.knownStrategy?.localizedName ?? task.copyStrategy,
         ].formatted(.list(type: .and))
@@ -519,7 +519,7 @@ private struct USBCopyTaskDetailsSheet: View {
                     .frame(minWidth: 520, minHeight: 360)
                     .accessibilityFocused($contentFocused)
             } else {
-                ModuleLoadingView("Chargement de la tâche USB Copy…")
+                ModuleLoadingView("usb_copy.list.loading_task")
                     .frame(minWidth: 520, minHeight: 360)
                     .accessibilityFocused($contentFocused)
             }
@@ -530,7 +530,7 @@ private struct USBCopyTaskDetailsSheet: View {
     private func loadDetails() async {
         details = nil
         errorMessage = nil
-        VoiceOver.announce(String(localized: "Chargement de la tâche USB Copy…"), category: .progress)
+        VoiceOver.announce(String(localized: "usb_copy.list.loading_task"), category: .progress)
         do {
             details = try await viewModel.details(taskID: taskID)
         } catch {

@@ -49,10 +49,10 @@ enum FileService: String, CaseIterable, Identifiable, Sendable {
     /// Nom affiché (protocole + contexte d'usage).
     var displayName: String {
         switch self {
-        case .smb: return String(localized: "SMB (Windows, macOS)")
-        case .nfs: return String(localized: "NFS (Linux, virtualisation)")
-        case .ftp: return String(localized: "FTP")
-        case .rsync: return String(localized: "rsync (sauvegarde réseau)")
+        case .smb: return String(localized: "files.service.smb")
+        case .nfs: return String(localized: "files.service.nfs")
+        case .ftp: return String(localized: "files.service.ftp")
+        case .rsync: return String(localized: "files.service.rsync")
         }
     }
 }

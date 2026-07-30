@@ -22,7 +22,7 @@ struct SurveillanceView: View {
 
     var body: some View {
         content
-            .searchable(text: $searchText, prompt: "Rechercher une caméra")
+            .searchable(text: $searchText, prompt: "surveillance.camera.search.label")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
             .task { await load(restoresInitialFocus: true) }
@@ -41,18 +41,18 @@ struct SurveillanceView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.cameras.isEmpty {
-            ModuleLoadingView("Chargement des caméras…")
+            ModuleLoadingView("surveillance.camera.loading")
                 .accessibilityFocused($contentFocused)
         } else if let errorMessage = viewModel.errorMessage {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
                 .accessibilityFocused($contentFocused)
         } else if filteredCameras.isEmpty {
             EmptyModuleView(
-                title: searchText.isEmpty ? "Aucune caméra" : "Aucun résultat",
+                title: searchText.isEmpty ? "surveillance.camera.empty" : "common.empty.results",
                 systemImage: "video",
                 description: searchText.isEmpty
-                    ? "Ajoutez une caméra dans Surveillance Station pour la gérer ici."
-                    : "Modifiez votre recherche et réessayez."
+                    ? "surveillance.empty.description"
+                    : "common.empty.results.description"
             )
             .accessibilityFocused($contentFocused)
         } else {
@@ -61,7 +61,7 @@ struct SurveillanceView: View {
                     .tag(camera.id)
                     .contextMenu { cameraActions(camera) }
             }
-            .accessibilityLabel("Caméras")
+            .accessibilityLabel("surveillance.cameras.title")
             .accessibilityFocused($contentFocused)
         }
     }
@@ -72,20 +72,20 @@ struct SurveillanceView: View {
             Button {
                 Task { await setSelected(enabled: true) }
             } label: {
-                Label("Activer", systemImage: "video.badge.checkmark")
+                Label("common.button.enable", systemImage: "video.badge.checkmark")
             }
             .disabled(!selectionCanEnable || selectionIsBusy)
-            .help("Activer les caméras sélectionnées")
+            .help("surveillance.camera.enable_selected.action")
         }
 
         ToolbarItem {
             Button {
                 Task { await setSelected(enabled: false) }
             } label: {
-                Label("Désactiver", systemImage: "video.slash")
+                Label("common.button.disable", systemImage: "video.slash")
             }
             .disabled(!selectionCanDisable || selectionIsBusy)
-            .help("Désactiver les caméras sélectionnées")
+            .help("surveillance.camera.disable_selected.action")
         }
 
         ToolbarItem {
@@ -95,29 +95,29 @@ struct SurveillanceView: View {
                     Task { await loadSnapshot(selectedCamera) }
                 }
             } label: {
-                Label("Instantané et informations", systemImage: "photo")
+                Label("surveillance.snapshot.section.title", systemImage: "photo")
             }
             .disabled(selectedCamera == nil)
-            .help(showInspector ? "Masquer l’instantané" : "Afficher l’instantané et les informations")
+            .help(showInspector ? "surveillance.snapshot.hide.action" : "surveillance.snapshot.show.action")
         }
 
         ToolbarItem {
             Menu {
-                Toggle("Actualisation automatique", isOn: $autoRefresh)
-                    .help("Actualiser automatiquement les caméras")
+                Toggle("common.label.automatic_refresh", isOn: $autoRefresh)
+                    .help("surveillance.auto_refresh.label")
             } label: {
-                Label("Options d’actualisation", systemImage: "ellipsis.circle")
+                Label("common.label.refresh_options", systemImage: "ellipsis.circle")
             }
-            .help("Options d’actualisation")
+            .help("common.label.refresh_options")
         }
 
         ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
+                Label("common.button.refresh", systemImage: "arrow.clockwise")
             }
-            .help("Actualiser les caméras")
+            .help("surveillance.camera.refresh.action")
         }
     }
 
@@ -140,40 +140,40 @@ struct SurveillanceView: View {
             if viewModel.busyIDs.contains(camera.id) {
                 ProgressView()
                     .controlSize(.small)
-                    .accessibilityLabel("Opération en cours pour \(camera.name)")
+                    .accessibilityLabel(String(localized: "common.status.operation_in_progress", defaultValue: "Operation in progress for \(camera.name)"))
             }
         }
         .accessibilityElement(children: .combine)
         .accessibilityLabel(cameraAccessibilityLabel(camera))
         .accessibilityActions {
             if !viewModel.busyIDs.contains(camera.id) {
-                Button(camera.enabled ? "Désactiver" : "Activer") {
+                Button(camera.enabled ? "common.button.disable" : "common.button.enable") {
                     Task { await set(enabled: !camera.enabled, ids: [camera.id]) }
                 }
-                .help(camera.enabled ? "Désactiver cette caméra" : "Activer cette caméra")
+                .help(camera.enabled ? "surveillance.camera.disable.hint" : "surveillance.camera.enable.hint")
             }
-            Button("Charger l’instantané") {
+            Button("surveillance.snapshot.load.action") {
                 selection = [camera.id]
                 showInspector = true
                 Task { await loadSnapshot(camera) }
             }
-            .help("Charger l’instantané de cette caméra")
+            .help("surveillance.snapshot.load.hint")
         }
     }
 
     @ViewBuilder
     private func cameraActions(_ camera: SurveillanceCamera) -> some View {
-        Button(camera.enabled ? "Désactiver" : "Activer") {
+        Button(camera.enabled ? "common.button.disable" : "common.button.enable") {
             Task { await set(enabled: !camera.enabled, ids: [camera.id]) }
         }
-        .help(camera.enabled ? "Désactiver cette caméra" : "Activer cette caméra")
+        .help(camera.enabled ? "surveillance.camera.disable.hint" : "surveillance.camera.enable.hint")
         Divider()
-        Button("Instantané et informations") {
+        Button("surveillance.snapshot.section.title") {
             selection = [camera.id]
             showInspector = true
             Task { await loadSnapshot(camera) }
         }
-        .help("Afficher l’instantané et les informations de cette caméra")
+        .help("surveillance.snapshot.show.hint")
     }
 
     @ViewBuilder
@@ -184,20 +184,20 @@ struct SurveillanceView: View {
                     .frame(minHeight: 180, idealHeight: 240)
                 Divider()
                 Form {
-                    Section("Caméra") {
-                        LabeledContent("Nom", value: camera.name)
-                        LabeledContent("État", value: statusText(camera.status))
-                        LabeledContent("Activée", value: camera.enabled ? "Oui" : "Non")
-                        if let address = addressText(camera) { LabeledContent("Adresse", value: address) }
-                        if let vendor = camera.vendor { LabeledContent("Fabricant", value: vendor) }
-                        if let model = camera.model { LabeledContent("Modèle", value: model) }
+                    Section("surveillance.camera.column") {
+                        LabeledContent("common.column.name", value: camera.name)
+                        LabeledContent("common.column.state", value: statusText(camera.status))
+                        LabeledContent("common.status.enabled.feminine", value: camera.enabled ? "Oui" : "Non")
+                        if let address = addressText(camera) { LabeledContent("common.column.address", value: address) }
+                        if let vendor = camera.vendor { LabeledContent("surveillance.camera.vendor.label", value: vendor) }
+                        if let model = camera.model { LabeledContent("common.label.model", value: model) }
                     }
-                    Section("Vidéo") {
-                        if let resolution = camera.resolution { LabeledContent("Résolution", value: resolution) }
+                    Section("common.label.video") {
+                        if let resolution = camera.resolution { LabeledContent("surveillance.camera.resolution.label", value: resolution) }
                         if let fps = camera.framesPerSecond {
-                            LabeledContent("Fréquence d’images", value: String(localized: "\(fps) images par seconde"))
+                            LabeledContent("surveillance.camera.frame_rate.label", value: String(localized: "surveillance.camera.frame_rate", defaultValue: "\(fps) frames per second"))
                         }
-                        if let codec = codecText(camera.videoCodec) { LabeledContent("Codec", value: codec) }
+                        if let codec = codecText(camera.videoCodec) { LabeledContent("surveillance.camera.codec", value: codec) }
                     }
                 }
                 .formStyle(.grouped)
@@ -208,17 +208,17 @@ struct SurveillanceView: View {
                     Button {
                         Task { await loadSnapshot(camera) }
                     } label: {
-                        Label("Actualiser l’instantané", systemImage: "camera.rotate")
+                        Label("surveillance.snapshot.refresh.action", systemImage: "camera.rotate")
                     }
-                    .help("Actualiser l’instantané")
+                    .help("surveillance.snapshot.refresh.action")
                 }
             }
-            .accessibilityLabel("Instantané et informations de \(camera.name)")
+            .accessibilityLabel(String(localized: "surveillance.snapshot.section.title_for_camera", defaultValue: "Snapshot and information for \(camera.name)"))
         } else {
             EmptyModuleView(
-                title: "Aucune sélection",
+                title: "common.empty.selection",
                 systemImage: "video",
-                description: "Sélectionnez une caméra pour afficher son instantané."
+                description: "surveillance.snapshot.no_selection.description"
             )
         }
     }
@@ -226,7 +226,7 @@ struct SurveillanceView: View {
     @ViewBuilder
     private func snapshotView(_ camera: SurveillanceCamera) -> some View {
         if viewModel.isLoadingSnapshot && viewModel.snapshotCameraID == camera.id {
-            ModuleLoadingView("Chargement de l’instantané…")
+            ModuleLoadingView("surveillance.snapshot.loading")
         } else if let message = viewModel.snapshotErrorMessage, viewModel.snapshotCameraID == camera.id {
             ModuleErrorView(message: message) { Task { await loadSnapshot(camera) } }
         } else if viewModel.snapshotCameraID == camera.id,
@@ -235,14 +235,14 @@ struct SurveillanceView: View {
             Image(nsImage: image)
                 .resizable()
                 .scaledToFit()
-                .accessibilityLabel("Instantané actuel de \(camera.name)")
+                .accessibilityLabel(String(localized: "surveillance.camera.snapshot.label", defaultValue: "Current snapshot from \(camera.name)"))
                 .accessibilityAddTraits(.isImage)
                 .padding(8)
         } else {
             EmptyModuleView(
-                title: "Aucun instantané",
+                title: "surveillance.snapshot.empty",
                 systemImage: "photo",
-                description: "Actualisez pour demander une image à la caméra."
+                description: "surveillance.snapshot.empty.description"
             )
         }
     }
@@ -285,7 +285,7 @@ struct SurveillanceView: View {
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement de Surveillance Station…"),
+            String(localized: "surveillance.loading"),
             category: .progress,
             priority: .low
         )
@@ -323,7 +323,7 @@ struct SurveillanceView: View {
         if let message = viewModel.snapshotErrorMessage {
             VoiceOver.announce(message, priority: .high)
         } else if viewModel.snapshotData != nil {
-            VoiceOver.announce(String(localized: "Instantané chargé pour \(camera.name)"))
+            VoiceOver.announce(String(localized: "surveillance.snapshot.loaded.announcement", defaultValue: "Snapshot loaded for \(camera.name)"))
         }
     }
 
@@ -354,24 +354,24 @@ struct SurveillanceView: View {
 
     private func statusText(_ status: Int) -> String {
         switch status {
-        case 1: String(localized: "Normale")
-        case 2: String(localized: "Supprimée")
-        case 3: String(localized: "Déconnectée")
-        case 4: String(localized: "Indisponible")
-        case 5: String(localized: "Prête")
-        case 6: String(localized: "Inaccessible")
-        case 7: String(localized: "Désactivée")
-        case 8: String(localized: "Non reconnue")
-        case 9: String(localized: "Configuration")
-        case 10: String(localized: "Serveur déconnecté")
-        case 11: String(localized: "Migration")
-        case 13: String(localized: "Stockage retiré")
-        case 14: String(localized: "Arrêt en cours")
-        case 15: String(localized: "Historique de connexion indisponible")
-        case 16: String(localized: "Non autorisée")
-        case 17: String(localized: "Erreur RTSP")
-        case 18: String(localized: "Aucune vidéo")
-        default: String(localized: "État inconnu")
+        case 1: String(localized: "surveillance.camera.status.normal")
+        case 2: String(localized: "surveillance.camera.status.deleted")
+        case 3: String(localized: "surveillance.camera.status.disconnected")
+        case 4: String(localized: "common.status.unavailable")
+        case 5: String(localized: "surveillance.camera.status.ready")
+        case 6: String(localized: "common.status.unreachable")
+        case 7: String(localized: "common.status.disabled.feminine")
+        case 8: String(localized: "surveillance.camera.status.unrecognized")
+        case 9: String(localized: "surveillance.camera.configuration")
+        case 10: String(localized: "surveillance.camera.status.server_disconnected")
+        case 11: String(localized: "surveillance.camera.status.migrating")
+        case 13: String(localized: "surveillance.camera.status.storage_removed")
+        case 14: String(localized: "common.status.stopping")
+        case 15: String(localized: "surveillance.camera.connection_history.unavailable")
+        case 16: String(localized: "surveillance.camera.status.unauthorized")
+        case 17: String(localized: "surveillance.camera.status.rtsp_error")
+        case 18: String(localized: "surveillance.camera.status.no_video")
+        default: String(localized: "common.status.unknown")
         }
     }
 }

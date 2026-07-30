@@ -17,19 +17,19 @@ enum AppSettingsPane: String, CaseIterable, Identifiable {
 
     var title: LocalizedStringKey {
         switch self {
-        case .announcements: "Annonces"
-        case .sidebar: "Barre latérale"
-        case .nas: "NAS"
-        case .updates: "Mises à jour"
+        case .announcements: "settings.tab.announcements"
+        case .sidebar: "common.label.sidebar"
+        case .nas: "common.label.nas"
+        case .updates: "common.label.updates"
         }
     }
 
     var localizedTitle: String {
         switch self {
-        case .announcements: String(localized: "Annonces")
-        case .sidebar: String(localized: "Barre latérale")
-        case .nas: String(localized: "NAS")
-        case .updates: String(localized: "Mises à jour")
+        case .announcements: String(localized: "settings.tab.announcements")
+        case .sidebar: String(localized: "common.label.sidebar")
+        case .nas: String(localized: "common.label.nas")
+        case .updates: String(localized: "common.label.updates")
         }
     }
 
@@ -44,10 +44,10 @@ enum AppSettingsPane: String, CaseIterable, Identifiable {
 
     var localizedHelp: String {
         switch self {
-        case .announcements: String(localized: "Configurer les annonces VoiceOver")
-        case .sidebar: String(localized: "Configurer les modules de la barre latérale")
-        case .nas: String(localized: "Gérer les NAS enregistrés")
-        case .updates: String(localized: "Configurer les mises à jour de DSM Access")
+        case .announcements: String(localized: "settings.tab.announcements.hint")
+        case .sidebar: String(localized: "settings.tab.modules.hint")
+        case .nas: String(localized: "settings.tab.nas.hint")
+        case .updates: String(localized: "settings.tab.updates.hint")
         }
     }
 }

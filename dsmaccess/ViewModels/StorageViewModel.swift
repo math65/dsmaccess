@@ -54,6 +54,6 @@ final class StorageViewModel {
     /// Résumé annoncé à VoiceOver une fois chargé.
     var summary: String {
         if let errorMessage { return errorMessage }
-        return String(localized: "\(volumes.count) volumes, \(disks.count) disques")
+        return String(localized: "storage.summary.counts", defaultValue: "\(volumes.count) volumes, \(disks.count) disks")
     }
 }

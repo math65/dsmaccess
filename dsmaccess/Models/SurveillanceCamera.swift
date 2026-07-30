@@ -36,7 +36,7 @@ struct SurveillanceCamera: nonisolated Decodable, Identifiable, Hashable, Sendab
     nonisolated init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         id = try values.requiredFlexString(.id)
-        name = values.flexString(.name) ?? String(localized: "Caméra sans nom")
+        name = values.flexString(.name) ?? String(localized: "surveillance.camera.unnamed")
         status = values.flexInt(.status) ?? 0
         enabled = values.flexBool(.enabled) ?? (status != 7)
         address = values.flexString(.address) ?? values.flexString(.host)

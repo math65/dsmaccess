@@ -201,7 +201,7 @@ final class SessionStore {
     /// quand l'écran de connexion n'a été qu'un état transitoire invisible.
     func publishAutomaticReconnectionNotice() {
         reconnectionNotice = String(
-            localized: "La session avait expiré et la connexion a été rétablie automatiquement. Si une opération était en cours, elle a été interrompue : vérifiez son état avant de la relancer."
+            localized: "session.reconnected.description"
         )
     }
 

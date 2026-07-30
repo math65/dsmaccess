@@ -54,7 +54,7 @@ final class ConnectionsViewModel {
     func kick(_ selection: [NASConnection]) async -> DSMOperationOutcome {
         let kickable = selection.filter { $0.kickReference != nil }
         guard !kickable.isEmpty else {
-            return .failure(String(localized: "Le NAS ne permet pas de couper cette sélection."))
+            return .failure(String(localized: "connections.disconnect.unsupported_selection"))
         }
 
         busyIDs.formUnion(kickable.map(\.id))
@@ -68,14 +68,14 @@ final class ConnectionsViewModel {
             await load()
             if let only = kickable.first, kickable.count == 1 {
                 return .success(
-                    String(localized: "Session de \(accountText(for: only)) coupée")
+                    String(localized: "connections.disconnect.success", defaultValue: "\(accountText(for: only))’s session disconnected")
                 )
             }
-            return .success(String(localized: "\(kickable.count) sessions coupées"))
+            return .success(String(localized: "connections.disconnect.success_multiple", defaultValue: "\(kickable.count) sessions disconnected"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de la coupure : \(reason)"))
+            return .failure(String(localized: "connections.disconnect.error", defaultValue: "Could not disconnect: \(reason)"))
         }
     }
 
@@ -96,7 +96,7 @@ final class ConnectionsViewModel {
     }
 
     func accountText(for connection: NASConnection) -> String {
-        connection.account ?? String(localized: "Compte inconnu")
+        connection.account ?? String(localized: "connections.account.unknown")
     }
 
     // MARK: - Valeurs que DSM n'affiche pas
@@ -118,10 +118,10 @@ final class ConnectionsViewModel {
     /// dans la même colonne, faute de mériter la sienne.
     func twoFactorText(for connection: NASConnection) -> String {
         switch (connection.usesTwoFactor, connection.isTrustedDevice) {
-        case (true, true): String(localized: "Oui, appareil de confiance")
-        case (true, false): String(localized: "Oui")
-        case (false, true): String(localized: "Non, appareil de confiance")
-        case (false, false): String(localized: "Non")
+        case (true, true): String(localized: "connections.trusted_device.yes")
+        case (true, false): String(localized: "common.answer.yes")
+        case (false, true): String(localized: "connections.trusted_device.no")
+        case (false, false): String(localized: "common.answer.no")
         }
     }
 
@@ -134,6 +134,6 @@ final class ConnectionsViewModel {
 
     var summary: String {
         if let errorMessage { return errorMessage }
-        return String(localized: "\(connections.count) connexions ouvertes")
+        return String(localized: "connections.summary.open_count", defaultValue: "\(connections.count) open connections")
     }
 }

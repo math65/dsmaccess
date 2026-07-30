@@ -48,17 +48,17 @@ struct LogsSecurityView: View {
                     // Il n'est posé que sur cet onglet : la recherche part au NAS, qui filtre
                     // le journal entier, et n'a rien à faire pour une liste de blocage de
                     // quelques lignes.
-                    .searchable(text: $vm.searchText, prompt: "Rechercher dans le journal")
-                    .tabItem { Text("Journal") }
+                    .searchable(text: $vm.searchText, prompt: "common.field.search_log")
+                    .tabItem { Text("common.label.log") }
                     .tag(Pane.logs)
                 loginActivityPane
-                    .tabItem { Text("Connexions signalées") }
+                    .tabItem { Text("logs.tab.flagged_signins") }
                     .tag(Pane.loginActivity)
                 blockListPane
-                    .tabItem { Text("Liste de blocage") }
+                    .tabItem { Text("logs.tab.block_list") }
                     .tag(Pane.blockList)
                 settingsPane
-                    .tabItem { Text("Réglages") }
+                    .tabItem { Text("logs.settings.title") }
                     .tag(Pane.settings)
             }
         }
@@ -68,7 +68,7 @@ struct LogsSecurityView: View {
             if pane == .logs {
                 ToolbarItem {
                     Picker(
-                        "Journal",
+                        "common.label.log",
                         selection: Binding(
                             get: { vm.kind },
                             set: { chosen in Task { await vm.select(chosen) } }
@@ -78,27 +78,27 @@ struct LogsSecurityView: View {
                             Text(vm.kindText(kind)).tag(kind)
                         }
                     }
-                    .help("Choisir le journal à consulter")
+                    .help("logs.log_picker.hint")
                 }
 
                 ToolbarItem {
-                    Picker("Niveau", selection: $vm.levelFilter) {
+                    Picker("common.column.level", selection: $vm.levelFilter) {
                         ForEach(LogsSecurityViewModel.LevelFilter.allCases) { filter in
                             Text(vm.filterText(filter)).tag(filter)
                         }
                     }
-                    .help("N’afficher que les entrées de ce niveau")
+                    .help("logs.filter.level.hint")
                 }
 
                 ToolbarItem {
                     Menu {
-                        Button("Exporter en CSV") { export(as: .csv) }
-                        Button("Exporter en HTML") { export(as: .html) }
+                        Button("logs.export.csv") { export(as: .csv) }
+                        Button("logs.export.html") { export(as: .html) }
                     } label: {
-                        Label("Exporter", systemImage: "square.and.arrow.up")
+                        Label("logs.export.menu", systemImage: "square.and.arrow.up")
                     }
                     .disabled(vm.isExporting)
-                    .help("Enregistrer tout le journal dans un fichier")
+                    .help("logs.export.hint")
                 }
             }
 
@@ -108,9 +108,9 @@ struct LogsSecurityView: View {
                         await vm.load(announce: true)
                     }
                 } label: {
-                    Label("Actualiser", systemImage: "arrow.clockwise")
+                    Label("common.button.refresh", systemImage: "arrow.clockwise")
                 }
-                .help("Actualiser le journal et la liste de blocage")
+                .help("logs.refresh.label")
             }
         }
         .task {
@@ -125,7 +125,7 @@ struct LogsSecurityView: View {
             ),
             titleVisibility: .visible
         ) {
-            Button("Débloquer", role: .destructive) {
+            Button("logs.security.unblock.button", role: .destructive) {
                 let addresses = pendingUnblock
                 pendingUnblock = []
                 Task {
@@ -133,17 +133,17 @@ struct LogsSecurityView: View {
                     VoiceOver.announce(outcome, priority: .high)
                 }
             }
-            Button("Annuler", role: .cancel) { pendingUnblock = [] }
+            Button("common.button.cancel", role: .cancel) { pendingUnblock = [] }
         } message: {
-            Text("Le NAS acceptera de nouveau les connexions venant de ces adresses. Le blocage automatique peut les bloquer à nouveau si les échecs de connexion reprennent.")
+            Text("logs.security.unblock.confirm.description")
         }
     }
 
     private var unblockTitle: String {
         if pendingUnblock.count == 1, let only = pendingUnblock.first {
-            return String(localized: "Débloquer l’adresse \(only.address) ?")
+            return String(localized: "logs.security.unblock.confirm.single", defaultValue: "Unblock the address \(only.address)?")
         }
-        return String(localized: "Débloquer \(pendingUnblock.count) adresses ?")
+        return String(localized: "logs.security.unblock.confirm.multiple", defaultValue: "Unblock \(pendingUnblock.count) addresses?")
     }
 
     // MARK: - Journal
@@ -151,7 +151,7 @@ struct LogsSecurityView: View {
     @ViewBuilder
     private var logsPane: some View {
         if vm.isLoading && vm.logs.isEmpty {
-            ModuleLoadingView("Chargement du journal…")
+            ModuleLoadingView("common.status.loading_log")
                 .accessibilityFocused($focusContent)
         } else if let error = vm.errorMessage, vm.logs.isEmpty {
             ModuleErrorView(message: error) {
@@ -176,11 +176,11 @@ struct LogsSecurityView: View {
 
                 if vm.visibleLogs.isEmpty {
                     EmptyModuleView(
-                        title: "Aucune entrée",
+                        title: "logs.entries.empty",
                         systemImage: "doc.text.magnifyingglass",
                         description: vm.logs.isEmpty
-                            ? "Le NAS n’a consigné aucune entrée correspondant à cette recherche."
-                            : "Aucune entrée de ce niveau parmi celles chargées. Choisissez un autre niveau."
+                            ? "logs.search.empty.description"
+                            : "logs.entries.empty.description"
                     )
                 } else {
                     logTable
@@ -192,7 +192,7 @@ struct LogsSecurityView: View {
                         .foregroundStyle(.readableSecondary)
 
                     if vm.canLoadMore {
-                        Button("Charger les entrées plus anciennes") {
+                        Button("logs.load_more.button") {
                             Task {
                                 if let outcome = await vm.loadMore() {
                                     VoiceOver.announce(outcome, priority: .high)
@@ -200,8 +200,8 @@ struct LogsSecurityView: View {
                             }
                         }
                         .disabled(vm.isLoadingMore)
-                        .accessibilityHint("Ajoute les entrées suivantes à la suite de celles déjà affichées")
-                        .help("Ajouter la tranche suivante du journal")
+                        .accessibilityHint("logs.load_more.hint")
+                        .help("logs.load_more.label")
                     }
 
                     Spacer()
@@ -219,43 +219,43 @@ struct LogsSecurityView: View {
     private var logTable: some View {
         if vm.showsTransferColumns {
             Table(vm.visibleLogs.sorted(using: logOrder), sortOrder: $logOrder) {
-                TableColumn("Heure", value: \.sortableDate) { entry in
+                TableColumn("logs.column.time", value: \.sortableDate) { entry in
                     Text(vm.dateText(for: entry))
                 }
-                TableColumn("Compte", value: \.sortableAccount) { entry in
+                TableColumn("common.column.account", value: \.sortableAccount) { entry in
                     Text(vm.accountText(for: entry))
                 }
-                TableColumn("Adresse", value: \.sortableAddress) { entry in
+                TableColumn("common.column.address", value: \.sortableAddress) { entry in
                     Text(vm.addressText(for: entry))
                 }
-                TableColumn("Opération", value: \.sortableOperation) { entry in
+                TableColumn("common.column.operation", value: \.sortableOperation) { entry in
                     Text(vm.operationText(for: entry))
                 }
-                TableColumn("Taille", value: \.sortableSize) { entry in
+                TableColumn("common.column.size", value: \.sortableSize) { entry in
                     Text(vm.sizeText(for: entry))
                 }
-                TableColumn("Fichier", value: \.sortableMessage) { entry in
+                TableColumn("common.value.file", value: \.sortableMessage) { entry in
                     Text(entry.message)
                 }
             }
         } else {
             Table(vm.visibleLogs.sorted(using: logOrder), sortOrder: $logOrder) {
-                TableColumn("Heure", value: \.sortableDate) { entry in
+                TableColumn("logs.column.time", value: \.sortableDate) { entry in
                     Text(vm.dateText(for: entry))
                 }
                 // Triée par gravité et non par ordre alphabétique : « Erreur » doit se ranger
                 // après « Avertissement ».
-                TableColumn("Niveau", value: \.sortableLevel) { entry in
+                TableColumn("common.column.level", value: \.sortableLevel) { entry in
                     Text(vm.levelText(entry.level))
                         .foregroundStyle(color(for: entry.level))
                 }
-                TableColumn("Catégorie") { entry in
+                TableColumn("logs.column.category") { entry in
                     Text(vm.categoryText(for: entry))
                 }
-                TableColumn("Compte", value: \.sortableAccount) { entry in
+                TableColumn("common.column.account", value: \.sortableAccount) { entry in
                     Text(vm.accountText(for: entry))
                 }
-                TableColumn("Événement", value: \.sortableMessage) { entry in
+                TableColumn("logs.column.event", value: \.sortableMessage) { entry in
                     Text(entry.message)
                 }
             }
@@ -269,7 +269,7 @@ struct LogsSecurityView: View {
     @ViewBuilder
     private var loginActivityPane: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Connexions signalées")
+            Text("logs.tab.flagged_signins")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.horizontal, 12)
@@ -281,27 +281,27 @@ struct LogsSecurityView: View {
                 }
             } else if vm.loginActivity.isEmpty {
                 EmptyModuleView(
-                    title: "Aucune connexion signalée",
+                    title: "logs.flagged_signins.empty",
                     systemImage: "checkmark.shield",
-                    description: "Le Conseiller de sécurité n’a relevé ni connexion inhabituelle ni tentative répétée."
+                    description: "logs.security.alerts.empty.description"
                 )
             } else {
                 Table(vm.loginActivity.sorted(using: activityOrder), sortOrder: $activityOrder) {
-                    TableColumn("Date", value: \.sortableDate) { event in
+                    TableColumn("common.column.date", value: \.sortableDate) { event in
                         Text(vm.dateText(for: event))
                     }
                     // Triée par gravité, non par ordre alphabétique.
-                    TableColumn("Gravité", value: \.sortableSeverity) { event in
+                    TableColumn("common.column.severity", value: \.sortableSeverity) { event in
                         Text(vm.severityText(event.severity))
                             .foregroundStyle(color(for: event.severity))
                     }
-                    TableColumn("Compte", value: \.sortableAccount) { event in
+                    TableColumn("common.column.account", value: \.sortableAccount) { event in
                         Text(vm.accountText(for: event))
                     }
-                    TableColumn("Adresse") { event in
+                    TableColumn("common.column.address") { event in
                         Text(vm.addressText(for: event))
                     }
-                    TableColumn("Alerte") { event in
+                    TableColumn("common.level.alert") { event in
                         Text(vm.description(of: event))
                     }
                 }
@@ -328,7 +328,7 @@ struct LogsSecurityView: View {
     @ViewBuilder
     private var blockListPane: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Liste de blocage")
+            Text("logs.tab.block_list")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .padding(.horizontal, 12)
@@ -343,9 +343,9 @@ struct LogsSecurityView: View {
                 }
             } else if vm.blockedAddresses.isEmpty {
                 EmptyModuleView(
-                    title: "Aucune adresse bloquée",
+                    title: "logs.block_list.empty",
                     systemImage: "hand.raised",
-                    description: "Le blocage automatique n’a bloqué aucune adresse, et aucune n’a été ajoutée à la main. Une adresse y entre après trop d’échecs de connexion."
+                    description: "logs.block_list.empty.description"
                 )
             } else {
                 Table(
@@ -353,26 +353,26 @@ struct LogsSecurityView: View {
                     selection: $blockSelection,
                     sortOrder: $blockOrder
                 ) {
-                    TableColumn("Adresse", value: \.address) { address in
+                    TableColumn("common.column.address", value: \.address) { address in
                         Text(address.address)
                     }
-                    TableColumn("Bloquée le", value: \.sortableBlockedAt) { address in
+                    TableColumn("logs.block_list.column.blocked_at", value: \.sortableBlockedAt) { address in
                         Text(vm.blockedAtText(for: address))
                     }
-                    TableColumn("Expiration", value: \.sortableExpiry) { address in
+                    TableColumn("common.column.expiration", value: \.sortableExpiry) { address in
                         Text(vm.expiryText(for: address))
                     }
-                    TableColumn("Lieu", value: \.sortableCountry) { address in
+                    TableColumn("common.column.place", value: \.sortableCountry) { address in
                         Text(vm.countryText(for: address))
                     }
                 }
 
                 HStack {
-                    Button("Débloquer", role: .destructive) {
+                    Button("logs.security.unblock.button", role: .destructive) {
                         pendingUnblock = selectedAddresses
                     }
                     .disabled(selectedAddresses.isEmpty || !selectedAddresses.allSatisfy(vm.canUnblock))
-                    .help("Retirer les adresses sélectionnées de la liste de blocage")
+                    .help("logs.security.unblock.hint")
 
                     Spacer()
                 }
@@ -389,12 +389,12 @@ struct LogsSecurityView: View {
         panel.nameFieldStringValue = vm.suggestedExportName(for: format)
         panel.canCreateDirectories = true
         panel.message = String(
-            localized: "Le NAS exporte tout le journal, et non les seules entrées affichées."
+            localized: "logs.export.footer"
         )
         guard panel.runModal() == .OK, let url = panel.url else { return }
         _ = url.startAccessingSecurityScopedResource()
         VoiceOver.announce(
-            String(localized: "Export en cours…"),
+            String(localized: "logs.export.progress"),
             category: .progress,
             priority: .low
         )
@@ -411,8 +411,8 @@ struct LogsSecurityView: View {
     @ViewBuilder
     private var settingsPane: some View {
         Form {
-            Section("Journalisation des transferts") {
-                Text("Le NAS tient un journal par protocole. Couper un protocole n’efface pas les entrées déjà consignées, mais son journal cesse de s’alimenter.")
+            Section("logs.settings.transfer_logging") {
+                Text("logs.settings.transfer_logging.description")
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
 
@@ -434,14 +434,14 @@ struct LogsSecurityView: View {
                 }
             }
 
-            Section("Blocage automatique") {
+            Section("logs.auto_block.title") {
                 if let error = vm.settingsError {
                     Text(error)
                         .foregroundStyle(.readableRed)
                 } else if let settings = vm.autoBlock {
                     autoBlockFields(settings)
                 } else {
-                    Text("Chargement des réglages…")
+                    Text("logs.settings.loading")
                         .foregroundStyle(.readableSecondary)
                 }
             }
@@ -453,7 +453,7 @@ struct LogsSecurityView: View {
     @ViewBuilder
     private func autoBlockFields(_ settings: AutoBlockSettings) -> some View {
         Toggle(
-            "Bloquer les adresses après trop d’échecs",
+            "logs.auto_block.enable.label",
             isOn: Binding(
                 get: { settings.isEnabled },
                 set: { enabled in
@@ -465,7 +465,7 @@ struct LogsSecurityView: View {
         )
         .disabled(vm.isSavingSettings)
 
-        LabeledContent("Tentatives autorisées") {
+        LabeledContent("logs.auto_block.attempts.label") {
             Stepper(
                 value: Binding(
                     get: { settings.attempts },
@@ -482,7 +482,7 @@ struct LogsSecurityView: View {
             .disabled(vm.isSavingSettings || !settings.isEnabled)
         }
 
-        LabeledContent("Fenêtre en minutes") {
+        LabeledContent("logs.security.autoblock.window_minutes") {
             Stepper(
                 value: Binding(
                     get: { settings.withinMinutes },
@@ -501,7 +501,7 @@ struct LogsSecurityView: View {
 
         // DSM code l'absence d'expiration par zéro : l'interrupteur dit la même chose en clair.
         Toggle(
-            "Lever le blocage après un délai",
+            "logs.auto_block.expire.label",
             isOn: Binding(
                 get: { settings.expires },
                 set: { expires in
@@ -514,7 +514,7 @@ struct LogsSecurityView: View {
         .disabled(vm.isSavingSettings || !settings.isEnabled)
 
         if settings.expires {
-            LabeledContent("Jours avant déblocage") {
+            LabeledContent("logs.auto_block.expire_days.label") {
                 Stepper(
                     value: Binding(
                         get: { settings.expiryDays },

@@ -163,13 +163,13 @@ final class LogsSecurityViewModel {
             await load()
             return .success(
                 enabled
-                    ? String(localized: "Journalisation activée pour \(kindText(kind))")
-                    : String(localized: "Journalisation désactivée pour \(kindText(kind))")
+                    ? String(localized: "logs.settings.transfer_logging.enabled", defaultValue: "Logging turned on for \(kindText(kind))")
+                    : String(localized: "logs.settings.transfer_logging.disabled", defaultValue: "Logging turned off for \(kindText(kind))")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec du changement de réglage : \(reason)"))
+            return .failure(String(localized: "common.error.setting_change_failed", defaultValue: "Could not change the setting: \(reason)"))
         }
     }
 
@@ -182,13 +182,13 @@ final class LogsSecurityViewModel {
             autoBlock = settings
             return .success(
                 settings.isEnabled
-                    ? String(localized: "Blocage automatique enregistré")
-                    : String(localized: "Blocage automatique désactivé")
+                    ? String(localized: "logs.security.autoblock.saved")
+                    : String(localized: "logs.security.autoblock.disabled")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de l’enregistrement : \(reason)"))
+            return .failure(String(localized: "common.error.save_failed", defaultValue: "Saving failed: \(reason)"))
         }
     }
 
@@ -247,7 +247,7 @@ final class LogsSecurityViewModel {
             guard !page.entries.isEmpty else {
                 // Le NAS n'a plus rien à donner : le total qu'il annonçait était optimiste.
                 totalLogCount = logs.count
-                return .success(String(localized: "Tout le journal est affiché"))
+                return .success(String(localized: "logs.entries.all_shown"))
             }
             logs += page.entries.map { $0.renumbered(from: offset) }
             if let total = page.total { totalLogCount = total }
@@ -255,7 +255,7 @@ final class LogsSecurityViewModel {
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec du chargement de la suite : \(reason)"))
+            return .failure(String(localized: "logs.load_more.error", defaultValue: "Could not load the rest: \(reason)"))
         }
     }
 
@@ -303,12 +303,12 @@ final class LogsSecurityViewModel {
                 try await $0.exportSystemLog(kind: exported, format: format, to: destination)
             }
             return .success(
-                String(localized: "Journal exporté vers \(destination.lastPathComponent)")
+                String(localized: "logs.export.success", defaultValue: "Log exported to \(destination.lastPathComponent)")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de l’export : \(reason)"))
+            return .failure(String(localized: "logs.export.error", defaultValue: "Could not export: \(reason)"))
         }
     }
 
@@ -330,13 +330,13 @@ final class LogsSecurityViewModel {
             // peut avoir ajouté ou fait expirer des adresses entre-temps.
             await loadBlockedAddresses(generation: loadGeneration)
             if values.count == 1, let only = values.first {
-                return .success(String(localized: "Adresse débloquée : \(only)"))
+                return .success(String(localized: "logs.security.unblock.result.single", defaultValue: "Address unblocked: \(only)"))
             }
-            return .success(String(localized: "\(values.count) adresses débloquées"))
+            return .success(String(localized: "logs.security.unblock.result.multiple", defaultValue: "\(values.count) addresses unblocked"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec du déblocage : \(reason)"))
+            return .failure(String(localized: "logs.security.unblock.error", defaultValue: "Unblock failed: \(reason)"))
         }
     }
 
@@ -363,10 +363,10 @@ final class LogsSecurityViewModel {
     /// « niveau inconnu » laisserait croire à une valeur que nous n'aurions pas su lire.
     func levelText(_ level: SystemLogEntry.Level?) -> String {
         switch level {
-        case .info: String(localized: "Information")
-        case .warning: String(localized: "Avertissement")
-        case .error: String(localized: "Erreur")
-        case .other(let raw): raw.isEmpty ? String(localized: "Niveau inconnu") : raw
+        case .info: String(localized: "common.level.information")
+        case .warning: String(localized: "common.level.warning")
+        case .error: String(localized: "common.level.error")
+        case .other(let raw): raw.isEmpty ? String(localized: "common.level.unknown") : raw
         case nil: "—"
         }
     }
@@ -377,14 +377,14 @@ final class LogsSecurityViewModel {
     /// traduits ; les plus courants sont rendus en clair, les autres tels quels.
     func operationText(for entry: SystemLogEntry) -> String {
         switch entry.operation?.lowercased() {
-        case "read": String(localized: "Lecture")
-        case "write": String(localized: "Écriture")
-        case "delete": String(localized: "Suppression")
-        case "rename": String(localized: "Renommage")
-        case "move": String(localized: "Déplacement")
-        case "copy": String(localized: "Copie")
-        case "create": String(localized: "Création")
-        case "mkdir": String(localized: "Création de dossier")
+        case "read": String(localized: "common.metric.read")
+        case "write": String(localized: "common.metric.write")
+        case "delete": String(localized: "common.operation.deletion")
+        case "rename": String(localized: "logs.transfer.action.rename")
+        case "move": String(localized: "common.operation.moving")
+        case "copy": String(localized: "common.operation.copy.noun")
+        case "create": String(localized: "common.label.creation")
+        case "mkdir": String(localized: "logs.transfer.action.folder_creation")
         case nil: "—"
         default: entry.operation ?? "—"
         }
@@ -393,7 +393,7 @@ final class LogsSecurityViewModel {
     /// Taille du fichier. Un dossier n'en a pas, et le NAS y écrit zéro.
     func sizeText(for entry: SystemLogEntry) -> String {
         guard let fileSize = entry.fileSize else {
-            return entry.isDirectory ? String(localized: "Dossier") : "—"
+            return entry.isDirectory ? String(localized: "common.value.folder") : "—"
         }
         return fileSize.formatted(.byteCount(style: .file))
     }
@@ -405,8 +405,8 @@ final class LogsSecurityViewModel {
     /// Synology l'écrit : ces noms ne se traduisent pas.
     func kindText(_ kind: SystemLogKind) -> String {
         switch kind {
-        case .system: String(localized: "Journal système")
-        case .connection: String(localized: "Journal de connexion")
+        case .system: String(localized: "logs.log_type.system")
+        case .connection: String(localized: "logs.log_type.connection")
         case .afp: "AFP"
         case .cifs: "SMB"
         case .fileStation: "File Station"
@@ -420,16 +420,16 @@ final class LogsSecurityViewModel {
     var kindTitle: String {
         switch kind {
         case .system, .connection: kindText(kind)
-        default: String(localized: "Transferts \(kindText(kind))")
+        default: String(localized: "logs.log_type.transfers", defaultValue: "\(kindText(kind)) transfers")
         }
     }
 
     func filterText(_ filter: LevelFilter) -> String {
         switch filter {
-        case .all: String(localized: "Tous les niveaux")
-        case .error: String(localized: "Erreurs")
-        case .warning: String(localized: "Avertissements")
-        case .info: String(localized: "Informations")
+        case .all: String(localized: "logs.filter.level.all")
+        case .error: String(localized: "common.level.errors")
+        case .warning: String(localized: "common.level.warnings")
+        case .info: String(localized: "common.label.information")
         }
     }
 
@@ -438,9 +438,9 @@ final class LogsSecurityViewModel {
     /// pour une catégorie que nous ne connaissons pas.
     func categoryText(for entry: SystemLogEntry) -> String {
         switch entry.technicalCategory?.lowercased() {
-        case "system": String(localized: "Système")
-        case "connection": String(localized: "Connexion")
-        case "filetransfer": String(localized: "Transfert de fichiers")
+        case "system": String(localized: "common.label.system")
+        case "connection": String(localized: "logs.transfer.action.connection")
+        case "filetransfer": String(localized: "logs.transfer.action.file_transfer")
         default: entry.translatedCategory ?? "—"
         }
     }
@@ -463,14 +463,14 @@ final class LogsSecurityViewModel {
     /// qu'il formate lui-même en 1970 — d'où une date jamais reprise telle quelle.
     func expiryText(for address: BlockedAddress) -> String {
         guard let expiresAt = address.expiresAt else {
-            return String(localized: "Définitivement")
+            return String(localized: "logs.security.autoblock.expiry.permanent")
         }
         return expiresAt.formatted(date: .abbreviated, time: .shortened)
     }
 
     func countryText(for address: BlockedAddress) -> String {
         guard let country = address.country, !country.isEmpty else {
-            return String(localized: "Lieu inconnu")
+            return String(localized: "logs.security.location.unknown")
         }
         return Locale.current.localizedString(forRegionCode: country) ?? country
     }
@@ -485,34 +485,35 @@ final class LogsSecurityViewModel {
         switch event.kind {
         case .abnormalLogin:
             if let city = event.details.city, let country = countryName(event.details.countryCode) {
-                return String(localized: "Connexion inhabituelle depuis \(city), \(country)")
+                return String(localized: "logs.security.alert.unusual_signin.from_location", defaultValue: "Unusual sign-in from \(city), \(country)")
             }
             if let country = countryName(event.details.countryCode) {
-                return String(localized: "Connexion inhabituelle depuis \(country)")
+                return String(localized: "logs.security.alert.unusual_signin.from", defaultValue: "Unusual sign-in from \(country)")
             }
-            return String(localized: "Connexion inhabituelle")
+            return String(localized: "logs.security.alert.unusual_signin")
         case .bruteForceAttack:
             if let attempts = event.details.attemptCount,
                let minutes = event.details.thresholdMinutes {
                 return String(
-                    localized: "\(attempts) tentatives de connexion échouées en \(minutes) minutes"
+                    localized: "logs.security.autoblock.summary",
+                    defaultValue: "\(attempts) failed sign-in attempts within \(minutes) minutes"
                 )
             }
-            return String(localized: "Tentatives de connexion répétées")
+            return String(localized: "logs.security.alert.repeated_signin")
         case .unknown(let section, let identifier):
             // Le NAS a signalé quelque chose que nous ne savons pas formuler : le dire, plutôt
             // que d'inventer une phrase ou de masquer l'alerte.
             let key = identifier.isEmpty ? section : "\(section):\(identifier)"
-            return String(localized: "Alerte de sécurité non reconnue (\(key))")
+            return String(localized: "logs.security.alert.unrecognized", defaultValue: "Unrecognised security alert (\(key))")
         }
     }
 
     func severityText(_ severity: LoginActivityEvent.Severity) -> String {
         switch severity {
-        case .low: String(localized: "Faible")
-        case .medium: String(localized: "Moyenne")
-        case .high: String(localized: "Élevée")
-        case .other(let raw): raw.isEmpty ? String(localized: "Gravité inconnue") : raw
+        case .low: String(localized: "logs.security.severity.low")
+        case .medium: String(localized: "logs.security.severity.medium")
+        case .high: String(localized: "logs.security.severity.high")
+        case .other(let raw): raw.isEmpty ? String(localized: "logs.security.severity.unknown") : raw
         }
     }
 
@@ -543,7 +544,8 @@ final class LogsSecurityViewModel {
         if let loginActivityError { return loginActivityError }
         let high = loginActivity.filter { $0.severity == .high }.count
         return String(
-            localized: "\(loginActivity.count) alertes de connexion, dont \(high) de gravité élevée"
+            localized: "logs.security.alerts.summary",
+            defaultValue: "\(loginActivity.count) sign-in alerts, including \(high) of high severity"
         )
     }
 
@@ -566,20 +568,23 @@ final class LogsSecurityViewModel {
         if showsTransferColumns {
             if isTruncated {
                 return String(
-                    localized: "\(visibleLogs.count) entrées affichées sur \(totalLogCount)"
+                    localized: "common.status.entries_shown",
+                    defaultValue: "\(visibleLogs.count) entries shown out of \(totalLogCount)"
                 )
             }
-            return String(localized: "\(visibleLogs.count) entrées de journal")
+            return String(localized: "logs.entries.summary", defaultValue: "\(visibleLogs.count) log entries")
         }
         let errors = visibleErrorCount
         let warnings = visibleWarningCount
         if isTruncated {
             return String(
-                localized: "\(visibleLogs.count) entrées affichées sur \(totalLogCount), dont \(errors) erreurs et \(warnings) avertissements"
+                localized: "logs.entries.filtered_summary",
+                defaultValue: "\(visibleLogs.count) of \(totalLogCount) entries shown, including \(errors) errors and \(warnings) warnings"
             )
         }
         return String(
-            localized: "\(visibleLogs.count) entrées de journal, dont \(errors) erreurs et \(warnings) avertissements"
+            localized: "logs.entries.summary_with_levels",
+            defaultValue: "\(visibleLogs.count) log entries, including \(errors) errors and \(warnings) warnings"
         )
     }
 }

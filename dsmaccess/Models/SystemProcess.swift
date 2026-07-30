@@ -32,7 +32,7 @@ struct SystemProcess: nonisolated Decodable, Sendable, Identifiable {
     let status: String?
 
     var id: String { pid.map(String.init) ?? command ?? "" }
-    var name: String { command ?? String(localized: "Processus sans nom") }
+    var name: String { command ?? String(localized: "tasks.process.unnamed") }
 
     /// Clés de tri non optionnelles : une mesure absente se range en dernier plutôt que
     /// d'empêcher le tri de la colonne.

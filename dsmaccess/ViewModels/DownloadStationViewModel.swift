@@ -59,7 +59,7 @@ final class DownloadStationViewModel {
         do {
             try await session.withClient { try await $0.createDownload(uri: uri, destination: destination) }
             await load()
-            return .success(String(localized: "Téléchargement ajouté"))
+            return .success(String(localized: "download.add.done.announcement"))
         } catch {
             return failure(error)
         }
@@ -68,28 +68,28 @@ final class DownloadStationViewModel {
     func pause(ids: Set<String>) async -> DSMOperationOutcome {
         await perform(ids: ids) { client in
             try await client.pauseDownloads(ids: ids)
-            return String(localized: "\(ids.count) téléchargements mis en pause")
+            return String(localized: "download.pause.done.announcement", defaultValue: "\(ids.count) downloads paused")
         }
     }
 
     func resume(ids: Set<String>) async -> DSMOperationOutcome {
         await perform(ids: ids) { client in
             try await client.resumeDownloads(ids: ids)
-            return String(localized: "\(ids.count) téléchargements repris")
+            return String(localized: "download.resume.done.announcement", defaultValue: "\(ids.count) downloads resumed")
         }
     }
 
     func delete(ids: Set<String>, forceComplete: Bool) async -> DSMOperationOutcome {
         await perform(ids: ids) { client in
             try await client.deleteDownloads(ids: ids, forceComplete: forceComplete)
-            return String(localized: "\(ids.count) téléchargements supprimés")
+            return String(localized: "download.delete.done.announcement", defaultValue: "\(ids.count) downloads removed")
         }
     }
 
     var summary: String {
         if let errorMessage { return errorMessage }
         let active = tasks.filter { $0.canPause }.count
-        return String(localized: "\(tasks.count) téléchargements, \(active) actifs")
+        return String(localized: "download.summary.count", defaultValue: "\(tasks.count) downloads, \(active) active")
     }
 
     private func perform(
@@ -97,7 +97,7 @@ final class DownloadStationViewModel {
         operation: (DSMClientProtocol) async throws -> String
     ) async -> DSMOperationOutcome {
         guard !ids.isEmpty else {
-            return .failure(String(localized: "Aucun téléchargement sélectionné"))
+            return .failure(String(localized: "download.selection.empty"))
         }
         busyIDs.formUnion(ids)
         defer { busyIDs.subtract(ids) }
@@ -115,6 +115,6 @@ final class DownloadStationViewModel {
     private func failure(_ error: Error) -> DSMOperationOutcome {
         guard !DSMError.isCancellation(error) else { return .cancelled }
         let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-        return .failure(String(localized: "Échec de l’opération : \(reason)"))
+        return .failure(String(localized: "common.error.operation_failed", defaultValue: "The operation failed: \(reason)"))
     }
 }

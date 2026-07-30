@@ -27,13 +27,13 @@ final class DSMUpgradeService {
         progress: @escaping DSMTransferProgressHandler = { _ in }
     ) async throws {
         guard fileURL.isFileURL else {
-            throw DSMError.network(String(localized: "Ce fichier n’est pas accessible."))
+            throw DSMError.network(String(localized: "dsm_update.file.unreadable.error"))
         }
         guard fileURL.pathExtension.caseInsensitiveCompare("pat") == .orderedSame else {
-            throw DSMError.network(String(localized: "Le fichier de mise à jour doit avoir l’extension .pat."))
+            throw DSMError.network(String(localized: "dsm_update.file.extension.error"))
         }
         guard let taille = try? await MultipartBodyFile.fileSize(at: fileURL), taille > 0 else {
-            throw DSMError.network(String(localized: "Ce fichier de mise à jour est vide ou illisible."))
+            throw DSMError.network(String(localized: "dsm_update.file.empty.error"))
         }
 
         let boundary = "Boundary-\(UUID().uuidString)"

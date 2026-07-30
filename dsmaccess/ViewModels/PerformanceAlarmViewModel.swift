@@ -101,13 +101,13 @@ final class PerformanceAlarmViewModel {
             await load()
             return .success(
                 enabled
-                    ? String(localized: "Règle activée : \(description(of: rule))")
-                    : String(localized: "Règle désactivée : \(description(of: rule))")
+                    ? String(localized: "alarm.rule.turned_on.announcement", defaultValue: "Rule turned on: \(description(of: rule))")
+                    : String(localized: "alarm.rule.turned_off.announcement", defaultValue: "Rule turned off: \(description(of: rule))")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec du changement d’état : \(reason)"))
+            return .failure(String(localized: "alarm.rule.toggle.error", defaultValue: "Could not change the rule state: \(reason)"))
         }
     }
 
@@ -120,13 +120,13 @@ final class PerformanceAlarmViewModel {
             try await session.withClient { try await $0.deletePerformanceAlarmRules(ids: ids) }
             await load()
             if selection.count == 1, let only = selection.first {
-                return .success(String(localized: "Règle supprimée : \(description(of: only))"))
+                return .success(String(localized: "alarm.rule.deleted.announcement", defaultValue: "Rule deleted: \(description(of: only))"))
             }
-            return .success(String(localized: "\(selection.count) règles supprimées"))
+            return .success(String(localized: "alarm.rules.delete.announcement", defaultValue: "\(selection.count) rules deleted"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de la suppression : \(reason)"))
+            return .failure(String(localized: "common.error.delete_failed", defaultValue: "Delete failed: \(reason)"))
         }
     }
 
@@ -136,8 +136,8 @@ final class PerformanceAlarmViewModel {
             await load()
             return .success(
                 draft.isCreation
-                    ? String(localized: "Règle créée")
-                    : String(localized: "Règle modifiée")
+                    ? String(localized: "alarm.rule.created.announcement")
+                    : String(localized: "alarm.rule.updated.announcement")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
@@ -145,11 +145,11 @@ final class PerformanceAlarmViewModel {
             // deux règles qui les partagent entrent en collision, quel que soit leur seuil.
             if case .apiError(Self.ruleAlreadyExistsCode)? = error as? DSMError {
                 return .failure(
-                    String(localized: "Une règle surveille déjà cette ressource avec la même gravité. Modifiez la règle existante ou changez la gravité.")
+                    String(localized: "alarm.rule.error.duplicate")
                 )
             }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de l’enregistrement : \(reason)"))
+            return .failure(String(localized: "common.error.save_failed", defaultValue: "Saving failed: \(reason)"))
         }
     }
 
@@ -207,39 +207,39 @@ final class PerformanceAlarmViewModel {
         let threshold = rule.threshold
         switch (rule.kind, rule.resource) {
         case (.system, .processorUsage):
-            return String(localized: "Processeur au-dessus de \(threshold) %")
+            return String(localized: "alarm.rule.summary.processor", defaultValue: "Processor above \(threshold) %")
         case (.system, .loadAverageOneMinute):
-            return String(localized: "Charge moyenne sur 1 minute au-dessus de \(threshold)")
+            return String(localized: "alarm.rule.summary.load_average_1m", defaultValue: "1-minute load average above \(threshold)")
         case (.system, .loadAverageFiveMinutes):
-            return String(localized: "Charge moyenne sur 5 minutes au-dessus de \(threshold)")
+            return String(localized: "alarm.rule.summary.load_average_5m", defaultValue: "5-minute load average above \(threshold)")
         case (.system, .loadAverageFifteenMinutes):
-            return String(localized: "Charge moyenne sur 15 minutes au-dessus de \(threshold)")
+            return String(localized: "alarm.rule.summary.load_average_15m", defaultValue: "15-minute load average above \(threshold)")
         case (.system, .memory):
-            return String(localized: "Mémoire au-dessus de \(threshold) %")
+            return String(localized: "alarm.rule.summary.memory_usage", defaultValue: "Memory above \(threshold) %")
         case (.system, .graphicsUsage):
-            return String(localized: "Processeur graphique au-dessus de \(threshold) %")
+            return String(localized: "alarm.rule.summary.graphics_processor", defaultValue: "Graphics processor above \(threshold) %")
         case (.service, .processorUsage):
-            return String(localized: "\(targetName(of: rule)) : processeur au-dessus de \(threshold) %")
+            return String(localized: "alarm.rule.summary.processor_target", defaultValue: "\(targetName(of: rule)): processor above \(threshold) %")
         case (.service, .memory):
-            return String(localized: "\(targetName(of: rule)) : mémoire au-dessus de \(threshold) Mo")
+            return String(localized: "alarm.rule.summary.memory_used_target", defaultValue: "\(targetName(of: rule)): memory above \(threshold) MB")
         case (.service, .diskActivity):
-            return String(localized: "\(targetName(of: rule)) : activité disque au-dessus de \(threshold) Mo/s")
+            return String(localized: "alarm.rule.summary.disk_throughput_target", defaultValue: "\(targetName(of: rule)): disk activity above \(threshold) MB/s")
         case (.volume, .diskActivity):
-            return String(localized: "\(targetName(of: rule)) : activité disque au-dessus de \(threshold) %")
+            return String(localized: "alarm.rule.summary.disk_usage_target", defaultValue: "\(targetName(of: rule)): disk activity above \(threshold) %")
         case (.iSCSI, .networkLatency):
-            return String(localized: "\(targetName(of: rule)) : latence réseau au-dessus de \(threshold) ms")
+            return String(localized: "alarm.rule.summary.network_latency_target", defaultValue: "\(targetName(of: rule)): network latency above \(threshold) ms")
         case (.iSCSI, .ioLatency):
-            return String(localized: "\(targetName(of: rule)) : latence d’accès au-dessus de \(threshold) ms")
+            return String(localized: "alarm.rule.summary.access_latency_target", defaultValue: "\(targetName(of: rule)): access latency above \(threshold) ms")
         case (.internalUse, .rootPartition):
-            return String(localized: "Partition système au-dessus de \(threshold) %")
+            return String(localized: "alarm.rule.summary.system_partition", defaultValue: "System partition above \(threshold) %")
         case (.internalUse, .temporaryDirectory):
-            return String(localized: "Dossier temporaire au-dessus de \(threshold) %")
+            return String(localized: "alarm.rule.summary.temporary_folder", defaultValue: "Temporary folder above \(threshold) %")
         case (.internalUse, .coredumpCount):
-            return String(localized: "Plus de \(threshold) fichiers de vidage mémoire")
+            return String(localized: "alarm.rule.summary.core_dump_files", defaultValue: "More than \(threshold) core dump files")
         default:
             // Le NAS a renvoyé une combinaison que son propre client ne propose pas : la règle
             // reste listée et supprimable, avec ce qu'on sait d'elle.
-            return String(localized: "Seuil de \(threshold) sur une ressource inconnue")
+            return String(localized: "alarm.rule.summary.unknown_resource", defaultValue: "Threshold of \(threshold) on an unknown resource")
         }
     }
 
@@ -250,42 +250,42 @@ final class PerformanceAlarmViewModel {
         if rule.kind == .service, let label = serviceLabels[rule.target] {
             return label
         }
-        return rule.displayTarget ?? String(localized: "Cible inconnue")
+        return rule.displayTarget ?? String(localized: "alarm.target.unknown")
     }
 
     func kindText(_ kind: PerformanceAlarmRule.Kind) -> String {
         switch kind {
-        case .system: String(localized: "Système")
-        case .service: String(localized: "Service")
-        case .iSCSI: String(localized: "LUN iSCSI")
-        case .volume: String(localized: "Volume")
-        case .internalUse: String(localized: "Usage interne")
+        case .system: String(localized: "common.label.system")
+        case .service: String(localized: "common.column.service")
+        case .iSCSI: String(localized: "alarm.target.iscsi_lun")
+        case .volume: String(localized: "common.column.volume")
+        case .internalUse: String(localized: "alarm.target.internal_use")
         }
     }
 
     func severityText(_ severity: PerformanceAlarmRule.Severity) -> String {
         switch severity {
-        case .warning: String(localized: "Avertissement")
-        case .critical: String(localized: "Critique")
+        case .warning: String(localized: "common.level.warning")
+        case .critical: String(localized: "common.level.critical")
         }
     }
 
     func resourceText(_ resource: PerformanceAlarmRule.Resource, for kind: PerformanceAlarmRule.Kind) -> String {
         switch (kind, resource) {
-        case (_, .processorUsage): String(localized: "Utilisation du processeur")
-        case (_, .loadAverageOneMinute): String(localized: "Charge moyenne sur 1 minute")
-        case (_, .loadAverageFiveMinutes): String(localized: "Charge moyenne sur 5 minutes")
-        case (_, .loadAverageFifteenMinutes): String(localized: "Charge moyenne sur 15 minutes")
-        case (.service, .memory): String(localized: "Mémoire occupée")
-        case (_, .memory): String(localized: "Utilisation de la mémoire")
-        case (.volume, .diskActivity): String(localized: "Utilisation des accès disque")
-        case (_, .diskActivity): String(localized: "Débit disque")
-        case (_, .networkLatency): String(localized: "Latence réseau")
-        case (_, .ioLatency): String(localized: "Latence d’accès")
-        case (_, .rootPartition): String(localized: "Partition système")
-        case (_, .temporaryDirectory): String(localized: "Dossier temporaire")
-        case (_, .coredumpCount): String(localized: "Fichiers de vidage mémoire")
-        case (_, .graphicsUsage): String(localized: "Utilisation du processeur graphique")
+        case (_, .processorUsage): String(localized: "alarm.resource.processor_usage")
+        case (_, .loadAverageOneMinute): String(localized: "alarm.resource.load_average_1m")
+        case (_, .loadAverageFiveMinutes): String(localized: "alarm.resource.load_average_5m")
+        case (_, .loadAverageFifteenMinutes): String(localized: "alarm.resource.load_average_15m")
+        case (.service, .memory): String(localized: "alarm.resource.memory_used")
+        case (_, .memory): String(localized: "alarm.resource.memory_usage")
+        case (.volume, .diskActivity): String(localized: "alarm.resource.disk_access_usage")
+        case (_, .diskActivity): String(localized: "alarm.resource.disk_throughput")
+        case (_, .networkLatency): String(localized: "alarm.resource.network_latency")
+        case (_, .ioLatency): String(localized: "alarm.resource.access_latency")
+        case (_, .rootPartition): String(localized: "alarm.resource.system_partition")
+        case (_, .temporaryDirectory): String(localized: "alarm.resource.temporary_folder")
+        case (_, .coredumpCount): String(localized: "alarm.resource.core_dump_files")
+        case (_, .graphicsUsage): String(localized: "alarm.resource.graphics_processor_usage")
         }
     }
 
@@ -294,9 +294,9 @@ final class PerformanceAlarmViewModel {
     func unitText(_ unit: PerformanceAlarmRule.Unit) -> String {
         switch unit {
         case .percent: "%"
-        case .megabytes: String(localized: "Mo")
-        case .megabytesPerSecond: String(localized: "Mo/s")
-        case .milliseconds: String(localized: "ms")
+        case .megabytes: String(localized: "alarm.unit.megabytes")
+        case .megabytesPerSecond: String(localized: "alarm.unit.megabytes_per_second")
+        case .milliseconds: String(localized: "alarm.unit.milliseconds")
         case .none: ""
         }
     }
@@ -309,8 +309,8 @@ final class PerformanceAlarmViewModel {
 
     var summary: String {
         if let errorMessage { return errorMessage }
-        if rules.isEmpty { return String(localized: "Aucune règle d’alarme") }
+        if rules.isEmpty { return String(localized: "common.empty.alarm_rules") }
         let active = rules.filter(\.isEnabled).count
-        return String(localized: "\(rules.count) règles d’alarme, \(active) actives")
+        return String(localized: "alarm.rules.summary", defaultValue: "\(rules.count) alarm rules, \(active) on")
     }
 }

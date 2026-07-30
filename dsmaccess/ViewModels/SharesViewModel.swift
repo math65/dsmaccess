@@ -68,10 +68,10 @@ final class SharesViewModel {
                 )
             }
             await load()
-            return .success(String(localized: "Dossier partagé créé : \(name)"))
+            return .success(String(localized: "shares.create.success", defaultValue: "Shared folder created: \(name)"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
-            return .failure(String(localized: "Échec de la création : \(reason(for: error))"))
+            return .failure(String(localized: "shares.create.error", defaultValue: "Failed to create the folder: \(reason(for: error))"))
         }
     }
 
@@ -81,25 +81,25 @@ final class SharesViewModel {
         do {
             try await session.withClient { try await $0.deleteSharedFolder(name: name) }
             await load()
-            return .success(String(localized: "Dossier partagé supprimé : \(name)"))
+            return .success(String(localized: "shares.delete.success", defaultValue: "Shared folder deleted: \(name)"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
-            return .failure(String(localized: "Échec de la suppression : \(reason(for: error))"))
+            return .failure(String(localized: "common.error.delete_failed", defaultValue: "Delete failed: \(reason(for: error))"))
         }
     }
 
     /// Résumé annoncé à VoiceOver une fois chargé.
     var summary: String {
         if let errorMessage { return errorMessage }
-        return String(localized: "\(shares.count) dossiers partagés")
+        return String(localized: "common.count.shared_folders", defaultValue: "\(shares.count) shared folders")
     }
 
     /// Message d'erreur, avec des cas amicaux pour les codes SYNO.Core.Share connus.
     private func reason(for error: Error) -> String {
         if case let DSMError.apiError(code) = error {
             switch code {
-            case 3301: return String(localized: "un dossier partagé porte déjà ce nom")
-            case 3309: return String(localized: "le nombre maximum de dossiers partagés est atteint")
+            case 3301: return String(localized: "shares.create.error.name_taken")
+            case 3309: return String(localized: "shares.create.error.limit_reached")
             default: break
             }
         }

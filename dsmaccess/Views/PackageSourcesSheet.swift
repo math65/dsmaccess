@@ -32,27 +32,27 @@ struct PackageSourcesSheet: View {
         .interactiveDismissDisabled(vm.isSaving || operationTask != nil)
         .task {
             focusHeading = true
-            VoiceOver.announce("Sources de paquets", category: .navigation)
+            VoiceOver.announce(String(localized: "packages.sources.title"), category: .navigation)
             await load()
         }
         .sheet(item: $editorRequest) { request in
             PackageSourceEditorSheet(vm: vm, source: request.source)
         }
         .confirmationDialog(
-            "Supprimer cette source ?",
+            "packages.sources.remove.confirm",
             isPresented: Binding(
                 get: { pendingDeletion != nil },
                 set: { if !$0 { pendingDeletion = nil } }
             ),
             presenting: pendingDeletion
         ) { source in
-            Button("Supprimer \(source.name)", role: .destructive) {
+            Button(String(localized: "common.action.delete_item", defaultValue: "Delete \(source.name)"), role: .destructive) {
                 delete(source)
             }
-            Button("Annuler", role: .cancel) { }
+            Button("common.button.cancel", role: .cancel) { }
         } message: { source in
             Text(
-                "La source « \(source.name) » sera retirée du Centre de paquets. Les paquets déjà installés ne seront ni arrêtés ni désinstallés."
+                String(localized: "packages.sources.remove.confirm.description", defaultValue: "The “\(source.name)” source will be removed from Package Center. Installed packages will not be stopped or uninstalled.")
             )
         }
         .onDisappear {
@@ -62,7 +62,7 @@ struct PackageSourcesSheet: View {
 
     private var header: some View {
         HStack {
-            Text("Sources de paquets")
+            Text("packages.sources.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusHeading)
@@ -78,31 +78,31 @@ struct PackageSourcesSheet: View {
 
     private var progressLabel: String {
         vm.isSaving
-            ? String(localized: "Enregistrement de la source…")
-            : String(localized: "Chargement des sources…")
+            ? String(localized: "packages.sources.saving.progress")
+            : String(localized: "packages.sources.loading.label")
     }
 
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.sources.isEmpty {
-            ProgressView("Chargement des sources de paquets…")
+            ProgressView("packages.sources.loading.progress")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .accessibilityFocused($focusStatus)
         } else if let error = vm.errorMessage, vm.sources.isEmpty {
             VStack(spacing: 12) {
                 Text(error)
                     .foregroundStyle(.red)
-                Button("Réessayer") { Task { await load() } }
+                Button("common.button.retry") { Task { await load() } }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .accessibilityFocused($focusStatus)
         } else if vm.sources.isEmpty {
             ContentUnavailableView {
-                Label("Aucune source tierce", systemImage: "shippingbox")
+                Label("packages.sources.empty.title", systemImage: "shippingbox")
             } description: {
-                Text("Ajoutez une source HTTPS pour afficher ses paquets dans le Centre de paquets.")
+                Text("packages.sources.empty.description")
             } actions: {
-                Button("Ajouter une source…") {
+                Button("packages.sources.add.button") {
                     editorRequest = PackageSourceEditorRequest(source: nil)
                 }
                 .disabled(vm.isSaving)
@@ -116,7 +116,7 @@ struct PackageSourcesSheet: View {
                             .foregroundStyle(.red)
                             .accessibilityFocused($focusStatus)
                         Spacer()
-                        Button("Fermer l’erreur") {
+                        Button("common.button.dismiss_error") {
                             vm.operationErrorMessage = nil
                             vm.errorMessage = nil
                         }
@@ -134,36 +134,36 @@ struct PackageSourcesSheet: View {
                                 .textSelection(.enabled)
                         }
                         Spacer()
-                        Button("Modifier", systemImage: "pencil") {
+                        Button("common.button.edit", systemImage: "pencil") {
                             editorRequest = PackageSourceEditorRequest(source: source)
                         }
                         .labelStyle(.iconOnly)
-                        .accessibilityLabel("Modifier la source \(source.name)")
+                        .accessibilityLabel(String(localized: "packages.sources.edit.action", defaultValue: "Edit the \(source.name) source"))
                         .disabled(vm.isSaving || operationTask != nil)
                         Button(role: .destructive) {
                             pendingDeletion = source
                         } label: {
                             Image(systemName: "trash")
                         }
-                        .accessibilityLabel("Supprimer la source \(source.name)")
+                        .accessibilityLabel(String(localized: "packages.sources.remove.action", defaultValue: "Remove the \(source.name) source"))
                         .disabled(vm.isSaving || operationTask != nil)
                     }
                     .accessibilityElement(children: .contain)
                 }
-                .accessibilityLabel("Sources de paquets configurées")
+                .accessibilityLabel("packages.sources.table.label")
             }
         }
     }
 
     private var footer: some View {
         HStack {
-            Button("Ajouter une source…", systemImage: "plus") {
+            Button("packages.sources.add.button", systemImage: "plus") {
                 editorRequest = PackageSourceEditorRequest(source: nil)
             }
             .disabled(vm.isSaving || operationTask != nil)
-            .help("Ajouter une source HTTPS au Centre de paquets")
+            .help("packages.sources.add.hint")
             Spacer()
-            Button("Fermer", role: .cancel) { dismiss() }
+            Button("common.button.close", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
                 .disabled(vm.isSaving || operationTask != nil)
         }
@@ -172,7 +172,7 @@ struct PackageSourcesSheet: View {
 
     private func load() async {
         VoiceOver.announce(
-            String(localized: "Chargement des sources de paquets…"),
+            String(localized: "packages.sources.loading.progress"),
             category: .progress,
             priority: .low
         )
@@ -183,7 +183,7 @@ struct PackageSourcesSheet: View {
             VoiceOver.announce(error, category: .error, priority: .high)
         } else {
             VoiceOver.announce(
-                String(localized: "\(vm.sources.count) sources de paquets"),
+                String(localized: "packages.sources.count", defaultValue: "\(vm.sources.count) package sources"),
                 category: .result
             )
         }
@@ -192,7 +192,7 @@ struct PackageSourcesSheet: View {
     private func delete(_ source: PackageSource) {
         guard operationTask == nil else { return }
         VoiceOver.announce(
-            String(localized: "Suppression de la source \(source.name)…"),
+            String(localized: "packages.sources.remove.progress", defaultValue: "Removing the \(source.name) source…"),
             category: .progress,
             priority: .high
         )
@@ -245,11 +245,11 @@ private struct PackageSourceEditorSheet: View {
                 .accessibilityAddTraits(.isHeader)
 
             Form {
-                TextField("Nom", text: $name)
+                TextField("common.column.name", text: $name)
                     .accessibilityFocused($focus, equals: .name)
-                TextField("Adresse HTTPS", text: $feed)
+                TextField("packages.sources.url.label", text: $feed)
                     .accessibilityFocused($focus, equals: .feed)
-                Text("L’ajout d’une source rend ses paquets visibles mais n’en installe aucun. N’ajoutez que des sources que vous jugez fiables.")
+                Text("packages.sources.add.footer")
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -263,15 +263,15 @@ private struct PackageSourceEditorSheet: View {
             }
 
             if vm.isSaving {
-                ProgressView("Enregistrement de la source…")
+                ProgressView("packages.sources.saving.progress")
             }
 
             HStack {
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .disabled(vm.isSaving)
-                Button("Enregistrer") { save() }
+                Button("common.button.save") { save() }
                     .keyboardShortcut(.defaultAction)
                     .disabled(vm.isSaving)
             }
@@ -294,15 +294,15 @@ private struct PackageSourceEditorSheet: View {
 
     private var editorTitle: String {
         source == nil
-            ? String(localized: "Ajouter une source")
-            : String(localized: "Modifier la source")
+            ? String(localized: "packages.sources.add.title")
+            : String(localized: "packages.sources.edit.title")
     }
 
     private func save() {
         guard saveTask == nil else { return }
         guard PackageSourcesViewModel.validatedSource(name: name, feed: feed) != nil else {
             validationMessage = String(
-                localized: "Saisissez un nom et une adresse HTTPS valides pour la source."
+                localized: "common.validation.invalid_package_source"
             )
             let normalizedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
             focus = normalizedName.isEmpty ? .name : .feed
@@ -315,7 +315,7 @@ private struct PackageSourceEditorSheet: View {
         }
         validationMessage = nil
         VoiceOver.announce(
-            String(localized: "Enregistrement de la source…"),
+            String(localized: "packages.sources.saving.progress"),
             category: .progress,
             priority: .high
         )

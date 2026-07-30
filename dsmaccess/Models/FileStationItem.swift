@@ -245,7 +245,7 @@ extension FileStationItem {
 
     /// Libellé complet lu par VoiceOver : « photo, dossier » ou « a.jpg, fichier, 2,3 Mo · 12 mars 2024 ».
     var accessibilityLabel: String {
-        let kind = isdir ? String(localized: "dossier") : String(localized: "fichier")
+        let kind = isdir ? String(localized: "files.item.kind.folder") : String(localized: "files.item.kind.file")
         var label = "\(name), \(kind)"
         if let detail = detailText {
             label += ", \(detail)"

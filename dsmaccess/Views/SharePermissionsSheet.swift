@@ -36,16 +36,16 @@ struct SharePermissionsSheet: View {
                 if viewModel.isSaving {
                     ProgressView()
                         .controlSize(.small)
-                        .accessibilityLabel("Enregistrement en cours")
+                        .accessibilityLabel("share_permissions.save.progress")
                 }
                 Spacer()
                 // Sans modification, « Annuler » laisserait croire qu'on revient sur quelque
                 // chose — la création du compte, quand l'écran s'ouvre juste après elle.
                 if viewModel.hasChanges {
-                    Button("Annuler", role: .cancel) { showsDiscardConfirmation = true }
+                    Button("common.button.cancel", role: .cancel) { showsDiscardConfirmation = true }
                         .keyboardShortcut(.cancelAction)
-                        .help("Fermer sans enregistrer les modifications")
-                    Button("Enregistrer") {
+                        .help("share_permissions.close.hint")
+                    Button("common.button.save") {
                         Task {
                             let outcome = await viewModel.save()
                             onFinish(outcome)
@@ -54,11 +54,11 @@ struct SharePermissionsSheet: View {
                     }
                     .keyboardShortcut(.defaultAction)
                     .disabled(viewModel.isSaving)
-                    .help("Enregistrer les permissions modifiées")
+                    .help("share_permissions.save.button")
                 } else {
-                    Button("Fermer", role: .cancel) { dismiss() }
+                    Button("common.button.close", role: .cancel) { dismiss() }
                         .keyboardShortcut(.cancelAction)
-                        .help("Fermer les permissions")
+                        .help("share_permissions.close.button")
                 }
             }
         }
@@ -69,27 +69,27 @@ struct SharePermissionsSheet: View {
             contentFocused = true
         }
         .confirmationDialog(
-            "Abandonner les modifications ?",
+            "share_permissions.discard.confirm.title",
             isPresented: $showsDiscardConfirmation
         ) {
-            Button("Abandonner", role: .destructive) { dismiss() }
-            Button("Continuer la modification", role: .cancel) { }
+            Button("share_permissions.discard.confirm.button", role: .destructive) { dismiss() }
+            Button("share_permissions.discard.cancel.button", role: .cancel) { }
         } message: {
-            Text("Les permissions modifiées ne seront pas enregistrées sur le NAS.")
+            Text("share_permissions.discard.confirm.message")
         }
     }
 
     private var title: String {
         switch viewModel.holder {
-        case .user(let name): return String(localized: "Permissions de \(name)")
-        case .group(let name): return String(localized: "Permissions du groupe \(name)")
+        case .user(let name): return String(localized: "share_permissions.user.title", defaultValue: "Permissions for \(name)")
+        case .group(let name): return String(localized: "share_permissions.group.title", defaultValue: "Permissions for the \(name) group")
         }
     }
 
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading {
-            ModuleLoadingView("Chargement des permissions…")
+            ModuleLoadingView("share_permissions.loading")
                 .accessibilityFocused($contentFocused)
         } else if let errorMessage = viewModel.errorMessage {
             ModuleErrorView(message: errorMessage) {
@@ -98,20 +98,20 @@ struct SharePermissionsSheet: View {
             .accessibilityFocused($contentFocused)
         } else if viewModel.permissions.isEmpty {
             EmptyModuleView(
-                title: "Aucun dossier partagé",
+                title: "common.empty.shared_folders",
                 systemImage: "folder",
-                description: "Ce NAS n’expose aucun dossier partagé à autoriser."
+                description: "share_permissions.folders.empty.description"
             )
             .accessibilityFocused($contentFocused)
         } else {
             TabView {
                 shareTab
-                    .tabItem { Text("Dossiers partagés") }
+                    .tabItem { Text("common.module.shared_folders") }
                 applicationTab
-                    .tabItem { Text("Applications") }
+                    .tabItem { Text("common.label.applications") }
                 if viewModel.editsMemberships {
                     groupTab
-                        .tabItem { Text("Groupes") }
+                        .tabItem { Text("common.label.groups") }
                 }
             }
         }
@@ -129,7 +129,7 @@ struct SharePermissionsSheet: View {
             .accessibilityFocused($contentFocused)
 
             if viewModel.holder.inheritsFromGroups {
-                Text("Entre le droit du compte et celui de ses groupes : un aucun accès l’emporte sur tout, sinon c’est le droit le plus large qui s’applique. Un compte en lecture/écriture dans un groupe en lecture seule peut donc écrire.")
+                Text("share_permissions.folders.description")
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)
                     .fixedSize(horizontal: false, vertical: true)
@@ -144,17 +144,17 @@ struct SharePermissionsSheet: View {
     private var groupTab: some View {
         if viewModel.groups.isEmpty {
             EmptyModuleView(
-                title: "Aucun groupe",
+                title: "common.empty.groups",
                 systemImage: "person.3",
-                description: "Créez un groupe pour donner les mêmes accès à plusieurs comptes."
+                description: "share_permissions.groups.empty.description"
             )
         } else {
             Form {
-                Section("Groupes") {
+                Section("common.label.groups") {
                     ForEach(viewModel.groups) { group in
                         Toggle(group.name, isOn: membershipBinding(group))
                             .disabled(viewModel.isSaving)
-                            .help("Faire appartenir ce compte au groupe \(group.name)")
+                            .help(String(localized: "share_permissions.group_membership.hint", defaultValue: "Make this account a member of the \(group.name) group"))
                     }
                 }
             }
@@ -178,9 +178,9 @@ struct SharePermissionsSheet: View {
                 }
             } else if viewModel.applications.isEmpty {
                 EmptyModuleView(
-                    title: "Aucune application",
+                    title: "share_permissions.applications.empty.title",
                     systemImage: "square.grid.2x2",
-                    description: "Ce NAS n’expose aucune application soumise à autorisation."
+                    description: "share_permissions.applications.empty.description"
                 )
             } else {
                 ApplicationPrivilegeTableView(
@@ -189,7 +189,7 @@ struct SharePermissionsSheet: View {
                 ) { application, decision in
                     viewModel.setDecision(decision, for: application)
                 }
-                Text("Un refus l’emporte sur toute autorisation, y compris celle d’un groupe. Une application laissée sur « par défaut » suit le réglage du NAS.")
+                Text("share_permissions.applications.description")
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)
                     .fixedSize(horizontal: false, vertical: true)

@@ -162,14 +162,14 @@ final class ConnectionViewModel {
     var portValidationMessage: String? {
         guard connectionMethod == .direct else { return nil }
         guard port == nil else { return nil }
-        return String(localized: "Le port doit être un nombre compris entre 1 et 65535.")
+        return String(localized: "connection.port.error")
     }
 
     var quickConnectValidationMessage: String? {
         guard connectionMethod == .quickConnect else { return nil }
         let id = quickConnectID.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !id.isEmpty, !QuickConnectResolver.isValid(id: id) else { return nil }
-        return String(localized: "L’identifiant QuickConnect n’est pas valide.")
+        return String(localized: "common.error.invalid_quickconnect_id")
     }
 
     var connectionLabel: String {
@@ -184,9 +184,9 @@ final class ConnectionViewModel {
     var progressMessage: String? {
         switch state {
         case .resolvingQuickConnect:
-            String(localized: "Recherche du NAS avec QuickConnect…")
+            String(localized: "connection.status.quickconnect_lookup")
         case .connecting:
-            String(localized: "Connexion en cours…")
+            String(localized: "connection.status.connecting")
         case .editing, .needsOTP, .needsPasswordChange, .awaitingApproval:
             nil
         }
@@ -212,7 +212,7 @@ final class ConnectionViewModel {
     private func connect(reusingPendingClient: Bool) async {
         let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanedAccount.isEmpty, !password.isEmpty else {
-            errorMessage = String(localized: "Veuillez renseigner le nom d’utilisateur et le mot de passe.")
+            errorMessage = String(localized: "connection.credentials.error")
             return
         }
 
@@ -371,7 +371,7 @@ final class ConnectionViewModel {
             CredentialStore.forgetSession(account: account, target: target)
             client = nil
             errorMessage = String(
-                localized: "La session enregistrée n’est plus valide. Connectez-vous à nouveau."
+                localized: "connection.saved_session.expired.error"
             )
             return false
         } catch let error as DSMError where error.provesSessionIsAlive {
@@ -404,7 +404,7 @@ final class ConnectionViewModel {
     func startSecureSignIn() {
         let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanedAccount.isEmpty else {
-            errorMessage = String(localized: "Veuillez renseigner le nom d’utilisateur.")
+            errorMessage = String(localized: "connection.username.error")
             return
         }
         guard let target = connectionTarget else {
@@ -457,7 +457,7 @@ final class ConnectionViewModel {
             guard activeClient.supportsSecureSignIn else {
                 state = .editing
                 errorMessage = String(
-                    localized: "Ce NAS ne propose pas la connexion sans mot de passe."
+                    localized: "connection.passwordless.unavailable.error"
                 )
                 return
             }
@@ -572,7 +572,7 @@ final class ConnectionViewModel {
               let target = pendingTarget else { return }
         let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !otpCode.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
-            errorMessage = String(localized: "Saisissez le code de vérification.")
+            errorMessage = String(localized: "connection.verification_code.error")
             return
         }
 
@@ -611,15 +611,15 @@ final class ConnectionViewModel {
         guard let client else { return }
         let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !newPassword.isEmpty else {
-            errorMessage = String(localized: "Saisissez le nouveau mot de passe.")
+            errorMessage = String(localized: "connection.new_password.error")
             return
         }
         guard newPassword == newPasswordConfirmation else {
-            errorMessage = String(localized: "Les deux mots de passe ne correspondent pas.")
+            errorMessage = String(localized: "connection.password_confirmation.error")
             return
         }
         guard newPassword != password else {
-            errorMessage = String(localized: "Choisissez un mot de passe différent de l'actuel.")
+            errorMessage = String(localized: "connection.password_change.same_password.error")
             return
         }
 
@@ -643,7 +643,7 @@ final class ConnectionViewModel {
             return
         }
 
-        VoiceOver.announce(String(localized: "Mot de passe changé."), category: .result)
+        VoiceOver.announce(String(localized: "connection.password_change.success"), category: .result)
         // Le mot de passe accepté par DSM devient l'identifiant courant : la connexion
         // reprend le chemin normal, qui sait déjà traiter le code 2FA et le certificat.
         password = newPassword
@@ -673,7 +673,7 @@ final class ConnectionViewModel {
         let interruptedStep = state
         guard client.approveServerCertificate(fingerprint: fingerprint) else {
             pendingCertificateFingerprint = nil
-            errorMessage = String(localized: "Le certificat n'a pas pu être enregistré dans le trousseau.")
+            errorMessage = String(localized: "connection.certificate.keychain.error")
             return
         }
         pendingCertificateFingerprint = nil
@@ -797,11 +797,11 @@ final class ConnectionViewModel {
     private var connectionValidationMessage: String {
         switch connectionMethod {
         case .direct where host.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty:
-            String(localized: "Veuillez renseigner l’adresse du NAS.")
+            String(localized: "connection.address.error")
         case .direct:
-            String(localized: "Le port doit être un nombre compris entre 1 et 65535.")
+            String(localized: "connection.port.error")
         case .quickConnect:
-            String(localized: "L’identifiant QuickConnect n’est pas valide.")
+            String(localized: "common.error.invalid_quickconnect_id")
         }
     }
 

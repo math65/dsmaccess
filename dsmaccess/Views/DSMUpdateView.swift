@@ -22,16 +22,16 @@ struct DSMUpdateView: View {
 
     var body: some View {
         content
-            .navigationTitle("Mise à jour de DSM")
+            .navigationTitle("common.section.dsm_update")
             .toolbar {
                 ToolbarItem {
                     Button {
                         Task { await viewModel.load() }
                     } label: {
-                        Label("Actualiser", systemImage: "arrow.clockwise")
+                        Label("common.button.refresh", systemImage: "arrow.clockwise")
                     }
                     .disabled(viewModel.isBusy)
-                    .help("Relire la version installée sur le NAS")
+                    .help("dsm_update.version.refresh.hint")
                 }
             }
             .fileImporter(
@@ -57,7 +57,7 @@ struct DSMUpdateView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading {
-            ModuleLoadingView("Lecture de la version installée…")
+            ModuleLoadingView("dsm_update.version.loading")
                 .accessibilityFocused($focusContent)
         } else if let errorMessage = viewModel.errorMessage {
             ModuleErrorView(message: errorMessage) {
@@ -67,49 +67,49 @@ struct DSMUpdateView: View {
         } else {
             Form {
                 Section {
-                    Text("Cette fonction est une première version, publiée sans avoir pu être essayée sur un NAS qui attendait une mise à jour. Vérifiez que vous disposez d’une sauvegarde et signalez ce que vous observez.")
+                    Text("dsm_update.first_version.warning")
                         .font(.callout)
                         .foregroundStyle(.readableOrange)
                         .fixedSize(horizontal: false, vertical: true)
                         .accessibilityFocused($focusContent)
                 }
 
-                Section("NAS") {
-                    LabeledContent("Modèle") { Text(viewModel.modelName ?? "—") }
-                    LabeledContent("Version installée") { Text(viewModel.currentVersion ?? "—") }
+                Section("common.label.nas") {
+                    LabeledContent("common.label.model") { Text(viewModel.modelName ?? "—") }
+                    LabeledContent("common.label.installed_version") { Text(viewModel.currentVersion ?? "—") }
                         .labeledContentStyle(.readable)
                 }
 
-                Section("Fichier de mise à jour") {
+                Section("dsm_update.file.section") {
                     Text(viewModel.statusText)
                         .foregroundStyle(.readableSecondary)
                         .fixedSize(horizontal: false, vertical: true)
-                    Button("Choisir un fichier .pat…") { showsFileImporter = true }
+                    Button("dsm_update.file.choose.button") { showsFileImporter = true }
                         .disabled(viewModel.isBusy)
-                        .help("Choisir le fichier de mise à jour téléchargé depuis Synology")
+                        .help("dsm_update.file.choose.hint")
                     if viewModel.selectedFile != nil {
-                        Button("Envoyer au NAS et vérifier") { uploadAndCheck() }
+                        Button("dsm_update.upload.button") { uploadAndCheck() }
                             .disabled(viewModel.isBusy || viewModel.stage == .awaitingConfirmation)
-                            .help("Envoyer le fichier puis demander au NAS ce qu’il en pense")
+                            .help("dsm_update.upload.button.hint")
                     }
                 }
 
                 if viewModel.stage == .uploading, let fraction = viewModel.transferProgress?.fractionCompleted {
-                    Section("Envoi") {
+                    Section("common.status.sending") {
                         ProgressView(value: fraction)
-                            .accessibilityLabel("Envoi du fichier au NAS")
+                            .accessibilityLabel("dsm_update.upload.progress")
                             .accessibilityValue(fraction.formatted(.percent.precision(.fractionLength(0))))
                     }
                 }
 
                 if let preCheck = viewModel.preCheck {
-                    Section("Ce que le NAS annonce") {
+                    Section("dsm_update.precheck.section") {
                         Text(warningText(for: preCheck))
                             .fixedSize(horizontal: false, vertical: true)
                             .accessibilityFocused($focusWarning)
-                        Button("Installer et redémarrer le NAS…") { showsConfirmation = true }
+                        Button("dsm_update.install.button") { showsConfirmation = true }
                             .disabled(viewModel.isBusy)
-                            .help("Lire les conséquences puis lancer l’installation")
+                            .help("dsm_update.install.button.hint")
                     }
                 }
             }
@@ -125,19 +125,19 @@ struct DSMUpdateView: View {
     private func warningText(for preCheck: DSMUpgradePreCheck) -> String {
         guard preCheck.isUnderstood else {
             return String(
-                localized: "Le NAS a accepté le fichier, mais l’app n’a pas su lire le détail de sa réponse. Ouvrez DSM pour vérifier les conséquences avant d’installer."
+                localized: "dsm_update.precheck.unreadable_details"
             )
         }
         guard !preCheck.unsupportedPackages.isEmpty else {
-            return String(localized: "Le NAS n’annonce aucun paquet abandonné par cette mise à jour.")
+            return String(localized: "dsm_update.precheck.no_dropped_packages")
         }
         let liste = preCheck.unsupportedPackages.formatted(.list(type: .and))
-        return String(localized: "Ces paquets ne seront plus pris en charge après la mise à jour : \(liste).")
+        return String(localized: "dsm_update.precheck.dropped_packages", defaultValue: "These packages will no longer be supported after the update: \(liste).")
     }
 
     private func load() async {
         VoiceOver.announce(
-            String(localized: "Lecture de la version installée…"),
+            String(localized: "dsm_update.version.loading"),
             category: .progress,
             priority: .low
         )
@@ -156,7 +156,7 @@ struct DSMUpdateView: View {
             guard let url = urls.first else { return }
             guard url.pathExtension.caseInsensitiveCompare("pat") == .orderedSame else {
                 viewModel.errorMessage = String(
-                    localized: "Ce fichier n’est pas une mise à jour DSM. Choisissez un fichier .pat."
+                    localized: "dsm_update.file.wrong_type.error"
                 )
                 VoiceOver.announce(viewModel.errorMessage ?? "", category: .error, priority: .high)
                 return
@@ -172,7 +172,7 @@ struct DSMUpdateView: View {
     private func uploadAndCheck() {
         guard operationTask == nil else { return }
         VoiceOver.announce(
-            String(localized: "Envoi du fichier au NAS."),
+            String(localized: "common.status.sending.description"),
             category: .progress,
             priority: .high
         )
@@ -187,7 +187,7 @@ struct DSMUpdateView: View {
     private func startUpgrade() {
         guard operationTask == nil else { return }
         VoiceOver.announce(
-            String(localized: "Installation lancée. Le NAS va redémarrer."),
+            String(localized: "dsm_update.install.started"),
             category: .progress,
             priority: .high
         )
@@ -213,7 +213,7 @@ private struct DSMUpdateConfirmationSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Installer cette mise à jour ?")
+            Text("dsm_update.install.confirm.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusTitle)
@@ -221,21 +221,21 @@ private struct DSMUpdateConfirmationSheet: View {
             Text(consequences)
                 .fixedSize(horizontal: false, vertical: true)
 
-            Toggle("J’ai pris connaissance des conséquences", isOn: $hasUnderstood)
-                .help("À cocher pour pouvoir lancer l’installation")
+            Toggle("dsm_update.install.acknowledge.label", isOn: $hasUnderstood)
+                .help("dsm_update.install.acknowledge.hint")
 
             HStack {
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                    .help("Ne pas installer cette mise à jour")
-                Button("Installer et redémarrer") {
+                    .help("dsm_update.install.cancel.hint")
+                Button("dsm_update.install.confirm.button") {
                     onConfirm()
                     dismiss()
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(!hasUnderstood)
-                .help("Lancer l’installation et redémarrer le NAS")
+                .help("dsm_update.install.confirm.hint")
             }
         }
         .padding(20)
@@ -243,23 +243,23 @@ private struct DSMUpdateConfirmationSheet: View {
         .onAppear {
             focusTitle = true
             VoiceOver.announce(
-                String(localized: "Installer cette mise à jour ?"),
+                String(localized: "dsm_update.install.confirm.title"),
                 category: .navigation
             )
         }
     }
 
     private var consequences: String {
-        let version = currentVersion ?? String(localized: "inconnue")
+        let version = currentVersion ?? String(localized: "dsm_update.version.unknown")
         let paquets = preCheck?.unsupportedPackages ?? []
         if paquets.isEmpty {
             return String(
-                localized: "Le NAS passera de la version \(version) à celle du fichier \(fileName). L’installation dure 10 à 20 minutes, pendant lesquelles le NAS est inutilisable et tous ses services s’arrêtent. Il n’est pas possible de revenir à la version précédente."
+                localized: "dsm_update.install.confirm.message", defaultValue: "The NAS will move from version \(version) to the one in the file \(fileName). The installation takes 10 to 20 minutes, during which the NAS is unusable and all its services stop. Going back to the previous version is not possible."
             )
         }
         let liste = paquets.formatted(.list(type: .and))
         return String(
-            localized: "Le NAS passera de la version \(version) à celle du fichier \(fileName). Ces paquets ne seront plus pris en charge : \(liste). L’installation dure 10 à 20 minutes, pendant lesquelles le NAS est inutilisable et tous ses services s’arrêtent. Il n’est pas possible de revenir à la version précédente."
+            localized: "dsm_update.install.confirm.message_with_dropped_packages", defaultValue: "The NAS will move from version \(version) to the one in the file \(fileName). These packages will no longer be supported: \(liste). The installation takes 10 to 20 minutes, during which the NAS is unusable and all its services stop. Going back to the previous version is not possible."
         )
     }
 }

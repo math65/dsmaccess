@@ -16,7 +16,7 @@ struct FeedbackCommands: Commands {
     var body: some Commands {
         CommandGroup(after: .help) {
             if AppBackendClient.isConfigured {
-                Button("Contacter le développeur…") {
+                Button("feedback.menu.contact_developer") {
                     openWindow(id: "feedback")
                 }
             }

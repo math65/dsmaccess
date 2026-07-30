@@ -59,7 +59,7 @@ final class SystemResourcesViewModel {
 
     private func startAutoRefresh() {
         VoiceOver.announce(
-            String(localized: "Actualisation automatique activée"),
+            String(localized: "common.status.automatic_refresh_on"),
             category: .automaticRefresh
         )
         refreshTask?.cancel()
@@ -77,7 +77,7 @@ final class SystemResourcesViewModel {
         refreshTask = nil
         if announce {
             VoiceOver.announce(
-                String(localized: "Actualisation automatique désactivée"),
+                String(localized: "common.status.automatic_refresh_off"),
                 category: .automaticRefresh
             )
         }
@@ -100,7 +100,7 @@ final class SystemResourcesViewModel {
     }
 
     var cpuText: String {
-        cpuPercent.map { String(localized: "\($0) %") } ?? "—"
+        cpuPercent.map { String(localized: "common.unit.percent", defaultValue: "\($0)%") } ?? "—"
     }
 
     /// Répartition entre temps utilisateur et temps système. DSM met parfois toute la charge
@@ -112,7 +112,7 @@ final class SystemResourcesViewModel {
     var cpuDetailText: String? {
         guard let cpu = usage?.cpu, let user = cpu.userLoad, let system = cpu.systemLoad else { return nil }
         guard user > 0 || system > 0 else { return nil }
-        return String(localized: "Utilisateur \(user) %, système \(system) %")
+        return String(localized: "resources.cpu.user_system.summary", defaultValue: "User \(user)%, system \(system)%")
     }
 
     var memoryPercent: Int? {
@@ -120,7 +120,7 @@ final class SystemResourcesViewModel {
     }
 
     var memoryText: String {
-        memoryPercent.map { String(localized: "\($0) %") } ?? "—"
+        memoryPercent.map { String(localized: "common.unit.percent", defaultValue: "\($0)%") } ?? "—"
     }
 
     /// « 0,64 Go sur 3,68 Go » (les tailles DSM sont en Kio → conversion en octets). Le
@@ -137,12 +137,12 @@ final class SystemResourcesViewModel {
         let (usedBytes, usedOverflow) = usedKiB.multipliedReportingOverflow(by: 1024)
         let (totalBytes, totalOverflow) = totalKiB.multipliedReportingOverflow(by: 1024)
         guard !usedOverflow, !totalOverflow else { return nil }
-        return String(localized: "\(usedBytes.formatted(.byteCount(style: .memory))) sur \(totalBytes.formatted(.byteCount(style: .memory)))")
+        return String(localized: "common.format.value_of_total", defaultValue: "\(usedBytes.formatted(.byteCount(style: .memory))) of \(totalBytes.formatted(.byteCount(style: .memory)))")
     }
 
     var swapText: String? {
         guard let swap = usage?.memory?.swapUsage, (0...100).contains(swap) else { return nil }
-        return String(localized: "\(swap) %")
+        return String(localized: "common.unit.percent", defaultValue: "\(swap)%")
     }
 
     /// Interface synthétique « total » (repli sur la première si absente).
@@ -159,7 +159,7 @@ final class SystemResourcesViewModel {
         guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
         let formatted = Int64(bytesPerSecond)
             .formatted(.byteCount(style: .memory, spellsOutZero: false))
-        return String(localized: "\(formatted)/s")
+        return String(localized: "common.unit.per_second", defaultValue: "\(formatted)/s")
     }
 
     /// Moyennes de charge sur une, cinq et quinze minutes. Absentes tant que DSM n'en
@@ -171,7 +171,8 @@ final class SystemResourcesViewModel {
               let fifteen = cpu.fifteenMinuteLoad else { return nil }
         let format = FloatingPointFormatStyle<Double>.number.precision(.fractionLength(2))
         return String(
-            localized: "\(one.formatted(format)) sur 1 minute, \(five.formatted(format)) sur 5 minutes, \(fifteen.formatted(format)) sur 15 minutes"
+            localized: "resources.load_average.summary",
+            defaultValue: "\(one.formatted(format)) over 1 minute, \(five.formatted(format)) over 5 minutes, \(fifteen.formatted(format)) over 15 minutes"
         )
     }
 
@@ -192,9 +193,9 @@ final class SystemResourcesViewModel {
         let read = rateText(device.readBytesPerSecond)
         let write = rateText(device.writeBytesPerSecond)
         guard let utilization = device.utilization, (0...100).contains(utilization) else {
-            return String(localized: "\(read) en lecture, \(write) en écriture")
+            return String(localized: "resources.disk.throughput.summary", defaultValue: "\(read) read, \(write) written")
         }
-        return String(localized: "\(utilization) %, \(read) en lecture, \(write) en écriture")
+        return String(localized: "resources.disk.usage_and_throughput.summary", defaultValue: "\(utilization)%, \(read) read, \(write) written")
     }
 
     /// Résumé annoncé à VoiceOver après une actualisation manuelle.
@@ -202,6 +203,6 @@ final class SystemResourcesViewModel {
         if let errorMessage { return errorMessage }
         let cpu = cpuPercent.map(String.init) ?? "—"
         let mem = memoryPercent.map(String.init) ?? "—"
-        return String(localized: "Processeur \(cpu) %, mémoire \(mem) %")
+        return String(localized: "resources.overview.cpu_memory.summary", defaultValue: "Processor \(cpu)%, memory \(mem)%")
     }
 }

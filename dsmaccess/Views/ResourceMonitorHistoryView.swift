@@ -27,7 +27,7 @@ struct ResourceMonitorHistoryView: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.entries.isEmpty {
-            ModuleLoadingView("Chargement de l’historique…")
+            ModuleLoadingView("monitor.history.loading")
                 .accessibilityFocused($focusContent)
         } else if let error = vm.errorMessage, vm.entries.isEmpty {
             ModuleErrorView(message: error) {
@@ -45,7 +45,7 @@ struct ResourceMonitorHistoryView: View {
                         .padding(.top, 8)
                 }
 
-                Text("Historique des alertes")
+                Text("monitor.history.title")
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, 12)
@@ -66,22 +66,22 @@ struct ResourceMonitorHistoryView: View {
     private var table: some View {
         VStack(alignment: .leading, spacing: 0) {
             Table(vm.entries.sorted(using: order), sortOrder: $order) {
-                TableColumn("Date", value: \.sortableDate) { entry in
+                TableColumn("common.column.date", value: \.sortableDate) { entry in
                     Text(vm.dateText(for: entry))
                 }
                 // Trié par gravité et non par ordre alphabétique : « Critique » doit se
                 // ranger après « Avertissement », pas avant.
-                TableColumn("Niveau", value: \.sortableLevel) { entry in
+                TableColumn("common.column.level", value: \.sortableLevel) { entry in
                     Text(vm.levelText(for: entry))
                         .foregroundStyle(color(for: entry.level))
                 }
-                TableColumn("Alerte", value: \.sortableEvent) { entry in
+                TableColumn("common.level.alert", value: \.sortableEvent) { entry in
                     Text(vm.eventText(for: entry))
                 }
             }
 
             if vm.isTruncated {
-                Text("\(vm.entries.count) alertes affichées sur \(vm.totalCount) enregistrées.")
+                Text(String(localized: "monitor.history.count.filtered.footer", defaultValue: "\(vm.entries.count) of \(vm.totalCount) recorded alerts shown."))
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
                     .padding(.horizontal, 12)
@@ -97,23 +97,23 @@ struct ResourceMonitorHistoryView: View {
     private var emptyState: some View {
         if vm.historyEnabled == false {
             EmptyModuleView(
-                title: "Aucune alerte enregistrée",
+                title: "monitor.history.empty.title",
                 systemImage: "clock.badge.xmark",
-                description: "L’enregistrement de l’historique est désactivé sur le NAS : aucune alerte n’y est consignée. Activez-le ci-dessous pour que les prochaines le soient."
+                description: "monitor.history.empty.recording_off.description"
             )
             .accessibilityFocused($focusContent)
         } else if vm.alarmRuleCount == 0 {
             EmptyModuleView(
-                title: "Aucune alerte enregistrée",
+                title: "monitor.history.empty.title",
                 systemImage: "bell.slash",
-                description: "L’enregistrement est actif, mais aucune règle n’est définie dans l’alarme des performances : le NAS n’a aucun seuil à surveiller et ne consignera rien. Ce journal restera vide tant qu’aucune règle n’existe."
+                description: "monitor.history.empty.no_rule.description"
             )
             .accessibilityFocused($focusContent)
         } else {
             EmptyModuleView(
-                title: "Aucune alerte enregistrée",
+                title: "monitor.history.empty.title",
                 systemImage: "clock",
-                description: "Le NAS n’a consigné aucune alerte depuis l’activation de l’enregistrement. Une alerte y apparaît quand une ressource franchit un seuil défini dans l’alarme des performances."
+                description: "monitor.history.empty.description"
             )
             .accessibilityFocused($focusContent)
         }
@@ -121,7 +121,7 @@ struct ResourceMonitorHistoryView: View {
 
     private var recordingSetting: some View {
         Toggle(
-            "Enregistrer l’historique",
+            "monitor.history.recording.label",
             isOn: Binding(
                 get: { vm.historyEnabled ?? false },
                 set: { enabled in
@@ -133,8 +133,8 @@ struct ResourceMonitorHistoryView: View {
             )
         )
         .disabled(vm.isUpdatingSetting || vm.historyEnabled == nil)
-        .accessibilityHint("Le NAS consigne les alertes de ressources tant que ce réglage est actif")
-        .help("Consigner les alertes de ressources dans l’historique du NAS")
+        .accessibilityHint("monitor.history.recording.footer")
+        .help("monitor.history.recording.hint")
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
     }

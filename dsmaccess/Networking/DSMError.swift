@@ -70,49 +70,49 @@ enum DSMError: Error, LocalizedError, Equatable {
     var errorDescription: String? {
         switch self {
         case .invalidEndpoint:
-            return String(localized: "Adresse du NAS invalide.")
+            return String(localized: "error.address.invalid")
         case .network(let detail):
-            return String(localized: "Impossible de joindre le NAS : \(detail)")
+            return String(localized: "error.network.unreachable", defaultValue: "Unable to reach the NAS: \(detail)")
         case .untrustedCertificate:
-            return String(localized: "Le certificat de sécurité de ce NAS n'est pas approuvé.")
+            return String(localized: "error.certificate.untrusted")
         case .decoding:
-            return String(localized: "La réponse du NAS n'a pas pu être lue.")
+            return String(localized: "error.response.unreadable")
         case .invalidResponse:
-            return String(localized: "Réponse inattendue du NAS.")
+            return String(localized: "error.response.unexpected")
         case .cancelled:
-            return String(localized: "Requête annulée.")
+            return String(localized: "error.request.cancelled")
         case .unsupportedAPI(let name):
-            return String(localized: "Cette fonctionnalité n'est pas disponible sur ce NAS (API \(name)).")
+            return String(localized: "error.api.unavailable", defaultValue: "This feature is not available on this NAS (API \(name)).")
         case .unsupportedAPIVersion(let name):
-            return String(localized: "La version DSM installée ne prend pas en charge cette fonctionnalité (API \(name)).")
+            return String(localized: "error.api.version_unsupported", defaultValue: "The installed DSM version does not support this feature (API \(name)).")
         case .sessionExpired:
-            return String(localized: "La session a expiré. Reconnectez-vous au NAS.")
+            return String(localized: "error.session.expired")
         case .invalidCredentials:
-            return String(localized: "Nom d'utilisateur ou mot de passe incorrect.")
+            return String(localized: "error.auth.invalid_credentials")
         case .accountDisabled:
-            return String(localized: "Ce compte est désactivé.")
+            return String(localized: "error.auth.account_disabled")
         case .permissionDenied:
-            return String(localized: "Permission refusée pour ce compte.")
+            return String(localized: "error.auth.permission_denied")
         case .needsOTP:
-            return String(localized: "Un code de vérification à deux facteurs est requis.")
+            return String(localized: "error.auth.otp_required")
         case .badOTP:
-            return String(localized: "Code de vérification incorrect. Réessayez.")
+            return String(localized: "error.auth.invalid_otp")
         case .otpEnforced:
-            return String(localized: "La double authentification est obligatoire pour ce compte. Activez-la dans DSM.")
+            return String(localized: "error.auth.otp_enforced")
         case .passwordMustChange:
-            return String(localized: "Ce compte doit changer son mot de passe avant de se connecter.")
+            return String(localized: "common.error.password_change_required")
         case .weakPassword:
-            return String(localized: "Le mot de passe ne respecte pas les règles de sécurité du NAS.")
+            return String(localized: "error.password.policy_rejected")
         case .userCreatedWithoutGroups(let name):
-            return String(localized: "Le compte \(name) a été créé, mais son ajout aux groupes a échoué.")
+            return String(localized: "error.user.created_without_groups", defaultValue: "The account \(name) was created, but adding it to the groups failed.")
         case .apiError(let code):
-            return String(localized: "Erreur du NAS (code \(code)).")
+            return String(localized: "error.nas.code", defaultValue: "NAS error (code \(code)).")
         case .packageCenter(let message):
             return message
         case .itemOperationFailed(let code, let item?, let itemCode):
-            return String(localized: "Échec de l’opération sur « \(item) » (codes \(code) et \(itemCode)).")
+            return String(localized: "error.operation.named_failed", defaultValue: "The operation on “\(item)” failed (codes \(code) and \(itemCode)).")
         case .itemOperationFailed(let code, nil, let itemCode):
-            return String(localized: "Échec de l’opération sur un élément (codes \(code) et \(itemCode)).")
+            return String(localized: "error.operation.item_failed", defaultValue: "An item operation failed (codes \(code) and \(itemCode)).")
         }
     }
 

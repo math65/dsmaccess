@@ -44,7 +44,7 @@ struct ShareLinkEditorSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Modifier le lien de partage")
+            Text("share_link.edit.title")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -54,36 +54,36 @@ struct ShareLinkEditorSheet: View {
             Divider()
 
             Form {
-                Section("Lien") {
-                    LabeledContent("Élément", value: link.name ?? link.path ?? link.url)
+                Section("share_links.detail.link") {
+                    LabeledContent("share_links.detail.item", value: link.name ?? link.path ?? link.url)
                 }
 
-                Section("Mot de passe") {
-                    Toggle("Modifier le mot de passe", isOn: $editsPassword)
+                Section("common.field.password") {
+                    Toggle("share_link.password.action", isOn: $editsPassword)
                     if editsPassword {
-                        SecureField("Nouveau mot de passe", text: $password)
-                        Text("Laissez le champ vide pour supprimer le mot de passe.")
+                        SecureField("common.field.new_password", text: $password)
+                        Text("share_links.edit.password.hint")
                             .font(.callout)
                             .foregroundStyle(.secondary)
                     }
                 }
 
-                Section("Disponibilité") {
-                    Toggle("Modifier la date de disponibilité", isOn: $editsAvailableDate)
+                Section("share_link.availability.label") {
+                    Toggle("share_link.available_from.action", isOn: $editsAvailableDate)
                     if editsAvailableDate {
-                        Toggle("Disponible à partir d’une date", isOn: $hasAvailableDate)
+                        Toggle("common.label.available_from_date", isOn: $hasAvailableDate)
                         if hasAvailableDate {
-                            DatePicker("Date de disponibilité", selection: $availableDate)
+                            DatePicker("common.column.available_date", selection: $availableDate)
                         }
                     }
                 }
 
-                Section("Expiration") {
-                    Toggle("Modifier la date d’expiration", isOn: $editsExpirationDate)
+                Section("common.column.expiration") {
+                    Toggle("share_link.expiration.action", isOn: $editsExpirationDate)
                     if editsExpirationDate {
-                        Toggle("Le lien expire à une date", isOn: $hasExpirationDate)
+                        Toggle("share_links.edit.has_expiration.label", isOn: $hasExpirationDate)
                         if hasExpirationDate {
-                            DatePicker("Date d’expiration", selection: $expirationDate)
+                            DatePicker("common.column.expiration_date", selection: $expirationDate)
                         }
                     }
                 }
@@ -101,16 +101,16 @@ struct ShareLinkEditorSheet: View {
             Divider()
 
             HStack {
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .disabled(isSaving)
                 Spacer()
                 if isSaving {
                     ProgressView()
                         .controlSize(.small)
-                        .accessibilityLabel("Modification du lien en cours…")
+                        .accessibilityLabel("share_links.edit.progress")
                 }
-                Button("Enregistrer") { Task { await submit() } }
+                Button("common.button.save") { Task { await submit() } }
                     .keyboardShortcut(.defaultAction)
                     .disabled(isSaving || !hasChanges)
             }
@@ -137,7 +137,7 @@ struct ShareLinkEditorSheet: View {
         if let resultingAvailableDate, let resultingExpirationDate,
            resultingAvailableDate > resultingExpirationDate {
             showError(
-                String(localized: "La date de disponibilité doit précéder la date d’expiration.")
+                String(localized: "common.validation.available_before_expiration")
             )
             return
         }
@@ -182,7 +182,7 @@ struct ShareLinkDetailsSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Détails du lien de partage")
+            Text("share_links.detail.title")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -196,9 +196,9 @@ struct ShareLinkDetailsSheet: View {
             Divider()
 
             HStack {
-                Button("Copier le lien") { copy(details.url) }
+                Button("common.button.copy_link") { copy(details.url) }
                 Spacer()
-                Button("Fermer", role: .cancel) { dismiss() }
+                Button("common.button.close", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
             }
             .padding()
@@ -211,70 +211,70 @@ struct ShareLinkDetailsSheet: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoadingShareLinkDetails && vm.shareLinkDetails == nil {
-            ModuleLoadingView("Chargement des détails du lien…")
+            ModuleLoadingView("share_links.detail.loading")
         } else if let error = vm.shareLinkDetailsError {
             VStack(spacing: 12) {
                 Text(error)
                     .foregroundStyle(.red)
                     .multilineTextAlignment(.center)
                     .accessibilityFocused($focusError)
-                Button("Réessayer") { Task { await load() } }
+                Button("common.button.retry") { Task { await load() } }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             Form {
-                Section("Lien") {
-                    LabeledContent("URL") {
+                Section("share_links.detail.link") {
+                    LabeledContent("share_links.detail.url") {
                         Text(details.url)
                             .font(.body.monospaced())
                             .textSelection(.enabled)
                     }
-                    if let name = details.name { LabeledContent("Nom", value: name) }
-                    if let path = details.path { LabeledContent("Chemin", value: path) }
-                    if let owner = details.owner { LabeledContent("Propriétaire", value: owner) }
+                    if let name = details.name { LabeledContent("common.column.name", value: name) }
+                    if let path = details.path { LabeledContent("common.column.path", value: path) }
+                    if let owner = details.owner { LabeledContent("common.column.owner", value: owner) }
                 }
 
-                Section("État") {
-                    if let status = details.status { LabeledContent("Statut", value: status) }
+                Section("common.column.state") {
+                    if let status = details.status { LabeledContent("common.column.status", value: status) }
                     if let hasPassword = details.hasPassword {
-                        LabeledContent("Protection par mot de passe") {
+                        LabeledContent("common.label.password_protection") {
                             Text(
                                 hasPassword
-                                    ? String(localized: "Activée")
-                                    : String(localized: "Désactivée")
+                                    ? String(localized: "common.status.enabled.feminine")
+                                    : String(localized: "common.status.disabled.feminine")
                             )
                         }
                     }
                     if let isFolder = details.isFolder {
-                        LabeledContent("Type") {
+                        LabeledContent("common.column.kind") {
                             Text(
                                 isFolder
-                                    ? String(localized: "Dossier")
-                                    : String(localized: "Fichier")
+                                    ? String(localized: "common.value.folder")
+                                    : String(localized: "common.value.file")
                             )
                         }
                     }
                     if let availableDate = details.availableDate {
-                        LabeledContent("Disponible à partir du", value: availableDate)
+                        LabeledContent("share_link.available_from.label", value: availableDate)
                     }
                     if let expirationDate = details.expirationDate {
-                        LabeledContent("Expire le", value: expirationDate)
+                        LabeledContent("share_links.detail.expires_on", value: expirationDate)
                     }
                     if let creationError = details.creationError, creationError != 0 {
-                        LabeledContent("Code d’erreur") {
+                        LabeledContent("share_link.error.code.label") {
                             Text(creationError, format: .number.grouping(.never))
                         }
                     }
                 }
 
                 if let qrImage {
-                    Section("Code QR") {
+                    Section("share_links.detail.qr_code") {
                         Image(nsImage: qrImage)
                             .resizable()
                             .interpolation(.none)
                             .scaledToFit()
                             .frame(width: 180, height: 180)
-                            .accessibilityLabel("Code QR du lien de partage")
+                            .accessibilityLabel("share_links.detail.qr_code.label")
                     }
                 }
             }
@@ -294,7 +294,7 @@ struct ShareLinkDetailsSheet: View {
     private func load() async {
         focusHeading = true
         VoiceOver.announce(
-            String(localized: "Chargement des détails du lien…"),
+            String(localized: "share_links.detail.loading"),
             category: .progress,
             priority: .low
         )
@@ -312,6 +312,6 @@ struct ShareLinkDetailsSheet: View {
     private func copy(_ url: String) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(url, forType: .string)
-        VoiceOver.announce(String(localized: "Lien copié"))
+        VoiceOver.announce(String(localized: "common.status.link_copied"))
     }
 }

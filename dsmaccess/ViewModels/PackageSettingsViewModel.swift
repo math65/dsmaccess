@@ -63,7 +63,7 @@ final class PackageSettingsViewModel {
     /// message à annoncer à VoiceOver.
     private func apply(_ mutate: (inout PackageSettings) -> Void) async -> DSMOperationOutcome {
         guard var updated = settings else {
-            return .failure(String(localized: "Réglages non chargés."))
+            return .failure(String(localized: "packages.settings.not_loaded.error"))
         }
         mutate(&updated)
         isSaving = true
@@ -72,11 +72,11 @@ final class PackageSettingsViewModel {
         do {
             try await session.withClient { try await $0.setPackageSettings(updated) }
             settings = updated
-            return .success(String(localized: "Réglage enregistré"))
+            return .success(String(localized: "packages.settings.save.success"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            let message = String(localized: "Échec de l'enregistrement : \(reason)")
+            let message = String(localized: "packages.settings.save.error", defaultValue: "Failed to save: \(reason)")
             saveErrorMessage = message
             return .failure(message)
         }

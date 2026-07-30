@@ -17,8 +17,8 @@ enum DSMApplicationDecision: String, Sendable, Hashable, CaseIterable, Identifia
 
     var label: String {
         switch self {
-        case .allow: return String(localized: "Autoriser")
-        case .deny: return String(localized: "Refuser")
+        case .allow: return String(localized: "privileges.application.allow")
+        case .deny: return String(localized: "privileges.application.deny")
         }
     }
 }
@@ -40,8 +40,8 @@ struct DSMApplicationPrivilege: Identifiable, Hashable, Sendable {
     /// soit pas un choix aveugle.
     var fallbackLabel: String {
         isGrantedByDefault
-            ? String(localized: "autorisée par défaut")
-            : String(localized: "refusée par défaut")
+            ? String(localized: "privileges.application.allow_default")
+            : String(localized: "privileges.application.deny_default")
     }
 }
 

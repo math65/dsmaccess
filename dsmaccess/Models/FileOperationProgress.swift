@@ -19,12 +19,12 @@ enum FileOperationKind: String, Codable, Sendable {
     /// progression. DSM ne distingue pas la copie du déplacement une fois la tâche lancée.
     var label: String {
         switch self {
-        case .copyMove: String(localized: "Copie ou déplacement")
-        case .delete: String(localized: "Suppression")
-        case .extract: String(localized: "Extraction")
-        case .compress: String(localized: "Compression")
-        case .directorySize: String(localized: "Calcul de taille")
-        case .checksum: String(localized: "Calcul MD5")
+        case .copyMove: String(localized: "files.progress.copy_move")
+        case .delete: String(localized: "common.operation.deletion")
+        case .extract: String(localized: "common.operation.extraction")
+        case .compress: String(localized: "common.operation.compression")
+        case .directorySize: String(localized: "files.progress.size")
+        case .checksum: String(localized: "files.progress.md5")
         }
     }
 
@@ -32,12 +32,12 @@ enum FileOperationKind: String, Codable, Sendable {
     /// combien d'éléments elle a traités, seulement qu'elle est terminée.
     var completionMessage: String {
         switch self {
-        case .copyMove: String(localized: "Copie ou déplacement terminé")
-        case .delete: String(localized: "Suppression terminée")
-        case .extract: String(localized: "Extraction terminée")
-        case .compress: String(localized: "Compression terminée")
-        case .directorySize: String(localized: "Calcul de taille terminé")
-        case .checksum: String(localized: "Calcul MD5 terminé")
+        case .copyMove: String(localized: "files.progress.copy_move.finished")
+        case .delete: String(localized: "files.progress.deletion.finished")
+        case .extract: String(localized: "files.progress.extraction.finished")
+        case .compress: String(localized: "files.progress.compression.finished")
+        case .directorySize: String(localized: "files.progress.size.finished")
+        case .checksum: String(localized: "files.progress.md5.finished")
         }
     }
 }

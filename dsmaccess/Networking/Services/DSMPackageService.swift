@@ -189,7 +189,7 @@ final class DSMPackageService {
               fileURL.pathExtension.caseInsensitiveCompare("spk") == .orderedSame,
               try await MultipartBodyFile.fileSize(at: fileURL) > 0 else {
             throw DSMError.packageCenter(
-                String(localized: "Sélectionnez un fichier de paquet SPK valide.")
+                String(localized: "packages.install.invalid_spk.error")
             )
         }
 
@@ -203,7 +203,8 @@ final class DSMPackageService {
             guard !metadata.requiresInteractiveInstaller else {
                 throw DSMError.packageCenter(
                     String(
-                        localized: "Le paquet \(metadata.displayName) exige une licence ou un assistant de configuration propre à DSM. Installez-le depuis le Centre de paquets DSM pour effectuer ces choix explicitement."
+                        localized: "common.error.package_requires_dsm_wizard",
+                        defaultValue: "The \(metadata.displayName) package requires a DSM licence or configuration wizard. Install it in DSM Package Center so you can make those choices explicitly."
                     )
                 )
             }
@@ -276,7 +277,8 @@ final class DSMPackageService {
         guard !update.requirements.requiresInteractiveInstaller else {
             throw DSMError.packageCenter(
                 String(
-                    localized: "Le paquet \(update.packageID) exige une licence ou un assistant de configuration propre à DSM. Installez-le depuis le Centre de paquets DSM pour effectuer ces choix explicitement."
+                    localized: "common.error.package_requires_dsm_wizard",
+                    defaultValue: "The \(update.packageID) package requires a DSM licence or configuration wizard. Install it in DSM Package Center so you can make those choices explicitly."
                 )
             )
         }
@@ -491,7 +493,7 @@ final class DSMPackageService {
               queuedTarget else {
             throw DSMError.packageCenter(
                 String(
-                    localized: "DSM exige des opérations supplémentaires sur d’autres paquets. Effectuez cette installation dans le Centre de paquets DSM pour les vérifier explicitement."
+                    localized: "packages.install.extra_operations.error"
                 )
             )
         }
@@ -542,14 +544,14 @@ final class DSMPackageService {
             if status.isFinished {
                 guard status.wasSuccessful != false else {
                     throw DSMError.packageCenter(
-                        String(localized: "DSM n’a pas pu télécharger le paquet.")
+                        String(localized: "packages.install.download_failed.error")
                     )
                 }
                 return
             }
             try await Task.sleep(for: updatePollInterval)
         }
-        throw DSMError.network(String(localized: "L’installation a expiré."))
+        throw DSMError.network(String(localized: "packages.install.timeout.error"))
     }
 
     private func finalizeInstallation(
@@ -696,7 +698,7 @@ final class DSMPackageService {
               url.scheme?.lowercased() == "https",
               url.host != nil else {
             throw DSMError.packageCenter(
-                String(localized: "Saisissez un nom et une adresse HTTPS valides pour la source.")
+                String(localized: "common.validation.invalid_package_source")
             )
         }
         var entry = ["name": name, "feed": feed]

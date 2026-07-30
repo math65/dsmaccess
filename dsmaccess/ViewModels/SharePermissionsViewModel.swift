@@ -48,7 +48,7 @@ final class SharePermissionsViewModel {
 
     var summary: String {
         if let errorMessage { return errorMessage }
-        return String(localized: "\(permissions.count) dossiers partagés")
+        return String(localized: "common.count.shared_folders", defaultValue: "\(permissions.count) shared folders")
     }
 
     func load() async {
@@ -127,7 +127,7 @@ final class SharePermissionsViewModel {
         let joining = memberships.subtracting(loadedMemberships).sorted()
         let leaving = loadedMemberships.subtracting(memberships).sorted()
         guard !shares.isEmpty || !privileges.isEmpty || !joining.isEmpty || !leaving.isEmpty else {
-            return .success(String(localized: "Aucune modification à enregistrer."))
+            return .success(String(localized: "share_permissions.save.no_changes"))
         }
         isSaving = true
         defer { isSaving = false }
@@ -161,28 +161,30 @@ final class SharePermissionsViewModel {
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec de l’enregistrement : \(reason)"))
+            return .failure(String(localized: "common.error.save_failed", defaultValue: "Saving failed: \(reason)"))
         }
     }
 
     private func savedSummary(shares: Int, applications: Int, groups: Int) -> String {
         if groups > 0, shares == 0, applications == 0 {
-            return String(localized: "Permissions enregistrées : \(groups) groupes modifiés.")
+            return String(localized: "share_permissions.save.success.groups", defaultValue: "Permissions saved: \(groups) groups changed.")
         }
         if groups > 0 {
             return String(
-                localized: "Permissions enregistrées : \(shares) dossiers, \(applications) applications et \(groups) groupes modifiés."
+                localized: "share_permissions.save.success.folders_applications_groups",
+                defaultValue: "Permissions saved: \(shares) shared folders, \(applications) applications and \(groups) groups changed."
             )
         }
         if shares > 0, applications > 0 {
             return String(
-                localized: "Permissions enregistrées : \(shares) dossiers et \(applications) applications modifiés."
+                localized: "share_permissions.save.success.folders_applications",
+                defaultValue: "Permissions saved: \(shares) shared folders and \(applications) applications changed."
             )
         }
         if applications > 0 {
-            return String(localized: "Permissions enregistrées : \(applications) applications modifiées.")
+            return String(localized: "share_permissions.save.success.applications", defaultValue: "Permissions saved: \(applications) applications changed.")
         }
-        return String(localized: "Permissions enregistrées : \(shares) dossiers modifiés.")
+        return String(localized: "share_permissions.save.success.folders", defaultValue: "Permissions saved: \(shares) shared folders changed.")
     }
 
     private var changedShares: [DSMSharePermission] {

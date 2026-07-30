@@ -56,7 +56,7 @@ final class FeedbackViewModel {
         incident = accepted
         contactType = .bug
         if trimmedMessage.isEmpty {
-            message = String(localized: "DSM Access n’a pas su lire une réponse du NAS.")
+            message = String(localized: "feedback.unreadable_reply.title")
         }
     }
 
@@ -65,7 +65,7 @@ final class FeedbackViewModel {
         isSending = true
         errorMessage = nil
         defer { isSending = false }
-        VoiceOver.announce(String(localized: "Envoi du message en cours"), category: .progress)
+        VoiceOver.announce(String(localized: "common.status.sending_message"), category: .progress)
         do {
             if contactType == .bug {
                 let sections = FeedbackDiagnostics.sections(
@@ -85,7 +85,7 @@ final class FeedbackViewModel {
             }
             Preferences.feedbackEmail = trimmedEmail
             didSucceed = true
-            VoiceOver.announce(String(localized: "Message envoyé. Merci !"), category: .result)
+            VoiceOver.announce(String(localized: "feedback.send.done.announcement"), category: .result)
         } catch {
             let message = (error as? AppBackendClient.BackendError)?.localizedMessage
                 ?? AppBackendClient.BackendError.server.localizedMessage

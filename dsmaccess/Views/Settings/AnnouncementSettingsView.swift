@@ -10,31 +10,31 @@ struct AnnouncementSettingsView: View {
 
     var body: some View {
         Form {
-            Section("Comportement") {
+            Section("announcements.settings.behavior.section") {
                 Toggle(
-                    "Mettre les annonces en file d’attente",
+                    "announcements.settings.queue",
                     isOn: $settings.queueAnnouncements
                 )
-                .help("Lit toutes les annonces dans l’ordre sans interrompre l’annonce précédente")
-                Text("Lorsque cette option est activée, les annonces rapides comme « chargement » puis « terminé » sont toutes lues dans l’ordre.")
+                .help("announcements.settings.queue.description")
+                Text("announcements.settings.queue.footer")
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
 
                 Toggle(
-                    "Notifier la fin des opérations longues",
+                    "announcements.settings.notify_long_operation",
                     isOn: $settings.notifiesFinishedOperations
                 )
-                .help("Envoie une notification système quand une copie ou une autre opération longue se termine alors que l’app n’est pas au premier plan")
-                Text("Une annonce prononcée pendant que DSM Access est en arrière-plan n’est pas entendue. La notification, elle, vous parvient. macOS demande votre autorisation la première fois.")
+                .help("announcements.settings.notify_long_operation.description")
+                Text("announcements.settings.notify_long_operation.footer")
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
 
                 Toggle(
-                    "Jouer un son à la fin d’une opération",
+                    "announcements.settings.sound",
                     isOn: $settings.playsCompletionSound
                 )
-                .help("Joue un son court quand une opération longue se termine alors que DSM Access est au premier plan")
-                Text("Devant l’écran, l’annonce peut passer inaperçue si votre attention est ailleurs. Le son la double, sans jamais la remplacer. Hors premier plan, c’est la notification qui vous prévient.")
+                .help("announcements.settings.sound.description")
+                Text("announcements.settings.sound.footer")
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
             }
@@ -54,9 +54,9 @@ struct AnnouncementSettingsView: View {
                     .help(category.detail)
                 }
             } header: {
-                Text("Annonces VoiceOver")
+                Text("announcements.settings.title")
             } footer: {
-                Text("Ces réglages affectent les annonces supplémentaires de DSM Access. Les libellés et états standards des contrôles restent toujours disponibles à VoiceOver.")
+                Text("announcements.settings.categories.footer")
             }
         }
         .formStyle(.grouped)

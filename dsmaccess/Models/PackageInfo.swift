@@ -133,12 +133,12 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
     var statusText: String {
         let status = additional?.status?.lowercased()
         switch status {
-        case "running", "start", "started": return String(localized: "En cours")
-        case "stop", "stopped", "stopping": return String(localized: "Arrêté")
+        case "running", "start", "started": return String(localized: "common.status.in_progress")
+        case "stop", "stopped", "stopping": return String(localized: "common.status.stopped")
         case .some(let value) where Self.requiresAttention(value):
-            return String(localized: "Réparation requise")
+            return String(localized: "common.status.repair_required")
         case .some(let value) where !value.isEmpty:
-            return String(localized: "État DSM : \(value)")
+            return String(localized: "packages.dsm_status.value", defaultValue: "DSM status: \(value)")
         default: return "—"
         }
     }

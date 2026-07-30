@@ -44,7 +44,7 @@ struct VirtualMachine: nonisolated Decodable, Identifiable, Hashable, Sendable {
     nonisolated init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         guestID = try values.requiredFlexString(.guestID)
-        name = values.flexString(.name) ?? String(localized: "Machine virtuelle sans nom")
+        name = values.flexString(.name) ?? String(localized: "vm.machine.unnamed")
         status = values.flexString(.status) ?? "unknown"
         description = values.flexString(.description)
         storageID = values.flexString(.storageID)

@@ -29,13 +29,13 @@ struct SharePermissionTableView: NSViewRepresentable {
         table.allowsEmptySelection = true
         table.usesAlternatingRowBackgroundColors = true
         table.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
-        table.setAccessibilityLabel(String(localized: "Permissions par dossier partagé"))
+        table.setAccessibilityLabel(String(localized: "share_permissions.table.title"))
         table.dataSource = context.coordinator
         table.delegate = context.coordinator
 
-        addColumn(to: table, identifier: "name", title: String(localized: "Dossier partagé"), width: 170)
+        addColumn(to: table, identifier: "name", title: String(localized: "share_permissions.table.shared_folder.column"), width: 170)
         if holder.inheritsFromGroups {
-            addColumn(to: table, identifier: "group", title: String(localized: "Droit de groupe"), width: 150)
+            addColumn(to: table, identifier: "group", title: String(localized: "share_permissions.table.group_right.column"), width: 150)
         }
         addColumn(
             to: table,
@@ -89,8 +89,8 @@ struct SharePermissionTableView: NSViewRepresentable {
     /// colonne dit simplement que le groupe n'accorde rien sur ce dossier.
     private var noRightTitle: String {
         holder.inheritsFromGroups
-            ? String(localized: "Hériter du groupe")
-            : String(localized: "Aucun droit")
+            ? String(localized: "share_permissions.table.inherit_from_group")
+            : String(localized: "share_permissions.table.no_right")
     }
 
     /// Un refus posé sur un groupe l'emporte sur le droit propre de chaque membre : c'est
@@ -98,7 +98,7 @@ struct SharePermissionTableView: NSViewRepresentable {
     private var denialHelp: String? {
         guard !holder.inheritsFromGroups else { return nil }
         return String(
-            localized: "Un refus accordé à un groupe s’applique à tous ses membres et ne peut pas être levé compte par compte."
+            localized: "share_permissions.table.group_right.description"
         )
     }
 
@@ -153,7 +153,7 @@ struct SharePermissionTableView: NSViewRepresentable {
             cell.configure(
                 isOn: permission.granted == level,
                 isEnabled: parent.isEnabled,
-                label: String(localized: "\(permission.name), \(level?.label ?? parent.noRightTitle)"),
+                label: String(localized: "common.format.pair", defaultValue: "\(permission.name), \(level?.label ?? parent.noRightTitle)"),
                 help: level == .noAccess ? parent.denialHelp : nil,
                 target: self,
                 action: #selector(choiceChanged(_:))
@@ -183,20 +183,20 @@ struct SharePermissionTableView: NSViewRepresentable {
         /// effet : la règle NA > RW > RO doit alors se voir sur la ligne concernée.
         private static func groupText(_ permission: DSMSharePermission) -> String {
             guard let inherited = permission.inherited else {
-                return String(localized: "Aucun")
+                return String(localized: "common.value.none")
             }
             guard permission.granted != nil, permission.effective != permission.granted else {
                 return inherited.label
             }
-            return String(localized: "\(inherited.label) — l’emporte")
+            return String(localized: "share_permissions.table.effective_right", defaultValue: "\(inherited.label) — takes precedence")
         }
 
         private func rowLabel(_ permission: DSMSharePermission) -> String {
             guard parent.holder.inheritsFromGroups else { return permission.name }
             guard permission.inherited != nil else {
-                return String(localized: "\(permission.name), aucun droit de groupe")
+                return String(localized: "share_permissions.table.row.without_group_right", defaultValue: "\(permission.name), no group right")
             }
-            return String(localized: "\(permission.name), droit de groupe : \(Self.groupText(permission))")
+            return String(localized: "share_permissions.table.row.with_group_right", defaultValue: "\(permission.name), group right: \(Self.groupText(permission))")
         }
 
         private static func makeTextCell(identifier: NSUserInterfaceItemIdentifier) -> NSTableCellView {

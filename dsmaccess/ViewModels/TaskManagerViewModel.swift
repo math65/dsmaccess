@@ -81,7 +81,7 @@ final class TaskManagerViewModel {
 
     private func startAutoRefresh() {
         VoiceOver.announce(
-            String(localized: "Actualisation automatique activée"),
+            String(localized: "common.status.automatic_refresh_on"),
             category: .automaticRefresh
         )
         refreshTask?.cancel()
@@ -99,7 +99,7 @@ final class TaskManagerViewModel {
         refreshTask = nil
         if announce {
             VoiceOver.announce(
-                String(localized: "Actualisation automatique désactivée"),
+                String(localized: "common.status.automatic_refresh_off"),
                 category: .automaticRefresh
             )
         }
@@ -114,7 +114,7 @@ final class TaskManagerViewModel {
     /// pour un service au repos.
     func cpuText(for group: ProcessGroup) -> String {
         guard let cpu = group.cpuPercent else { return "—" }
-        return String(localized: "\(cpu.formatted(.number.precision(.fractionLength(1)))) %")
+        return String(localized: "tasks.percent.value", defaultValue: "\(cpu.formatted(.number.precision(.fractionLength(1))))%")
     }
 
     func memoryText(for group: ProcessGroup) -> String {
@@ -145,12 +145,12 @@ final class TaskManagerViewModel {
     private func rateText(_ bytesPerSecond: Int64?) -> String {
         guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
         let formatted = bytesPerSecond.formatted(.byteCount(style: .memory, spellsOutZero: false))
-        return String(localized: "\(formatted)/s")
+        return String(localized: "common.unit.per_second", defaultValue: "\(formatted)/s")
     }
 
     func cpuText(for process: SystemProcess) -> String {
         guard let cpu = process.cpuPercent else { return "—" }
-        return String(localized: "\(cpu) %")
+        return String(localized: "common.unit.percent", defaultValue: "\(cpu)%")
     }
 
     /// La mémoire des processus arrive en Kio, pas en octets comme celle des groupes.
@@ -164,6 +164,6 @@ final class TaskManagerViewModel {
 
     var summary: String {
         if let errorMessage { return errorMessage }
-        return String(localized: "\(groups.count) services, \(totalProcessCount) processus")
+        return String(localized: "tasks.count.summary", defaultValue: "\(groups.count) services, \(totalProcessCount) processes")
     }
 }

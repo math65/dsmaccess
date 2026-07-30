@@ -58,21 +58,21 @@ final class FileServicesViewModel {
             states[service] = await fetch(service)
             return .success(
                 enabled
-                    ? String(localized: "\(service.displayName) activé")
-                    : String(localized: "\(service.displayName) désactivé")
+                    ? String(localized: "file_services.service.enabled.announcement", defaultValue: "\(service.displayName) enabled")
+                    : String(localized: "file_services.service.disabled.announcement", defaultValue: "\(service.displayName) disabled")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
             states[service] = await fetch(service)
-            return .failure(String(localized: "Échec pour \(service.displayName) : \(reason)"))
+            return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(service.displayName): \(reason)"))
         }
     }
 
     /// Résumé annoncé une fois le chargement terminé.
     var summary: String {
         let on = states.values.filter { $0 == .on }.count
-        return String(localized: "Services de fichiers : \(on) activés sur \(services.count)")
+        return String(localized: "file_services.summary", defaultValue: "File services: \(on) of \(services.count) enabled")
     }
 
     var hasFailures: Bool {

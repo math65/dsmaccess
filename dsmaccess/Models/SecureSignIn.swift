@@ -40,11 +40,11 @@ enum SecureSignInRefusal: Error {
     var message: String {
         switch self {
         case .denied:
-            String(localized: "Connexion refusée depuis l’app Synology Secure SignIn.")
+            String(localized: "secure_signin.error.denied")
         case .expired:
-            String(localized: "La demande d’approbation a expiré. Relancez la connexion.")
+            String(localized: "secure_signin.error.expired")
         case .revoked:
-            String(localized: "La demande d’approbation a été annulée.")
+            String(localized: "secure_signin.error.cancelled")
         }
     }
 }

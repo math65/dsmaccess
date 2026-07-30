@@ -50,7 +50,7 @@ struct ShareSheet: View {
 
     @ViewBuilder
     private var optionsView: some View {
-        Text("Créer un lien de partage")
+        Text("common.action.create_share_link")
             .font(.headline)
             .accessibilityAddTraits(.isHeader)
             .accessibilityFocused($focusHeading)
@@ -58,21 +58,21 @@ struct ShareSheet: View {
         Text(item.name)
             .foregroundStyle(.secondary)
 
-        LabeledField(label: "Mot de passe (facultatif)") {
-            SecureField("Mot de passe (facultatif)", text: $password)
+        LabeledField(label: "share_links.create.password.label") {
+            SecureField("share_links.create.password.label", text: $password)
                 .focused($passwordFocused)
-                .help("Protéger le lien de partage par un mot de passe")
+                .help("share_links.create.password.hint")
         }
 
-        GroupBox("Période de disponibilité") {
+        GroupBox("share_links.create.availability_period") {
             VStack(alignment: .leading, spacing: 10) {
-                Toggle("Disponible à partir d’une date", isOn: $hasAvailableDate)
+                Toggle("common.label.available_from_date", isOn: $hasAvailableDate)
                 if hasAvailableDate {
-                    DatePicker("Date de disponibilité", selection: $availableDate)
+                    DatePicker("common.column.available_date", selection: $availableDate)
                 }
-                Toggle("Définir une date d’expiration", isOn: $hasExpirationDate)
+                Toggle("share_links.create.expiration.toggle", isOn: $hasExpirationDate)
                 if hasExpirationDate {
-                    DatePicker("Date d’expiration", selection: $expirationDate)
+                    DatePicker("common.column.expiration_date", selection: $expirationDate)
                 }
             }
             .padding(.top, 4)
@@ -85,30 +85,30 @@ struct ShareSheet: View {
         }
 
         if isCreating {
-            ProgressView("Création du lien en cours…")
+            ProgressView("share_links.create.progress")
         }
 
         HStack {
             Spacer()
-            Button("Annuler", role: .cancel) { dismiss() }
+            Button("common.button.cancel", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
                 .disabled(isCreating)
-                .help("Annuler la création du lien")
-            Button("Créer le lien") { Task { await createLink() } }
+                .help("share_links.create.cancel.button")
+            Button("share_links.create.button") { Task { await createLink() } }
                 .keyboardShortcut(.defaultAction)
                 .disabled(isCreating)
-                .help("Créer le lien de partage")
+                .help("share_links.create.button.label")
         }
         .onAppear {
             focusHeading = true
             passwordFocused = true
-            VoiceOver.announce("Créer un lien de partage", category: .navigation)
+            VoiceOver.announce(String(localized: "common.action.create_share_link"), category: .navigation)
         }
     }
 
     @ViewBuilder
     private func resultView(url: String) -> some View {
-        Text("Lien de partage")
+        Text("share_links.create.title")
             .font(.headline)
             .accessibilityAddTraits(.isHeader)
 
@@ -122,18 +122,18 @@ struct ShareSheet: View {
 
         HStack {
             Spacer()
-            Button("Fermer", role: .cancel) { dismiss() }
+            Button("common.button.close", role: .cancel) { dismiss() }
                 .keyboardShortcut(.cancelAction)
-                .help("Fermer le lien de partage")
-            Button("Copier le lien") { copyToClipboard(url) }
+                .help("share_links.create.close.button")
+            Button("common.button.copy_link") { copyToClipboard(url) }
                 .keyboardShortcut(.defaultAction)
-                .help("Copier le lien de partage")
+                .help("share_links.create.copy.button")
         }
         .onAppear {
             copyToClipboard(url, announce: false)
             focusURL = true
             VoiceOver.announce(
-                String(localized: "Lien de partage créé et copié"),
+                String(localized: "share_links.create.success"),
                 category: .result
             )
         }
@@ -143,7 +143,7 @@ struct ShareSheet: View {
         guard !isCreating else { return }
         if hasAvailableDate, hasExpirationDate, availableDate > expirationDate {
             let message = String(
-                localized: "La date de disponibilité doit précéder la date d’expiration."
+                localized: "common.validation.available_before_expiration"
             )
             errorMessage = message
             focusError = true
@@ -155,7 +155,7 @@ struct ShareSheet: View {
         defer { isCreating = false }
         errorMessage = nil
         VoiceOver.announce(
-            String(localized: "Création du lien en cours…"),
+            String(localized: "share_links.create.progress"),
             category: .progress,
             priority: .low
         )
@@ -178,7 +178,7 @@ struct ShareSheet: View {
     private func copyToClipboard(_ url: String, announce: Bool = true) {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(url, forType: .string)
-        if announce { VoiceOver.announce(String(localized: "Lien copié")) }
+        if announce { VoiceOver.announce(String(localized: "common.status.link_copied")) }
     }
 }
 

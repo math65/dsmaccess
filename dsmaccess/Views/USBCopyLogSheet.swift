@@ -24,26 +24,26 @@ struct USBCopyLogSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Journal USB Copy")
+            Text("usb_copy.log.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
                 .padding()
 
             Form {
-                Section("Filtrer le journal") {
-                    TextField("Rechercher dans le journal", text: $keyword)
+                Section("usb_copy.log.filter.action") {
+                    TextField("common.field.search_log", text: $keyword)
                         .onSubmit { Task { await loadEntries() } }
-                    Picker("Type d’événement", selection: $logType) {
+                    Picker("usb_copy.log.filter.event_type.label", selection: $logType) {
                         ForEach(USBCopyLogType.allCases) { type in
                             Text(type.localizedName).tag(type)
                         }
                     }
-                    Toggle("Limiter à une période", isOn: $usesDateRange)
+                    Toggle("usb_copy.log.filter.date_range.label", isOn: $usesDateRange)
                     if usesDateRange {
-                        DatePicker("Depuis", selection: $fromDate, displayedComponents: .date)
-                        DatePicker("Jusqu’à", selection: $toDate, displayedComponents: .date)
+                        DatePicker("usb_copy.log.filter.from.label", selection: $fromDate, displayedComponents: .date)
+                        DatePicker("usb_copy.log.filter.to.label", selection: $toDate, displayedComponents: .date)
                     }
-                    Button("Appliquer le filtre", systemImage: "line.3.horizontal.decrease.circle") {
+                    Button("usb_copy.log.filter.apply.action", systemImage: "line.3.horizontal.decrease.circle") {
                         Task { await loadEntries() }
                     }
                     .disabled(isLoading || (usesDateRange && fromDate > toDate))
@@ -54,16 +54,16 @@ struct USBCopyLogSheet: View {
 
             Divider()
             if isLoading && entries.isEmpty {
-                ModuleLoadingView("Chargement du journal USB Copy…")
+                ModuleLoadingView("usb_copy.log.loading")
                     .accessibilityFocused($contentFocused)
             } else if let errorMessage, entries.isEmpty {
                 ModuleErrorView(message: errorMessage) { Task { await loadEntries() } }
                     .accessibilityFocused($errorFocused)
             } else if entries.isEmpty {
                 EmptyModuleView(
-                    title: "Aucune entrée de journal",
+                    title: "usb_copy.log.empty",
                     systemImage: "doc.text.magnifyingglass",
-                    description: "Aucun événement ne correspond au filtre choisi."
+                    description: "usb_copy.log.empty.description"
                 )
                 .accessibilityFocused($contentFocused)
             } else {
@@ -72,22 +72,22 @@ struct USBCopyLogSheet: View {
                         USBCopyLogRow(entry: entries[index])
                     }
                     if entries.count < totalCount {
-                        Button("Charger plus d’entrées") {
+                        Button("usb_copy.log.load_more.action") {
                             Task { await loadEntries(reset: false) }
                         }
                         .disabled(isLoading)
                     }
                 }
-                .accessibilityLabel("Événements USB Copy")
+                .accessibilityLabel("usb_copy.log.events.label")
                 .accessibilityFocused($contentFocused)
             }
 
             Divider()
             HStack {
-                Text("\(entries.count) entrées affichées sur \(totalCount)")
+                Text(String(localized: "common.status.entries_shown", defaultValue: "\(entries.count) entries shown out of \(totalCount)"))
                     .foregroundStyle(.readableSecondary)
                 if isLoading && !entries.isEmpty {
-                    ProgressView("Chargement du journal USB Copy…")
+                    ProgressView("usb_copy.log.loading")
                         .controlSize(.small)
                 }
                 if let errorMessage, !entries.isEmpty {
@@ -96,7 +96,7 @@ struct USBCopyLogSheet: View {
                         .accessibilityFocused($errorFocused)
                 }
                 Spacer()
-                Button("Fermer", action: dismiss.callAsFunction)
+                Button("common.button.close", action: dismiss.callAsFunction)
                     .keyboardShortcut(.cancelAction)
             }
             .padding()
@@ -132,7 +132,7 @@ struct USBCopyLogSheet: View {
             totalCount = 0
         }
         defer { isLoading = false }
-        VoiceOver.announce(String(localized: "Chargement du journal USB Copy…"), category: .progress)
+        VoiceOver.announce(String(localized: "usb_copy.log.loading"), category: .progress)
         do {
             let offset = reset ? 0 : entries.count
             let page = try await load(filter, offset, pageSize)
@@ -144,7 +144,7 @@ struct USBCopyLogSheet: View {
             }
             totalCount = page.count
             VoiceOver.announce(
-                String(localized: "\(page.logList.count) entrées de journal chargées"),
+                String(localized: "usb_copy.log.loaded.announcement", defaultValue: "\(page.logList.count) log entries loaded"),
                 category: .result
             )
         } catch {
@@ -166,7 +166,7 @@ private struct USBCopyLogRow: View {
                 Text(logTypeName)
                 Text(Date(timeIntervalSince1970: TimeInterval(entry.timestamp)), format: .dateTime)
                 if let taskID = entry.taskID {
-                    Text("Tâche \(taskID)")
+                    Text(String(localized: "usb_copy.log.task.fallback_name", defaultValue: "Task \(taskID)"))
                 }
                 if let error = errorText {
                     Text(error)
@@ -180,32 +180,32 @@ private struct USBCopyLogRow: View {
     }
 
     private var logTypeName: String {
-        USBCopyLogType(rawValue: entry.logType)?.localizedName ?? String(localized: "Non disponible")
+        USBCopyLogType(rawValue: entry.logType)?.localizedName ?? String(localized: "common.value.not_available")
     }
 
     private var descriptionText: String {
         let parameter = decodedParameter
         return switch entry.descriptionID {
-        case 0: String(localized: "Tâche créée : \(parameter)")
-        case 1: String(localized: "Tâche supprimée : \(parameter)")
-        case 2: String(localized: "Tâche activée : \(parameter)")
-        case 3: String(localized: "Tâche désactivée : \(parameter)")
-        case 10: String(localized: "Nom de tâche modifié : \(parameter)")
-        case 11: String(localized: "Réglages de tâche modifiés : \(parameter)")
-        case 100: String(localized: "Tâche démarrée : \(parameter)")
-        case 101: String(localized: "Tâche terminée : \(parameter)")
-        case 102: String(localized: "Tâche annulée : \(parameter)")
-        case 103: String(localized: "Échec de la tâche : \(parameter)")
-        case 104: String(localized: "Rotation des versions : \(parameter)")
-        case 105: String(localized: "Tâche terminée avec des erreurs : \(parameter)")
-        case 1000: String(localized: "Erreur de fichier : \(parameter)")
-        default: String(localized: "Événement USB Copy \(entry.descriptionID) : \(parameter)")
+        case 0: String(localized: "usb_copy.log.event.task_created", defaultValue: "Task created: \(parameter)")
+        case 1: String(localized: "common.status.task_deleted", defaultValue: "Task deleted: \(parameter)")
+        case 2: String(localized: "common.status.task_enabled", defaultValue: "Task enabled: \(parameter)")
+        case 3: String(localized: "common.status.task_disabled", defaultValue: "Task disabled: \(parameter)")
+        case 10: String(localized: "usb_copy.log.event.task_renamed", defaultValue: "Task name changed: \(parameter)")
+        case 11: String(localized: "usb_copy.log.event.task_settings_changed", defaultValue: "Task settings changed: \(parameter)")
+        case 100: String(localized: "common.status.task_started", defaultValue: "Task started: \(parameter)")
+        case 101: String(localized: "usb_copy.log.event.task_completed", defaultValue: "Task completed: \(parameter)")
+        case 102: String(localized: "usb_copy.log.event.task_cancelled", defaultValue: "Task cancelled: \(parameter)")
+        case 103: String(localized: "usb_copy.log.event.task_failed", defaultValue: "Task failed: \(parameter)")
+        case 104: String(localized: "usb_copy.log.event.version_rotation", defaultValue: "Version rotation: \(parameter)")
+        case 105: String(localized: "usb_copy.log.event.task_completed_with_errors", defaultValue: "Task completed with errors: \(parameter)")
+        case 1000: String(localized: "usb_copy.log.event.file_error", defaultValue: "File error: \(parameter)")
+        default: String(localized: "usb_copy.log.event.row.label", defaultValue: "USB Copy event \(entry.descriptionID): \(parameter)")
         }
     }
 
     private var decodedParameter: String {
         guard let raw = entry.descriptionParameter, !raw.isEmpty else {
-            return String(localized: "sans détail")
+            return String(localized: "usb_copy.log.reason.no_details")
         }
         guard let data = raw.data(using: .utf8) else { return raw }
         if let value = try? JSONDecoder().decode(String.self, from: data) { return value }
@@ -220,24 +220,24 @@ private struct USBCopyLogRow: View {
         guard let code = Int(raw) else { return raw }
         guard code != 0 else { return nil }
         return switch code {
-        case -1: String(localized: "annulation")
-        case -4: String(localized: "paramètre invalide")
-        case -9: String(localized: "permission refusée")
-        case -10: String(localized: "erreur de fichier")
-        case -11: String(localized: "fichier trop volumineux")
-        case -12: String(localized: "nom de fichier incompatible")
-        case -13: String(localized: "dossier démonté")
-        case -14: String(localized: "reprise impossible")
-        case -15: String(localized: "fichier source absent")
-        case -16: String(localized: "fichier de destination existant")
-        case -17: String(localized: "conflit de destination")
-        case -18: String(localized: "type de destination incompatible")
-        case -19: String(localized: "destination pleine")
-        case -20: String(localized: "racine de destination absente")
-        case -21: String(localized: "dossier parent de destination absent")
-        case -22: String(localized: "racine source absente")
-        case -24: String(localized: "conflit avec le dossier des versions")
-        default: String(localized: "code d’erreur \(code)")
+        case -1: String(localized: "usb_copy.log.reason.cancellation")
+        case -4: String(localized: "usb_copy.log.reason.invalid_parameter")
+        case -9: String(localized: "common.error.permission_denied")
+        case -10: String(localized: "usb_copy.log.reason.file_error")
+        case -11: String(localized: "usb_copy.log.reason.file_too_large")
+        case -12: String(localized: "usb_copy.log.reason.unsupported_file_name")
+        case -13: String(localized: "usb_copy.log.reason.folder_unmounted")
+        case -14: String(localized: "usb_copy.log.reason.resume_failed")
+        case -15: String(localized: "usb_copy.log.reason.source_file_missing")
+        case -16: String(localized: "usb_copy.log.reason.destination_file_exists")
+        case -17: String(localized: "usb_copy.log.reason.destination_conflict")
+        case -18: String(localized: "usb_copy.log.reason.incompatible_destination_type")
+        case -19: String(localized: "usb_copy.log.reason.destination_full")
+        case -20: String(localized: "usb_copy.log.reason.destination_root_missing")
+        case -21: String(localized: "usb_copy.log.reason.destination_parent_missing")
+        case -22: String(localized: "usb_copy.log.reason.source_root_missing")
+        case -24: String(localized: "usb_copy.log.reason.version_folder_conflict")
+        default: String(localized: "usb_copy.log.reason.error_code", defaultValue: "error code \(code)")
         }
     }
 }

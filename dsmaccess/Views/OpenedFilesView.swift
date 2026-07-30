@@ -28,7 +28,7 @@ struct OpenedFilesView: View {
     @ViewBuilder
     private var content: some View {
         if vm.isLoading && vm.files.isEmpty {
-            ModuleLoadingView("Chargement des fichiers ouverts…")
+            ModuleLoadingView("opened_files.loading")
                 .accessibilityFocused($focusContent)
         } else if let error = vm.errorMessage, vm.files.isEmpty {
             ModuleErrorView(message: error) {
@@ -39,9 +39,9 @@ struct OpenedFilesView: View {
             // Le cas courant sur un NAS au repos, et non une anomalie : le texte le dit pour
             // qu'un écran vide ne passe pas pour un chargement qui a échoué.
             EmptyModuleView(
-                title: "Aucun fichier ouvert",
+                title: "opened_files.empty.title",
                 systemImage: "doc",
-                description: "Le NAS ne tient aucun fichier ouvert en ce moment. Cette liste se remplit quand un service ou une session réseau lit ou écrit un fichier."
+                description: "opened_files.empty.description"
             )
             .accessibilityFocused($focusContent)
         } else {
@@ -53,7 +53,7 @@ struct OpenedFilesView: View {
                         .padding(.top, 8)
                 }
 
-                Text("Fichiers ouverts")
+                Text("common.label.open_files")
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, 12)
@@ -61,33 +61,33 @@ struct OpenedFilesView: View {
                     .accessibilityFocused($focusContent)
 
                 Table(vm.files.sorted(using: order), sortOrder: $order) {
-                    TableColumn("Fichier", value: \.sortableName) { file in
+                    TableColumn("common.value.file", value: \.sortableName) { file in
                         Text(file.displayName)
                     }
                     // Le dossier seul, sans répéter le nom du fichier : DSM range les deux
                     // dans `path`, qui se termine par le nom.
-                    TableColumn("Dossier", value: \.sortableFolder) { file in
+                    TableColumn("common.value.folder", value: \.sortableFolder) { file in
                         Text(vm.folderText(for: file))
                     }
-                    TableColumn("Service", value: \.sortableService) { file in
+                    TableColumn("common.column.service", value: \.sortableService) { file in
                         Text(vm.serviceText(for: file))
                     }
-                    TableColumn("Compte", value: \.sortableAccount) { file in
+                    TableColumn("common.column.account", value: \.sortableAccount) { file in
                         Text(vm.accountText(for: file))
                     }
-                    TableColumn("Machine", value: \.sortableHost) { file in
+                    TableColumn("opened_files.column.host", value: \.sortableHost) { file in
                         Text(vm.hostText(for: file))
                     }
                 }
 
-                Text("Un service du NAS lui-même n’a ni compte ni machine d’origine : ces colonnes affichent alors un tiret.")
+                Text("opened_files.columns.dash.description")
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
                     .padding(.horizontal, 12)
                     .padding(.top, 6)
 
                 if vm.isTruncated {
-                    Text("\(vm.files.count) fichiers affichés sur \(vm.totalCount) ouverts.")
+                    Text(String(localized: "opened_files.filtered_count.description", defaultValue: "\(vm.files.count) of \(vm.totalCount) open files shown."))
                         .font(.callout)
                         .foregroundStyle(.readableSecondary)
                         .padding(.horizontal, 12)

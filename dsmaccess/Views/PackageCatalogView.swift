@@ -24,23 +24,23 @@ struct PackageCatalogView: View {
             // DSM n'expose pas SYNO.Core.Package.Server aux comptes non administrateurs :
             // sans cet état explicite, l'onglet paraît vide sans raison.
             ContentUnavailableView(
-                "Catalogue non disponible",
+                "packages.catalog.unavailable.title",
                 systemImage: "shippingbox",
                 description: Text(
-                    "Ce NAS ne donne pas accès au catalogue officiel avec ce compte. Connectez-vous avec un compte administrateur pour parcourir le catalogue Synology."
+                    "packages.catalog.unavailable.description"
                 )
             )
         } else if visibleCatalog.isEmpty {
             ContentUnavailableView(
-                "Aucun paquet correspondant",
+                "common.empty.matching_packages",
                 systemImage: "shippingbox",
-                description: Text("Modifiez la recherche ou le filtre du catalogue.")
+                description: Text("packages.catalog.empty.description")
             )
         } else {
             List(visibleCatalog) { item in
                 catalogRow(item)
             }
-            .accessibilityLabel("Catalogue officiel du Centre de paquets")
+            .accessibilityLabel("packages.catalog.source.official")
         }
     }
 
@@ -104,7 +104,7 @@ private struct PackageCatalogRow: View {
                 Text(item.packageID)
                     .fontWeight(.medium)
                 if item.isBeta {
-                    Text("Bêta")
+                    Text("packages.filter.beta")
                         .font(.caption)
                         .foregroundStyle(.readableSecondary)
                 }
@@ -117,7 +117,7 @@ private struct PackageCatalogRow: View {
                         .accessibilityLabel(action.accessibilityLabel(for: item))
                 }
             }
-            Text("Version du catalogue : \(item.version)")
+            Text(String(localized: "packages.catalog.version.value", defaultValue: "Catalog version: \(item.version)"))
                 .font(.caption)
                 .foregroundStyle(.readableSecondary)
             installationStatus
@@ -127,20 +127,20 @@ private struct PackageCatalogRow: View {
     @ViewBuilder
     private var installationStatus: some View {
         if let installed = installedPackage {
-            Text(String(localized: "Version installée : \(installedVersion(for: installed))"))
+            Text(String(localized: "common.status.installed_version", defaultValue: "Installed version: \(installedVersion(for: installed))"))
                 .font(.caption)
                 .foregroundStyle(.readableSecondary)
             if updateAvailable {
-                Text("Mise à jour disponible")
+                Text("packages.status.update_available")
                     .font(.caption)
                     .foregroundStyle(.readableOrange)
             } else {
-                Text("À jour")
+                Text("packages.status.up_to_date")
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)
             }
         } else {
-            Text("Non installé")
+            Text("packages.status.not_installed")
                 .font(.caption)
                 .foregroundStyle(.readableSecondary)
             if let unavailableInstallDescription {
@@ -154,12 +154,12 @@ private struct PackageCatalogRow: View {
     private var unavailableInstallDescription: String? {
         if item.requirements.requiresInteractiveInstaller {
             return String(
-                localized: "Une licence ou un assistant de configuration DSM est requis pour ce paquet."
+                localized: "packages.install.requires_dsm.description"
             )
         }
         if action == nil {
             return String(
-                localized: "L’installation depuis le catalogue n’est pas disponible sur ce NAS."
+                localized: "common.error.catalog_install_unavailable"
             )
         }
         return nil
@@ -170,7 +170,7 @@ private struct PackageCatalogRow: View {
     }
 
     private func installedVersion(for package: PackageInfo) -> String {
-        package.version ?? String(localized: "Inconnue")
+        package.version ?? String(localized: "packages.detail.source.unknown")
     }
 }
 
@@ -185,17 +185,17 @@ private enum CatalogRowAction: Equatable {
 
     var title: String {
         switch self {
-        case .install: String(localized: "Installer")
-        case .update: String(localized: "Mettre à jour")
+        case .install: String(localized: "packages.install.button")
+        case .update: String(localized: "common.button.update")
         }
     }
 
     func accessibilityLabel(for item: PackageUpdate) -> String {
         switch self {
         case .install:
-            String(localized: "Installer \(item.packageID) version \(item.version)")
+            String(localized: "packages.install.action.with_version", defaultValue: "Install \(item.packageID) version \(item.version)")
         case .update:
-            String(localized: "Mettre à jour \(item.packageID) vers la version \(item.version)")
+            String(localized: "common.action.update_package", defaultValue: "Update \(item.packageID) to version \(item.version)")
         }
     }
 }
@@ -210,10 +210,10 @@ enum CatalogFilter: String, CaseIterable, Identifiable {
 
     var title: LocalizedStringKey {
         switch self {
-        case .all: "Tous"
-        case .notInstalled: "Non installés"
-        case .installed: "Installés"
-        case .updates: "Mises à jour"
+        case .all: "common.filter.all"
+        case .notInstalled: "packages.filter.not_installed"
+        case .installed: "common.filter.installed"
+        case .updates: "common.label.updates"
         }
     }
 }
@@ -227,7 +227,7 @@ struct PackageDetailsSheet: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Text("Détails du paquet")
+            Text("packages.detail.title")
                 .font(.headline)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding()
@@ -244,7 +244,7 @@ struct PackageDetailsSheet: View {
             Divider()
             HStack {
                 Spacer()
-                Button("Fermer", role: .cancel) { dismiss() }
+                Button("common.button.close", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
             }
             .padding()
@@ -257,38 +257,38 @@ struct PackageDetailsSheet: View {
     }
 
     private var installedSection: some View {
-        Section("Paquet installé") {
-            LabeledContent("Nom", value: package.displayName)
-            LabeledContent("Identifiant", value: package.pkgId)
+        Section("packages.status.installed") {
+            LabeledContent("common.column.name", value: package.displayName)
+            LabeledContent("common.column.identifier", value: package.pkgId)
             if let version = package.version {
-                LabeledContent("Version installée", value: version)
+                LabeledContent("common.label.installed_version", value: version)
             }
-            LabeledContent("État", value: package.statusText)
+            LabeledContent("common.column.state", value: package.statusText)
             if let installType = package.additional?.installType {
-                LabeledContent("Type d’installation", value: installType)
+                LabeledContent("packages.detail.installation_type", value: installType)
             }
         }
     }
 
     private var actionsSection: some View {
-        Section("Actions disponibles sur ce NAS") {
+        Section("packages.detail.actions.section") {
             LabeledContent(
-                "Démarrage et arrêt",
+                "packages.detail.action.start_stop",
                 value: yesNo(
                     package.canStartStop
                         && vm.capabilities?.canControlPackages == true
                 )
             )
             LabeledContent(
-                "Désinstallation directe",
+                "packages.detail.action.direct_uninstall",
                 value: yesNo(vm.canSafelyUninstall(package))
             )
             if package.hasUninstallOptions {
-                Text("Ce paquet exige l’assistant de désinstallation de DSM afin de traiter ses données sans choix implicite.")
+                Text("packages.uninstall.requires_dsm.description")
                     .foregroundStyle(.readableSecondary)
             }
             if package.requiresAttention {
-                LabeledContent("Réparation", value: yesNo(vm.canRepair(package)))
+                LabeledContent("packages.detail.action.repair", value: yesNo(vm.canRepair(package)))
                 Text(repairAvailabilityDescription)
                 .foregroundStyle(.readableRed)
             }
@@ -296,24 +296,24 @@ struct PackageDetailsSheet: View {
     }
 
     private var catalogSection: some View {
-        Section("Catalogue officiel") {
+        Section("common.label.official_catalog") {
             if let catalogItem {
-                LabeledContent("Source", value: "Synology")
-                LabeledContent("Version du catalogue", value: catalogItem.version)
+                LabeledContent("packages.detail.source", value: "Synology")
+                LabeledContent("packages.catalog.version.label", value: catalogItem.version)
                 LabeledContent(
-                    "Taille",
+                    "common.column.size",
                     value: catalogItem.fileSize.formatted(.byteCount(style: .file))
                 )
-                LabeledContent("Version bêta", value: yesNo(catalogItem.isBeta))
+                LabeledContent("packages.detail.beta_version", value: yesNo(catalogItem.isBeta))
             } else {
-                Text("Ce paquet n’est pas présent dans le catalogue officiel actuellement chargé.")
+                Text("packages.catalog.missing_package.description")
                     .foregroundStyle(.readableSecondary)
             }
         }
     }
 
     private var apiSection: some View {
-        Section("API disponibles") {
+        Section("packages.detail.available_apis") {
             ForEach(availableAPIs, id: \.name) { api in
                 LabeledContent(api.name) {
                     Text(api.version, format: .number.grouping(.never))
@@ -337,14 +337,14 @@ struct PackageDetailsSheet: View {
     private var repairAvailabilityDescription: String {
         vm.canRepair(package)
             ? String(
-                localized: "Ce paquet peut être réparé depuis la liste des paquets installés."
+                localized: "packages.repair.from_installed.description"
             )
             : String(
-                localized: "Aucun paquet officiel compatible n’est disponible pour une réparation directe. Utilisez le Centre de paquets DSM."
+                localized: "packages.repair.unavailable.description"
             )
     }
 
     private func yesNo(_ value: Bool) -> String {
-        value ? String(localized: "Oui") : String(localized: "Non")
+        value ? String(localized: "common.answer.yes") : String(localized: "common.answer.no")
     }
 }

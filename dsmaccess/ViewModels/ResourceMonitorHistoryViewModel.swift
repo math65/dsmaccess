@@ -90,13 +90,13 @@ final class ResourceMonitorHistoryViewModel {
             await load()
             return .success(
                 enabled
-                    ? String(localized: "Enregistrement de l’historique activé. Les alertes à venir y seront consignées.")
-                    : String(localized: "Enregistrement de l’historique désactivé. Les alertes déjà consignées sont conservées.")
+                    ? String(localized: "monitor.history.recording.on.announcement")
+                    : String(localized: "monitor.history.recording.off.announcement")
             )
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
-            return .failure(String(localized: "Échec du changement de réglage : \(reason)"))
+            return .failure(String(localized: "common.error.setting_change_failed", defaultValue: "Could not change the setting: \(reason)"))
         }
     }
 
@@ -120,15 +120,15 @@ final class ResourceMonitorHistoryViewModel {
     /// dans un niveau existant.
     func levelText(for entry: ResourceMonitorLogEntry) -> String {
         switch entry.level {
-        case .information: String(localized: "Information")
-        case .warning: String(localized: "Avertissement")
-        case .critical: String(localized: "Critique")
-        case .other(let raw): raw.isEmpty ? String(localized: "Niveau inconnu") : raw
+        case .information: String(localized: "common.level.information")
+        case .warning: String(localized: "common.level.warning")
+        case .critical: String(localized: "common.level.critical")
+        case .other(let raw): raw.isEmpty ? String(localized: "common.level.unknown") : raw
         }
     }
 
     func eventText(for entry: ResourceMonitorLogEntry) -> String {
-        entry.event ?? String(localized: "Alerte sans description")
+        entry.event ?? String(localized: "monitor.history.alert.no_description")
     }
 
     /// Vrai quand le NAS en conserve plus que ce qui a été chargé.
@@ -137,14 +137,14 @@ final class ResourceMonitorHistoryViewModel {
     var summary: String {
         if let errorMessage { return errorMessage }
         if historyEnabled == false {
-            return String(localized: "Enregistrement de l’historique désactivé")
+            return String(localized: "monitor.history.recording.off.status")
         }
         if alarmRuleCount == 0 {
-            return String(localized: "Aucune alerte enregistrée, aucune règle d’alarme définie")
+            return String(localized: "monitor.history.empty.no_rule.status")
         }
         if isTruncated {
-            return String(localized: "\(entries.count) alertes affichées sur \(totalCount) enregistrées")
+            return String(localized: "monitor.history.count.filtered.announcement", defaultValue: "\(entries.count) of \(totalCount) recorded alerts shown")
         }
-        return String(localized: "\(entries.count) alertes enregistrées")
+        return String(localized: "monitor.history.count.announcement", defaultValue: "\(entries.count) recorded alerts")
     }
 }

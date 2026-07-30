@@ -22,7 +22,7 @@ struct DownloadStationView: View {
 
     var body: some View {
         content
-            .searchable(text: $searchText, prompt: "Rechercher un téléchargement")
+            .searchable(text: $searchText, prompt: "download.search.placeholder")
             .toolbar { toolbar }
             .safeAreaInset(edge: .bottom) { statusBar }
             .task { await load(restoresInitialFocus: true) }
@@ -33,21 +33,21 @@ struct DownloadStationView: View {
                 }
             }
             .confirmationDialog(
-                "Supprimer les téléchargements sélectionnés ?",
+                "download.delete.confirm.title",
                 isPresented: $showDeleteConfirmation
             ) {
-                Button("Supprimer", role: .destructive) {
+                Button("common.button.delete", role: .destructive) {
                     Task { await deleteSelection(forceComplete: false) }
                 }
-                .help("Retirer les téléchargements sélectionnés")
-                Button("Supprimer et marquer comme terminés", role: .destructive) {
+                .help("download.button.remove_selected")
+                Button("download_station.remove.mark_completed.button", role: .destructive) {
                     Task { await deleteSelection(forceComplete: true) }
                 }
-                .help("Retirer les téléchargements et les marquer comme terminés")
-                Button("Annuler", role: .cancel) { }
-                    .help("Conserver les téléchargements sélectionnés")
+                .help("download.delete.confirm.hint")
+                Button("common.button.cancel", role: .cancel) { }
+                    .help("download_station.remove.keep.button")
             } message: {
-                Text("Les tâches seront retirées de Download Station. Les fichiers déjà téléchargés seront conservés.")
+                Text("download.delete.confirm.message")
             }
             .onChange(of: viewModel.tasks) {
                 selection.formIntersection(Set(viewModel.tasks.map(\.id)))
@@ -57,18 +57,18 @@ struct DownloadStationView: View {
     @ViewBuilder
     private var content: some View {
         if viewModel.isLoading && viewModel.tasks.isEmpty {
-            ModuleLoadingView("Chargement des téléchargements…")
+            ModuleLoadingView("download_station.loading")
                 .accessibilityFocused($contentFocused)
         } else if let errorMessage = viewModel.errorMessage {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
                 .accessibilityFocused($contentFocused)
         } else if filteredTasks.isEmpty {
             EmptyModuleView(
-                title: searchText.isEmpty ? "Aucun téléchargement" : "Aucun résultat",
+                title: searchText.isEmpty ? "download_station.empty.title" : "common.empty.results",
                 systemImage: "arrow.down.circle",
                 description: searchText.isEmpty
-                    ? "Ajoutez une adresse pour démarrer un téléchargement."
-                    : "Modifiez votre recherche et réessayez."
+                    ? "download_station.empty.description"
+                    : "common.empty.results.description"
             )
             .accessibilityFocused($contentFocused)
         } else {
@@ -77,7 +77,7 @@ struct DownloadStationView: View {
                     .tag(task.id)
                     .contextMenu { taskActions(task) }
             }
-            .accessibilityLabel("Téléchargements")
+            .accessibilityLabel("download_station.title")
             .accessibilityFocused($contentFocused)
         }
     }
@@ -88,59 +88,59 @@ struct DownloadStationView: View {
             Button {
                 showCreateSheet = true
             } label: {
-                Label("Ajouter un téléchargement", systemImage: "plus")
+                Label("download_station.add.title", systemImage: "plus")
             }
             .keyboardShortcut("n", modifiers: [.command, .shift])
-            .help("Ajouter un téléchargement")
+            .help("download_station.add.title")
         }
 
         ToolbarItem {
             Button {
                 Task { await pauseSelection() }
             } label: {
-                Label("Mettre en pause", systemImage: "pause")
+                Label("download_station.action.pause", systemImage: "pause")
             }
             .disabled(!selectionCanPause || selectionIsBusy)
-            .help("Mettre les téléchargements sélectionnés en pause")
+            .help("download_station.action.pause.hint")
         }
 
         ToolbarItem {
             Button {
                 Task { await resumeSelection() }
             } label: {
-                Label("Reprendre", systemImage: "play")
+                Label("download.button.resume", systemImage: "play")
             }
             .disabled(!selectionCanResume || selectionIsBusy)
-            .help("Reprendre les téléchargements sélectionnés")
+            .help("download.button.resume.hint")
         }
 
         ToolbarItem {
             Button(role: .destructive) {
                 showDeleteConfirmation = true
             } label: {
-                Label("Supprimer", systemImage: "trash")
+                Label("common.button.delete", systemImage: "trash")
             }
             .disabled(selection.isEmpty || selectionIsBusy)
-            .help("Supprimer les téléchargements sélectionnés")
+            .help("download_station.action.remove.hint")
         }
 
         ToolbarItem {
             Menu {
-                Toggle("Actualisation automatique", isOn: $autoRefresh)
-                    .help("Actualiser automatiquement les téléchargements")
+                Toggle("common.label.automatic_refresh", isOn: $autoRefresh)
+                    .help("download_station.toolbar.auto_refresh")
             } label: {
-                Label("Options d’actualisation", systemImage: "ellipsis.circle")
+                Label("common.label.refresh_options", systemImage: "ellipsis.circle")
             }
-            .help("Options d’actualisation")
+            .help("common.label.refresh_options")
         }
 
         ToolbarItem {
             Button {
                 Task { await load() }
             } label: {
-                Label("Actualiser", systemImage: "arrow.clockwise")
+                Label("common.button.refresh", systemImage: "arrow.clockwise")
             }
-            .help("Actualiser les téléchargements")
+            .help("download_station.toolbar.refresh")
         }
     }
 
@@ -159,7 +159,7 @@ struct DownloadStationView: View {
                 }
                 if let progress = task.progress {
                     ProgressView(value: progress)
-                        .accessibilityLabel("Progression de \(task.title)")
+                        .accessibilityLabel(String(localized: "common.label.progress_for", defaultValue: "\(task.title) progress"))
                         .accessibilityValue(progress.formatted(.percent.precision(.fractionLength(0))))
                 }
                 HStack {
@@ -181,37 +181,37 @@ struct DownloadStationView: View {
         .accessibilityLabel(taskAccessibilityLabel(task))
         .accessibilityActions {
             if task.canPause {
-                Button("Mettre en pause") { Task { await pause(ids: [task.id]) } }
-                    .help("Mettre ce téléchargement en pause")
+                Button("download_station.action.pause") { Task { await pause(ids: [task.id]) } }
+                    .help("download_station.action.pause_one.hint")
             }
             if task.canResume {
-                Button("Reprendre") { Task { await resume(ids: [task.id]) } }
-                    .help("Reprendre ce téléchargement")
+                Button("download.button.resume") { Task { await resume(ids: [task.id]) } }
+                    .help("download.row.resume.hint")
             }
-            Button("Supprimer…", role: .destructive) {
+            Button("common.menu.delete", role: .destructive) {
                 selection = [task.id]
                 showDeleteConfirmation = true
             }
-            .help("Supprimer ce téléchargement")
+            .help("download_station.action.delete_one.hint")
         }
     }
 
     @ViewBuilder
     private func taskActions(_ task: DownloadTask) -> some View {
         if task.canPause {
-            Button("Mettre en pause") { Task { await pause(ids: [task.id]) } }
-                .help("Mettre ce téléchargement en pause")
+            Button("download_station.action.pause") { Task { await pause(ids: [task.id]) } }
+                .help("download_station.action.pause_one.hint")
         }
         if task.canResume {
-            Button("Reprendre") { Task { await resume(ids: [task.id]) } }
-                .help("Reprendre ce téléchargement")
+            Button("download.button.resume") { Task { await resume(ids: [task.id]) } }
+                .help("download.row.resume.hint")
         }
         Divider()
-        Button("Supprimer…", role: .destructive) {
+        Button("common.menu.delete", role: .destructive) {
             selection = [task.id]
             showDeleteConfirmation = true
         }
-        .help("Supprimer ce téléchargement")
+        .help("download_station.action.delete_one.hint")
     }
 
     private var statusBar: some View {
@@ -220,9 +220,9 @@ struct DownloadStationView: View {
             Spacer()
             if let statistic = viewModel.statistic {
                 Label(speed(statistic.downloadSpeed), systemImage: "arrow.down")
-                    .accessibilityLabel("Débit descendant : \(speed(statistic.downloadSpeed))")
+                    .accessibilityLabel(String(localized: "download_station.summary.download_rate", defaultValue: "Download rate: \(speed(statistic.downloadSpeed))"))
                 Label(speed(statistic.uploadSpeed), systemImage: "arrow.up")
-                    .accessibilityLabel("Débit montant : \(speed(statistic.uploadSpeed))")
+                    .accessibilityLabel(String(localized: "download.detail.upload_rate", defaultValue: "Upload rate: \(speed(statistic.uploadSpeed))"))
             }
         }
         .font(.caption)
@@ -252,7 +252,7 @@ struct DownloadStationView: View {
 
     private func load(restoresInitialFocus: Bool = false) async {
         VoiceOver.announce(
-            String(localized: "Chargement des téléchargements…"),
+            String(localized: "download_station.loading"),
             category: .progress,
             priority: .low
         )
@@ -305,33 +305,33 @@ struct DownloadStationView: View {
     private func sizeSummary(_ task: DownloadTask) -> String {
         let downloaded = task.downloaded.formatted(.byteCount(style: .file))
         guard task.size > 0 else { return downloaded }
-        return String(localized: "\(downloaded) sur \(task.size.formatted(.byteCount(style: .file)))")
+        return String(localized: "common.format.value_of_total", defaultValue: "\(downloaded) of \(task.size.formatted(.byteCount(style: .file)))")
     }
 
     private func speed(_ bytesPerSecond: Int64) -> String {
-        String(localized: "\(bytesPerSecond.formatted(.byteCount(style: .file))) par seconde")
+        String(localized: "download_station.rate.per_second", defaultValue: "\(bytesPerSecond.formatted(.byteCount(style: .file))) per second")
     }
 
     private func taskAccessibilityLabel(_ task: DownloadTask) -> String {
         var parts = [task.title, statusText(task.status), sizeSummary(task)]
-        if task.downloadSpeed > 0 { parts.append(String(localized: "réception \(speed(task.downloadSpeed))")) }
-        if task.uploadSpeed > 0 { parts.append(String(localized: "envoi \(speed(task.uploadSpeed))")) }
+        if task.downloadSpeed > 0 { parts.append(String(localized: "download.row.download_rate", defaultValue: "download \(speed(task.downloadSpeed))")) }
+        if task.uploadSpeed > 0 { parts.append(String(localized: "download.row.upload_rate", defaultValue: "upload \(speed(task.uploadSpeed))")) }
         return parts.formatted(.list(type: .and))
     }
 
     private func statusText(_ status: String) -> String {
         switch status {
-        case "waiting": String(localized: "En attente")
-        case "downloading": String(localized: "Téléchargement")
-        case "paused": String(localized: "En pause")
-        case "finishing": String(localized: "Finalisation")
-        case "finished": String(localized: "Terminé")
-        case "hash_checking": String(localized: "Vérification")
-        case "seeding": String(localized: "Partage")
-        case "filehosting_waiting": String(localized: "En attente de l’hébergeur")
-        case "extracting": String(localized: "Extraction")
-        case "error": String(localized: "Erreur")
-        default: String(localized: "État inconnu")
+        case "waiting": String(localized: "common.status.waiting")
+        case "downloading": String(localized: "download_station.column.name")
+        case "paused": String(localized: "download_station.status.paused")
+        case "finishing": String(localized: "download_station.status.finishing")
+        case "finished": String(localized: "common.status.done")
+        case "hash_checking": String(localized: "download_station.status.checking")
+        case "seeding": String(localized: "download.section.sharing")
+        case "filehosting_waiting": String(localized: "download.status.waiting_host")
+        case "extracting": String(localized: "common.operation.extraction")
+        case "error": String(localized: "common.level.error")
+        default: String(localized: "common.status.unknown")
         }
     }
 
@@ -369,33 +369,33 @@ private struct CreateDownloadSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Ajouter un téléchargement")
+            Text("download_station.add.title")
                 .font(.headline)
                 .accessibilityAddTraits(.isHeader)
-            LabeledField(label: "Adresse du fichier") {
-                TextField("https://exemple.com/fichier", text: $uri)
+            LabeledField(label: "download_station.add.url.label") {
+                TextField("download.add.url.placeholder", text: $uri)
                     .focused($uriFocused)
                     .accessibilityFocused($accessibilityFocused)
                     .onSubmit(create)
-                    .help("Adresse du fichier à télécharger")
+                    .help("download_station.add.url.hint")
             }
-            LabeledField(label: "Dossier de destination (facultatif)") {
-                TextField("downloads", text: $destination)
-                    .help("Dossier de destination dans Download Station")
+            LabeledField(label: "download_station.add.destination.label") {
+                TextField("download.destination.placeholder", text: $destination)
+                    .help("download_station.add.destination.hint")
             }
-            Text("Laissez le dossier vide pour utiliser la destination par défaut de Download Station.")
+            Text("download_station.add.destination.footer")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()
-                Button("Annuler", role: .cancel) { dismiss() }
+                Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                    .help("Annuler l’ajout du téléchargement")
-                Button("Ajouter", action: create)
+                    .help("download_station.add.cancel.hint")
+                Button("common.button.add", action: create)
                     .keyboardShortcut(.defaultAction)
                     .disabled(trimmedURI.isEmpty)
-                    .help("Ajouter ce téléchargement à Download Station")
+                    .help("download_station.add.confirm.hint")
             }
         }
         .padding(20)
@@ -404,7 +404,7 @@ private struct CreateDownloadSheet: View {
             uriFocused = true
             accessibilityFocused = true
             VoiceOver.announce(
-                String(localized: "Ajouter un téléchargement"),
+                String(localized: "download_station.add.title"),
                 category: .navigation
             )
         }

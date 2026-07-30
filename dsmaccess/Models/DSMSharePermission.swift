@@ -61,9 +61,9 @@ enum DSMSharePermissionLevel: String, Sendable, Hashable, CaseIterable, Identifi
 
     var label: String {
         switch self {
-        case .noAccess: return String(localized: "Aucun accès")
-        case .readWrite: return String(localized: "Lecture/écriture")
-        case .readOnly: return String(localized: "Lecture seule")
+        case .noAccess: return String(localized: "permissions.share.no_access")
+        case .readWrite: return String(localized: "permissions.share.read_write")
+        case .readOnly: return String(localized: "common.permission.read_only")
         }
     }
 

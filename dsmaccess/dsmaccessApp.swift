@@ -43,7 +43,7 @@ struct dsmaccessApp: App {
             }
         }
 
-        Window("Contacter le développeur", id: "feedback") {
+        Window("common.action.contact_developer", id: "feedback") {
             FeedbackView()
                 .environment(session)
                 .environment(settings)
