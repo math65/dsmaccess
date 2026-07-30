@@ -38,6 +38,11 @@ struct LogsSecurityView: View {
         VStack(spacing: 0) {
             TabView(selection: $pane) {
                 logsPane
+                    // Le champ va dans la barre d'outils, comme dans tous les autres modules.
+                    // Il n'est posé que sur cet onglet : la recherche part au NAS, qui filtre
+                    // le journal entier, et n'a rien à faire pour une liste de blocage de
+                    // quelques lignes.
+                    .searchable(text: $vm.searchText, prompt: "Rechercher dans le journal")
                     .tabItem { Text("Journal") }
                     .tag(Pane.logs)
                 blockListPane
@@ -46,6 +51,19 @@ struct LogsSecurityView: View {
             }
         }
         .toolbar {
+            // Le filtre de niveau accompagne le champ de recherche dans la barre d'outils, et
+            // ne concerne que le journal.
+            if pane == .logs {
+                ToolbarItem {
+                    Picker("Niveau", selection: $vm.levelFilter) {
+                        ForEach(LogsSecurityViewModel.LevelFilter.allCases) { filter in
+                            Text(vm.filterText(filter)).tag(filter)
+                        }
+                    }
+                    .help("N’afficher que les entrées de ce niveau")
+                }
+            }
+
             ToolbarItem {
                 Button {
                     Task {
@@ -118,8 +136,6 @@ struct LogsSecurityView: View {
                     .padding(.top, 8)
                     .accessibilityFocused($focusContent)
 
-                logFilters
-
                 if vm.visibleLogs.isEmpty {
                     EmptyModuleView(
                         title: "Aucune entrée",
@@ -156,29 +172,6 @@ struct LogsSecurityView: View {
                 .padding(.vertical, 6)
             }
         }
-    }
-
-    private var logFilters: some View {
-        HStack(spacing: 12) {
-            // La recherche part au NAS, qui filtre le journal entier et non la seule page
-            // chargée : chercher dans 6995 entrées ne se fait pas côté app.
-            TextField("Rechercher dans le journal", text: $vm.searchText)
-                .textFieldStyle(.roundedBorder)
-                .frame(maxWidth: 320)
-                .accessibilityHint("Le NAS cherche dans tout le journal, pas seulement dans les entrées affichées")
-
-            Picker("Niveau", selection: $vm.levelFilter) {
-                ForEach(LogsSecurityViewModel.LevelFilter.allCases) { filter in
-                    Text(vm.filterText(filter)).tag(filter)
-                }
-            }
-            .frame(maxWidth: 220)
-            .help("N’afficher que les entrées de ce niveau")
-
-            Spacer()
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 8)
     }
 
     private var logTable: some View {
