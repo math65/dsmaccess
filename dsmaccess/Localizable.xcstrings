@@ -1,6 +1,166 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Fichiers ouverts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open files"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fichiers ouverts"
+          }
+        }
+      }
+    },
+    "Chargement des fichiers ouverts…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading open files…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des fichiers ouverts…"
+          }
+        }
+      }
+    },
+    "Aucun fichier ouvert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No open file"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun fichier ouvert"
+          }
+        }
+      }
+    },
+    "Le NAS ne tient aucun fichier ouvert en ce moment. Cette liste se remplit quand un service ou une session réseau lit ou écrit un fichier." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS is not holding any file open right now. This list fills in when a service or a network session reads or writes a file."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS ne tient aucun fichier ouvert en ce moment. Cette liste se remplit quand un service ou une session réseau lit ou écrit un fichier."
+          }
+        }
+      }
+    },
+    "Machine" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Host"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Machine"
+          }
+        }
+      }
+    },
+    "Service inconnu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown service"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Service inconnu"
+          }
+        }
+      }
+    },
+    "Un service du NAS lui-même n’a ni compte ni machine d’origine : ces colonnes affichent alors un tiret." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A service running on the NAS itself has no account and no originating machine: those columns then show a dash."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Un service du NAS lui-même n’a ni compte ni machine d’origine : ces colonnes affichent alors un tiret."
+          }
+        }
+      }
+    },
+    "%lld fichiers affichés sur %lld ouverts." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld open files shown."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld fichiers affichés sur %lld ouverts."
+          }
+        }
+      }
+    },
+    "%lld fichiers affichés sur %lld ouverts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld of %lld open files shown"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld fichiers affichés sur %lld ouverts"
+          }
+        }
+      }
+    },
+    "%lld fichiers ouverts" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld open files"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld fichiers ouverts"
+          }
+        }
+      }
+    },
     "Deux étapes" : {
       "localizations" : {
         "en" : {

@@ -16,6 +16,7 @@ struct ResourceMonitorView: View {
         case performance
         case tasks
         case connections
+        case openedFiles
 
         var id: Self { self }
 
@@ -24,6 +25,7 @@ struct ResourceMonitorView: View {
             case .performance: "Performances"
             case .tasks: "Tâches"
             case .connections: "Connexions"
+            case .openedFiles: "Fichiers ouverts"
             }
         }
     }
@@ -32,12 +34,14 @@ struct ResourceMonitorView: View {
     @State private var vm: SystemResourcesViewModel
     @State private var tasks: TaskManagerViewModel
     @State private var connections: ConnectionsViewModel
+    @State private var openedFiles: OpenedFilesViewModel
     @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
         _vm = State(initialValue: SystemResourcesViewModel(session: session))
         _tasks = State(initialValue: TaskManagerViewModel(session: session))
         _connections = State(initialValue: ConnectionsViewModel(session: session))
+        _openedFiles = State(initialValue: OpenedFilesViewModel(session: session))
     }
 
     var body: some View {
@@ -57,6 +61,9 @@ struct ResourceMonitorView: View {
                 ConnectionsView(vm: connections)
                     .tabItem { Text("Connexions") }
                     .tag(Pane.connections)
+                OpenedFilesView(vm: openedFiles)
+                    .tabItem { Text("Fichiers ouverts") }
+                    .tag(Pane.openedFiles)
             }
         }
         .toolbar {
@@ -67,6 +74,7 @@ struct ResourceMonitorView: View {
                         case .performance: await vm.load(announce: true)
                         case .tasks: await tasks.load(announce: true)
                         case .connections: await connections.load(announce: true)
+                        case .openedFiles: await openedFiles.load(announce: true)
                         }
                     }
                 } label: {

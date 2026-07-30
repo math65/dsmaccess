@@ -194,6 +194,7 @@ protocol DSMClientProtocol: AnyObject {
     func processGroups() async throws -> [ProcessGroup]
     func connections() async throws -> [NASConnection]
     func kickConnections(_ references: [NASConnection.KickReference]) async throws
+    func openedFiles(limit: Int) async throws -> OpenedFilePage
     func listSharedFolders() async throws -> [SharedFolder]
     func createSharedFolder(
         name: String,
@@ -810,6 +811,10 @@ final class DSMClient: DSMClientProtocol {
 
     func kickConnections(_ references: [NASConnection.KickReference]) async throws {
         try await system.kickConnections(references)
+    }
+
+    func openedFiles(limit: Int) async throws -> OpenedFilePage {
+        try await system.openedFiles(limit: limit)
     }
 
     func connections() async throws -> [NASConnection] {

@@ -14,6 +14,7 @@ final class DSMSystemService {
     private static let processAPI = DSMAPI("SYNO.Core.System.Process")
     private static let processGroupAPI = DSMAPI("SYNO.Core.System.ProcessGroup")
     private static let connectionAPI = DSMAPI("SYNO.Core.CurrentConnection")
+    private static let fileHandleAPI = DSMAPI("SYNO.Core.FileHandle")
 
     private let transport: DSMTransport
 
@@ -62,6 +63,19 @@ final class DSMSystemService {
             method: "get",
             as: NASConnectionPage.self
         ).items
+    }
+
+    /// Fichiers actuellement ouverts sur le NAS. `limit` est envoyé comme le fait le client
+    /// web : sans lui le NAS répond tout, mais un NAS chargé peut en tenir des centaines.
+    /// Le total renvoyé reste celui de l'ensemble, ce qui permet de dire ce qui n'est pas
+    /// montré plutôt que de tronquer en silence.
+    func openedFiles(limit: Int) async throws -> OpenedFilePage {
+        try await transport.read(
+            api: Self.fileHandleAPI,
+            method: "get",
+            parameters: ["limit": .integer(limit), "offset": .integer(0)],
+            as: OpenedFilePage.self
+        )
     }
 
     /// Coupe les sessions indiquées. DSM attend deux listes distinctes selon le protocole et

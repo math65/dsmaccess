@@ -84,6 +84,30 @@ struct DSMSystemServiceTests {
         }
     }
 
+    /// Le client web envoie `limit` et `offset` ; vérifié sur le NAS, la pagination est bien
+    /// honorée (2 sur 9 renvoyés) et `total` reste celui de l'ensemble. L'écran s'appuie sur
+    /// cet écart pour dire ce qu'il ne montre pas.
+    @Test func asksForABoundedPageOfOpenedFiles() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"""
+            {"success":true,"data":{"OpenedFiles":[
+              {"filename":"a.log","path":"App/a.log","pid":"1","service":"S","user":"-","host":"-"}],
+              "total":9}}
+            """#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        let page = try await service.openedFiles(limit: 500)
+
+        #expect(page.files.count == 1)
+        #expect(page.total == 9)
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.Core.FileHandle")
+        #expect(parameters["method"] == "get")
+        #expect(parameters["limit"] == "500")
+        #expect(parameters["offset"] == "0")
+    }
+
     private struct WebReference: Decodable, Equatable {
         let did: String
         let who: String
@@ -107,6 +131,12 @@ struct DSMSystemServiceTests {
         var capabilities = DSMCapabilities()
         capabilities.merge([
             "SYNO.Core.CurrentConnection": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.Core.FileHandle": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1,
