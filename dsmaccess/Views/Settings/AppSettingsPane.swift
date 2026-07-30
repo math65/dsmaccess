@@ -2,7 +2,7 @@
 //  AppSettingsPane.swift
 //  dsmaccess
 //
-//  Sections de la fenêtre Réglages.
+//  Sections of the Settings window.
 //
 
 import SwiftUI

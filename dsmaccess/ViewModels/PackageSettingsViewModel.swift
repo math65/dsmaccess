@@ -2,9 +2,9 @@
 //  PackageSettingsViewModel.swift
 //  dsmaccess
 //
-//  Charge et modifie les réglages globaux du Centre de paquets (SYNO.Core.Package.Setting).
-//  Chaque changement enregistre l'objet complet (l'API `set` l'exige) et renvoie un message
-//  déjà localisé à annoncer à VoiceOver, comme FileServicesViewModel.
+//  Loads and changes the global Package Center settings (SYNO.Core.Package.Setting).
+//  Every change saves the whole object (the `set` API requires it) and returns an already
+//  localized message to announce to VoiceOver, like FileServicesViewModel.
 //
 
 import Foundation
@@ -15,7 +15,7 @@ import Observation
 final class PackageSettingsViewModel {
     private(set) var settings: PackageSettings?
     private(set) var isLoading = false
-    /// Vrai pendant l'enregistrement d'un réglage (contrôles désactivés le temps de l'appel).
+    /// True while a setting is being saved (controls are disabled for the duration of the call).
     private(set) var isSaving = false
     var errorMessage: String?
     var saveErrorMessage: String?
@@ -59,8 +59,8 @@ final class PackageSettingsViewModel {
         await apply { $0.enableEmail = enabled }
     }
 
-    /// Applique une mutation aux réglages chargés, enregistre l'objet complet, et renvoie le
-    /// message à annoncer à VoiceOver.
+    /// Applies a mutation to the loaded settings, saves the whole object, and returns the
+    /// message to announce to VoiceOver.
     private func apply(_ mutate: (inout PackageSettings) -> Void) async -> DSMOperationOutcome {
         guard var updated = settings else {
             return .failure(String(localized: "packages.settings.not_loaded.error"))

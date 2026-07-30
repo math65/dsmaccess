@@ -2,7 +2,7 @@
 //  StorageView.swift
 //  dsmaccess
 //
-//  État des groupes de stockage, volumes et disques.
+//  State of the storage pools, volumes and disks.
 //
 
 import SwiftUI

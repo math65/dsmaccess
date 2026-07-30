@@ -2,7 +2,7 @@
 //  dsmaccessUITests.swift
 //  dsmaccessUITests
 //
-//  Vérifications du formulaire de connexion sans accès à un NAS réel.
+//  Checks on the login form without access to a real NAS.
 //
 
 import XCTest
@@ -151,20 +151,20 @@ final class dsmaccessUITests: XCTestCase {
                   element.label.isEmpty else { return false }
 
             if issue.auditType == .sufficientElementDescription {
-                // SwiftUI insère un groupe hôte anonyme autour du contenu de chaque fenêtre.
-                // Ce groupe n'est pas ciblable ; ses descendants portent les libellés utiles.
+                // SwiftUI inserts an anonymous host group around the content of every window.
+                // That group cannot be targeted; its descendants carry the useful labels.
                 if element.elementType == .group {
                     return self.app.windows.allElementsBoundByIndex.contains { window in
                         window.frame == element.frame
                     }
                 }
 
-                // AppKit publie aussi une Touch Bar vide sur les Mac qui n'en disposent pas.
+                // AppKit also publishes an empty Touch Bar on Macs that do not have one.
                 return element.elementType == .touchBar
             }
 
             if issue.auditType == .parentChild, element.elementType == .group {
-                // AppKit expose le glyphe interne du bouton plein écran comme un groupe distinct.
+                // AppKit exposes the inner glyph of the full-screen button as a separate group.
                 return self.app.windows.allElementsBoundByIndex.contains { window in
                     window.frame.contains(element.frame)
                         && element.frame.maxY <= window.frame.minY + 30

@@ -2,9 +2,9 @@
 //  VoiceOver.swift
 //  dsmaccess
 //
-//  Annonces VoiceOver centralisées. Les annonces rapides sont regroupées en une seule
-//  demande de parole ; les demandes suivantes utilisent la priorité basse native de
-//  macOS pour attendre la fin de la parole en cours.
+//  Centralised VoiceOver announcements. Rapid announcements are grouped into a single
+//  speech request; the requests that follow use the native macOS low priority so they
+//  wait for the speech in progress to finish.
 //
 
 import AppKit
@@ -14,12 +14,12 @@ enum VoiceOver {
     @MainActor private static var queuedMessages = [String]()
     @MainActor private static var queuedBatchTask: Task<Void, Never>?
 
-    /// Priorité de l'annonce : `.low` s'insère dans la file, `.high` interrompt la parole en cours.
+    /// Announcement priority: `.low` slots into the queue, `.high` interrupts speech in progress.
     enum Priority {
         case low, normal, high
     }
 
-    /// Poste une annonce VoiceOver après un court délai, avec la priorité demandée.
+    /// Posts a VoiceOver announcement after a short delay, with the requested priority.
     @MainActor
     static func announce(
         _ message: String,
@@ -85,15 +85,15 @@ enum VoiceOver {
         }
     }
 
-    /// Une seule notification ne peut pas interrompre l'une de ses propres phrases.
-    /// Le regroupement protège donc les paires rapides « chargement » puis « résultat ».
+    /// A single notification cannot interrupt one of its own sentences.
+    /// Grouping therefore protects the quick "loading" then "result" pairs.
     static func combinedQueuedMessage(_ messages: [String]) -> String {
         messages.joined(separator: " ")
     }
 
-    /// SwiftUI peut perdre la cible VoiceOver quand un état de chargement est remplacé.
-    /// Attend la mise à jour de la hiérarchie, puis corrige uniquement un focus capturé
-    /// par un contrôle de la barre d'outils. La barre elle-même reste une étape navigable.
+    /// SwiftUI can lose the VoiceOver target when a loading state is replaced.
+    /// Waits for the hierarchy to update, then fixes only a focus captured by a
+    /// toolbar control. The toolbar itself stays a navigable stop.
     @MainActor
     static func restoreFocusIfCapturedByToolbar(_ restore: () -> Void) async {
         await Task.yield()

@@ -2,14 +2,14 @@
 //  FileStationCapabilities.swift
 //  dsmaccess
 //
-//  Capacités File Station documentées et annoncées par le NAS connecté.
+//  File Station capabilities documented and announced by the connected NAS.
 //
 
 import Foundation
 
-/// Décodé sans exiger aucun champ : cette réponse conditionne l'ouverture du module
-/// Fichiers, et un NAS qui en omet un ne doit pas rendre le navigateur inutilisable.
-/// `support_sharing` absent vaut « rien ne s'y oppose », pas « partage interdit ».
+/// Decoded without requiring any field: this response gates the opening of the Files module,
+/// and a NAS that omits one of them must not make the browser unusable.
+/// A missing `support_sharing` means "nothing stands in the way", not "sharing forbidden".
 struct FileStationInfo: nonisolated Decodable, Equatable, Sendable {
     let supportedVirtualProtocols: Set<String>
     let supportsSharing: Bool?

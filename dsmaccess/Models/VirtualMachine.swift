@@ -2,7 +2,7 @@
 //  VirtualMachine.swift
 //  dsmaccess
 //
-//  Invités Virtual Machine Manager et leurs principaux composants.
+//  Virtual Machine Manager guests and their main components.
 //
 
 import Foundation

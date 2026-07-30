@@ -4,18 +4,18 @@ import Testing
 
 @MainActor
 struct StoredSessionTests {
-    /// La règle qui décide du sort d'une session reprise. Se tromper ici coûte cher dans
-    /// les deux sens : jeter une session valide redemande une approbation sur le mobile à
-    /// chaque lancement ; garder une session morte fait entrer dans une app qui échouera
-    /// à la première opération, sans que rien l'explique.
+    /// The rule that decides the fate of a resumed session. Getting it wrong is costly both
+    /// ways: throwing away a valid session asks for an approval on the phone at every
+    /// launch; keeping a dead session lets the user into an app that will fail on the first
+    /// operation, with nothing to explain it.
     @Test func onlyAnAuthenticatedRefusalProvesTheSessionIsAlive() {
-        // Le NAS a identifié la session, puis refusé l'API : elle vit.
+        // The NAS identified the session, then refused the API: it is alive.
         #expect(DSMError.permissionDenied.provesSessionIsAlive)
         #expect(DSMError.unsupportedAPI("SYNO.Core.System").provesSessionIsAlive)
         #expect(DSMError.unsupportedAPIVersion("SYNO.Core.System").provesSessionIsAlive)
         #expect(DSMError.apiError(code: 105).provesSessionIsAlive)
 
-        // Rien n'a atteint le NAS, ou il a répondu autre chose : rien n'est prouvé.
+        // Nothing reached the NAS, or it answered something else: nothing is proven.
         #expect(!DSMError.sessionExpired.provesSessionIsAlive)
         #expect(!DSMError.network("hôte injoignable").provesSessionIsAlive)
         #expect(!DSMError.untrustedCertificate(fingerprint: "ab:cd").provesSessionIsAlive)
@@ -24,8 +24,8 @@ struct StoredSessionTests {
         #expect(!DSMError.invalidCredentials.provesSessionIsAlive)
     }
 
-    /// Le jeton CSRF voyage avec le SID : repris sans lui, la session se ferait refuser
-    /// en 119, ce qui ressemble à tort à une session expirée.
+    /// The CSRF token travels with the SID: resumed without it, the session would be refused
+    /// with 119, which wrongly looks like an expired session.
     @Test func keepsTheTokenAlongsideTheSession() throws {
         let stored = StoredDSMSession(sid: "sid-1", synoToken: "token-1")
 
@@ -43,9 +43,8 @@ struct StoredSessionTests {
         #expect(try JSONDecoder().decode(StoredDSMSession.self, from: data) == stored)
     }
 
-    /// Un login qui ne rapporte pas de SID n'a rien à mémoriser : sans cette garde, le
-    /// lancement suivant tenterait de reprendre une session vide et échouerait sans raison
-    /// visible.
+    /// A login that brings back no SID has nothing to store: without this guard, the next
+    /// launch would try to resume an empty session and fail for no visible reason.
     @Test func refusesToStoreALoginWithoutASession() {
         #expect(StoredDSMSession(LoginResult(sid: "", did: nil, synotoken: "t")) == nil)
         #expect(StoredDSMSession(LoginResult(sid: "sid-1", did: nil, synotoken: nil)) != nil)

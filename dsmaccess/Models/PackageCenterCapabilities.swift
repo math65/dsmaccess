@@ -2,7 +2,7 @@
 //  PackageCenterCapabilities.swift
 //  dsmaccess
 //
-//  Capacités réellement annoncées par SYNO.API.Info pour le Centre de paquets.
+//  Capabilities actually advertised by SYNO.API.Info for Package Center.
 //
 
 import Foundation

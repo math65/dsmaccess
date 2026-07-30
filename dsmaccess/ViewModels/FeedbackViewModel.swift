@@ -2,9 +2,9 @@
 //  FeedbackViewModel.swift
 //  dsmaccess
 //
-//  Orchestration du formulaire « Contacter le développeur » : validation légère,
-//  choix de la route (rapport avec diagnostic pour un problème, contact simple
-//  sinon), protection contre le double envoi et annonces VoiceOver.
+//  Orchestration of the "Contact the developer" form: light validation, choice of route
+//  (report with diagnostics for a problem, plain contact otherwise), protection against
+//  double submission and VoiceOver announcements.
 //
 
 import Foundation
@@ -14,8 +14,8 @@ final class FeedbackViewModel {
     var contactType: AppBackendClient.ContactType = .bug
     var email = Preferences.feedbackEmail
     var message = ""
-    /// Réponse illisible que l'utilisateur a choisi de signaler : jointe au rapport,
-    /// et rappelée à l'écran pour qu'il sache ce qu'il envoie avant de valider.
+    /// Unreadable reply the user chose to report: attached to the report, and shown again on
+    /// screen so they know what they are sending before confirming.
     private(set) var incident: DSMResponseIncident?
     private(set) var isSending = false
     private(set) var errorMessage: String?
@@ -35,8 +35,8 @@ final class FeedbackViewModel {
         email.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    /// Validation minimale côté client (présence d'un « @ » entouré de texte) :
-    /// la validation réelle appartient au serveur.
+    /// Minimal client-side validation (an "@" with text on both sides): the real validation
+    /// belongs to the server.
     var emailLooksPlausible: Bool {
         let parts = trimmedEmail.split(separator: "@")
         return parts.count == 2 && parts.allSatisfy { !$0.isEmpty } && parts[1].contains(".")
@@ -46,9 +46,9 @@ final class FeedbackViewModel {
         !isSending && emailLooksPlausible && !trimmedMessage.isEmpty
     }
 
-    /// Reprend l'incident accepté dans l'alerte et prépare un rapport à compléter.
-    /// Le message de départ reste modifiable : c'est l'utilisateur qui décrit ce
-    /// qu'il faisait, la partie technique est jointe séparément.
+    /// Picks up the incident accepted in the alert and prepares a report to fill in. The
+    /// starting message stays editable: the user describes what they were doing, the
+    /// technical part is attached separately.
     func adoptPendingIncident() {
         guard incident == nil, let accepted = DSMResponseIncidents.shared.consumeAccepted() else {
             return

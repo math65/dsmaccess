@@ -1,7 +1,7 @@
 //
 //  FileServicesView.swift
 //  dsmaccess
-//  Gestion des protocoles de partage de fichiers DSM.
+//  Management of the DSM file sharing protocols.
 
 import SwiftUI
 
@@ -162,7 +162,7 @@ struct FileServicesView: View {
         )
     }
 
-    // MARK: - Présentation
+    // MARK: - Presentation
 
     private func stateText(_ state: FileServiceState) -> String {
         switch state {

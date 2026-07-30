@@ -2,7 +2,7 @@
 //  AdvancedFileSearchSheet.swift
 //  dsmaccess
 //
-//  Recherche File Station avec les critères publiés par Synology.
+//  File Station search using the criteria published by Synology.
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  DownloadTask.swift
 //  dsmaccess
 //
-//  Modèles de Download Station. Les tailles et états restent tolérants entre versions.
+//  Download Station models. Sizes and states stay lenient across versions.
 //
 
 import Foundation

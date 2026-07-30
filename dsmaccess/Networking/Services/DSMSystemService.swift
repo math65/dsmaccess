@@ -2,7 +2,7 @@
 //  DSMSystemService.swift
 //  dsmaccess
 //
-//  Informations générales et utilisation instantanée du NAS.
+//  General information and instantaneous utilization of the NAS.
 //
 
 import Foundation
@@ -49,7 +49,7 @@ final class DSMSystemService {
         ).process
     }
 
-    /// Processus regroupés par service, comme le gestionnaire des tâches de DSM.
+    /// Processes grouped by service, like the DSM task manager.
     func processGroups() async throws -> [ProcessGroup] {
         try await transport.read(
             api: Self.processGroupAPI,
@@ -58,8 +58,8 @@ final class DSMSystemService {
         ).slices
     }
 
-    /// Sessions ouvertes sur le NAS. `get` est la méthode qu'emploie le client web ;
-    /// `list` existe aussi et renvoie la même forme.
+    /// Sessions open on the NAS. `get` is the method the web client uses; `list` also
+    /// exists and returns the same shape.
     func connections() async throws -> [NASConnection] {
         try await transport.read(
             api: Self.connectionAPI,
@@ -68,10 +68,10 @@ final class DSMSystemService {
         ).items
     }
 
-    /// Fichiers actuellement ouverts sur le NAS. `limit` est envoyé comme le fait le client
-    /// web : sans lui le NAS répond tout, mais un NAS chargé peut en tenir des centaines.
-    /// Le total renvoyé reste celui de l'ensemble, ce qui permet de dire ce qui n'est pas
-    /// montré plutôt que de tronquer en silence.
+    /// Files currently open on the NAS. `limit` is sent the way the web client does: without
+    /// it the NAS returns everything, but a busy NAS can hold hundreds of them. The returned
+    /// total stays that of the whole set, which lets us state what is not shown rather than
+    /// truncating silently.
     func openedFiles(limit: Int) async throws -> OpenedFilePage {
         try await transport.read(
             api: Self.fileHandleAPI,
@@ -81,9 +81,9 @@ final class DSMSystemService {
         )
     }
 
-    /// Alertes que le NAS a enregistrées quand une ressource a franchi un seuil. Le journal
-    /// remonte aussi loin que l'enregistrement est resté actif : la page est bornée et le
-    /// total renvoyé reste celui de l'ensemble.
+    /// Alerts the NAS recorded when a resource crossed a threshold. The log goes back as far
+    /// as recording stayed enabled: the page is bounded and the returned total stays that of
+    /// the whole set.
     func resourceMonitorLogs(limit: Int) async throws -> ResourceMonitorLogPage {
         try await transport.read(
             api: Self.resourceLogAPI,
@@ -93,9 +93,9 @@ final class DSMSystemService {
         )
     }
 
-    /// Le moniteur n'enregistre son historique que si le réglage est actif ; sans lui le
-    /// journal reste vide indéfiniment. L'écran a besoin de la distinction pour ne pas
-    /// présenter un réglage désactivé comme un NAS sans incident.
+    /// The monitor only records its history if the setting is enabled; without it the log
+    /// stays empty indefinitely. The screen needs that distinction so it does not present a
+    /// disabled setting as a NAS with no incident.
     func resourceMonitorHistoryEnabled() async throws -> Bool {
         try await transport.read(
             api: Self.resourceSettingAPI,
@@ -104,8 +104,8 @@ final class DSMSystemService {
         ).historyEnabled
     }
 
-    /// Règles de l'alarme des performances. Le journal ne consigne une alerte que lorsqu'une
-    /// règle est franchie : sans règle, il n'y a rien à détecter.
+    /// Performance alarm rules. The log only records an alert when a rule is crossed:
+    /// without a rule, there is nothing to detect.
     func performanceAlarmRules() async throws -> PerformanceAlarmRulePage {
         try await transport.read(
             api: Self.resourceAlarmAPI,
@@ -114,11 +114,11 @@ final class DSMSystemService {
         )
     }
 
-    /// Crée ou modifie une règle : DSM emploie la même méthode pour les deux et distingue par
-    /// la présence de `id`. La cible part toujours dans `service`, quel que soit le type, et
-    /// `enable` est exigé dans les deux cas — vérifié sur le NAS, l'omettre vaut un refus.
+    /// Creates or edits a rule: DSM uses the same method for both and tells them apart by
+    /// the presence of `id`. The target always goes in `service`, whatever the type, and
+    /// `enable` is required in both cases — verified on the NAS, omitting it means refusal.
     ///
-    /// Mutation : chemin sans nouvelle tentative.
+    /// Mutation: single-attempt path.
     func savePerformanceAlarmRule(_ draft: PerformanceAlarmRuleDraft) async throws {
         var parameters: [String: DSMParameter] = [
             "type": .integer(draft.kind.rawValue),
@@ -139,10 +139,10 @@ final class DSMSystemService {
         )
     }
 
-    /// Active ou coupe des règles. DSM applique par lot : il attend la liste des règles
-    /// touchées avec leur nouvel état, et non une bascule à la fois.
+    /// Turns rules on or off. DSM applies in batch: it expects the list of affected rules
+    /// with their new state, not one toggle at a time.
     ///
-    /// Mutation : chemin sans nouvelle tentative.
+    /// Mutation: single-attempt path.
     func setPerformanceAlarmRules(_ states: [(id: String, enabled: Bool)]) async throws {
         let payload = states.map { RuleState(id: $0.id, enable: $0.enabled) }
         try await transport.perform(
@@ -152,7 +152,7 @@ final class DSMSystemService {
         )
     }
 
-    /// Supprime des règles. Mutation : chemin sans nouvelle tentative.
+    /// Deletes rules. Mutation: single-attempt path.
     func deletePerformanceAlarmRules(ids: [String]) async throws {
         try await transport.perform(
             api: Self.resourceAlarmAPI,
@@ -166,7 +166,7 @@ final class DSMSystemService {
         let enable: Bool
     }
 
-    /// Mutation : chemin sans nouvelle tentative.
+    /// Mutation: single-attempt path.
     func setResourceMonitorHistory(enabled: Bool) async throws {
         try await transport.perform(
             api: Self.resourceSettingAPI,
@@ -175,13 +175,12 @@ final class DSMSystemService {
         )
     }
 
-    /// Coupe les sessions indiquées. DSM attend deux listes distinctes selon le protocole et
-    /// n'accepte pas d'identifiant de session : chaque entrée est réidentifiée par les valeurs
-    /// que `get` a renvoyées. Les deux paramètres sont toujours envoyés, fût-ce vides, comme
-    /// le fait le client web.
+    /// Drops the given sessions. DSM expects two separate lists depending on the protocol and
+    /// accepts no session identifier: each entry is re-identified by the values `get`
+    /// returned. Both parameters are always sent, even empty, as the web client does.
     ///
-    /// Mutation : chemin sans nouvelle tentative. Un délai plus large que la valeur par défaut
-    /// est laissé au NAS, qui ferme des sessions réseau avant de répondre.
+    /// Mutation: single-attempt path. The NAS is given a longer timeout than the default,
+    /// since it closes network sessions before answering.
     func kickConnections(_ references: [NASConnection.KickReference]) async throws {
         var webReferences: [WebConnectionReference] = []
         var serviceReferences: [ServiceConnectionReference] = []

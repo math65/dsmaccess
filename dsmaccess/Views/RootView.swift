@@ -2,7 +2,7 @@
 //  RootView.swift
 //  dsmaccess
 //
-//  Affiche la connexion ou l'interface d'administration selon l'état de la session.
+//  Shows the sign-in screen or the administration interface depending on the session state.
 //
 
 import AppKit
@@ -33,9 +33,9 @@ struct RootView: View {
         }
     }
 
-    /// NSAlert et non le modificateur `.alert` de SwiftUI, pour la même raison que les
-    /// annonces du backend : attaché en permanence à la racine, celui-ci fait échouer
-    /// l'audit d'accessibilité de la fenêtre.
+    /// NSAlert and not SwiftUI's `.alert` modifier, for the same reason as the backend
+    /// announcements: permanently attached to the root, that modifier makes the window's
+    /// accessibility audit fail.
     private func presentPendingIncident() {
         guard let incident = incidents.pending else { return }
         let alert = NSAlert()

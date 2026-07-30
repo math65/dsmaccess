@@ -2,7 +2,7 @@
 //  ModuleStatusViews.swift
 //  dsmaccess
 //
-//  États standardisés des modules : chargement, erreur et contenu vide.
+//  Standardized module states: loading, error and empty content.
 //
 
 import SwiftUI

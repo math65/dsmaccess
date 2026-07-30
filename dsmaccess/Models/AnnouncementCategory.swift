@@ -2,7 +2,7 @@
 //  AnnouncementCategory.swift
 //  dsmaccess
 //
-//  Catégories d'annonces configurables dans les réglages d'accessibilité.
+//  Announcement categories that can be configured in the accessibility settings.
 //
 
 import Foundation

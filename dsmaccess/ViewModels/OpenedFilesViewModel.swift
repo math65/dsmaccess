@@ -2,9 +2,9 @@
 //  OpenedFilesViewModel.swift
 //  dsmaccess
 //
-//  Onglet « Fichiers ouverts » du moniteur de ressources : quels fichiers le NAS tient
-//  ouverts en ce moment, et pour qui. Utile avant de démonter un volume ou d'arrêter un
-//  service — et pour répondre à « qui bloque ce fichier ? ».
+//  “Open files” tab of the resource monitor: which files the NAS currently holds open, and
+//  for whom. Useful before unmounting a volume or stopping a service — and to answer
+//  “who is locking this file?”.
 //
 
 import Foundation
@@ -13,12 +13,12 @@ import Observation
 @MainActor
 @Observable
 final class OpenedFilesViewModel {
-    /// Un NAS actif peut tenir des centaines de fichiers ouverts. La page demandée est large
-    /// mais bornée, et l'écran dit ce qu'il ne montre pas plutôt que de tronquer en silence.
+    /// A busy NAS can hold hundreds of files open. The requested page is large but bounded,
+    /// and the screen states what it is not showing rather than truncating silently.
     static let pageLimit = 500
 
     private(set) var files: [OpenedFile] = []
-    /// Total renvoyé par le NAS, qui peut dépasser ce qui est chargé.
+    /// Total returned by the NAS, which can exceed what has been loaded.
     private(set) var totalCount = 0
     private(set) var isLoading = false
     var errorMessage: String?
@@ -41,9 +41,9 @@ final class OpenedFilesViewModel {
                 try await $0.openedFiles(limit: Self.pageLimit)
             }
             guard generation == loadGeneration else { return }
-            // Ordre de départ stable, par service puis par chemin : le NAS renvoie les
-            // fichiers dans un ordre qui lui est propre et qui change d'un appel à l'autre.
-            // Le tri visible reste celui que l'utilisateur choisit sur les en-têtes.
+            // Stable initial order, by service then by path: the NAS returns the files in an
+            // order of its own that changes from one call to the next. The visible sort
+            // remains the one the user picks on the headers.
             files = page.files.sorted { lhs, rhs in
                 let leftService = lhs.sortableService
                 let rightService = rhs.sortableService
@@ -63,8 +63,8 @@ final class OpenedFilesViewModel {
         }
     }
 
-    /// Un service local du NAS n'a ni compte ni machine d'origine : le tiret dit l'absence,
-    /// là où répéter le nom du service ferait croire à une donnée.
+    /// A local NAS service has neither an account nor an originating machine: the dash states
+    /// the absence, where repeating the service name would look like actual data.
     func accountText(for file: OpenedFile) -> String { file.account ?? "—" }
     func hostText(for file: OpenedFile) -> String { file.host ?? "—" }
     func serviceText(for file: OpenedFile) -> String {
@@ -72,7 +72,7 @@ final class OpenedFilesViewModel {
     }
     func folderText(for file: OpenedFile) -> String { file.folder ?? "—" }
 
-    /// Vrai quand le NAS en tient plus que ce qui a été chargé.
+    /// True when the NAS holds more of them than what has been loaded.
     var isTruncated: Bool { totalCount > files.count }
 
     var summary: String {

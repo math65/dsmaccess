@@ -2,7 +2,7 @@
 //  PackageCatalogView.swift
 //  dsmaccess
 //
-//  Catalogue officiel et détails fondés sur les métadonnées vérifiées du NAS.
+//  Official catalog and details based on the NAS's verified metadata.
 //
 
 import SwiftUI
@@ -21,8 +21,8 @@ struct PackageCatalogView: View {
         } else if let error = vm.errorMessage ?? vm.catalogErrorMessage {
             ModuleErrorView(message: error, retry: retry)
         } else if vm.capabilities != nil && !vm.canBrowseCatalog {
-            // DSM n'expose pas SYNO.Core.Package.Server aux comptes non administrateurs :
-            // sans cet état explicite, l'onglet paraît vide sans raison.
+            // DSM does not expose SYNO.Core.Package.Server to non-administrator accounts:
+            // without this explicit state, the tab looks empty for no reason.
             ContentUnavailableView(
                 "packages.catalog.unavailable.title",
                 systemImage: "shippingbox",

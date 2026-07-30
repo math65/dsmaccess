@@ -2,7 +2,7 @@
 //  SystemInfoView.swift
 //  dsmaccess
 //
-//  Informations générales et ressources du NAS.
+//  General information and resources of the NAS.
 //
 
 import SwiftUI

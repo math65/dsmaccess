@@ -2,14 +2,14 @@
 //  DSMParameter.swift
 //  dsmaccess
 //
-//  Encodage sûr des paramètres complexes attendus par les WebAPI DSM.
+//  Safe encoding of the complex parameters the DSM WebAPIs expect.
 //
 
 import Foundation
 
-/// Valeur de paramètre DSM avant son encodage selon le `requestFormat` annoncé
-/// par `SYNO.API.Info`. Conserver le type évite d'envoyer des booléens et nombres
-/// comme des chaînes lorsque l'API attend des valeurs JSON.
+/// A DSM parameter value before it is encoded according to the `requestFormat` advertised
+/// by `SYNO.API.Info`. Keeping the type avoids sending booleans and numbers as strings when
+/// the API expects JSON values.
 enum DSMParameter: Sendable, ExpressibleByStringLiteral {
     case string(String)
     case integer(Int)

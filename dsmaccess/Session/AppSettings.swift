@@ -2,7 +2,7 @@
 //  AppSettings.swift
 //  dsmaccess
 //
-//  Préférences observables partagées par la barre latérale et la fenêtre Réglages.
+//  Observable preferences shared by the sidebar and the Settings window.
 //
 
 import Foundation

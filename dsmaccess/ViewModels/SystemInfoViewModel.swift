@@ -2,7 +2,7 @@
 //  SystemInfoViewModel.swift
 //  dsmaccess
 //
-//  Charge et expose les infos système du NAS ; gère la déconnexion.
+//  Loads and exposes the NAS system information; handles signing out.
 //
 
 import Foundation
@@ -38,7 +38,7 @@ final class SystemInfoViewModel {
         }
     }
 
-    // MARK: - Affichage formaté
+    // MARK: - Formatted display
 
     var ramText: String {
         guard let ram = info?.ram else { return "—" }

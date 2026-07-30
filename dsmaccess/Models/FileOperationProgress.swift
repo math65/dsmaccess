@@ -2,7 +2,7 @@
 //  FileOperationProgress.swift
 //  dsmaccess
 //
-//  État commun des tâches File Station non bloquantes.
+//  Shared state of non-blocking File Station tasks.
 //
 
 import Foundation
@@ -15,8 +15,8 @@ enum FileOperationKind: String, Codable, Sendable {
     case directorySize = "SYNO.FileStation.DirSize"
     case checksum = "SYNO.FileStation.MD5"
 
-    /// Nom de l'opération repris tel quel dans la liste des tâches et dans le bandeau de
-    /// progression. DSM ne distingue pas la copie du déplacement une fois la tâche lancée.
+    /// Operation name used as is in the task list and in the progress banner. DSM does not
+    /// distinguish a copy from a move once the task has started.
     var label: String {
         switch self {
         case .copyMove: String(localized: "files.progress.copy_move")
@@ -28,8 +28,8 @@ enum FileOperationKind: String, Codable, Sendable {
         }
     }
 
-    /// Résultat annoncé quand l'app reprend une tâche déjà lancée : le NAS ne dit pas
-    /// combien d'éléments elle a traités, seulement qu'elle est terminée.
+    /// Result announced when the app picks up an already running task: the NAS does not say
+    /// how many items it processed, only that it has finished.
     var completionMessage: String {
         switch self {
         case .copyMove: String(localized: "files.progress.copy_move.finished")
@@ -59,20 +59,20 @@ struct FileOperationProgress: Equatable, Sendable {
     }
 }
 
-/// Vitesse et temps restant d'une opération, déduits de relevés successifs : DSM ne les
-/// donne jamais, seul l'écart entre deux `processed_size` les révèle. Une copie les expose
-/// donc, une compression non — elle ne rapporte aucun volume traité.
+/// Speed and remaining time of an operation, derived from successive samples: DSM never
+/// provides them, only the gap between two `processed_size` values reveals them. A copy
+/// therefore exposes them, a compression does not — it reports no processed volume.
 struct FileOperationRate: Equatable, Sendable {
     private struct Sample: Equatable, Sendable {
         let date: Date
         let bytes: Int64
     }
 
-    /// Fenêtre glissante : la vitesse instantanée saute d'un relevé à l'autre, et une
-    /// moyenne depuis le début cesse de suivre quand le débit change en cours de route.
+    /// Sliding window: the instantaneous speed jumps from one sample to the next, and an
+    /// average since the start stops keeping up when the throughput changes along the way.
     private static let windowLength = 8
-    /// Rien n'est estimé avant d'avoir de quoi être stable : une estimation qui passe de
-    /// deux à quarante minutes est plus nuisible qu'une absence d'estimation.
+    /// Nothing is estimated before there is enough to be stable: an estimate that goes from
+    /// two to forty minutes is more harmful than no estimate at all.
     private static let minimumSamples = 4
 
     private var samples: [Sample] = []
@@ -80,7 +80,7 @@ struct FileOperationRate: Equatable, Sendable {
 
     mutating func record(_ progress: FileOperationProgress, at date: Date = .now) {
         guard let bytes = progress.processedSize else { return }
-        // Une nouvelle tâche, ou un volume qui recule, invalide les relevés précédents.
+        // A new task, or a volume that goes backwards, invalidates the previous samples.
         if taskID != progress.taskID || bytes < (samples.last?.bytes ?? 0) {
             samples.removeAll()
             taskID = progress.taskID
@@ -91,7 +91,7 @@ struct FileOperationRate: Equatable, Sendable {
         }
     }
 
-    /// Octets par seconde sur la fenêtre courante, ou `nil` tant qu'elle est trop courte.
+    /// Bytes per second over the current window, or `nil` as long as it is too short.
     var bytesPerSecond: Double? {
         guard samples.count >= Self.minimumSamples,
               let first = samples.first, let last = samples.last else { return nil }
@@ -101,9 +101,9 @@ struct FileOperationRate: Equatable, Sendable {
         return rate > 0 ? rate : nil
     }
 
-    /// Temps restant pour l'avancement donné, quand le NAS rapporte une taille totale.
-    /// Une durée très courte est rendue telle quelle : c'est à l'affichage de dire
-    /// « moins d'une minute » plutôt que d'égrener des secondes.
+    /// Remaining time for the given progress, when the NAS reports a total size.
+    /// A very short duration is returned as is: it is up to the display to say
+    /// "less than a minute" rather than counting off seconds.
     func remaining(for progress: FileOperationProgress) -> Duration? {
         guard let rate = bytesPerSecond,
               let processed = progress.processedSize,
@@ -112,9 +112,9 @@ struct FileOperationRate: Equatable, Sendable {
     }
 }
 
-/// Le suivi d'une tâche s'est interrompu alors que le NAS la traite toujours : la demande
-/// a été acceptée, seule la progression est perdue. À distinguer d'un échec, sinon
-/// l'utilisateur relance une copie déjà en cours.
+/// Tracking of a task stopped while the NAS is still processing it: the request was
+/// accepted, only the progress is lost. To be distinguished from a failure, otherwise the
+/// user restarts a copy that is already running.
 struct FileOperationTrackingInterrupted: Error {
     let kind: FileOperationKind
     let taskID: String

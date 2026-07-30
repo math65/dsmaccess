@@ -2,7 +2,7 @@
 //  FileBrowserViewModel.swift
 //  dsmaccess
 //
-//  Navigation, recherche et opérations File Station.
+//  File Station navigation, search and operations.
 //
 
 import Foundation
@@ -27,14 +27,13 @@ final class FileBrowserViewModel {
         let items: [FileStationItem]
     }
 
-    /// Résultat d'une opération longue, conservé à l'écran jusqu'à ce que l'utilisateur
-    /// le masque : une annonce VoiceOver émise pendant que l'app est en arrière-plan
-    /// n'est jamais entendue, et une copie de plusieurs heures se termine souvent hors
-    /// de la vue de l'utilisateur.
+    /// Result of a long operation, kept on screen until the user dismisses it: a VoiceOver
+    /// announcement posted while the app is in the background is never heard, and a copy
+    /// running for several hours often finishes out of the user's sight.
     struct OperationSummary: Equatable {
         let message: String
-        /// Le NAS poursuit la tâche sans que l'app puisse la suivre : l'écran des tâches
-        /// File Station est le seul endroit où en connaître l'avancement.
+        /// The NAS keeps running the task without the app being able to follow it: the
+        /// File Station tasks screen is the only place to learn how far along it is.
         let continuesInBackground: Bool
     }
 
@@ -70,9 +69,9 @@ final class FileBrowserViewModel {
     private(set) var operationProgress: FileOperationProgress?
     private var operationRate = FileOperationRate()
 
-    /// Débit courant de l'opération suivie, quand DSM rapporte un volume traité.
+    /// Current throughput of the tracked operation, when DSM reports a processed volume.
     var operationBytesPerSecond: Double? { operationRate.bytesPerSecond }
-    /// Temps restant estimé, absent tant qu'il n'est pas fiable ou sous la minute.
+    /// Estimated time remaining, absent as long as it is not reliable or under a minute.
     var operationTimeRemaining: Duration? {
         operationProgress.flatMap(operationRate.remaining(for:))
     }
@@ -151,8 +150,8 @@ final class FileBrowserViewModel {
     var breadcrumb: String { stack.map(\.name).joined(separator: " ▸ ") }
 
     var canDownload: Bool { supports(.download) }
-    // Compteur plutôt que booléen : les promesses de fichiers collées dans le
-    // Finder peuvent déclencher plusieurs téléchargements simultanés.
+    // A counter rather than a boolean: file promises dropped into the Finder
+    // can trigger several simultaneous downloads.
     var isDownloading: Bool { activeDownloadCount > 0 }
     var canUpload: Bool { canWrite && supports(.upload) }
     var canCreateFolder: Bool { canWrite && supports(.createFolder) }
@@ -488,9 +487,8 @@ final class FileBrowserViewModel {
         return await performSingleDownload(item, to: destination)
     }
 
-    /// Téléchargement déclenché par une promesse de fichier collée dans le Finder.
-    /// Aucun scope de sécurité à gérer : l'URL de destination est couverte par le
-    /// sandbox du récepteur de la promesse.
+    /// Download triggered by a file promise dropped into the Finder. No security scope to
+    /// handle: the destination URL is covered by the sandbox of the promise's receiver.
     func downloadForFinderPromise(
         _ item: FileStationItem,
         to destination: URL
@@ -675,8 +673,8 @@ final class FileBrowserViewModel {
         urls: [URL],
         options: FileStationUploadOptions = FileStationUploadOptions(conflictPolicy: .skip)
     ) async -> DSMOperationOutcome {
-        // Les scopes de sécurité ont été ouverts par la vue sur les URL racines ;
-        // les fichiers énumérés dans un dossier sont couverts par le scope de leur racine.
+        // The security scopes were opened by the view on the root URLs; the files
+        // enumerated inside a folder are covered by the scope of their root.
         defer {
             for url in urls { url.stopAccessingSecurityScopedResource() }
         }
@@ -690,8 +688,8 @@ final class FileBrowserViewModel {
         if !plan.folders.isEmpty {
             do {
                 try Task.checkCancellation()
-                // force_parent rend la création idempotente : un dossier déjà
-                // présent sur le NAS est fusionné, pas signalé en erreur.
+                // force_parent makes the creation idempotent: a folder already
+                // present on the NAS is merged, not reported as an error.
                 _ = try await session.withClient {
                     try await $0.createFolders(
                         plan.folderCreations(under: parent),
@@ -832,10 +830,10 @@ final class FileBrowserViewModel {
         }
     }
 
-    /// Relit la liste pendant qu'une tâche avance, sans afficher l'état de chargement ni
-    /// effacer les tâches déjà présentes : la fenêtre doit se mettre à jour en place, sans
-    /// clignoter et sans déplacer VoiceOver. Retourne `false` quand la relecture a échoué,
-    /// pour que l'écran le signale au lieu de laisser croire à des valeurs à jour.
+    /// Re-reads the list while a task progresses, without showing the loading state and
+    /// without clearing the tasks already listed: the window must update in place, without
+    /// flickering and without moving VoiceOver. Returns `false` when the re-read failed, so
+    /// the screen reports it instead of letting the values pass for up to date.
     func refreshBackgroundTasksQuietly() async -> Bool {
         guard supports(.backgroundTasks) else { return false }
         backgroundTasksGeneration += 1
@@ -852,17 +850,17 @@ final class FileBrowserViewModel {
         }
     }
 
-    /// Reprend le suivi d'une opération que le NAS traite encore. Quitter le module
-    /// détruit l'écran et son état, jamais la tâche : BackgroundTask en garde la trace,
-    /// y compris après un redémarrage de l'app.
+    /// Resumes tracking an operation the NAS is still processing. Leaving the module
+    /// destroys the screen and its state, never the task: BackgroundTask keeps a record of
+    /// it, including after the app restarts.
     func resumeUnfinishedOperation() async -> DSMOperationOutcome? {
         guard supports(.backgroundTasks), !isWorking else { return nil }
         let tasks: [FileStationBackgroundTask]
         do {
             tasks = try await session.withClient { try await $0.fileStationBackgroundTasks() }
         } catch {
-            // Reprise opportuniste : l'échec de cette lecture ne doit pas se substituer
-            // à l'erreur de chargement du dossier, seule information utile ici.
+            // Opportunistic resume: a failure of this read must not stand in for the
+            // folder loading error, the only useful information here.
             return nil
         }
         let unfinished = tasks
@@ -888,12 +886,12 @@ final class FileBrowserViewModel {
         }
     }
 
-    /// Arrêt demandé explicitement par l'utilisateur : c'est la seule action qui
-    /// interrompt la tâche sur le NAS. Quitter l'écran n'arrête que son suivi.
+    /// Stop explicitly requested by the user: this is the only action that interrupts the
+    /// task on the NAS. Leaving the screen only stops tracking it.
     func stopActiveOperation() async -> DSMOperationOutcome {
         guard let progress = operationProgress else {
-            // Le NAS n'a pas encore renvoyé d'identifiant de tâche : il n'y a rien à
-            // arrêter à cet instant, mais l'opération, elle, est bien partie.
+            // The NAS has not returned a task identifier yet: there is nothing to stop
+            // at this instant, but the operation itself has indeed started.
             return .failure(
                 String(localized: "files.operation.stop_too_early.error")
             )
@@ -1095,8 +1093,8 @@ final class FileBrowserViewModel {
             : String(localized: "files.copy.done.announcement", defaultValue: "\(selectedItems.count) items copied")
     }
 
-    /// Comme dans le Finder, c'est le geste de collage qui décide entre copier
-    /// et déplacer (`moving`) la même sélection copiée.
+    /// As in the Finder, it is the paste gesture that decides between copying and
+    /// moving (`moving`) the same copied selection.
     func paste(
         moving: Bool = false,
         conflictPolicy: FileConflictPolicy = .skip
@@ -1119,7 +1117,7 @@ final class FileBrowserViewModel {
                     progress: progress
                 )
             }
-            // Après un déplacement, les chemins mémorisés n'existent plus.
+            // After a move, the remembered paths no longer exist.
             if moving { self.clipboard = nil }
             return moving
                 ? String(localized: "files.paste.move_done.announcement", defaultValue: "\(clipboard.items.count) items moved here")
@@ -1546,8 +1544,8 @@ final class FileBrowserViewModel {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let summary = operationSummary(for: error)
             if summary.continuesInBackground {
-                // La tâche avance encore côté NAS : montrer le contenu réel du dossier
-                // plutôt que la liste figée à l'instant où l'opération a été lancée.
+                // The task is still progressing on the NAS side: show the folder's real
+                // contents rather than the list frozen when the operation was started.
                 await loadCurrent()
             }
             operationSummary = summary
@@ -1560,9 +1558,9 @@ final class FileBrowserViewModel {
         }
     }
 
-    /// Sépare l'échec réel de la simple perte de suivi : dans le second cas le NAS
-    /// poursuit la tâche, et l'annoncer comme un échec pousserait l'utilisateur à
-    /// relancer une copie déjà en cours.
+    /// Separates a real failure from merely losing track: in the second case the NAS keeps
+    /// running the task, and announcing it as a failure would push the user into starting
+    /// again a copy that is already under way.
     func operationSummary(for error: Error) -> OperationSummary {
         guard let interruption = error as? FileOperationTrackingInterrupted else {
             return OperationSummary(

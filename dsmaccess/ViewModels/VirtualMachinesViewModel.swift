@@ -2,7 +2,7 @@
 //  VirtualMachinesViewModel.swift
 //  dsmaccess
 //
-//  État et alimentation des machines virtuelles.
+//  State and power control of virtual machines.
 //
 
 import Foundation

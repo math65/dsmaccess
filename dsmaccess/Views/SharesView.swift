@@ -1,7 +1,7 @@
 //
 //  SharesView.swift
 //  dsmaccess
-//  Administration des dossiers partagés DSM.
+//  Administration of DSM shared folders.
 
 import AppKit
 import SwiftUI
@@ -102,8 +102,8 @@ struct SharesView: View {
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(share.accessibilityLabel)
-            // L'élément combiné n'a aucun rôle par défaut ; sans ce trait,
-            // VoiceOver et l'audit le voient comme un élément de nature inconnue.
+            // The combined element has no role by default; without this trait,
+            // VoiceOver and the audit see it as an element of unknown nature.
             .accessibilityAddTraits(.isStaticText)
             Spacer()
             Button(role: .destructive) {

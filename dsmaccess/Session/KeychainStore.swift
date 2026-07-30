@@ -2,26 +2,25 @@
 //  KeychainStore.swift
 //  dsmaccess
 //
-//  Petit utilitaire de stockage sécurisé (Trousseau) pour les secrets durables,
-//  en premier lieu le jeton d'appareil (device token) qui évite de ressaisir le
-//  code de vérification à chaque connexion.
+//  Small secure-storage helper (Keychain) for durable secrets, first of all the device
+//  token that avoids re-entering the verification code on every sign-in.
 //
 
 import Foundation
 import Security
 
 enum KeychainStore {
-    /// Service utilisé pour les jetons d'appareil DSM.
+    /// Service used for DSM device tokens.
     nonisolated static let deviceTokenService = "math65.dsmaccess.deviceToken"
-    /// Service utilisé pour les mots de passe mémorisés (reconnexion automatique).
+    /// Service used for remembered passwords (automatic reconnection).
     nonisolated static let passwordService = "math65.dsmaccess.password"
-    /// Service utilisé pour les empreintes des certificats explicitement approuvés.
+    /// Service used for the fingerprints of explicitly approved certificates.
     nonisolated static let serverTrustService = "math65.dsmaccess.serverTrust"
-    /// Service utilisé pour la session DSM conservée entre deux lancements. Un identifiant
-    /// de session ouvre le NAS à qui le détient : il est protégé comme un mot de passe.
+    /// Service used for the DSM session kept between two launches. A session identifier opens
+    /// the NAS to whoever holds it: it is protected like a password.
     nonisolated static let sessionService = "math65.dsmaccess.session"
 
-    /// Enregistre (ou remplace) une valeur pour un couple service/compte.
+    /// Stores (or replaces) a value for a service/account pair.
     @discardableResult
     nonisolated static func save(_ value: String, service: String, account: String) -> Bool {
         guard let data = value.data(using: .utf8) else { return false }
@@ -30,7 +29,7 @@ enum KeychainStore {
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
         ]
-        // On supprime l'éventuelle entrée existante puis on ré-insère (upsert simple).
+        // Delete any existing entry, then re-insert (simple upsert).
         SecItemDelete(base as CFDictionary)
         var attributes = base
         attributes[kSecValueData as String] = data
@@ -38,7 +37,7 @@ enum KeychainStore {
         return SecItemAdd(attributes as CFDictionary, nil) == errSecSuccess
     }
 
-    /// Lit une valeur pour un couple service/compte, ou nil si absente.
+    /// Reads a value for a service/account pair, or nil if absent.
     nonisolated static func load(service: String, account: String) -> String? {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
@@ -56,7 +55,7 @@ enum KeychainStore {
         return value
     }
 
-    /// Supprime une valeur pour un couple service/compte.
+    /// Deletes a value for a service/account pair.
     nonisolated static func delete(service: String, account: String) {
         let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,

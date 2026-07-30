@@ -2,7 +2,7 @@
 //  FileStationFavoritesView.swift
 //  dsmaccess
 //
-//  Gestion accessible de l’ensemble des favoris File Station.
+//  Accessible management of the whole set of File Station favorites.
 //
 
 import SwiftUI

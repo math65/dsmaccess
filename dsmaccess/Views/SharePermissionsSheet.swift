@@ -2,7 +2,7 @@
 //  SharePermissionsSheet.swift
 //  dsmaccess
 //
-//  Permissions d'un compte sur les dossiers partagés, présentées comme la grille de DSM.
+//  An account's permissions on shared folders, presented like DSM's grid.
 //
 
 import SwiftUI
@@ -39,8 +39,8 @@ struct SharePermissionsSheet: View {
                         .accessibilityLabel("share_permissions.save.progress")
                 }
                 Spacer()
-                // Sans modification, « Annuler » laisserait croire qu'on revient sur quelque
-                // chose — la création du compte, quand l'écran s'ouvre juste après elle.
+                // With no changes, "Cancel" would suggest something is being undone — the
+                // account creation, when the screen opens right after it.
                 if viewModel.hasChanges {
                     Button("common.button.cancel", role: .cancel) { showsDiscardConfirmation = true }
                         .keyboardShortcut(.cancelAction)
@@ -138,8 +138,8 @@ struct SharePermissionsSheet: View {
         .padding(12)
     }
 
-    /// Même présentation que la liste de groupes du formulaire de création : une case par
-    /// groupe, cochée quand le compte en fait partie.
+    /// Same presentation as the group list in the creation form: one checkbox per group,
+    /// checked when the account belongs to it.
     @ViewBuilder
     private var groupTab: some View {
         if viewModel.groups.isEmpty {

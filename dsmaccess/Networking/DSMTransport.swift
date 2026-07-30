@@ -2,7 +2,7 @@
 //  DSMTransport.swift
 //  dsmaccess
 //
-//  Transport HTTP commun : découverte des routes, versionnement, session et décodage.
+//  Shared HTTP transport: route discovery, versioning, session and decoding.
 //
 
 import Foundation
@@ -14,7 +14,7 @@ final class DSMTransport {
     typealias UploadFile = @Sendable (URLRequest, URL) async throws -> (Data, URLResponse)
 
     private static let infoAPI = DSMAPI("SYNO.API.Info", preferredVersion: 1)
-    /// Point d'amorçage stable ; toutes les autres routes proviennent de cette découverte.
+    /// Stable bootstrap point; every other route comes out of this discovery.
     private static let discoveryPath = "query.cgi"
 
     let endpoint: DSMEndpoint
@@ -90,8 +90,8 @@ final class DSMTransport {
         adoptSession(sid: result.sid, synoToken: result.synotoken)
     }
 
-    /// Réinstalle une session ouverte lors d'un lancement précédent. Le transport reste le
-    /// seul détenteur du SID : rien d'autre dans l'app ne le manipule.
+    /// Reinstates a session opened during a previous launch. The transport stays the only
+    /// holder of the SID: nothing else in the app handles it.
     func adoptSession(sid: String, synoToken: String?) {
         sessionID = sid
         self.synoToken = synoToken
@@ -173,7 +173,7 @@ final class DSMTransport {
         )
     }
 
-    /// Exécute une lecture idempotente, avec une seconde tentative après un timeout.
+    /// Runs an idempotent read, with a second attempt after a timeout.
     func read<Value: Decodable & Sendable>(
         api: DSMAPI,
         method: String,
@@ -195,7 +195,7 @@ final class DSMTransport {
         )
     }
 
-    /// Exécute une requête qui renvoie une valeur sans nouvelle tentative automatique.
+    /// Runs a request that returns a value, without any automatic retry.
     func value<Value: Decodable & Sendable>(
         api: DSMAPI,
         method: String,
@@ -473,8 +473,8 @@ final class DSMTransport {
         do {
             return try await Self.decodeResponse(Value.self, from: data)
         } catch DSMError.decoding(let detail) {
-            // Seul endroit qui connaisse à la fois l'appel émis et la réponse reçue :
-            // sans cette trace, un signalement d'utilisateur ne dit pas quoi corriger.
+            // The only place that knows both the call sent and the response received:
+            // without this trace, a user report does not say what to fix.
             DSMResponseIncidents.shared.record(
                 DSMResponseIncident(
                     api: parameters["api"] ?? "inconnue",
@@ -507,11 +507,11 @@ final class DSMTransport {
         }
     }
 
-    /// Un seul fichier dont le nom est resté encodé en latin-1 sur le volume suffit à rendre
-    /// toute la réponse illisible : `JSONDecoder` exige de l'UTF-8 valide, là où les
-    /// navigateurs remplacent l'octet fautif et affichent le reste. Ce repli fait le même
-    /// choix — mieux vaut un caractère de remplacement dans un nom qu'un dossier inaccessible.
-    /// Renvoie `nil` quand la donnée est déjà valide, pour ne pas masquer une autre erreur.
+    /// A single file whose name stayed latin-1 encoded on the volume is enough to make the
+    /// whole response unreadable: `JSONDecoder` requires valid UTF-8, where browsers replace
+    /// the offending byte and display the rest. This fallback makes the same choice — better
+    /// a replacement character in a name than an unreachable folder. Returns `nil` when the
+    /// data is already valid, so as not to mask another error.
     nonisolated static func replacingInvalidUTF8(in data: Data) -> Data? {
         guard String(data: data, encoding: .utf8) == nil else { return nil }
         return Data(String(decoding: data, as: UTF8.self).utf8)

@@ -2,7 +2,7 @@
 //  PackageSourcesSheet.swift
 //  dsmaccess
 //
-//  Gestion accessible des sources tierces du Centre de paquets.
+//  Accessible management of the Package Center third-party sources.
 //
 
 import SwiftUI

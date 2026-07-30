@@ -2,7 +2,7 @@
 //  SurveillanceViewModel.swift
 //  dsmaccess
 //
-//  État, activation et instantanés des caméras.
+//  Camera state, enabling, and snapshots.
 //
 
 import Foundation

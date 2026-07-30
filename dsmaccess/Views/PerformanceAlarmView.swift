@@ -2,8 +2,8 @@
 //  PerformanceAlarmView.swift
 //  dsmaccess
 //
-//  Onglet Alarme des performances : les règles qui décident de ce que le NAS consigne dans
-//  son historique. Tableau triable comme les autres onglets du module.
+//  Performance alarm tab: the rules that decide what the NAS records in its history.
+//  Sortable table, like the other tabs of the module.
 //
 
 import SwiftUI
@@ -120,14 +120,14 @@ struct PerformanceAlarmView: View {
             TableColumn("common.column.kind", value: \.sortableKind) { rule in
                 Text(vm.kindText(rule.kind))
             }
-            // Triée par gravité et non par ordre alphabétique : « Critique » doit se ranger
-            // après « Avertissement ».
+            // Sorted by severity and not alphabetically: “Critical” must rank after
+            // “Warning”.
             TableColumn("common.column.severity", value: \.sortableSeverity) { rule in
                 Text(vm.severityText(rule.severity))
                     .foregroundStyle(rule.severity == .critical ? .readableRed : .readableOrange)
             }
-            // L'état s'écrit en toutes lettres : un interrupteur seul ne dirait rien à qui
-            // parcourt le tableau colonne par colonne.
+            // The state is spelled out: a switch alone would say nothing to someone going
+            // through the table column by column.
             TableColumn("common.column.state", value: \.sortableEnabled) { rule in
                 Toggle(
                     isOn: Binding(
@@ -180,8 +180,8 @@ struct PerformanceAlarmView: View {
     }
 }
 
-/// `sheet(item:)` a besoin d'une identité : celle de la règle modifiée, ou une valeur fixe
-/// pour la création, qui n'en a pas encore.
+/// `sheet(item:)` needs an identity: that of the edited rule, or a fixed value for creation,
+/// which does not have one yet.
 extension PerformanceAlarmRuleDraft: Identifiable {
     var id: String { ruleID ?? "creation" }
 }

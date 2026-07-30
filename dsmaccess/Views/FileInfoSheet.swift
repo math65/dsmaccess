@@ -2,7 +2,7 @@
 //  FileInfoSheet.swift
 //  dsmaccess
 //
-//  Inspecteur File Station alimenté par des métadonnées DSM actualisées.
+//  File Station inspector fed by refreshed DSM metadata.
 //
 
 import AppKit

@@ -2,17 +2,16 @@
 //  SystemProcess.swift
 //  dsmaccess
 //
-//  Gestionnaire des tâches du moniteur de ressources. Deux API distinctes et, piège
-//  relevé sur DSM 7.4, deux unités de mémoire différentes : `SYNO.Core.System.Process`
-//  compte en **Kio**, `SYNO.Core.System.ProcessGroup` en **octets**.
+//  Task manager of the resource monitor. Two distinct APIs and, a pitfall found on
+//  DSM 7.4, two different memory units: `SYNO.Core.System.Process` counts in **KiB**,
+//  `SYNO.Core.System.ProcessGroup` in **bytes**.
 //
-//  Second piège : les groupes sans mesure ne renvoient ni zéro ni `null` mais la chaîne
-//  « - ». Le décodage souple la ramène à `nil`, et l'affichage doit alors dire qu'il n'y
-//  a pas de valeur plutôt que d'écrire zéro, qui se lirait comme une mesure.
+//  Second pitfall: groups with no measurement return neither zero nor `null` but the
+//  string "-". Lenient decoding turns it back into `nil`, and the display must then say
+//  there is no value rather than writing zero, which would read as a measurement.
 //
-//  Troisième piège, et deux échelles opposées pour la même grandeur : la charge processeur
-//  d'un processus est déjà un pourcentage, celle d'un groupe est une fraction à multiplier
-//  par 100.
+//  Third pitfall, and two opposite scales for the same quantity: the CPU load of a process
+//  is already a percentage, that of a group is a fraction to be multiplied by 100.
 //
 
 import Foundation
@@ -25,17 +24,17 @@ struct SystemProcess: nonisolated Decodable, Sendable, Identifiable {
     let pid: Int?
     let command: String?
     let cpuPercent: Int?
-    /// Mémoire résidente, en Kio.
+    /// Resident memory, in KiB.
     let memoryKiB: Int?
     let sharedMemoryKiB: Int?
-    /// Code d'état Linux brut : « R » en exécution, « S » en sommeil, « Z » zombie…
+    /// Raw Linux state code: "R" running, "S" sleeping, "Z" zombie…
     let status: String?
 
     var id: String { pid.map(String.init) ?? command ?? "" }
     var name: String { command ?? String(localized: "tasks.process.unnamed") }
 
-    /// Clés de tri non optionnelles : une mesure absente se range en dernier plutôt que
-    /// d'empêcher le tri de la colonne.
+    /// Non-optional sort keys: a missing measurement sorts last rather than preventing the
+    /// column from being sorted at all.
     var sortableCPU: Int { cpuPercent ?? -1 }
     var sortableMemory: Int { memoryKiB ?? -1 }
 
@@ -61,23 +60,23 @@ struct ProcessGroupPage: nonisolated Decodable, Sendable {
     let slices: [ProcessGroup]
 }
 
-/// Regroupement par service, tel que DSM le présente : « Plex Media Server » plutôt que
-/// la liste de ses processus. C'est la vue lisible du gestionnaire des tâches.
+/// Grouping by service, the way DSM presents it: "Plex Media Server" rather than the list
+/// of its processes. This is the readable view of the task manager.
 struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     let name: String?
-    /// Malgré son nom, ce champ ne contient pas une traduction : quand DSM n'a pas de nom
-    /// courant à donner, il y met une **clé de son catalogue** (« storage_pool:raid_process »)
-    /// et laisse `name` vide. Les deux ne sont jamais renseignés en même temps.
+    /// Despite its name, this field does not hold a translation: when DSM has no common name
+    /// to give, it puts a **key from its own catalog** there ("storage_pool:raid_process")
+    /// and leaves `name` empty. The two are never filled in at the same time.
     let localizedName: String?
     let unitName: String?
-    /// Charge processeur en pourcentage. DSM l'envoie sous forme de **fraction** dans
-    /// `cpu_utilization` — son propre client la range dans un champ nommé `cpuFraction` et la
-    /// multiplie par 100 pour l'afficher. Lue telle quelle, la colonne entière s'écrit
-    /// « 0,0 % » : 1,2 % de charge arrive ici en 0,0121.
+    /// CPU load as a percentage. DSM sends it as a **fraction** in `cpu_utilization` — its
+    /// own client stores it in a field named `cpuFraction` and multiplies it by 100 to
+    /// display it. Read as is, the whole column reads "0.0 %": a 1.2 % load arrives here
+    /// as 0.0121.
     let cpuPercent: Double?
-    /// Temps processeur cumulé, en secondes.
+    /// Cumulative CPU time, in seconds.
     let cpuTime: Double?
-    /// Mémoire occupée, en **octets**.
+    /// Memory in use, in **bytes**.
     let memoryBytes: Int64?
     let readBytesPerSecond: Int64?
     let writeBytesPerSecond: Int64?
@@ -85,8 +84,8 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
 
     var id: String { unitName ?? name ?? "" }
 
-    /// Voir `SystemProcess.sortableCPU` : une mesure que DSM n'a pas fournie ne doit pas
-    /// bloquer le tri, elle se range en fin de liste.
+    /// See `SystemProcess.sortableCPU`: a measurement DSM did not provide must not block
+    /// sorting, it goes to the end of the list.
     var sortableCPU: Double { cpuPercent ?? -1 }
     var sortableMemory: Int64 { memoryBytes ?? -1 }
     var sortableCPUTime: Double { cpuTime ?? -1 }
@@ -99,13 +98,13 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
         return Self.readable(raw)
     }
 
-    /// Quand DSM ne traduit pas, il laisse une clé de son propre catalogue :
-    /// « service:desktop_service », « storage_pool:raid_process ». Son client web la
-    /// résout, ce que nous ne pouvons pas faire. La clé est donc rendue lisible plutôt
-    /// qu'affichée brute — seule sa ponctuation change, rien n'est deviné.
+    /// When DSM does not translate, it leaves a key from its own catalog:
+    /// "service:desktop_service", "storage_pool:raid_process". Its web client resolves it,
+    /// which we cannot do. The key is therefore made readable rather than displayed raw —
+    /// only its punctuation changes, nothing is guessed.
     ///
-    /// Les règles d'alarme reçoivent les mêmes clés dans leur champ `name` : elles
-    /// s'appuient sur cette conversion plutôt que d'en écrire une seconde.
+    /// Alarm rules receive the same keys in their `name` field: they rely on this
+    /// conversion rather than writing a second one.
     static func readable(_ raw: String) -> String {
         guard raw.contains(":") || raw.contains("_") else { return raw }
         let tail = raw.split(separator: ":").last.map(String.init) ?? raw
@@ -137,6 +136,6 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
         processCount = (try? c.decode([AnyDecodableProcess].self, forKey: .process))?.count ?? 0
     }
 
-    /// Le détail des processus d'un groupe n'est pas exploité : seul leur nombre l'est.
+    /// The details of a group's processes are not used: only their count is.
     private struct AnyDecodableProcess: nonisolated Decodable, Sendable {}
 }

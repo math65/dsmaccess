@@ -2,9 +2,9 @@
 //  PackageSettingsSheet.swift
 //  dsmaccess
 //
-//  Feuille des réglages globaux du Centre de paquets (SYNO.Core.Package.Setting) : mise à jour
-//  automatique, paquets bêta, notifications. Chaque contrôle enregistre immédiatement (comme
-//  les bascules de FileServicesView) et annonce le résultat à VoiceOver.
+//  Sheet for the global Package Center settings (SYNO.Core.Package.Setting): automatic
+//  updates, beta packages, notifications. Each control saves immediately (like the toggles
+//  in FileServicesView) and announces the result to VoiceOver.
 //
 
 import SwiftUI
@@ -87,7 +87,7 @@ struct PackageSettingsSheet: View {
 
     private var controls: some View {
         VStack(alignment: .leading, spacing: 20) {
-            // Mise à jour automatique.
+            // Automatic updates.
             VStack(alignment: .leading, spacing: 4) {
                 Picker("packages.settings.automatic_updates", selection: autoUpdateBinding) {
                     Text("common.status.disabled.feminine").tag(AutoUpdateMode.off)
@@ -101,7 +101,7 @@ struct PackageSettingsSheet: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
 
-            // Paquets bêta.
+            // Beta packages.
             VStack(alignment: .leading, spacing: 4) {
                 Toggle("packages.settings.beta_versions.label", isOn: boolBinding(
                     get: { $0.updateChannelBeta },
@@ -176,7 +176,7 @@ struct PackageSettingsSheet: View {
         )
     }
 
-    /// Fabrique un Binding<Bool> qui lit un champ des réglages et enregistre via `set`.
+    /// Builds a Binding<Bool> that reads a settings field and saves through `set`.
     private func boolBinding(get: @escaping (PackageSettings) -> Bool,
                              set: @escaping (Bool) async -> DSMOperationOutcome) -> Binding<Bool> {
         Binding(

@@ -2,7 +2,7 @@
 //  FileStationTasksView.swift
 //  dsmaccess
 //
-//  Suivi des opérations asynchrones conservées par File Station sur le NAS.
+//  Tracking the asynchronous operations File Station keeps on the NAS.
 //
 
 import SwiftUI
@@ -141,10 +141,10 @@ struct FileStationTasksView: View {
         .accessibilityElement(children: .contain)
     }
 
-    /// Le NAS ne signale rien de lui-même : sans relecture, la fenêtre garde la progression
-    /// figée à l'instant de son ouverture. La relecture reste silencieuse et ne déplace pas
-    /// le curseur VoiceOver, qui serait sinon ramené en haut de la fenêtre toutes les
-    /// trois secondes.
+    /// The NAS reports nothing on its own: without re-reading, the window keeps progress
+    /// frozen at the moment it opened. The re-read stays silent and does not move the
+    /// VoiceOver cursor, which would otherwise be dragged back to the top of the window
+    /// every three seconds.
     private func followRunningTasks() async {
         while !Task.isCancelled {
             do {
@@ -157,11 +157,11 @@ struct FileStationTasksView: View {
                   vm.backgroundTasks.contains(where: { !$0.finished })
             else { continue }
             guard await vm.refreshBackgroundTasksQuietly() else {
-                // Une seule annonce : le suivi ne reprendra qu'après « Actualiser », donc
-                // le message ne se répétera pas d'un tour à l'autre. La boucle doit
-                // continuer de tourner à vide : c'est elle qui repart quand « Actualiser »
-                // remet le drapeau à zéro. La quitter ici rendrait le bouton trompeur,
-                // l'alerte disparaissant sans que le suivi reprenne.
+                // A single announcement: tracking will only resume after "Refresh", so the
+                // message will not repeat from one round to the next. The loop must keep
+                // spinning idle: it is what starts up again when "Refresh" clears the flag.
+                // Leaving it here would make the button misleading, with the warning
+                // disappearing without tracking resuming.
                 automaticFollowStopped = true
                 VoiceOver.announce(
                     String(localized: "file_tasks.polling_stopped.title"),

@@ -2,7 +2,7 @@
 //  USBCopyViewModel.swift
 //  dsmaccess
 //
-//  État et orchestration des opérations USB Copy.
+//  State and orchestration of USB Copy operations.
 //
 
 import Foundation

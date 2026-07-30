@@ -4,9 +4,9 @@ import Testing
 
 @MainActor
 struct DSMResponseIncidentTests {
-    /// Ce que le signalement doit contenir pour être exploitable : l'emplacement et le
-    /// nom des champs reçus. Et ce qu'il ne doit jamais contenir : leurs valeurs, un
-    /// rapport ne devant faire sortir ni nom de fichier ni chemin du NAS.
+    /// What the report must contain to be usable: the location and the name of the received
+    /// fields. And what it must never contain: their values, since a report must not let a
+    /// filename or a NAS path out.
     @Test func describesTheReceivedFieldsWithoutTheirValues() throws {
         let response = Data(
             #"{"success":true,"data":{"has_folder":true,"links":[{"id":"link-9","path":"/Photos/anniversaire.jpg","url":"https://nas.example/s/x"}]}}"#.utf8
@@ -33,8 +33,8 @@ struct DSMResponseIncidentTests {
         #expect(DSMResponseIncident.fields(in: Data("pas du json".utf8)).isEmpty)
     }
 
-    /// Le champ fautif et son chemin sont ce qui a manqué au signalement du 29/07/2026 :
-    /// sans eux, « la réponse n'a pas pu être lue » n'indique rien à corriger.
+    /// The offending field and its path are what the 2026-07-29 report was missing: without
+    /// them, "the response could not be read" points to nothing to fix.
     @Test func namesTheFieldAndPathThatFailedToDecode() throws {
         struct Payload: Decodable {
             let links: [Link]
@@ -53,9 +53,9 @@ struct DSMResponseIncidentTests {
         #expect(summary.contains("links"))
     }
 
-    /// Une opération qui échoue en boucle ne doit pas empiler les alertes, et un
-    /// incident écarté ne doit plus revenir : au lecteur d'écran, une alerte répétée
-    /// rend l'app impossible à utiliser.
+    /// An operation that fails in a loop must not stack up alerts, and a dismissed incident
+    /// must not come back: with a screen reader, a repeated alert makes the app impossible
+    /// to use.
     @Test func proposesEachFailingCallOnlyOnce() {
         let incidents = DSMResponseIncidents()
         let sharing = DSMResponseIncident(

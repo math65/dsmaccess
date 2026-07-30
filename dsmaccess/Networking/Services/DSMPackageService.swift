@@ -2,7 +2,7 @@
 //  DSMPackageService.swift
 //  dsmaccess
 //
-//  Gestion des paquets installés, du catalogue et des réglages globaux.
+//  Management of installed packages, the catalogue and the global settings.
 //
 
 import Foundation
@@ -209,9 +209,9 @@ final class DSMPackageService {
                 )
             }
             try await feasibilityCheck(packageID: metadata.packageID, type: "install_check")
-            // check_codesign vaut false ici : c'est ce qu'envoie le client web une fois
-            // l'avertissement « paquet tiers » accepté, ce que l'app fait via sa propre
-            // confirmation avant l'envoi du fichier.
+            // check_codesign is false here: that is what the web client sends once the
+            // "third-party package" warning has been accepted, which the app does through its
+            // own confirmation before sending the file.
             try await finalizeInstallation(
                 metadata: metadata,
                 method: metadata.isAlreadyInstalled ? "upgrade" : "install",
@@ -221,12 +221,12 @@ final class DSMPackageService {
                 force: false,
                 source: .task(taskID)
             )
-            // DSM peut supprimer la tâche dès la fin de l'installation.
+            // DSM may delete the task as soon as the installation finishes.
             try? await cleanUploadedPackage(taskID: taskID)
             return metadata.displayName
         } catch {
-            // Après un contrôle ou une installation refusés, DSM peut déjà avoir supprimé
-            // la tâche. L'échec de ce nettoyage de secours ne doit pas masquer l'erreur utile.
+            // After a rejected check or installation, DSM may already have deleted the task.
+            // A failure of this fallback cleanup must not hide the useful error.
             try? await cleanUploadedPackage(taskID: taskID)
             throw error
         }
@@ -356,7 +356,7 @@ final class DSMPackageService {
             try? await deleteDownloadedPackage(at: filename)
             throw error
         }
-        // DSM peut avoir déjà supprimé l'artefact une fois l'installation terminée.
+        // DSM may already have deleted the artefact once the installation is done.
         try? await deleteDownloadedPackage(at: filename)
     }
 
@@ -578,8 +578,8 @@ final class DSMPackageService {
             "api": .string(Self.installationAPI.name),
             "method": .string(method),
             "version": .integer(1),
-            // DSM 7.4 (90075) refuse un objet JSON ici (code 120) : la valeur doit être la
-            // chaîne "{}", comme l'envoie le client web du Centre de paquets.
+            // DSM 7.4 (90075) rejects a JSON object here (code 120): the value must be the
+            // string "{}", as the Package Center web client sends it.
             "extra_values": .string("{}"),
             "type": .integer(packageType),
             "check_codesign": .boolean(checkCodesign),
@@ -625,9 +625,9 @@ final class DSMPackageService {
         progress: @escaping DSMTransferProgressHandler
     ) async throws -> PackageInstallationMetadata {
         let boundary = "Boundary-\(UUID().uuidString)"
-        // Contrat DSM 7.4 (capturé sur le client web du Centre de paquets) : api, method,
-        // version et session vont dans la query de l'URL — placés dans le corps multipart,
-        // DSM répond 101. Le corps ne porte que "additional" puis le fichier.
+        // DSM 7.4 contract (captured from the Package Center web client): api, method,
+        // version and session go in the URL query — placed in the multipart body, DSM
+        // answers 101. The body carries only "additional" then the file.
         let route = try await transport.multipartRoute(
             api: Self.installationAPI,
             method: "upload",

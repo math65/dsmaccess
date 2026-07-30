@@ -2,16 +2,16 @@
 //  ResourceMonitorView.swift
 //  dsmaccess
 //
-//  Moniteur de ressources : mesures instantanées du processeur, de la mémoire, du réseau,
-//  des disques et des volumes. Regroupées par thème plutôt qu'en une longue liste plate,
-//  pour que les en-têtes servent de points de saut au lecteur d'écran.
+//  Resource monitor: instantaneous measurements of the processor, memory, network, disks and
+//  volumes. Grouped by topic rather than in one long flat list, so that the headings serve as
+//  jump points for the screen reader.
 //
 
 import SwiftUI
 
 struct ResourceMonitorView: View {
-    /// Les onglets de DSM, dans le même ordre. Chacun charge et actualise ses propres
-    /// mesures : passer à « Tâches » ne doit pas continuer d'interroger les ressources.
+    /// DSM's tabs, in the same order. Each one loads and refreshes its own measurements:
+    /// switching to "Tasks" must not keep polling the resources.
     private enum Pane: String, CaseIterable, Identifiable {
         case performance
         case tasks
@@ -53,11 +53,11 @@ struct ResourceMonitorView: View {
     }
 
     var body: some View {
-        // Un TabView et non un sélecteur segmenté : celui-ci s'annonce en boutons radio,
-        // là où des onglets se présentent comme tels et se parcourent comme tels.
-        // Encapsulé dans un VStack pour que les onglets restent dans le contenu : posé à
-        // la racine du panneau, macOS les remonte dans la barre d'outils, où ils prennent
-        // la place du titre du module.
+        // A TabView and not a segmented picker: the latter announces itself as radio buttons,
+        // whereas tabs present themselves as tabs and are navigated as such.
+        // Wrapped in a VStack so the tabs stay inside the content: placed at the root of the
+        // pane, macOS lifts them into the toolbar, where they take the place of the module
+        // title.
         VStack(spacing: 0) {
             TabView(selection: $pane) {
                 performance

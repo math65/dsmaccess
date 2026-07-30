@@ -173,7 +173,7 @@ struct DSMPackageServiceTests {
         #expect(startQuery["filesize"] == "2048")
         #expect(startQuery["operation"] == operationMethod)
         #expect(startQuery["_sid"] == "session-id")
-        // DSM 7.4-90075 répond 119 à ces mutations en POST : tout le flux reste en GET.
+        // DSM 7.4-90075 answers 119 to these mutations sent as POST: the whole flow stays GET.
         #expect(requests[3].httpMethod == "GET")
 
         let statusQuery = try parameters(from: requests[4])
@@ -200,7 +200,7 @@ struct DSMPackageServiceTests {
         #expect(compound[1]["method"] as? String == operationMethod)
         #expect(compound[1]["path"] as? String == "/var/packages/@download/ActiveBackup.spk")
         #expect(compound[1]["force"] as? Bool == true)
-        // DSM attend la chaîne "{}" ; un objet JSON est refusé avec le code 120.
+        // DSM expects the string "{}"; a JSON object is refused with code 120.
         #expect(compound[1]["extra_values"] as? String == "{}")
         #expect(compound[2]["method"] as? String == "get")
 
@@ -211,7 +211,7 @@ struct DSMPackageServiceTests {
     }
 
     @Test func acceptsAQueueEntryWithoutOperationField() async throws {
-        // DSM 7.4-90075 renvoie des entrées get_queue réduites à pkg/beta/volume.
+        // DSM 7.4-90075 returns get_queue entries reduced to pkg/beta/volume.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),
             .response(Data(
@@ -277,7 +277,7 @@ struct DSMPackageServiceTests {
         #expect(requests[0].value(forHTTPHeaderField: "Content-Type")?.hasPrefix(
             "multipart/form-data; boundary="
         ) == true)
-        // DSM 7.4 exige api/method/version dans la query de l'URL d'upload, pas dans le corps.
+        // DSM 7.4 requires api/method/version in the upload URL query, not in the body.
         let uploadURL = try #require(requests[0].url)
         let uploadQuery = try #require(
             URLComponents(url: uploadURL, resolvingAgainstBaseURL: false)?.queryItems

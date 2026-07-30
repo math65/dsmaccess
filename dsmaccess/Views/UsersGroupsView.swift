@@ -2,7 +2,7 @@
 //  UsersGroupsView.swift
 //  dsmaccess
 //
-//  Administration native des comptes locaux et groupes DSM.
+//  Native administration of DSM local accounts and groups.
 //
 
 import SwiftUI
@@ -23,8 +23,8 @@ struct UsersGroupsView: View {
     @State private var userToDelete: DSMUser?
     @State private var groupToDelete: DSMGroup?
     @State private var holderToConfigure: DSMPermissionHolder?
-    /// Compte dont les permissions s'ouvriront une fois la feuille de création refermée :
-    /// deux feuilles ne peuvent pas se succéder sans attendre la fermeture de la première.
+    /// Account whose permissions will open once the creation sheet is closed: two sheets
+    /// cannot follow each other without waiting for the first one to close.
     @State private var userAwaitingPermissions: String?
     @State private var operationFailure: String?
     @AccessibilityFocusState private var contentFocused: Bool
@@ -51,8 +51,8 @@ struct UsersGroupsView: View {
                     passwordPolicy: viewModel.passwordPolicy,
                     onCreate: { draft in
                         let outcome = await viewModel.createUser(draft)
-                        // Un échec reste dans la feuille, qui conserve la saisie ; seule la
-                        // réussite est annoncée ici, une fois la feuille refermée.
+                        // A failure stays in the sheet, which keeps what was typed; only
+                        // success is announced here, once the sheet is closed.
                         if case .success = outcome { await announce(outcome) }
                         return outcome
                     },
@@ -374,8 +374,8 @@ struct UsersGroupsView: View {
     }
 
     private func announce(_ outcome: DSMOperationOutcome) async {
-        // Un échec s'affiche dans une alerte, que VoiceOver lit de lui-même ; une annonce
-        // en plus ferait double narration.
+        // A failure shows up in an alert, which VoiceOver reads on its own; an extra
+        // announcement would make it narrate twice.
         if case .failure(let message) = outcome {
             operationFailure = message
         } else {
@@ -388,8 +388,9 @@ private struct CreateUserSheet: View {
     let groups: [DSMGroup]
     let passwordPolicy: DSMPasswordPolicy?
     let onCreate: (DSMUserDraft) async -> DSMOperationOutcome
-    /// Enchaîne sur les permissions du compte créé : sans cette suite, il faut le retrouver
-    /// dans la liste pour lui donner le moindre accès, et rien ne dit que c'est possible.
+    /// Moves straight on to the permissions of the account just created: without this
+    /// follow-up, you have to find it again in the list to grant it any access at all, and
+    /// nothing says that is possible.
     let onConfigurePermissions: (String) -> Void
 
     @State private var name = ""
@@ -525,8 +526,8 @@ private struct CreateUserSheet: View {
         let generated = DSMPasswordPolicy.generatedPassword(for: passwordPolicy)
         password = generated
         passwordConfirmation = generated
-        // Sans affichage en clair, un mot de passe qu'on n'a pas choisi est illisible :
-        // il faut pouvoir le relire avant de le transmettre.
+        // Without showing it in the clear, a password you did not choose is unreadable:
+        // it has to be possible to read it back before passing it on.
         revealsPassword = true
         failureMessage = nil
         VoiceOver.announce(
@@ -560,7 +561,7 @@ private struct CreateUserSheet: View {
                 if configuresPermissions { onConfigurePermissions(draft.name) }
                 dismiss()
             case .failure(let message):
-                // La feuille reste ouverte : la saisie est conservée et corrigeable.
+                // The sheet stays open: what was typed is kept and can be corrected.
                 failureMessage = message
                 failureFocused = true
                 VoiceOver.announce(message, category: .error, priority: .high)

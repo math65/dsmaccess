@@ -2,16 +2,16 @@
 //  ServerTrustDelegate.swift
 //  dsmaccess
 //
-//  Validation TLS stricte avec approbation explicite et persistante des certificats
-//  auto-signés utilisés par les NAS locaux.
+//  Strict TLS validation with explicit, persistent approval of the self-signed
+//  certificates used by local NAS units.
 //
 
 import CryptoKit
 import Foundation
 import Security
 
-/// Les certificats valides suivent la politique système. Un certificat non valide
-/// n'est accepté que si son empreinte SHA-256 correspond à celle approuvée auparavant.
+/// Valid certificates follow the system policy. An invalid certificate is accepted only
+/// if its SHA-256 fingerprint matches the one approved earlier.
 final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
     private let endpoint: DSMEndpoint
     private let persistApprovedFingerprint: @Sendable (String) -> Bool

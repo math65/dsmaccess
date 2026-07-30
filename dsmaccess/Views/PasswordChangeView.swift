@@ -2,12 +2,12 @@
 //  PasswordChangeView.swift
 //  dsmaccess
 //
-//  Nouveau mot de passe exigé par DSM avant l'ouverture de session (login en 410),
-//  après une réinitialisation par l'administrateur. Le focus VoiceOver est placé sur
-//  le premier champ dès l'apparition.
+//  New password required by DSM before opening the session (login returning 410), after a
+//  reset by the administrator. VoiceOver focus is placed on the first field as soon as it
+//  appears.
 //
-//  Les règles de force appliquées par le NAS ne sont pas connues de l'app : c'est DSM
-//  qui refuse un mot de passe non conforme, et son message est affiché tel quel.
+//  The strength rules the NAS applies are not known to the app: it is DSM that refuses a
+//  non-compliant password, and its message is displayed as is.
 //
 
 import SwiftUI

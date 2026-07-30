@@ -2,7 +2,7 @@
 //  DSMStorageService.swift
 //  dsmaccess
 //
-//  Accès aux volumes, groupes de stockage et disques du NAS.
+//  Access to the NAS volumes, storage pools and disks.
 //
 
 import Foundation

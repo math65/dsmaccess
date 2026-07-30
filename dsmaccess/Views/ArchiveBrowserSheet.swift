@@ -2,7 +2,7 @@
 //  ArchiveBrowserSheet.swift
 //  dsmaccess
 //
-//  Navigation et extraction sélective du contenu d’une archive File Station.
+//  Browsing and selective extraction of the contents of a File Station archive.
 //
 
 import SwiftUI

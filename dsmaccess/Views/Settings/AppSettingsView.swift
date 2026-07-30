@@ -2,7 +2,7 @@
 //  AppSettingsView.swift
 //  dsmaccess
 //
-//  Fenêtre Réglages macOS native.
+//  Native macOS Settings window.
 //
 
 import SwiftUI

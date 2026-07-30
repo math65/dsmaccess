@@ -2,7 +2,7 @@
 //  ContainersViewModel.swift
 //  dsmaccess
 //
-//  État, cycle de vie et journaux des conteneurs.
+//  Container state, lifecycle and logs.
 //
 
 import Foundation

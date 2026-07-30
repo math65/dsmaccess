@@ -2,14 +2,13 @@
 //  TaskManagerView.swift
 //  dsmaccess
 //
-//  Onglet « Tâches » du moniteur de ressources : les services tels que DSM les regroupe,
-//  puis les processus les plus actifs.
+//  "Tasks" tab of the resource monitor: the services as DSM groups them, then the most
+//  active processes.
 //
-//  En tableaux et non en lignes alignées : `Table` s'appuie sur NSTableView, donc les
-//  en-têtes trient d'un clic comme partout ailleurs sur le Mac, et chaque valeur reste
-//  dans sa colonne. Les deux tableaux sont séparés par un VSplitView : chacun a sa propre
-//  zone de défilement, avec un séparateur déplaçable, plutôt que deux listes empilées où
-//  l'on ne sait plus laquelle défile.
+//  Tables rather than aligned rows: `Table` builds on NSTableView, so the headers sort with
+//  a click like everywhere else on the Mac, and every value stays in its column. The two
+//  tables are separated by a VSplitView: each has its own scrolling area, with a movable
+//  divider, rather than two stacked lists where you no longer know which one is scrolling.
 //
 
 import SwiftUI
@@ -82,9 +81,9 @@ struct TaskManagerView: View {
                 TableColumn("tasks.processes.tab", value: \.processCount) { group in
                     Text(group.processCount, format: .number)
                 }
-                // Trois mesures que le NAS renvoie et qu'aucune colonne ne montrait. Ce sont
-                // elles qui répondent à « qu'est-ce qui travaille ? » quand la colonne
-                // Processeur affiche 0,0 % : un service peut écrire beaucoup sans calculer.
+                // Three measurements the NAS returns that no column used to show. They are the
+                // ones that answer "what is actually working?" when the Processor column shows
+                // 0.0%: a service can write a lot without computing.
                 TableColumn("tasks.column.cpu_time", value: \.sortableCPUTime) { group in
                     Text(vm.cpuTimeText(for: group))
                 }
@@ -119,12 +118,12 @@ struct TaskManagerView: View {
                 }
             }
 
-            // L'échelle est dite ici et non sur chaque ligne : le NAS renvoie une charge
-            // cumulée sur les cœurs, qu'un seul processus peut donc porter au-delà de 100 %.
-            // Relevé sur le DS920+ : 251 % pour Plex Media Server, soit deux cœurs et demi.
-            // Phrase distincte de celle du dessus, qui porte des interpolations : un signe
-            // pourcent littéral dans une clé de format doit être échappé, et l'oubli ne se
-            // voit qu'en anglais, où la chaîne ressort alors en français.
+            // The scale is stated here and not on every row: the NAS returns a load summed
+            // over the cores, which a single process can therefore push beyond 100%.
+            // Observed on the DS920+: 251% for Plex Media Server, that is two and a half cores.
+            // A separate sentence from the one above, which carries interpolations: a literal
+            // percent sign in a format key must be escaped, and forgetting it only shows up in
+            // English, where the string then comes out in French.
             Text(String(localized: "tasks.processes.section.description", defaultValue: "The \(TaskManagerViewModel.visibleProcessCount) processes using the most processor time, out of \(vm.totalProcessCount) running."))
                 .font(.callout)
                 .foregroundStyle(.readableSecondary)

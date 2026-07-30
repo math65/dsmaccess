@@ -2,10 +2,10 @@
 //  SystemResourcesViewModel.swift
 //  dsmaccess
 //
-//  Charge et expose les mesures instantanées du NAS (processeur, mémoire, réseau).
-//  Gère une actualisation automatique optionnelle (boucle 5 s), pensée pour VoiceOver :
-//  les mises à jour périodiques sont SILENCIEUSES (pas de spam d'annonces) ; seule une
-//  actualisation manuelle réannonce le résumé.
+//  Loads and exposes the NAS's instantaneous measurements (processor, memory, network).
+//  Handles an optional automatic refresh (5 s loop), designed for VoiceOver: periodic
+//  updates are SILENT (no announcement spam); only a manual refresh re-announces the
+//  summary.
 //
 
 import Foundation
@@ -18,7 +18,7 @@ final class SystemResourcesViewModel {
     private(set) var isLoading = false
     var errorMessage: String?
 
-    /// Actualisation périodique. Piloté par le Toggle de la vue ; démarre/arrête la boucle.
+    /// Periodic refresh. Driven by the view's Toggle; starts/stops the loop.
     var autoRefresh = false {
         didSet {
             guard autoRefresh != oldValue else { return }
@@ -34,7 +34,7 @@ final class SystemResourcesViewModel {
         self.session = session
     }
 
-    /// Recharge les mesures. `announce == true` réannonce le résumé (actualisation manuelle).
+    /// Reloads the measurements. `announce == true` re-announces the summary (manual refresh).
     func load(announce: Bool = false) async {
         loadGeneration += 1
         let generation = loadGeneration
@@ -55,7 +55,7 @@ final class SystemResourcesViewModel {
         }
     }
 
-    // MARK: - Actualisation automatique
+    // MARK: - Automatic refresh
 
     private func startAutoRefresh() {
         VoiceOver.announce(
@@ -67,7 +67,7 @@ final class SystemResourcesViewModel {
             while !Task.isCancelled {
                 try? await Task.sleep(for: .seconds(5))
                 if Task.isCancelled { break }
-                await self?.load()   // silencieux : pas d'annonce à chaque tick
+                await self?.load()   // silent: no announcement on every tick
             }
         }
     }
@@ -83,14 +83,14 @@ final class SystemResourcesViewModel {
         }
     }
 
-    /// Coupe la boucle sans annonce (appelé quand l'écran disparaît).
+    /// Stops the loop without announcing (called when the screen goes away).
     func stop() {
         stopAutoRefresh(announce: false)
     }
 
-    // MARK: - Affichage formaté
+    // MARK: - Formatted display
 
-    /// Charge processeur totale en pourcentage (utilisateur + système + autre).
+    /// Total processor load as a percentage (user + system + other).
     var cpuPercent: Int? {
         guard let cpu = usage?.cpu else { return nil }
         let values = [cpu.userLoad, cpu.systemLoad, cpu.otherLoad]
@@ -103,12 +103,12 @@ final class SystemResourcesViewModel {
         cpuPercent.map { String(localized: "common.unit.percent", defaultValue: "\($0)%") } ?? "—"
     }
 
-    /// Répartition entre temps utilisateur et temps système. DSM met parfois toute la charge
-    /// dans `other_load` et renvoie zéro pour les deux autres — relevé sur un DS920+ à 27 %
-    /// de charge, puis « utilisateur 6 %, système 31 % » quelques minutes plus tard sur la
-    /// même machine. C'est donc un état passager, pas une propriété du modèle. Quand les deux
-    /// valeurs sont nulles, la ligne disparaît : « Utilisateur 0 %, système 0 % » sous une
-    /// charge non nulle se lit comme une mesure cassée et contredit la ligne du dessus.
+    /// Split between user time and system time. DSM sometimes puts the whole load in
+    /// `other_load` and returns zero for the other two — observed on a DS920+ at 27 % load,
+    /// then "user 6 %, system 31 %" a few minutes later on the same machine. So it is a
+    /// transient state, not a property of the model. When both values are zero, the line
+    /// disappears: "User 0 %, system 0 %" under a non-zero load reads as a broken measurement
+    /// and contradicts the line above.
     var cpuDetailText: String? {
         guard let cpu = usage?.cpu, let user = cpu.userLoad, let system = cpu.systemLoad else { return nil }
         guard user > 0 || system > 0 else { return nil }
@@ -123,9 +123,9 @@ final class SystemResourcesViewModel {
         memoryPercent.map { String(localized: "common.unit.percent", defaultValue: "\($0)%") } ?? "—"
     }
 
-    /// « 0,64 Go sur 3,68 Go » (les tailles DSM sont en Kio → conversion en octets). Le
-    /// volume affiché exclut le cache, comme le pourcentage juste au-dessus : les deux
-    /// lignes doivent raconter la même chose.
+    /// "0.64 GB of 3.68 GB" (DSM sizes are in KiB → converted to bytes). The volume shown
+    /// excludes the cache, like the percentage just above: both lines must tell the same
+    /// story.
     var memoryDetailText: String? {
         guard let mem = usage?.memory,
               let total = mem.totalReal,
@@ -145,7 +145,7 @@ final class SystemResourcesViewModel {
         return String(localized: "common.unit.percent", defaultValue: "\(swap)%")
     }
 
-    /// Interface synthétique « total » (repli sur la première si absente).
+    /// The synthetic "total" interface (falls back to the first one if absent).
     private var totalInterface: ResourceUsage.Interface? {
         usage?.network?.first { $0.device == "total" } ?? usage?.network?.first
     }
@@ -153,8 +153,8 @@ final class SystemResourcesViewModel {
     var networkDownText: String { rateText(totalInterface?.rx) }
     var networkUpText: String { rateText(totalInterface?.tx) }
 
-    /// `spellsOutZero` désactivé : le style par défaut écrit « Zéro ko », ce qui se lit mal
-    /// dans une ligne de mesures et s'entend encore plus mal.
+    /// `spellsOutZero` disabled: the default style writes "Zero kB", which reads badly in a
+    /// line of measurements and sounds even worse.
     private func rateText(_ bytesPerSecond: Int?) -> String {
         guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
         let formatted = Int64(bytesPerSecond)
@@ -162,8 +162,8 @@ final class SystemResourcesViewModel {
         return String(localized: "common.unit.per_second", defaultValue: "\(formatted)/s")
     }
 
-    /// Moyennes de charge sur une, cinq et quinze minutes. Absentes tant que DSM n'en
-    /// renvoie aucune plutôt qu'affichées à zéro, qui se lirait comme une mesure.
+    /// Load averages over one, five and fifteen minutes. Left out as long as DSM returns none
+    /// of them, rather than shown as zero, which would read as a measurement.
     var loadAverageText: String? {
         guard let cpu = usage?.cpu,
               let one = cpu.oneMinuteLoad,
@@ -176,9 +176,9 @@ final class SystemResourcesViewModel {
         )
     }
 
-    /// Disques physiques, hors entrée cumulée que DSM range à part. Triés par nom : le NAS
-    /// les renvoie dans un ordre qui lui est propre (Drive 4, 3, 1, 2), déroutant à lire
-    /// comme à parcourir au clavier.
+    /// Physical disks, excluding the aggregate entry DSM keeps separately. Sorted by name: the
+    /// NAS returns them in an order of its own (Drive 4, 3, 1, 2), confusing both to read and
+    /// to traverse with the keyboard.
     var disks: [ResourceUsage.Device] {
         (usage?.disk?.devices ?? []).sorted {
             $0.name.localizedStandardCompare($1.name) == .orderedAscending
@@ -187,8 +187,8 @@ final class SystemResourcesViewModel {
     var diskTotal: ResourceUsage.Device? { usage?.disk?.total }
     var volumes: [ResourceUsage.Device] { usage?.space?.devices ?? [] }
 
-    /// « 14 %, 859 Ko/s en lecture, 16 Ko/s en écriture ». Le taux d'utilisation seul ne
-    /// dit pas si le disque peine sur des lectures ou des écritures.
+    /// "14 %, 859 kB/s read, 16 kB/s written". The utilization rate alone does not say whether
+    /// the disk is struggling on reads or on writes.
     func activityText(for device: ResourceUsage.Device) -> String {
         let read = rateText(device.readBytesPerSecond)
         let write = rateText(device.writeBytesPerSecond)
@@ -198,7 +198,7 @@ final class SystemResourcesViewModel {
         return String(localized: "resources.disk.usage_and_throughput.summary", defaultValue: "\(utilization)%, \(read) read, \(write) written")
     }
 
-    /// Résumé annoncé à VoiceOver après une actualisation manuelle.
+    /// Summary announced to VoiceOver after a manual refresh.
     var summary: String {
         if let errorMessage { return errorMessage }
         let cpu = cpuPercent.map(String.init) ?? "—"

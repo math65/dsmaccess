@@ -2,7 +2,7 @@
 //  USBCopyFilter.swift
 //  dsmaccess
 //
-//  Filtres de fichiers de USB Copy et conversion vers une sélection modifiable.
+//  USB Copy file filters and conversion into an editable selection.
 //
 
 import Foundation

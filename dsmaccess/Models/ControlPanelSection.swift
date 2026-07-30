@@ -2,7 +2,7 @@
 //  ControlPanelSection.swift
 //  dsmaccess
 //
-//  Sections disponibles dans le Panneau de configuration.
+//  Sections available in the Control Panel.
 //
 
 import SwiftUI

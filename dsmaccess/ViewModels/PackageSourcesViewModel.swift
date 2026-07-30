@@ -2,7 +2,7 @@
 //  PackageSourcesViewModel.swift
 //  dsmaccess
 //
-//  Charge et modifie les sources tierces du Centre de paquets.
+//  Loads and edits the Package Center third-party sources.
 //
 
 import Foundation

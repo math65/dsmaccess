@@ -2,9 +2,9 @@
 //  NameEntrySheet.swift
 //  dsmaccess
 //
-//  Feuille de saisie d'un nom, réutilisée pour « Créer un dossier » et « Renommer ».
-//  Accessible : focus (clavier + VoiceOver) déposé sur le champ à l'ouverture, annonce du
-//  titre et validation par Entrée.
+//  Name entry sheet, reused for "Create folder" and "Rename".
+//  Accessible: focus (keyboard + VoiceOver) placed on the field on opening, announcement of
+//  the title, and confirmation with Return.
 //
 
 import SwiftUI
@@ -13,7 +13,7 @@ struct NameEntrySheet: View {
     let title: LocalizedStringKey
     let fieldLabel: LocalizedStringKey
     let confirmLabel: LocalizedStringKey
-    /// Message (déjà localisé) annoncé à VoiceOver à l'ouverture.
+    /// Message (already localized) announced to VoiceOver on opening.
     let announcement: String
     let onConfirm: (String) -> Void
 

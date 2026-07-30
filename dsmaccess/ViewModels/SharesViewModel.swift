@@ -2,8 +2,8 @@
 //  SharesViewModel.swift
 //  dsmaccess
 //
-//  Charge la liste des dossiers partagés (SYNO.Core.Share) et pilote leur création/suppression.
-//  Les actions renvoient un message déjà localisé à annoncer à VoiceOver.
+//  Loads the list of shared folders (SYNO.Core.Share) and drives their creation/deletion.
+//  The actions return an already-localized message to announce to VoiceOver.
 //
 
 import Foundation
@@ -13,7 +13,7 @@ import Observation
 @Observable
 final class SharesViewModel {
     private(set) var shares: [SharedFolder] = []
-    /// Chemins des volumes disponibles pour la création (« /volume1 »…).
+    /// Paths of the volumes available for creation ("/volume1"…).
     private(set) var volumes: [String] = []
     private(set) var isLoading = false
     var errorMessage: String?
@@ -57,7 +57,7 @@ final class SharesViewModel {
         }
     }
 
-    /// Crée un dossier partagé. Renvoie le message à annoncer.
+    /// Creates a shared folder. Returns the message to announce.
     func create(name: String, volumePath: String, description: String) async -> DSMOperationOutcome {
         do {
             try await session.withClient {
@@ -75,7 +75,7 @@ final class SharesViewModel {
         }
     }
 
-    /// Supprime un dossier partagé. Renvoie le message à annoncer.
+    /// Deletes a shared folder. Returns the message to announce.
     func delete(_ folder: SharedFolder) async -> DSMOperationOutcome {
         let name = folder.name
         do {
@@ -88,13 +88,13 @@ final class SharesViewModel {
         }
     }
 
-    /// Résumé annoncé à VoiceOver une fois chargé.
+    /// Summary announced to VoiceOver once loaded.
     var summary: String {
         if let errorMessage { return errorMessage }
         return String(localized: "common.count.shared_folders", defaultValue: "\(shares.count) shared folders")
     }
 
-    /// Message d'erreur, avec des cas amicaux pour les codes SYNO.Core.Share connus.
+    /// Error message, with friendly cases for the known SYNO.Core.Share codes.
     private func reason(for error: Error) -> String {
         if case let DSMError.apiError(code) = error {
             switch code {

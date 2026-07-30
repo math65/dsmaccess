@@ -2,10 +2,10 @@
 //  FeedbackCommands.swift
 //  dsmaccess
 //
-//  Entrée du menu Aide ouvrant la fenêtre « Contacter le développeur ».
-//  Fichier séparé d'AppCommands pour limiter les conflits avec les travaux en
-//  cours sur les menus. L'entrée disparaît quand le secret du backend n'est pas
-//  embarqué dans le build.
+//  Help menu item that opens the "Contact the developer" window.
+//  Kept separate from AppCommands to limit conflicts with ongoing work on the
+//  menus. The item disappears when the backend secret is not embedded in the
+//  build.
 //
 
 import SwiftUI

@@ -2,9 +2,9 @@
 //  SecureSignInApprovalView.swift
 //  dsmaccess
 //
-//  Attente de l'approbation envoyée à l'app mobile Synology Secure SignIn. Le NAS ne
-//  joint pas toujours un chiffre à confirmer : quand il le fait, c'est l'information
-//  décisive de l'écran, annoncée en priorité.
+//  Waiting for the approval sent to the Synology Secure SignIn mobile app. The NAS does
+//  not always attach a number to confirm: when it does, that is the screen's decisive
+//  piece of information, announced with priority.
 //
 
 import SwiftUI
@@ -67,8 +67,8 @@ struct SecureSignInApprovalView: View {
             focusHeading = true
             VoiceOver.announce(announcement, category: .navigation, priority: .high)
         }
-        // Le chiffre peut n'arriver qu'à la première interrogation du statut, après
-        // l'affichage de l'écran : il doit alors être annoncé à son tour.
+        // The number may only arrive at the first status poll, after the screen has been
+        // displayed: it must then be announced in its turn.
         .onChange(of: vm.secureSignInRequest?.verifyNumber) { previous, current in
             guard previous == nil, let current else { return }
             VoiceOver.announce(

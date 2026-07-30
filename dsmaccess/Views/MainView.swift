@@ -2,7 +2,7 @@
 //  MainView.swift
 //  dsmaccess
 //
-//  Fenêtre d'administration principale.
+//  Main administration window.
 //
 
 import SwiftUI
@@ -102,8 +102,9 @@ struct MainView: View {
         }
     }
 
-    /// Signale qu'une expiration de session a interrompu le travail en cours, car la
-    /// reconnexion automatique ramène ici sans passage visible par l'écran de connexion.
+    /// Reports that a session expiration interrupted the work in progress, because the
+    /// automatic reconnection brings the user back here with no visible detour through the
+    /// sign-in screen.
     @ViewBuilder
     private var reconnectionNoticeBanner: some View {
         if let notice = session.reconnectionNotice {
@@ -120,7 +121,7 @@ struct MainView: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            // Fond opaque : l'encart flotte au-dessus des colonnes de la fenêtre.
+            // Opaque background: the banner floats above the window's columns.
             .background(.bar)
             .onAppear {
                 VoiceOver.announce(notice, category: .error, priority: .high)
@@ -233,8 +234,8 @@ struct MainView: View {
             )
         }
         .help("main.nas.switch")
-        // La barre d'outils réduit ce menu à son icône : sans étiquette explicite,
-        // VoiceOver annonce le nom du symbole SF à la place du nom du NAS.
+        // The toolbar reduces this menu to its icon: without an explicit label, VoiceOver
+        // announces the SF Symbol name instead of the NAS name.
         .accessibilityLabel("main.nas.switch")
         .accessibilityValue(session.activeProfile?.displayName ?? String(localized: "main.nas.none"))
     }

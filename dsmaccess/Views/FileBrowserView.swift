@@ -26,8 +26,8 @@ struct FileBrowserView: View {
     @State private var showingAdvancedSearch = false
     @State private var showingPasteOptions = false
     @State private var pasteMovesItems = false
-    /// Retenu au moment du geste : la feuille doit nommer le dossier visé alors, pas celui
-    /// que l'écran afficherait au moment de la validation.
+    /// Captured at the time of the gesture: the sheet must name the folder targeted then, not
+    /// the one the screen would be showing when the user confirms.
     @State private var pasteDestination = ""
     @State private var showingUploadOptions = false
     @State private var pendingUploadURLs = [URL]()
@@ -105,9 +105,9 @@ struct FileBrowserView: View {
                 resumeUnfinishedOperation()
             }
             .task(id: searchText) {
-                // Au premier affichage cette tâche part avec un champ vide, avant la fin
-                // du chargement : sans recherche à lancer ni à effacer, ne rien annoncer
-                // (sinon VoiceOver entend « Dossier vide » puis le vrai contenu).
+                // On first display this task starts with an empty field, before loading has
+                // finished: with no search to run and none to clear, announce nothing
+                // (otherwise VoiceOver hears "Empty folder" and then the real contents).
                 let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
                 if query.isEmpty && !vm.isShowingSearchResults { return }
                 do {
@@ -573,9 +573,9 @@ struct FileBrowserView: View {
             canRename: vm.canRename && !vm.isWorking,
             canCompress: vm.canCompress && !vm.isWorking,
             canDelete: vm.canDelete && !vm.isWorking,
-            // Le presse-papiers système n'est pas observable par SwiftUI : l'élément
-            // reste actif dès qu'un collage est envisageable, et un ⌘V sans contenu
-            // annonce « Rien à coller. » plutôt que d'être désactivé à tort.
+            // The system pasteboard is not observable by SwiftUI: the item stays enabled as
+            // soon as a paste is conceivable, and a ⌘V with nothing to paste announces
+            // "Nothing to paste." rather than being wrongly disabled.
             canPaste: (vm.canPaste || vm.canUpload) && !vm.isWorking,
             canMoveHere: vm.canPaste && !vm.isWorking,
             canExtract: selectedItems.count == 1
@@ -706,8 +706,8 @@ struct FileBrowserView: View {
         }
     }
 
-    /// ⌘⌥V, comme dans le Finder. Déplacer des fichiers du Mac supposerait de
-    /// les supprimer après l'envoi : le geste est réservé à la copie interne.
+    /// ⌘⌥V, as in the Finder. Moving files from the Mac would mean deleting them after the
+    /// upload: the gesture is reserved for the internal clipboard.
     private func dispatchMove() {
         guard !vm.isWorking else { return }
         switch FinderPasteboard.currentIntent(hasInternalClipboard: vm.canPaste) {
@@ -922,8 +922,8 @@ struct FileBrowserView: View {
         }
     }
 
-    /// L'arrêt part au NAS avant que le suivi ne soit annulé : l'interrompre d'abord
-    /// effacerait la progression, donc l'identifiant de la tâche à arrêter.
+    /// The stop request goes to the NAS before the tracking is cancelled: interrupting it
+    /// first would clear the progress, and with it the identifier of the task to stop.
     private func cancelOperation() {
         guard stopTask == nil else { return }
         VoiceOver.announce(
@@ -939,8 +939,8 @@ struct FileBrowserView: View {
         }
     }
 
-    /// Une opération lancée avant de quitter le module tourne toujours sur le NAS :
-    /// le bandeau de progression la reprend au retour.
+    /// An operation started before leaving the module is still running on the NAS: the
+    /// progress banner picks it back up on return.
     private func resumeUnfinishedOperation() {
         guard operationTask == nil else { return }
         operationTask = Task {

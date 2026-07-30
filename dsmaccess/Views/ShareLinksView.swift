@@ -2,7 +2,7 @@
 //  ShareLinksView.swift
 //  dsmaccess
 //
-//  Gestion complète des liens de partage File Station.
+//  Full management of File Station sharing links.
 //
 
 import AppKit

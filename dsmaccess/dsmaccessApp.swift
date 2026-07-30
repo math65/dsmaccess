@@ -10,15 +10,15 @@ import SwiftUI
 
 @main
 struct dsmaccessApp: App {
-    /// État de session partagé pour toute l'app (SID courant, hôte, connecté ou non).
+    /// Session state shared across the whole app (current SID, host, connected or not).
     @State private var session = SessionStore()
     @State private var settings = AppSettings()
-    /// Updater Sparkle, propriété de l'app pour toute sa durée de vie.
+    /// Sparkle updater, owned by the app for its whole lifetime.
     @StateObject private var updater = UpdaterViewModel()
 
     init() {
-        // Les tests unitaires sont hébergés par l'app, mais ils ne testent pas ses fenêtres.
-        // Empêcher l'activation évite qu'ils interrompent l'utilisateur à chaque lancement.
+        // The unit tests are hosted by the app, but they do not test its windows. Preventing
+        // activation keeps them from interrupting the user on every run.
         let environment = ProcessInfo.processInfo.environment
         if environment["DSM_ACCESS_BACKGROUND_TESTS"] == "YES"
             || environment["XCTestConfigurationFilePath"] != nil {

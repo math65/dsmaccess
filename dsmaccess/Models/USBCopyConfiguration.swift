@@ -2,7 +2,7 @@
 //  USBCopyConfiguration.swift
 //  dsmaccess
 //
-//  Réglages des tâches, déclencheurs et paramètres globaux de USB Copy.
+//  USB Copy task settings, triggers and global parameters.
 //
 
 import Foundation

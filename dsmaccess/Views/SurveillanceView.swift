@@ -2,7 +2,7 @@
 //  SurveillanceView.swift
 //  dsmaccess
 //
-//  État, activation et aperçu des caméras Surveillance Station.
+//  Status, enabling and preview of Surveillance Station cameras.
 //
 
 import AppKit

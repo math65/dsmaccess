@@ -2,7 +2,7 @@
 //  DSMTransferDelegate.swift
 //  dsmaccess
 //
-//  Relais de progression URLSession vers l'état MainActor de l'interface.
+//  Relay of URLSession progress to the interface's MainActor state.
 //
 
 import Foundation

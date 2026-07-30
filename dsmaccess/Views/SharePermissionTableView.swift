@@ -2,8 +2,8 @@
 //  SharePermissionTableView.swift
 //  dsmaccess
 //
-//  Grille des permissions en NSTableView : colonnes réelles, en-têtes, navigation flèches
-//  native et sémantique de tableau pour VoiceOver.
+//  Permission grid as an NSTableView: real columns, headers, native arrow-key navigation
+//  and table semantics for VoiceOver.
 //
 
 import AppKit
@@ -15,8 +15,9 @@ struct SharePermissionTableView: NSViewRepresentable {
     let isEnabled: Bool
     let onChange: (DSMSharePermission, DSMSharePermissionLevel?) -> Void
 
-    /// Colonne du choix « aucun droit propre », que DSM obtient en décochant ses cases.
-    /// Des boutons radio ne se décochant pas, l'héritage devient un choix à part entière.
+    /// Column for the "no right of its own" choice, which DSM obtains by unchecking its
+    /// boxes. Since radio buttons cannot be unchecked, inheritance becomes a choice in its
+    /// own right.
     private static let inheritColumn = "inherit"
     private static let textColumns = ["name", "group"]
 
@@ -72,8 +73,8 @@ struct SharePermissionTableView: NSViewRepresentable {
         guard previous != keys else { return }
         context.coordinator.rowPresentationKeys = keys
 
-        // Cocher un choix en décoche un autre sur la même ligne : recharger cette seule ligne
-        // évite de déplacer le curseur VoiceOver hors de la case que l'on vient d'activer.
+        // Checking one choice unchecks another on the same row: reloading that single row
+        // avoids moving the VoiceOver cursor out of the box just activated.
         guard previous.count == keys.count else {
             table.reloadData()
             return
@@ -85,16 +86,16 @@ struct SharePermissionTableView: NSViewRepresentable {
         )
     }
 
-    /// Sans héritage possible, « hériter » n'a pas de sens : pour un groupe, la première
-    /// colonne dit simplement que le groupe n'accorde rien sur ce dossier.
+    /// With no inheritance possible, "inherit" makes no sense: for a group, the first column
+    /// simply says the group grants nothing on this folder.
     private var noRightTitle: String {
         holder.inheritsFromGroups
             ? String(localized: "share_permissions.table.inherit_from_group")
             : String(localized: "share_permissions.table.no_right")
     }
 
-    /// Un refus posé sur un groupe l'emporte sur le droit propre de chaque membre : c'est
-    /// la seule colonne dont la portée dépasse ce que la ligne montre.
+    /// A denial set on a group takes precedence over each member's own right: this is the
+    /// only column whose scope goes beyond what the row shows.
     private var denialHelp: String? {
         guard !holder.inheritsFromGroups else { return nil }
         return String(
@@ -161,7 +162,7 @@ struct SharePermissionTableView: NSViewRepresentable {
             return cell
         }
 
-        /// La ligne entière se lit d'une traite quand VoiceOver la parcourt en mode ligne.
+        /// The whole row reads in one go when VoiceOver traverses it in row mode.
         func tableView(_ tableView: NSTableView, rowViewForRow row: Int) -> NSTableRowView? {
             guard parent.permissions.indices.contains(row) else { return nil }
             let permission = parent.permissions[row]
@@ -174,13 +175,13 @@ struct SharePermissionTableView: NSViewRepresentable {
             guard let tableView else { return }
             let row = tableView.row(for: sender)
             guard parent.permissions.indices.contains(row) else { return }
-            // La colonne d'héritage n'a pas de niveau : elle efface le droit propre.
+            // The inheritance column has no level: it clears the right of its own.
             let level = DSMSharePermissionLevel(rawValue: sender.identifier?.rawValue ?? "")
             parent.onChange(parent.permissions[row], level)
         }
 
-        /// Le droit de groupe se lit seul, sauf quand il prive le choix du compte de tout
-        /// effet : la règle NA > RW > RO doit alors se voir sur la ligne concernée.
+        /// The group right reads on its own, except when it strips the account's choice of
+        /// any effect: the NA > RW > RO rule must then be visible on the row concerned.
         private static func groupText(_ permission: DSMSharePermission) -> String {
             guard let inherited = permission.inherited else {
                 return String(localized: "common.value.none")

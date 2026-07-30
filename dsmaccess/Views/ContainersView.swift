@@ -2,7 +2,7 @@
 //  ContainersView.swift
 //  dsmaccess
 //
-//  Gestion native des conteneurs et consultation de leurs journaux.
+//  Native container management and viewing of their logs.
 //
 
 import SwiftUI

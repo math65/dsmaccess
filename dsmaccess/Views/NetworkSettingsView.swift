@@ -2,7 +2,7 @@
 //  NetworkSettingsView.swift
 //  dsmaccess
 //
-//  Affiche l'identité et la configuration réseau du NAS.
+//  Shows the NAS identity and network configuration.
 //
 
 import SwiftUI

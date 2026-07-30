@@ -2,14 +2,14 @@
 //  UpdaterViewModel.swift
 //  dsmaccess
 //
-//  Intégration de Sparkle pour les mises à jour automatiques et manuelles.
+//  Sparkle integration for automatic and manual updates.
 //
 
 import SwiftUI
 import Combine
 import Sparkle
 
-/// Abonne les préversions au canal beta et les versions stables au canal par défaut.
+/// Subscribes prereleases to the beta channel and stable versions to the default channel.
 final class UpdaterChannelDelegate: NSObject, SPUUpdaterDelegate {
     func allowedChannels(for updater: SPUUpdater) -> Set<String> {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
@@ -17,37 +17,36 @@ final class UpdaterChannelDelegate: NSObject, SPUUpdaterDelegate {
     }
 }
 
-/// `ObservableObject` permet de relayer directement l'état KVO publié par Sparkle.
+/// `ObservableObject` lets us relay the KVO state published by Sparkle directly.
 final class UpdaterViewModel: ObservableObject {
     private let updaterController: SPUStandardUpdaterController
-    /// Retenu fortement : Sparkle ne garde qu'une référence faible au delegate.
+    /// Held strongly: Sparkle only keeps a weak reference to the delegate.
     private let channelDelegate = UpdaterChannelDelegate()
 
-    /// Indique si Sparkle est prêt à lancer une vérification.
+    /// Whether Sparkle is ready to start a check.
     @Published var canCheckForUpdates = false
 
     init() {
         updaterController = SPUStandardUpdaterController(startingUpdater: true,
                                                         updaterDelegate: channelDelegate,
                                                         userDriverDelegate: nil)
-        // La vérification automatique est active d'office via SUEnableAutomaticChecks
-        // dans l'Info.plist : la doc Sparkle réserve les API runtime aux changements
-        // décidés par l'utilisateur (panneau Réglages > Mises à jour) et proscrit
-        // leur usage pour poser le comportement par défaut.
+        // Automatic checking is on by default through SUEnableAutomaticChecks in the
+        // Info.plist: the Sparkle docs reserve the runtime APIs for changes the user
+        // decides on (Settings > Updates pane) and forbid using them to set the
+        // default behaviour.
         updaterController.updater.publisher(for: \.canCheckForUpdates)
             .assign(to: &$canCheckForUpdates)
-        // Le planificateur interne de Sparkle vérifie au plus une fois par 24 h,
-        // ce qui laisse un testeur beta une version en retard quand deux builds
-        // sortent le même jour. Cette vérification explicite à chaque lancement
-        // est silencieuse (aucune UI sans nouvelle version) et suit le réglage
-        // du panneau Réglages > Mises à jour.
+        // Sparkle's internal scheduler checks at most once every 24 h, which leaves
+        // a beta tester one version behind when two builds ship on the same day.
+        // This explicit check on every launch is silent (no UI unless there is a
+        // new version) and follows the setting in the Settings > Updates pane.
         if updaterController.updater.automaticallyChecksForUpdates {
             updaterController.updater.checkForUpdatesInBackground()
         }
     }
 
-    /// Vérification périodique (au lancement puis environ une fois par jour).
-    /// Sparkle persiste lui-même ce choix dans les préférences.
+    /// Periodic check (at launch, then roughly once a day).
+    /// Sparkle persists this choice in the preferences itself.
     var automaticallyChecksForUpdates: Bool {
         get { updaterController.updater.automaticallyChecksForUpdates }
         set {
@@ -56,8 +55,8 @@ final class UpdaterViewModel: ObservableObject {
         }
     }
 
-    /// Téléchargement silencieux : la mise à jour s'installe à la fermeture de
-    /// l'app au lieu de proposer un dialogue à chaque nouvelle version.
+    /// Silent download: the update installs when the app quits instead of
+    /// offering a dialog for every new version.
     var automaticallyDownloadsUpdates: Bool {
         get { updaterController.updater.automaticallyDownloadsUpdates }
         set {
@@ -71,7 +70,7 @@ final class UpdaterViewModel: ObservableObject {
     }
 }
 
-/// Bouton de menu qui suit la disponibilité publiée par Sparkle.
+/// Menu button that follows the availability published by Sparkle.
 struct CheckForUpdatesView: View {
     @ObservedObject var updater: UpdaterViewModel
 

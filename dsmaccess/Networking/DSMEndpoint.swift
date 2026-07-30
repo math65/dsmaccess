@@ -2,12 +2,12 @@
 //  DSMEndpoint.swift
 //  dsmaccess
 //
-//  Décrit comment joindre un NAS : schéma (http/https), hôte, port.
+//  Describes how to reach a NAS: scheme (http/https), host, port.
 //
 
 import Foundation
 
-/// Point d'accès réseau utilisé pour joindre un NAS Synology.
+/// Network endpoint used to reach a Synology NAS.
 nonisolated struct DSMEndpoint: Equatable, Sendable {
     var useHTTPS: Bool
     var host: String
@@ -21,6 +21,6 @@ nonisolated struct DSMEndpoint: Equatable, Sendable {
         "\(account)@\(scheme)://\(host.lowercased()):\(port)"
     }
 
-    /// Port par défaut de DSM selon le schéma (5000 en HTTP, 5001 en HTTPS).
+    /// Default DSM port for the scheme (5000 over HTTP, 5001 over HTTPS).
     static func defaultPort(useHTTPS: Bool) -> Int { useHTTPS ? 5001 : 5000 }
 }

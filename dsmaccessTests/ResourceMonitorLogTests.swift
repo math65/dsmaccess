@@ -4,9 +4,9 @@ import Testing
 
 @MainActor
 struct ResourceMonitorLogTests {
-    /// Le client web lit cette colonne avec « Y/n/j G:i:s » : mois, jour et heure ne sont pas
-    /// complétés à deux chiffres. Un format rigide en « aaaa/MM/jj HH:mm:ss » rejetterait la
-    /// moitié des horodatages et la colonne Date afficherait un tiret.
+    /// The web client reads this column with "Y/n/j G:i:s": month, day and hour are not padded
+    /// to two digits. A rigid "yyyy/MM/dd HH:mm:ss" format would reject half the timestamps
+    /// and the Date column would show a dash.
     @Test func readsATimestampWhoseComponentsAreNotPadded() throws {
         let payload = Data(#"""
         {"logs":[
@@ -25,13 +25,13 @@ struct ResourceMonitorLogTests {
         components.minute = 5
         components.second = 12
         #expect(page.entries.first?.recordedAt == Calendar.current.date(from: components))
-        // La forme complétée reste lue : DSM emploie le même parseur pour les deux.
+        // The padded form is still read: DSM uses the same parser for both.
         #expect(page.entries.last?.recordedAt != nil)
     }
 
-    /// Les niveaux arrivent en anglais et c'est le client qui traduit. Une valeur inconnue est
-    /// conservée telle quelle plutôt que rangée d'office dans un niveau existant, qui
-    /// afficherait une gravité que le NAS n'a pas envoyée.
+    /// Levels arrive in English and the client is what translates them. An unknown value is
+    /// kept as is rather than forced into an existing level, which would display a severity
+    /// the NAS did not send.
     @Test func mapsTheThreeLevelsDSMSendsAndKeepsTheRest() throws {
         let payload = Data(#"""
         {"logs":[
@@ -48,16 +48,16 @@ struct ResourceMonitorLogTests {
         #expect(levels == [.information, .warning, .critical, .other("emergency")])
     }
 
-    /// La colonne Niveau se trie par gravité : classer « Critique » avant « Information »
-    /// parce que C précède I n'aurait aucun sens à la lecture.
+    /// The Level column sorts by severity: ranking "Critical" before "Information" because C
+    /// comes before I would make no sense when read.
     @Test func sortsLevelsBySeverityAndNotAlphabetically() {
         let levels: [ResourceMonitorLogEntry.Level] = [.critical, .information, .warning]
 
         #expect(levels.sorted { $0.severity < $1.severity } == [.information, .warning, .critical])
     }
 
-    /// Le NAS n'attribue aucun identifiant, et deux alertes identiques peuvent tomber dans la
-    /// même seconde. Sans identité distincte, le tableau confondrait les lignes.
+    /// The NAS assigns no identifier, and two identical alerts can land in the same second.
+    /// Without a distinct identity, the table would conflate the rows.
     @Test func distinguishesTwoIdenticalAlertsInTheSameSecond() throws {
         let payload = Data(#"""
         {"logs":[
@@ -72,8 +72,8 @@ struct ResourceMonitorLogTests {
         #expect(entries[0].id != entries[1].id)
     }
 
-    /// Le cas courant sur ce NAS : l'enregistrement est actif mais aucune règle d'alarme n'est
-    /// définie, donc aucun seuil ne peut être franchi. La réponse est vide sans être en erreur.
+    /// The common case on this NAS: recording is on but no alarm rule is defined, so no
+    /// threshold can be crossed. The response is empty without being an error.
     @Test func survivesAnEmptyJournal() throws {
         let page = try JSONDecoder().decode(
             ResourceMonitorLogPage.self, from: Data(#"{"logs":[],"total":0}"#.utf8)
@@ -83,9 +83,9 @@ struct ResourceMonitorLogTests {
         #expect(page.total == 0)
     }
 
-    /// Le seul réglage que DSM expose. Il décide si le journal se remplit : le lire à faux
-    /// quand il est vrai ferait présenter un NAS qui enregistre comme un NAS qui n'enregistre
-    /// pas, et inversement.
+    /// The only setting DSM exposes. It decides whether the log fills up: reading it as false
+    /// when it is true would present a NAS that is recording as a NAS that is not, and the
+    /// other way round.
     @Test func readsTheHistoryRecordingSetting() throws {
         let enabled = try JSONDecoder().decode(
             ResourceMonitorSetting.self, from: Data(#"{"enable_history":true}"#.utf8)
@@ -98,8 +98,8 @@ struct ResourceMonitorLogTests {
         #expect(!disabled.historyEnabled)
     }
 
-    /// Un réglage absent de la réponse n'est pas un réglage désactivé. Le décodage échoue
-    /// plutôt que de laisser l'écran affirmer que l'enregistrement est coupé.
+    /// A setting missing from the response is not a disabled setting. Decoding fails rather
+    /// than letting the screen claim that recording is off.
     @Test func refusesAResponseWithoutTheSetting() {
         #expect(throws: DecodingError.self) {
             try JSONDecoder().decode(ResourceMonitorSetting.self, from: Data(#"{}"#.utf8))

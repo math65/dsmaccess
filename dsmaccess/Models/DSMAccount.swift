@@ -2,7 +2,7 @@
 //  DSMAccount.swift
 //  dsmaccess
 //
-//  Comptes et groupes locaux exposés par SYNO.Core.User et SYNO.Core.Group.
+//  Local accounts and groups exposed by SYNO.Core.User and SYNO.Core.Group.
 //
 
 import Foundation
@@ -84,7 +84,7 @@ struct DSMUserList: nonisolated Decodable, Sendable {
     }
 }
 
-/// Réponse de `SYNO.Core.Group.Member list` : les comptes appartenant à un groupe.
+/// Response of `SYNO.Core.Group.Member list`: the accounts belonging to a group.
 struct DSMGroupMemberList: nonisolated Decodable, Sendable {
     let names: [String]
 
@@ -112,9 +112,9 @@ struct DSMGroupList: nonisolated Decodable, Sendable {
     }
 }
 
-/// Règles de mot de passe imposées par le NAS (`SYNO.Core.User.PasswordPolicy`).
-/// DSM refuse une création ou un changement non conforme sans dire laquelle est en cause :
-/// l'app les énonce donc avant la saisie.
+/// Password rules enforced by the NAS (`SYNO.Core.User.PasswordPolicy`).
+/// DSM rejects a non-compliant creation or change without saying which rule is at fault, so
+/// the app states them before the user types.
 struct DSMPasswordPolicy: nonisolated Decodable, Equatable, Sendable {
     let minimumLength: Int?
     let requiresMixedCase: Bool
@@ -125,7 +125,7 @@ struct DSMPasswordPolicy: nonisolated Decodable, Equatable, Sendable {
 
     var hasRequirements: Bool { !requirements.isEmpty }
 
-    /// Une phrase complète par règle active, dans l'ordre où DSM les présente.
+    /// One complete sentence per active rule, in the order DSM presents them.
     var requirements: [String] {
         var rules: [String] = []
         if let minimumLength {
@@ -149,10 +149,9 @@ struct DSMPasswordPolicy: nonisolated Decodable, Equatable, Sendable {
         return rules
     }
 
-    /// Mot de passe aléatoire respectant les règles connues du NAS, ou des règles saines
-    /// quand il ne les expose pas. Les caractères qui se confondent à la lecture et à
-    /// l'écoute (l, 1, I, O, 0) sont exclus : ce mot de passe est fait pour être relu,
-    /// dicté ou recopié.
+    /// Random password meeting the NAS's known rules, or sane rules when it does not expose
+    /// them. Characters that are easy to confuse when read and when heard (l, 1, I, O, 0) are
+    /// excluded: this password is meant to be re-read, dictated or copied out.
     static func generatedPassword(for policy: DSMPasswordPolicy?) -> String {
         let lowercase = Array("abcdefghijkmnpqrstuvwxyz")
         let uppercase = Array("ABCDEFGHJKLMNPQRSTUVWXYZ")
@@ -166,7 +165,7 @@ struct DSMPasswordPolicy: nonisolated Decodable, Equatable, Sendable {
         let alphabet = required.flatMap { $0 }
         let length = max(16, policy?.minimumLength ?? 0)
 
-        // Une occurrence garantie par classe exigée, le reste tiré dans l'alphabet complet.
+        // One guaranteed occurrence per required class, the rest drawn from the full alphabet.
         var characters = required.map { $0.randomElement()! }
         while characters.count < length {
             characters.append(alphabet.randomElement()!)
@@ -191,8 +190,8 @@ struct DSMPasswordPolicy: nonisolated Decodable, Equatable, Sendable {
     nonisolated init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         let rules = try values.nestedContainer(keyedBy: RuleKeys.self, forKey: .strongPassword)
-        // DSM conserve « min_length » même quand la règle est désactivée : c'est le drapeau
-        // qui décide, pas la valeur.
+        // DSM keeps "min_length" even when the rule is disabled: the flag decides, not the
+        // value.
         let lengthEnabled = rules.flexBool(.minLengthEnable) ?? false
         minimumLength = lengthEnabled ? rules.flexInt(.minLength) : nil
         requiresMixedCase = rules.flexBool(.mixedCase) ?? false

@@ -2,12 +2,12 @@
 //  ResourceMonitorHistoryViewModel.swift
 //  dsmaccess
 //
-//  Onglet Historique du moniteur de ressources : les alertes que le NAS a enregistrées quand
-//  une ressource a franchi un seuil.
+//  History tab of the resource monitor: the alerts the NAS recorded when a resource crossed a
+//  threshold.
 //
-//  Le journal ne se remplit que si l'enregistrement est actif, et DSM le laisse désactivé par
-//  défaut. L'état du réglage est donc chargé avec les entrées : sans lui, un journal vide se
-//  lirait comme un NAS sans le moindre incident.
+//  The log only fills up while recording is on, and DSM leaves it off by default. The state of
+//  that setting is therefore loaded along with the entries: without it, an empty log would read
+//  as a NAS without a single incident.
 //
 
 import Foundation
@@ -16,20 +16,20 @@ import Observation
 @MainActor
 @Observable
 final class ResourceMonitorHistoryViewModel {
-    /// Le NAS conserve son journal aussi longtemps que l'enregistrement reste actif. La page
-    /// est large mais bornée, et l'écran dit ce qu'il ne montre pas.
+    /// The NAS keeps its log for as long as recording stays on. The page is large but bounded,
+    /// and the screen says what it is not showing.
     static let pageLimit = 1000
 
     private(set) var entries: [ResourceMonitorLogEntry] = []
-    /// Total renvoyé par le NAS, qui peut dépasser ce qui est chargé.
+    /// Total returned by the NAS, which can exceed what is loaded.
     private(set) var totalCount = 0
-    /// `nil` tant que le réglage n'a pas été lu : l'écran ne conclut rien avant de savoir.
+    /// `nil` until the setting has been read: the screen concludes nothing before it knows.
     private(set) var historyEnabled: Bool?
-    /// Nombre de règles d'alarme, lu seulement quand le journal est vide. `nil` quand la
-    /// question ne se pose pas ou que le NAS a refusé de répondre.
+    /// Number of alarm rules, read only when the log is empty. `nil` when the question does
+    /// not arise or when the NAS refused to answer.
     private(set) var alarmRuleCount: Int?
     private(set) var isLoading = false
-    /// Vrai le temps d'un changement du réglage, pour désarmer l'interrupteur.
+    /// True while the setting is being changed, to disarm the switch.
     private(set) var isUpdatingSetting = false
     var errorMessage: String?
 
@@ -55,8 +55,8 @@ final class ResourceMonitorHistoryViewModel {
             }
             guard generation == loadGeneration else { return }
             historyEnabled = enabled
-            // Ordre de départ stable, de l'alerte la plus récente à la plus ancienne, comme
-            // DSM. Le tri visible reste celui que l'utilisateur choisit sur les en-têtes.
+            // Stable starting order, from the most recent alert to the oldest, like DSM. The
+            // visible sort remains the one the user picks on the headers.
             entries = page.entries.sorted { $0.sortableDate > $1.sortableDate }
             totalCount = page.total ?? entries.count
             if entries.isEmpty, enabled {
@@ -76,9 +76,9 @@ final class ResourceMonitorHistoryViewModel {
         }
     }
 
-    /// Active ou coupe l'enregistrement de l'historique. Activer ne produit rien
-    /// rétroactivement : le message le dit, pour que l'écran resté vide ne passe pas pour un
-    /// réglage sans effet.
+    /// Turns history recording on or off. Turning it on produces nothing retroactively: the
+    /// message says so, so that a screen that stays empty is not mistaken for a setting with
+    /// no effect.
     func setHistoryEnabled(_ enabled: Bool) async -> DSMOperationOutcome {
         isUpdatingSetting = true
         defer { isUpdatingSetting = false }
@@ -100,24 +100,24 @@ final class ResourceMonitorHistoryViewModel {
         }
     }
 
-    /// Le journal est vide : reste à savoir si c'est faute d'incident ou faute de règle
-    /// capable d'en signaler un. L'échec de cette lecture n'est pas remonté comme une erreur
-    /// de l'écran — le journal, lui, a bien été chargé, et l'état vide se contente alors du
-    /// message général.
+    /// The log is empty: it remains to be seen whether that is for lack of an incident or for
+    /// lack of a rule able to report one. A failure of this read is not surfaced as a screen
+    /// error — the log itself did load, and the empty state then settles for the general
+    /// message.
     private func alarmRules() async -> Int? {
         try? await session.withClient { try await $0.performanceAlarmRules().rules.count }
     }
 
-    /// Horodatage rendu dans la langue du Mac. Un tiret quand DSM a envoyé une forme que nous
-    /// n'avons pas su lire : l'alerte reste listée, sans date inventée.
+    /// Timestamp rendered in the Mac's language. A dash when DSM sent a form we could not
+    /// read: the alert stays listed, with no invented date.
     func dateText(for entry: ResourceMonitorLogEntry) -> String {
         guard let recordedAt = entry.recordedAt else { return "—" }
         return recordedAt.formatted(date: .abbreviated, time: .standard)
     }
 
-    /// Gravité en toutes lettres. DSM envoie ses niveaux en anglais et les traduit dans son
-    /// propre client ; une valeur inconnue est reprise telle quelle plutôt que rangée d'office
-    /// dans un niveau existant.
+    /// Severity spelled out. DSM sends its levels in English and translates them in its own
+    /// client; an unknown value is passed through as-is rather than forced into an existing
+    /// level.
     func levelText(for entry: ResourceMonitorLogEntry) -> String {
         switch entry.level {
         case .information: String(localized: "common.level.information")
@@ -131,7 +131,7 @@ final class ResourceMonitorHistoryViewModel {
         entry.event ?? String(localized: "monitor.history.alert.no_description")
     }
 
-    /// Vrai quand le NAS en conserve plus que ce qui a été chargé.
+    /// True when the NAS keeps more than what was loaded.
     var isTruncated: Bool { totalCount > entries.count }
 
     var summary: String {

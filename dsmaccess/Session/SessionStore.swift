@@ -2,8 +2,8 @@
 //  SessionStore.swift
 //  dsmaccess
 //
-//  État de session partagé de l'app : client connecté, capacités et hôte.
-//  Observé par RootView pour basculer entre l'écran de connexion et le contenu.
+//  Shared session state of the app: connected client, capabilities and host.
+//  Observed by RootView to switch between the sign-in screen and the content.
 //
 
 import Foundation
@@ -12,27 +12,27 @@ import Observation
 @MainActor
 @Observable
 final class SessionStore {
-    /// Endpoint du NAS actuellement connecté (nil si déconnecté).
+    /// Endpoint of the currently connected NAS (nil when disconnected).
     private(set) var endpoint: DSMEndpoint?
-    /// Identité stable ayant produit l'endpoint courant.
+    /// Stable identity that produced the current endpoint.
     private(set) var connectionTarget: NASConnectionTarget?
-    /// Le client possède la session DSM et reste la seule source du SID et du SynoToken.
+    /// The client owns the DSM session and remains the only source of the SID and SynoToken.
     private var client: DSMClientProtocol?
     private var generation = 0
-    /// API réellement exposées par le DSM et ses paquets installés.
+    /// APIs actually exposed by DSM and its installed packages.
     private(set) var capabilities = DSMCapabilities()
-    /// NAS enregistrés. Les mots de passe restent exclusivement dans le Trousseau.
+    /// Saved NAS devices. Passwords stay exclusively in the Keychain.
     private(set) var profiles: [NASProfile]
     private(set) var activeProfileID: UUID?
     private var requestedProfileID: UUID?
     private var requestsBlankConnection = false
 
-    /// Motif d'une déconnexion imposée, consommé par l'écran de connexion.
+    /// Reason for a forced disconnection, consumed by the sign-in screen.
     private(set) var disconnectionMessage: String?
 
-    /// Avis présenté dans l'interface connectée quand la session a été rétablie
-    /// automatiquement après une expiration : sans lui, l'utilisateur revient sur la vue
-    /// d'ensemble sans savoir que son opération a été interrompue.
+    /// Notice presented in the connected interface when the session was automatically
+    /// re-established after an expiration: without it, the user returns to the overview
+    /// without knowing that their operation was interrupted.
     private(set) var reconnectionNotice: String?
 
     var isLoggedIn: Bool { client != nil }
@@ -58,7 +58,7 @@ final class SessionStore {
         }
     }
 
-    /// Enregistre une session ouverte après un login réussi.
+    /// Records an open session after a successful login.
     func establish(
         target: NASConnectionTarget,
         endpoint: DSMEndpoint,
@@ -80,15 +80,15 @@ final class SessionStore {
         )
     }
 
-    /// Exécute toute opération avec le client de la session et invalide l'ensemble de
-    /// l'état si DSM signale une expiration. Les vues ne manipulent jamais le SID.
+    /// Runs any operation with the session's client and invalidates the whole state if DSM
+    /// reports an expiration. Views never handle the SID.
     func withClient<Value>(
         _ operation: (DSMClientProtocol) async throws -> Value
     ) async throws -> Value {
         guard let client else {
-            // Une tâche appartenant à une vue disparue peut arriver ici après une
-            // déconnexion volontaire. Elle ne doit pas transformer ce logout en
-            // fausse expiration de session sur l'écran de connexion.
+            // A task belonging to a view that is gone can reach this point after a
+            // deliberate disconnection. It must not turn that logout into a bogus
+            // session expiration on the sign-in screen.
             throw DSMError.cancelled
         }
         let operationGeneration = generation
@@ -107,9 +107,9 @@ final class SessionStore {
         }
     }
 
-    /// Demande à l'hôte s'il a fini de démarrer, sans passer par `withClient` : pendant un
-    /// redémarrage il n'y a plus de session, et la garde de génération rejetterait la réponse.
-    /// Répond faux si le NAS est injoignable — c'est le cas attendu tant qu'il redémarre.
+    /// Asks the host whether it has finished booting, without going through `withClient`:
+    /// during a reboot there is no session left, and the generation guard would reject the
+    /// answer. Returns false if the NAS is unreachable — the expected case while it reboots.
     func isNASBackOnline() async -> Bool {
         guard let client else { return false }
         return await client.isNASBackOnline()
@@ -122,8 +122,8 @@ final class SessionStore {
         try? await activeClient?.logout()
     }
 
-    /// Une session fermée ou invalidée par le NAS ne doit pas être réessayée au prochain
-    /// lancement : l'app y perdrait un aller-retour et l'utilisateur, une explication.
+    /// A session closed or invalidated by the NAS must not be retried at the next launch:
+    /// the app would waste a round trip, and the user would lose an explanation.
     private func forgetStoredSession() {
         guard let profile = activeProfile else { return }
         CredentialStore.forgetSession(account: profile.account, target: profile.connection)
@@ -197,8 +197,8 @@ final class SessionStore {
         return disconnectionMessage
     }
 
-    /// À appeler après une reconnexion automatique consécutive à une expiration,
-    /// quand l'écran de connexion n'a été qu'un état transitoire invisible.
+    /// To be called after an automatic reconnection following an expiration, when the
+    /// sign-in screen was only an invisible transient state.
     func publishAutomaticReconnectionNotice() {
         reconnectionNotice = String(
             localized: "session.reconnected.description"
@@ -209,7 +209,7 @@ final class SessionStore {
         reconnectionNotice = nil
     }
 
-    /// Réinitialise l'état (après logout ou expiration de session).
+    /// Resets the state (after logout or session expiration).
     func clear() {
         generation += 1
         connectionTarget = nil

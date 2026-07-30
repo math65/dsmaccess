@@ -2,23 +2,23 @@
 //  FileStationItem.swift
 //  dsmaccess
 //
-//  Un élément (dossier ou fichier) renvoyé par SYNO.FileStation.List, que ce soit
-//  un dossier partagé racine (method=list_share) ou le contenu d'un dossier (method=list).
+//  An item (folder or file) returned by SYNO.FileStation.List, whether a root shared
+//  folder (method=list_share) or the contents of a folder (method=list).
 //
 
 import Foundation
 
-/// Dossier ou fichier tel que décrit par File Station.
+/// Folder or file as described by File Station.
 struct FileStationItem: nonisolated Decodable, Equatable, Identifiable, Sendable {
-    /// Nom affiché (ex. « photo », « vacances.jpg »).
+    /// Displayed name (e.g. "photo", "holidays.jpg").
     let name: String
-    /// Chemin absolu côté NAS (ex. « /photo/vacances.jpg ») — sert de clé de navigation.
+    /// Absolute path on the NAS (e.g. "/photo/holidays.jpg") — used as the navigation key.
     let path: String
-    /// Vrai si c'est un dossier (donc dépliable), faux si c'est un fichier.
+    /// True if this is a folder (hence expandable), false if it is a file.
     let isdir: Bool
-    /// Métadonnées optionnelles (taille, dates) demandées via le paramètre `additional`.
+    /// Optional metadata (size, dates) requested through the `additional` parameter.
     let additional: Additional?
-    /// Contenu renvoyé par `goto_path`, lorsqu'il est demandé.
+    /// Contents returned by `goto_path`, when requested.
     let children: FileStationChildren?
 
     var id: String { path }
@@ -37,7 +37,7 @@ struct FileStationItem: nonisolated Decodable, Equatable, Identifiable, Sendable
     }
 
     struct Additional: nonisolated Decodable, Equatable, Sendable {
-        /// Taille en octets (fichiers uniquement).
+        /// Size in bytes (files only).
         let size: Int64?
         let time: TimeInfo?
         let owner: OwnerInfo?
@@ -69,7 +69,7 @@ struct FileStationItem: nonisolated Decodable, Equatable, Identifiable, Sendable
     }
 
     struct TimeInfo: nonisolated Decodable, Equatable, Sendable {
-        /// Date de dernière modification, en secondes depuis l'époque Unix.
+        /// Last modification date, in seconds since the Unix epoch.
         let mtime: Int?
         let atime: Int?
         let ctime: Int?
@@ -222,7 +222,7 @@ extension FileStationItem {
         return supportedExtensions.contains((name as NSString).pathExtension.lowercased())
     }
 
-    /// Ligne secondaire d'un fichier : « 2,3 Mo · 12 mars 2024 » (nil pour un dossier).
+    /// Secondary line for a file: "2.3 MB · 12 Mar 2024" (nil for a folder).
     var detailText: String? {
         guard !isdir else { return nil }
         var parts: [String] = []
@@ -236,14 +236,14 @@ extension FileStationItem {
         return parts.isEmpty ? nil : parts.joined(separator: " · ")
     }
 
-    /// Nom du fichier matérialisé côté Mac lors d'un téléchargement ou d'un dépôt
-    /// dans le Finder : DSM livre un dossier sous forme d'archive ZIP.
-    /// `nonisolated` : lu par les délégués de promesses hors du MainActor.
+    /// Name of the file materialized on the Mac during a download or a drop into the Finder:
+    /// DSM delivers a folder as a ZIP archive.
+    /// `nonisolated`: read by the promise delegates outside the MainActor.
     nonisolated var promisedFileName: String {
         isdir ? "\(name).zip" : name
     }
 
-    /// Libellé complet lu par VoiceOver : « photo, dossier » ou « a.jpg, fichier, 2,3 Mo · 12 mars 2024 ».
+    /// Full label read by VoiceOver: "photo, folder" or "a.jpg, file, 2.3 MB · 12 Mar 2024".
     var accessibilityLabel: String {
         let kind = isdir ? String(localized: "files.item.kind.folder") : String(localized: "files.item.kind.file")
         var label = "\(name), \(kind)"
@@ -255,7 +255,7 @@ extension FileStationItem {
 }
 
 extension Array where Element == FileStationItem {
-    /// Tri d'affichage : dossiers avant fichiers, puis par nom respectueux de la locale.
+    /// Display order: folders before files, then by name using a locale-aware comparison.
     func sortedForBrowsing() -> [FileStationItem] {
         sorted { lhs, rhs in
             if lhs.isdir != rhs.isdir { return lhs.isdir && !rhs.isdir }
@@ -264,7 +264,7 @@ extension Array where Element == FileStationItem {
     }
 }
 
-/// Charge utile de `method=list_share` : les dossiers partagés à la racine.
+/// Payload of `method=list_share`: the shared folders at the root.
 struct FileStationShares: nonisolated Decodable, Sendable {
     let total: Int
     let offset: Int
@@ -282,7 +282,7 @@ struct FileStationShares: nonisolated Decodable, Sendable {
     }
 }
 
-/// Charge utile de `method=list` : le contenu d'un dossier.
+/// Payload of `method=list`: the contents of a folder.
 struct FileStationFiles: nonisolated Decodable, Sendable {
     let total: Int
     let offset: Int
@@ -369,7 +369,7 @@ struct FileStationFavorite: nonisolated Decodable, Equatable, Identifiable, Send
     }
 }
 
-/// Réponse de `SYNO.FileStation.CopyMove` `method=start` : l'identifiant de tâche à suivre.
+/// Response of `SYNO.FileStation.CopyMove` `method=start`: the task identifier to follow.
 struct CopyMoveTask: nonisolated Decodable, Sendable {
     let taskid: String
 }
@@ -378,7 +378,7 @@ struct FileOperationTask: nonisolated Decodable, Sendable {
     let taskid: String
 }
 
-/// Réponse de `SYNO.FileStation.Sharing` `method=create` : les liens de partage créés.
+/// Response of `SYNO.FileStation.Sharing` `method=create`: the share links created.
 struct SharingLinks: nonisolated Decodable, Sendable {
     let total: Int?
     let offset: Int?
@@ -419,14 +419,14 @@ struct FileStationCreatedShareLink: nonisolated Decodable, Sendable {
         url = container.flexString(.url)
         path = container.flexString(.path)
         qrCode = container.flexString(.qrCode)
-        // Tous les NAS ne renvoient pas `error` quand la création réussit. L'exiger rendait
-        // la réponse entière illisible et faisait échouer un partage pourtant créé.
+        // Not every NAS returns `error` when creation succeeds. Requiring it made the whole
+        // response undecodable and failed a share that had in fact been created.
         errorCode = container.flexInt(.errorCode) ?? 0
     }
 }
 
-/// Un lien de partage : identifiant, URL publique, et chemin de l'élément partagé
-/// (`path` n'est renvoyé qu'au listing, pas à la création).
+/// A share link: identifier, public URL, and path of the shared item
+/// (`path` is only returned when listing, not on creation).
 struct SharingLink: nonisolated Decodable, Equatable, Identifiable, Sendable {
     let id: String
     let url: String

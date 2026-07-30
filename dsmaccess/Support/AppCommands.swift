@@ -2,7 +2,7 @@
 //  AppCommands.swift
 //  dsmaccess
 //
-//  Commandes de barre des menus reliées à la fenêtre active.
+//  Menu bar commands wired to the active window.
 //
 
 import SwiftUI

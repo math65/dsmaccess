@@ -2,21 +2,21 @@
 //  ResourceMonitorLogEntry.swift
 //  dsmaccess
 //
-//  Historique du moniteur de ressources (SYNO.ResourceMonitor.Log list) : les alertes que le
-//  NAS a enregistrées quand une ressource a franchi un seuil.
+//  Resource monitor history (SYNO.ResourceMonitor.Log list): the alerts the NAS recorded
+//  when a resource crossed a threshold.
 //
-//  Deux particularités relevées sur DSM 7.4 :
-//  — `time` n'est **pas** complété à deux chiffres, à la différence de `CurrentConnection` :
-//    le client web le lit avec « Y/n/j G:i:s », donc « 2026/7/30 9:05:12 » est une valeur
-//    normale. Un format rigide en « aaaa/MM/jj » ne la reconnaîtrait pas.
-//  — `level` arrive en anglais dans la charge utile ; c'est le client qui traduit. Affiché
-//    tel quel, l'écran parlerait anglais à un utilisateur français.
+//  Two quirks observed on DSM 7.4:
+//  — `time` is **not** zero-padded, unlike `CurrentConnection`: the web client reads it with
+//    “Y/n/j G:i:s”, so “2026/7/30 9:05:12” is a normal value. A rigid “yyyy/MM/dd” format
+//    would not recognize it.
+//  — `level` arrives in English in the payload; it is the client that translates. Displayed
+//    as is, the screen would speak English to a French user.
 //
 
 import Foundation
 
-/// Réglages du moniteur de ressources (SYNO.ResourceMonitor.Setting get). DSM n'en expose
-/// qu'un : l'enregistrement de l'historique. Sans lui, le journal reste vide indéfiniment.
+/// Resource monitor settings (SYNO.ResourceMonitor.Setting get). DSM exposes only one:
+/// history recording. Without it, the log stays empty indefinitely.
 struct ResourceMonitorSetting: nonisolated Decodable, Sendable {
     let historyEnabled: Bool
 
@@ -32,7 +32,7 @@ struct ResourceMonitorSetting: nonisolated Decodable, Sendable {
 
 struct ResourceMonitorLogPage: nonisolated Decodable, Sendable {
     let entries: [ResourceMonitorLogEntry]
-    /// Nombre total d'entrées conservées par le NAS, indépendant de la page demandée.
+    /// Total number of entries kept by the NAS, independent of the requested page.
     let total: Int?
 
     enum CodingKeys: String, CodingKey {
@@ -42,8 +42,8 @@ struct ResourceMonitorLogPage: nonisolated Decodable, Sendable {
     nonisolated init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         let decoded = try c.decodeIfPresent([ResourceMonitorLogEntry].self, forKey: .logs) ?? []
-        // Le NAS n'attribue aucun identifiant et deux alertes identiques peuvent tomber dans
-        // la même seconde : le rang dans la page est la seule identité qui les distingue.
+        // The NAS assigns no identifier and two identical alerts can land within the same
+        // second: the rank within the page is the only identity that tells them apart.
         entries = decoded.enumerated().map { offset, entry in
             var positioned = entry
             positioned.position = offset
@@ -54,41 +54,41 @@ struct ResourceMonitorLogPage: nonisolated Decodable, Sendable {
 }
 
 struct ResourceMonitorLogEntry: nonisolated Decodable, Sendable, Identifiable {
-    /// Rang dans la page renvoyée, attribué au décodage. Le NAS ne fournit pas de clé.
+    /// Rank within the returned page, assigned at decoding time. The NAS provides no key.
     fileprivate(set) var position = 0
-    /// Horodatage brut du NAS, dont les composantes ne sont pas complétées à deux chiffres.
+    /// Raw NAS timestamp, whose components are not zero-padded.
     let rawTime: String?
     let level: Level
-    /// Description de l'alerte, telle que le NAS l'a écrite.
+    /// Description of the alert, exactly as the NAS wrote it.
     let event: String?
 
     var id: Int { position }
 
-    /// Horodatage rendu dans la langue et le fuseau du Mac. DSM n'indique pas le fuseau de sa
-    /// valeur : elle est lue comme locale, ce qui est juste tant que le NAS et le Mac
-    /// partagent le même. La chaîne brute sert de repli plutôt que de n'afficher rien.
+    /// Timestamp rendered in the Mac's language and time zone. DSM does not state the time
+    /// zone of its value: it is read as local, which is correct as long as the NAS and the Mac
+    /// share the same one. The raw string serves as a fallback rather than displaying nothing.
     var recordedAt: Date? {
         guard let rawTime else { return nil }
         return Self.nasFormatter.date(from: rawTime)
     }
 
-    /// Clés de tri non optionnelles : une valeur absente se range en tête plutôt que
-    /// d'empêcher le tri de sa colonne.
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
     var sortableDate: Date { recordedAt ?? .distantPast }
     var sortableEvent: String { event ?? "" }
-    /// Trié par gravité décroissante et non par ordre alphabétique : classer « Critique »
-    /// après « Information » n'aurait aucun sens pour l'utilisateur.
+    /// Sorted by decreasing severity and not alphabetically: ranking “Critical” after
+    /// “Information” would make no sense to the user.
     var sortableLevel: Int { level.severity }
 
-    /// Gravité de l'alerte. DSM n'en connaît que trois ; une quatrième valeur serait une
-    /// évolution de DSM, conservée telle quelle plutôt que rangée d'office dans l'une d'elles.
+    /// Severity of the alert. DSM only knows three; a fourth value would be a DSM evolution,
+    /// kept as is rather than forcibly filed under one of them.
     enum Level: nonisolated Sendable, Equatable {
         case information
         case warning
         case critical
         case other(String)
 
-        /// Ordre de gravité croissant, pour le tri de la colonne.
+        /// Increasing severity order, for sorting the column.
         var severity: Int {
             switch self {
             case .information: 0
@@ -120,9 +120,9 @@ struct ResourceMonitorLogEntry: nonisolated Decodable, Sendable, Identifiable {
         event = c.flexString(.event).flatMap { $0.isEmpty ? nil : $0 }
     }
 
-    /// Composantes à un chiffre dans le motif : DateFormatter accepte alors les deux formes,
-    /// complétée ou non. `CurrentConnection` reçoit un horodatage complété et emploie un motif
-    /// rigide ; les deux API du même module ne s'écrivent pas de la même façon.
+    /// Single-digit components in the pattern: DateFormatter then accepts both forms, padded
+    /// or not. `CurrentConnection` receives a padded timestamp and uses a rigid pattern; the
+    /// two APIs of the same module are not written the same way.
     private static let nasFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

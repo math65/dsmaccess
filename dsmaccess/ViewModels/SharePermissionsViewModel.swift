@@ -2,8 +2,8 @@
 //  SharePermissionsViewModel.swift
 //  dsmaccess
 //
-//  État de l'écran des permissions d'un compte ou d'un groupe : dossiers partagés et
-//  applications, enregistrés ensemble.
+//  State of the permissions screen for an account or a group: shared folders and
+//  applications, saved together.
 //
 
 import Foundation
@@ -15,19 +15,19 @@ final class SharePermissionsViewModel {
     let holder: DSMPermissionHolder
     private(set) var permissions: [DSMSharePermission] = []
     private(set) var applications: [DSMApplicationPrivilege] = []
-    /// Groupes du NAS et appartenance du compte. Vide pour un groupe : un groupe n'appartient
-    /// à rien, et DSM ne lui propose pas non plus cet onglet.
+    /// The NAS groups and the account's membership. Empty for a group: a group belongs to
+    /// nothing, and DSM does not offer it this tab either.
     private(set) var groups: [DSMGroup] = []
     private(set) var memberships: Set<String> = []
     private(set) var isLoading = false
     private(set) var isSaving = false
-    /// Le NAS peut exposer les dossiers sans exposer les applications : le volet dit alors
-    /// pourquoi il est vide au lieu de laisser croire qu'aucune application n'existe.
+    /// The NAS can expose folders without exposing applications: the pane then says why it
+    /// is empty instead of implying no application exists.
     private(set) var applicationsUnavailable: String?
     var errorMessage: String?
 
     private let session: SessionStore
-    /// État tel que le NAS l'a renvoyé, pour n'envoyer que les lignes réellement changées.
+    /// State as the NAS returned it, so only the rows that actually changed get sent.
     private var loadedShares: [String: DSMSharePermissionLevel?] = [:]
     private var loadedApplications: [String: DSMApplicationDecision?] = [:]
     private var loadedMemberships: Set<String> = []

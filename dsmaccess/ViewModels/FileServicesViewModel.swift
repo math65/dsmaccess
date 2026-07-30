@@ -2,31 +2,31 @@
 //  FileServicesViewModel.swift
 //  dsmaccess
 //
-//  Charge l'état des services de fichiers (SMB, NFS, FTP et rsync) et pilote leur
-//  activation/désactivation. Chaque service est interrogé indépendamment : si l'un
-//  échoue, les autres restent utilisables. Les actions renvoient un message déjà
-//  localisé à annoncer à VoiceOver.
+//  Loads the state of the file services (SMB, NFS, FTP and rsync) and drives their
+//  enabling/disabling. Each service is queried independently: if one fails, the
+//  others stay usable. The actions return an already localized message to be
+//  announced to VoiceOver.
 //
 
 import Foundation
 import Observation
 
-/// État affiché d'un service de fichiers.
+/// Displayed state of a file service.
 enum FileServiceState: Equatable {
     case on
     case off
-    case unknown          // Drapeau absent de la réponse.
-    case failed(String)   // erreur réseau ou API
+    case unknown          // Flag missing from the response.
+    case failed(String)   // network or API error
 }
 
 @MainActor
 @Observable
 final class FileServicesViewModel {
-    /// Services affichés, dans l'ordre.
+    /// Services displayed, in order.
     let services = FileService.allCases
     private(set) var states: [FileService: FileServiceState] = [:]
     private(set) var isLoading = false
-    /// Services dont une bascule est en cours (bouton désactivé le temps de l'appel).
+    /// Services with a toggle in flight (button disabled for the duration of the call).
     private(set) var busy: Set<FileService> = []
 
     private let session: SessionStore
@@ -49,7 +49,7 @@ final class FileServicesViewModel {
         states = loadedStates
     }
 
-    /// Bascule un service. Renvoie le message à annoncer à VoiceOver.
+    /// Toggles a service. Returns the message to announce to VoiceOver.
     func setEnabled(_ service: FileService, _ enabled: Bool) async -> DSMOperationOutcome {
         busy.insert(service)
         defer { busy.remove(service) }
@@ -69,7 +69,7 @@ final class FileServicesViewModel {
         }
     }
 
-    /// Résumé annoncé une fois le chargement terminé.
+    /// Summary announced once loading has finished.
     var summary: String {
         let on = states.values.filter { $0 == .on }.count
         return String(localized: "file_services.summary", defaultValue: "File services: \(on) of \(services.count) enabled")

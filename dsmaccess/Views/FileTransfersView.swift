@@ -2,7 +2,7 @@
 //  FileTransfersView.swift
 //  dsmaccess
 //
-//  File d'attente accessible des transferts File Station.
+//  Accessible queue of File Station transfers.
 //
 
 import SwiftUI

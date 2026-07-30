@@ -2,7 +2,7 @@
 //  USBCopyView.swift
 //  dsmaccess
 //
-//  Gestion native et accessible des tâches USB Copy.
+//  Native, accessible management of USB Copy tasks.
 //
 
 import SwiftUI

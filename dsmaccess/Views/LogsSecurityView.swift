@@ -2,10 +2,10 @@
 //  LogsSecurityView.swift
 //  dsmaccess
 //
-//  Journal système du NAS et liste de blocage du blocage automatique, en tableaux triables.
+//  The NAS system log and the auto-block block list, as sortable tables.
 //
-//  Deux onglets et non deux sections empilées : le journal se parcourt, la liste de blocage
-//  s'agit dessus, et mêler les deux obligeait à traverser l'un pour atteindre l'autre.
+//  Two tabs rather than two stacked sections: the log is browsed, the block list is acted
+//  on, and mixing the two forced the user to cross one to reach the other.
 //
 
 import AppKit
@@ -44,10 +44,9 @@ struct LogsSecurityView: View {
         VStack(spacing: 0) {
             TabView(selection: $pane) {
                 logsPane
-                    // Le champ va dans la barre d'outils, comme dans tous les autres modules.
-                    // Il n'est posé que sur cet onglet : la recherche part au NAS, qui filtre
-                    // le journal entier, et n'a rien à faire pour une liste de blocage de
-                    // quelques lignes.
+                    // The field goes in the toolbar, as in every other module. It is placed on
+                    // this tab only: the search goes to the NAS, which filters the whole log,
+                    // and has nothing to do for a block list of a few rows.
                     .searchable(text: $vm.searchText, prompt: "common.field.search_log")
                     .tabItem { Text("common.label.log") }
                     .tag(Pane.logs)
@@ -63,8 +62,8 @@ struct LogsSecurityView: View {
             }
         }
         .toolbar {
-            // Le choix du journal et le filtre de niveau accompagnent le champ de recherche
-            // dans la barre d'outils, et ne concernent que l'onglet du journal.
+            // The log picker and the level filter sit alongside the search field in the
+            // toolbar, and concern the log tab only.
             if pane == .logs {
                 ToolbarItem {
                     Picker(
@@ -146,7 +145,7 @@ struct LogsSecurityView: View {
         return String(localized: "logs.security.unblock.confirm.multiple", defaultValue: "Unblock \(pendingUnblock.count) addresses?")
     }
 
-    // MARK: - Journal
+    // MARK: - Log
 
     @ViewBuilder
     private var logsPane: some View {
@@ -212,9 +211,9 @@ struct LogsSecurityView: View {
         }
     }
 
-    /// Les colonnes suivent le journal affiché : un journal de transfert n'attribue pas de
-    /// gravité mais donne l'adresse d'origine, l'opération et la taille du fichier. Deux
-    /// tableaux distincts plutôt qu'un seul aux colonnes toujours à moitié vides.
+    /// The columns follow the displayed log: a transfer log assigns no severity but gives the
+    /// source address, the operation and the file size. Two distinct tables rather than a
+    /// single one whose columns are always half empty.
     @ViewBuilder
     private var logTable: some View {
         if vm.showsTransferColumns {
@@ -243,8 +242,8 @@ struct LogsSecurityView: View {
                 TableColumn("logs.column.time", value: \.sortableDate) { entry in
                     Text(vm.dateText(for: entry))
                 }
-                // Triée par gravité et non par ordre alphabétique : « Erreur » doit se ranger
-                // après « Avertissement ».
+                // Sorted by severity and not alphabetically: "Error" must come after
+                // "Warning".
                 TableColumn("common.column.level", value: \.sortableLevel) { entry in
                     Text(vm.levelText(entry.level))
                         .foregroundStyle(color(for: entry.level))
@@ -262,10 +261,10 @@ struct LogsSecurityView: View {
         }
     }
 
-    // MARK: - Connexions signalées
+    // MARK: - Flagged sign-ins
 
-    /// Ce que le Conseiller de sécurité de DSM a relevé : connexions venues d'ailleurs que
-    /// d'habitude, et tentatives répétées. Lecture seule — c'est la liste de blocage qui agit.
+    /// What DSM's Security Advisor noticed: sign-ins coming from somewhere other than usual,
+    /// and repeated attempts. Read-only — the block list is what acts.
     @ViewBuilder
     private var loginActivityPane: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -290,7 +289,7 @@ struct LogsSecurityView: View {
                     TableColumn("common.column.date", value: \.sortableDate) { event in
                         Text(vm.dateText(for: event))
                     }
-                    // Triée par gravité, non par ordre alphabétique.
+                    // Sorted by severity, not alphabetically.
                     TableColumn("common.column.severity", value: \.sortableSeverity) { event in
                         Text(vm.severityText(event.severity))
                             .foregroundStyle(color(for: event.severity))
@@ -323,7 +322,7 @@ struct LogsSecurityView: View {
         }
     }
 
-    // MARK: - Liste de blocage
+    // MARK: - Block list
 
     @ViewBuilder
     private var blockListPane: some View {
@@ -335,9 +334,9 @@ struct LogsSecurityView: View {
                 .padding(.top, 8)
 
             if let error = vm.blockedAddressesError {
-                // Un compte sans privilège d'administration se voit refuser cette liste : le
-                // dire, plutôt que de présenter une liste vide qui se lirait comme un NAS sans
-                // adresse bloquée.
+                // An account without administration privilege is denied this list: say so,
+                // rather than showing an empty list that would read as a NAS with no blocked
+                // address.
                 ModuleErrorView(message: error) {
                     Task { await vm.load(announce: true) }
                 }
@@ -382,8 +381,8 @@ struct LogsSecurityView: View {
         }
     }
 
-    /// L'export est produit par le NAS puis écrit là où l'utilisateur le demande. Le panneau
-    /// d'enregistrement est celui du système, comme pour les téléchargements de File Station.
+    /// The export is produced by the NAS then written where the user asks. The save panel is
+    /// the system one, as for File Station downloads.
     private func export(as format: SystemLogExportFormat) {
         let panel = NSSavePanel()
         panel.nameFieldStringValue = vm.suggestedExportName(for: format)
@@ -404,10 +403,10 @@ struct LogsSecurityView: View {
         }
     }
 
-    // MARK: - Réglages
+    // MARK: - Settings
 
-    /// Ce qui décide de ce que les autres onglets montrent : quels transferts sont journalisés,
-    /// et à partir de quand le NAS bloque une adresse.
+    /// What decides what the other tabs show: which transfers are logged, and at what point
+    /// the NAS blocks an address.
     @ViewBuilder
     private var settingsPane: some View {
         Form {
@@ -499,7 +498,7 @@ struct LogsSecurityView: View {
             .disabled(vm.isSavingSettings || !settings.isEnabled)
         }
 
-        // DSM code l'absence d'expiration par zéro : l'interrupteur dit la même chose en clair.
+        // DSM encodes "never expires" as zero: the switch says the same thing in plain words.
         Toggle(
             "logs.auto_block.expire.label",
             isOn: Binding(
@@ -544,7 +543,7 @@ struct LogsSecurityView: View {
         vm.blockedAddresses.filter { blockSelection.contains($0.id) }
     }
 
-    /// La couleur double le mot, elle ne le remplace pas : le niveau est toujours écrit.
+    /// The colour backs up the word, it does not replace it: the level is always written out.
     private func color(for level: SystemLogEntry.Level?) -> Color {
         switch level {
         case .error: .readableRed

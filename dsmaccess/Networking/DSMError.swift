@@ -2,62 +2,62 @@
 //  DSMError.swift
 //  dsmaccess
 //
-//  Erreurs de la couche réseau/API, avec messages en français prêts à afficher
-//  (et à faire lire par VoiceOver).
+//  Network/API layer errors, with ready-to-display French messages
+//  (also meant to be read aloud by VoiceOver).
 //
 
 import Foundation
 
 enum DSMError: Error, LocalizedError, Equatable {
-    /// Adresse du NAS invalide (URL non construisible).
+    /// Invalid NAS address (URL cannot be built).
     case invalidEndpoint
-    /// Problème réseau (hôte injoignable, délai dépassé, certificat refusé…).
+    /// Network problem (unreachable host, timeout, rejected certificate…).
     case network(String)
-    /// Certificat auto-signé ou non approuvé qui nécessite une décision explicite.
+    /// Self-signed or untrusted certificate that requires an explicit decision.
     case untrustedCertificate(fingerprint: String)
-    /// Réponse illisible (JSON non décodable). `detail` décrit l'échec en termes de
-    /// champs et de chemin, sans aucune valeur : il alimente le signalement.
+    /// Unreadable response (JSON cannot be decoded). `detail` describes the failure in terms
+    /// of fields and path, without any value: it feeds the report.
     case decoding(detail: String?)
-    /// Réponse HTTP inattendue.
+    /// Unexpected HTTP response.
     case invalidResponse
-    /// Requête annulée (vue quittée / requête remplacée) — à ignorer, pas un vrai échec.
+    /// Cancelled request (view left / request replaced) — to be ignored, not a real failure.
     case cancelled
-    /// L'API n'est pas exposée par ce NAS ou le paquet correspondant n'est pas installé.
+    /// The API is not exposed by this NAS, or the matching package is not installed.
     case unsupportedAPI(String)
-    /// Les versions exposées par le NAS ne satisfont pas les besoins de cette fonctionnalité.
+    /// The versions exposed by the NAS do not meet the needs of this feature.
     case unsupportedAPIVersion(String)
-    /// La session DSM n'existe plus ou a été invalidée.
+    /// The DSM session no longer exists or has been invalidated.
     case sessionExpired
-    /// Identifiants incorrects (code 400).
+    /// Incorrect credentials (code 400).
     case invalidCredentials
-    /// Compte désactivé (code 401).
+    /// Disabled account (code 401).
     case accountDisabled
-    /// Permission refusée (code 402).
+    /// Permission denied (code 402).
     case permissionDenied
-    /// Code de vérification à deux facteurs requis (code 403).
+    /// Two-factor verification code required (code 403).
     case needsOTP
-    /// Code de vérification incorrect (code 404).
+    /// Incorrect verification code (code 404).
     case badOTP
-    /// Double authentification obligatoire à activer côté compte (code 406).
+    /// Two-factor authentication is mandatory and must be enabled on the account (code 406).
     case otpEnforced
-    /// DSM exige un nouveau mot de passe avant d'ouvrir la session (code 410) : arrive après
-    /// une réinitialisation par l'administrateur quand le NAS impose le changement.
+    /// DSM requires a new password before opening the session (code 410): happens after a
+    /// reset by the administrator when the NAS enforces the change.
     case passwordMustChange
-    /// Le mot de passe ne satisfait pas les règles de force configurées sur le NAS.
+    /// The password does not satisfy the strength rules configured on the NAS.
     case weakPassword
-    /// Le compte a bien été créé, mais son ajout aux groupes demandés a échoué : l'opération
-    /// ne peut être ni présentée comme réussie, ni retentée à l'identique.
+    /// The account was indeed created, but adding it to the requested groups failed: the
+    /// operation can neither be presented as successful, nor retried as is.
     case userCreatedWithoutGroups(name: String)
-    /// Autre erreur API renvoyée par DSM.
+    /// Any other API error returned by DSM.
     case apiError(code: Int)
-    /// Le Centre de paquets exige une décision ou un assistant que l'app ne doit pas deviner.
+    /// Package Center requires a decision or a wizard that the app must not guess.
     case packageCenter(String)
-    /// Échec d'une opération groupée avec le détail du premier élément refusé par DSM.
+    /// Failure of a batch operation, with the detail of the first item DSM rejected.
     case itemOperationFailed(code: Int, item: String?, itemCode: Int)
 
-    /// Une session reprise n'est validée que par un appel authentifié. Ces refus-là
-    /// viennent du NAS **après** nous avoir identifiés : ils prouvent que la session vit,
-    /// contrairement à un incident réseau, qui ne prouve rien.
+    /// A resumed session is only validated by an authenticated call. These particular refusals
+    /// come from the NAS **after** it has identified us: they prove the session is alive,
+    /// unlike a network incident, which proves nothing.
     var provesSessionIsAlive: Bool {
         switch self {
         case .permissionDenied, .unsupportedAPI, .unsupportedAPIVersion, .apiError:
@@ -116,8 +116,8 @@ enum DSMError: Error, LocalizedError, Equatable {
         }
     }
 
-    /// Échec « définitif » lié au compte : inutile de retenter avec le même mot de passe
-    /// (sert à décider d'oublier un mot de passe mémorisé lors d'une reconnexion auto).
+    /// “Definitive” account-related failure: no point retrying with the same password
+    /// (used to decide whether to forget a stored password during an automatic reconnection).
     var isCredentialFailure: Bool {
         switch self {
         case .invalidCredentials, .accountDisabled, .permissionDenied, .otpEnforced:
@@ -127,8 +127,8 @@ enum DSMError: Error, LocalizedError, Equatable {
         }
     }
 
-    /// Vrai si l'erreur n'est qu'une annulation (tâche interrompue parce que la vue a été
-    /// quittée ou la requête remplacée). À traiter silencieusement : ni message, ni annonce.
+    /// True if the error is only a cancellation (task interrupted because the view was left
+    /// or the request replaced). To be handled silently: no message, no announcement.
     static func isCancellation(_ error: Error) -> Bool {
         if error is CancellationError { return true }
         if let url = error as? URLError, url.code == .cancelled { return true }

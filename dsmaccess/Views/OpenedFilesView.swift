@@ -2,12 +2,12 @@
 //  OpenedFilesView.swift
 //  dsmaccess
 //
-//  Onglet « Fichiers ouverts » du moniteur de ressources, en tableau triable comme les
-//  autres onglets du module.
+//  "Open files" tab of the resource monitor, as a sortable table like the module's other
+//  tabs.
 //
-//  Lecture seule. DSM sait aussi fermer un fichier ouvert, mais sa méthode `kick` tue le
-//  processus qui le tient — ce n'est pas une fermeture propre, et le NAS ne l'autorise que
-//  pour une poignée de services. Cette action reste à cadrer séparément.
+//  Read only. DSM can also close an open file, but its `kick` method kills the process
+//  holding it — that is not a clean close, and the NAS only allows it for a handful of
+//  services. That action remains to be scoped separately.
 //
 
 import SwiftUI
@@ -36,8 +36,8 @@ struct OpenedFilesView: View {
             }
             .accessibilityFocused($focusContent)
         } else if vm.files.isEmpty {
-            // Le cas courant sur un NAS au repos, et non une anomalie : le texte le dit pour
-            // qu'un écran vide ne passe pas pour un chargement qui a échoué.
+            // The common case on an idle NAS, not an anomaly: the text says so, so that an
+            // empty screen is not taken for a load that failed.
             EmptyModuleView(
                 title: "opened_files.empty.title",
                 systemImage: "doc",
@@ -64,8 +64,8 @@ struct OpenedFilesView: View {
                     TableColumn("common.value.file", value: \.sortableName) { file in
                         Text(file.displayName)
                     }
-                    // Le dossier seul, sans répéter le nom du fichier : DSM range les deux
-                    // dans `path`, qui se termine par le nom.
+                    // The folder alone, without repeating the file name: DSM puts both in
+                    // `path`, which ends with the name.
                     TableColumn("common.value.folder", value: \.sortableFolder) { file in
                         Text(vm.folderText(for: file))
                     }

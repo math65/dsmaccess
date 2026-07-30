@@ -1,7 +1,7 @@
 //
 //  PackagesView.swift
 //  dsmaccess
-//  Gestion des paquets installés sur DSM.
+//  Management of the packages installed on DSM.
 
 import SwiftUI
 import UniformTypeIdentifiers
@@ -41,8 +41,8 @@ struct PackagesView: View {
 
     private var baseContent: some View {
         VStack(spacing: 0) {
-            // Dans le contenu et non la barre d'outils : VoiceOver doit rencontrer le
-            // choix Installés/Catalogue dans l'ordre de lecture, comme un vrai sélecteur.
+            // In the content rather than the toolbar: VoiceOver must meet the
+            // Installed/Catalog choice in reading order, like a real picker.
             sectionPicker
             statusBanners
             content

@@ -2,7 +2,7 @@
 //  PackageSource.swift
 //  dsmaccess
 //
-//  Source de paquets tierce configurée dans le Centre de paquets DSM.
+//  Third-party package source configured in DSM Package Center.
 //
 
 import Foundation

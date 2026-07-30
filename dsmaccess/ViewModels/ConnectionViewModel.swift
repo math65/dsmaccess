@@ -2,8 +2,8 @@
 //  ConnectionViewModel.swift
 //  dsmaccess
 //
-//  Machine à états de la connexion : saisie → tentative → (code 2FA si demandé) → connecté.
-//  L'écran de code n'apparaît QUE si DSM renvoie « code requis » (erreur 403).
+//  Connection state machine: input → attempt → (2FA code if requested) → connected.
+//  The code screen appears ONLY if DSM returns "code required" (error 403).
 //
 
 import Foundation
@@ -17,27 +17,27 @@ final class ConnectionViewModel {
         case quickConnect
     }
 
-    /// Comment le compte prouve son identité. Le choix conditionne le formulaire : la
-    /// connexion approuvée sur le mobile ne demande aucun mot de passe.
+    /// How the account proves its identity. The choice drives the form: sign-in approved on
+    /// the phone asks for no password at all.
     enum AuthenticationMethod: String, Hashable {
         case password
         case secureSignIn
     }
 
     enum State: Equatable {
-        case editing      // saisie des identifiants
+        case editing      // entering credentials
         case resolvingQuickConnect
-        case connecting   // tentative en cours
-        case needsOTP     // DSM réclame un code de vérification
-        case needsPasswordChange // DSM exige un nouveau mot de passe avant d'ouvrir la session
-        case awaitingApproval    // connexion sans mot de passe : décision attendue sur le mobile
+        case connecting   // attempt in progress
+        case needsOTP     // DSM asks for a verification code
+        case needsPasswordChange // DSM requires a new password before opening the session
+        case awaitingApproval    // passwordless sign-in: decision pending on the phone
     }
 
-    // Champs du formulaire (pré-remplis depuis les préférences si disponibles).
+    // Form fields (pre-filled from preferences when available).
     var connectionMethod: ConnectionMethod
-    /// Mémorisé d'une ouverture à l'autre : celui qui se connecte par approbation sur son
-    /// mobile le fait à chaque fois, et retrouver « Mot de passe » à chaque lancement
-    /// l'obligerait à rebasculer le sélecteur avant toute chose.
+    /// Remembered from one launch to the next: someone who signs in by approving on their
+    /// phone does so every time, and finding "Password" selected at each launch would force
+    /// them to flip the picker back before anything else.
     var authenticationMethod: AuthenticationMethod = Preferences.authenticationMethod {
         didSet { Preferences.authenticationMethod = authenticationMethod }
     }
@@ -51,27 +51,27 @@ final class ConnectionViewModel {
     var newPassword: String = ""
     var newPasswordConfirmation: String = ""
     var rememberDevice: Bool = true
-    /// « Rester connecté » : mémoriser le mot de passe pour la reconnexion automatique.
+    /// "Stay signed in": remember the password for automatic reconnection.
     var rememberPassword: Bool
 
     private(set) var state: State = .editing
-    /// Demande d'approbation en cours ; porte le chiffre à confirmer quand le NAS en joint un.
+    /// Approval request in progress; carries the number to confirm when the NAS includes one.
     private(set) var secureSignInRequest: SecureSignInRequest?
-    /// Issue d'une demande d'approbation qui n'a pas abouti, présentée en alerte.
+    /// Outcome of an approval request that did not succeed, presented as an alert.
     var secureSignInFailure: String?
     private var approvalTask: Task<Void, Never>?
-    /// Reconnexion automatique en cours au lancement (masque le formulaire).
+    /// Automatic reconnection in progress at launch (hides the form).
     private(set) var isRestoring: Bool
-    /// Message d'erreur à afficher et à annoncer (nil si aucun).
+    /// Error message to display and announce (nil if none).
     var errorMessage: String?
-    /// Empreinte d'un certificat non approuvé, en attente d'une décision explicite.
+    /// Fingerprint of an untrusted certificate, awaiting an explicit decision.
     private(set) var pendingCertificateFingerprint: String?
-    /// Dernière erreur typée (sert à décider d'oublier un mot de passe mémorisé périmé).
+    /// Last typed error (used to decide whether to forget a stale remembered password).
     private var lastError: DSMError?
-    /// Empêche de relancer la reconnexion automatique plus d'une fois.
+    /// Prevents automatic reconnection from running more than once.
     private var hasRunStartup = false
-    /// Non nul quand cet écran de connexion fait suite à une expiration de session :
-    /// si la reconnexion automatique aboutit, l'interface connectée doit le signaler.
+    /// Non-nil when this connection screen follows a session expiry: if automatic
+    /// reconnection succeeds, the connected interface must say so.
     private let expiredSessionMessage: String?
 
     private let session: SessionStore
@@ -110,9 +110,9 @@ final class ConnectionViewModel {
         let disconnectionMessage = session.consumeDisconnectionMessage()
         self.expiredSessionMessage = disconnectionMessage
         self.errorMessage = disconnectionMessage
-        // Reprise possible au lancement : une session mémorisée d'abord, à défaut un mot
-        // de passe. La session ne dépend pas de `rememberPassword`, une connexion sans mot
-        // de passe n'en enregistrant aucun.
+        // Resume is possible at launch: a remembered session first, a password otherwise.
+        // The session does not depend on `rememberPassword`, since a passwordless sign-in
+        // stores no password at all.
         if !account.isEmpty,
            !Self.isRunningHostedTests,
            let target = savedTarget ?? Self.directTarget(
@@ -129,15 +129,15 @@ final class ConnectionViewModel {
         }
     }
 
-    // Les tests unitaires hébergés par l'app ne doivent toucher ni au Trousseau ni au NAS :
-    // la lecture du Trousseau déclenche l'invite système et suspend le lanceur de tests.
+    // Unit tests hosted by the app must touch neither the Keychain nor the NAS: reading the
+    // Keychain triggers the system prompt and suspends the test runner.
     private static var isRunningHostedTests: Bool {
         let environment = ProcessInfo.processInfo.environment
         return environment["DSM_ACCESS_BACKGROUND_TESTS"] == "YES"
             || environment["XCTestConfigurationFilePath"] != nil
     }
 
-    /// Port validé. Une saisie non numérique ou hors plage n'est jamais remplacée en silence.
+    /// Validated port. A non-numeric or out-of-range entry is never silently replaced.
     var port: Int? {
         guard let value = Int(portText), (1...65_535).contains(value) else { return nil }
         return value
@@ -147,11 +147,11 @@ final class ConnectionViewModel {
         connectionTarget != nil
             && !account.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
             && state == .editing
-            // La connexion approuvée sur le mobile ne demande que le nom d'utilisateur.
+            // Sign-in approved on the phone only asks for the user name.
             && (authenticationMethod == .secureSignIn || !password.isEmpty)
     }
 
-    /// Aiguillage du bouton unique de connexion.
+    /// Routing for the single sign-in button.
     func submit() async {
         switch authenticationMethod {
         case .password: await connect()
@@ -192,8 +192,8 @@ final class ConnectionViewModel {
         }
     }
 
-    /// Ajuste le port par défaut quand on bascule HTTP/HTTPS, si l'utilisateur n'a pas
-    /// saisi un port personnalisé.
+    /// Adjusts the default port when toggling HTTP/HTTPS, unless the user entered a custom
+    /// port.
     func syncDefaultPortIfNeeded() {
         let httpDefault = String(DSMEndpoint.defaultPort(useHTTPS: false))
         let httpsDefault = String(DSMEndpoint.defaultPort(useHTTPS: true))
@@ -204,7 +204,7 @@ final class ConnectionViewModel {
 
     // MARK: - Actions
 
-    /// Première tentative : identifiants seuls (+ jeton d'appareil mémorisé si présent).
+    /// First attempt: credentials only (+ remembered device token if present).
     func connect() async {
         await connect(reusingPendingClient: false)
     }
@@ -275,9 +275,9 @@ final class ConnectionViewModel {
         }
     }
 
-    /// Reconnexion automatique au lancement, si un mot de passe est mémorisé pour ce NAS.
-    /// Réutilise `connect()` ; si le mot de passe est refusé (périmé), on l'oublie pour
-    /// ne pas retenter en boucle au prochain lancement.
+    /// Automatic reconnection at launch, if a password is remembered for this NAS.
+    /// Reuses `connect()`; if the password is refused (stale), it is forgotten so we do not
+    /// retry in a loop at the next launch.
     func startupIfNeeded() async {
         guard isRestoring, !hasRunStartup else { return }
         hasRunStartup = true
@@ -331,12 +331,12 @@ final class ConnectionViewModel {
         }
     }
 
-    /// Rouvre la session mémorisée sans rien redemander à l'utilisateur. Vrai si elle est
-    /// encore valide et que l'app est entrée.
+    /// Reopens the remembered session without asking the user for anything. True if it is
+    /// still valid and the app got in.
     ///
-    /// La découverte des API ne prouve rien : `SYNO.API.Info` répond sans session. Il faut
-    /// un appel authentifié — d'où la sonde — sinon une session morte passerait pour bonne
-    /// jusqu'à la première vraie opération, qui échouerait sans explication.
+    /// API discovery proves nothing: `SYNO.API.Info` answers without a session. An
+    /// authenticated call is required — hence the probe — otherwise a dead session would
+    /// pass for good until the first real operation, which would fail without explanation.
     private func resumeStoredSession(
         account: String,
         target: NASConnectionTarget
@@ -366,8 +366,8 @@ final class ConnectionViewModel {
             )
             return true
         } catch DSMError.sessionExpired {
-            // Seul cas où la session est réellement en cause : ne pas la réessayer au
-            // prochain lancement, et laisser le chemin habituel reprendre la main.
+            // The only case where the session really is at fault: do not retry it at the
+            // next launch, and let the usual path take over.
             CredentialStore.forgetSession(account: account, target: target)
             client = nil
             errorMessage = String(
@@ -375,8 +375,8 @@ final class ConnectionViewModel {
             )
             return false
         } catch let error as DSMError where error.provesSessionIsAlive {
-            // Le NAS nous a authentifiés puis refusé cette API : la session est bonne,
-            // c'est le compte qui n'a pas le droit d'y accéder.
+            // The NAS authenticated us then refused this API: the session is good, it is the
+            // account that has no right to access it.
             let capabilities = client?.capabilities ?? DSMCapabilities()
             guard let endpoint = pendingEndpoint else { return false }
             enterSession(
@@ -391,16 +391,16 @@ final class ConnectionViewModel {
             )
             return true
         } catch {
-            // Réseau injoignable, certificat refusé : la session mémorisée n'est pas en
-            // cause et doit survivre. Le chemin habituel affichera l'incident.
+            // Network unreachable, certificate refused: the remembered session is not at
+            // fault and must survive. The usual path will display the incident.
             client = nil
             return false
         }
     }
 
-    /// Connexion sans mot de passe : le NAS envoie une demande d'approbation à l'app
-    /// mobile Synology, puis l'app attend la décision. Aucun mot de passe n'est saisi ni
-    /// transmis, ce qui en fait souvent le chemin le plus praticable avec VoiceOver.
+    /// Passwordless sign-in: the NAS sends an approval request to the Synology mobile app,
+    /// then the app waits for the decision. No password is entered or transmitted, which
+    /// often makes this the most practical path with VoiceOver.
     func startSecureSignIn() {
         let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanedAccount.isEmpty else {
@@ -411,10 +411,10 @@ final class ConnectionViewModel {
             errorMessage = connectionValidationMessage
             return
         }
-        // Une demande laissée en suspens par une tentative précédente doit être révoquée
-        // avant d'en ouvrir une autre, sinon elle reste approuvable sur le téléphone. La
-        // révocation part depuis la nouvelle tâche : lancée depuis l'ancienne, qu'on vient
-        // d'annuler, la requête serait interrompue avant d'atteindre le NAS.
+        // A request left pending by a previous attempt must be revoked before opening
+        // another one, otherwise it stays approvable on the phone. The revocation is issued
+        // from the new task: started from the old one, which we just cancelled, the request
+        // would be interrupted before reaching the NAS.
         let abandoned = secureSignInRequest
         approvalTask?.cancel()
         approvalTask = Task {
@@ -428,8 +428,8 @@ final class ConnectionViewModel {
         }
     }
 
-    /// Abandon demandé par l'utilisateur : la demande est révoquée sur le NAS pour ne pas
-    /// laisser une approbation valable derrière soi.
+    /// User-requested abandon: the request is revoked on the NAS so as not to leave a valid
+    /// approval behind.
     func cancelSecureSignIn() async {
         approvalTask?.cancel()
         approvalTask = nil
@@ -496,8 +496,8 @@ final class ConnectionViewModel {
             pendingCertificateFingerprint = fingerprint
             errorMessage = nil
         } catch where DSMError.isCancellation(error) {
-            // La demande reste connue de `secureSignInRequest` : elle sera révoquée par
-            // l'abandon explicite ou par la tentative suivante, dans une tâche vivante.
+            // The request stays known to `secureSignInRequest`: it will be revoked by the
+            // explicit abandon or by the next attempt, from a live task.
             approvalTask = nil
         } catch {
             lastError = error as? DSMError
@@ -508,7 +508,7 @@ final class ConnectionViewModel {
         }
     }
 
-    /// Interroge la décision toutes les cinq secondes, comme le fait DSM lui-même.
+    /// Polls the decision every five seconds, the way DSM itself does.
     private func awaitApproval(
         client: DSMClient,
         account: String,
@@ -523,8 +523,8 @@ final class ConnectionViewModel {
             case .approved(let token):
                 return token
             case .waiting(let verifyNumber):
-                // Le NAS ne joint pas toujours le chiffre au premier appel : le reprendre
-                // ici évite un écran d'attente muet alors que le mobile en affiche un.
+                // The NAS does not always include the number on the first call: picking it
+                // up here avoids a silent waiting screen while the phone displays one.
                 if let verifyNumber, secureSignInRequest?.verifyNumber != verifyNumber {
                     secureSignInRequest = SecureSignInRequest(
                         requestID: request.requestID,
@@ -542,11 +542,11 @@ final class ConnectionViewModel {
         }
     }
 
-    /// L'issue d'une demande tranchée sur le mobile passe par une alerte : à cet instant
-    /// l'écran d'attente est déjà démonté et le formulaire pas encore monté, si bien
-    /// qu'aucune vue n'est là pour l'annoncer. L'alerte, elle, prend le focus et est lue
-    /// par le système. Un incident technique reste dans le message du formulaire, comme
-    /// sur le chemin de connexion classique.
+    /// The outcome of a request decided on the phone goes through an alert: at that moment
+    /// the waiting screen is already torn down and the form not yet mounted, so no view is
+    /// there to announce it. The alert, on the other hand, takes focus and is read by the
+    /// system. A technical incident stays in the form's message, as on the classic sign-in
+    /// path.
     private func failSecureSignIn(_ message: String, asAlert: Bool) async {
         await revokePendingSecureSignIn()
         approvalTask = nil
@@ -565,7 +565,7 @@ final class ConnectionViewModel {
         await client.revokeSecureSignIn(account: cleanedAccount, requestID: request.requestID)
     }
 
-    /// Soumission du code de vérification après un 403.
+    /// Submits the verification code after a 403.
     func submitOTP() async {
         guard let client,
               let endpoint = pendingEndpoint,
@@ -605,8 +605,8 @@ final class ConnectionViewModel {
         }
     }
 
-    /// Changement du mot de passe imposé par DSM après un 410, puis connexion immédiate
-    /// avec le nouveau mot de passe.
+    /// Password change required by DSM after a 410, then immediate sign-in with the new
+    /// password.
     func submitPasswordChange() async {
         guard let client else { return }
         let cleanedAccount = account.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -644,15 +644,15 @@ final class ConnectionViewModel {
         }
 
         VoiceOver.announce(String(localized: "connection.password_change.success"), category: .result)
-        // Le mot de passe accepté par DSM devient l'identifiant courant : la connexion
-        // reprend le chemin normal, qui sait déjà traiter le code 2FA et le certificat.
+        // The password accepted by DSM becomes the current credential: sign-in resumes the
+        // normal path, which already knows how to handle the 2FA code and the certificate.
         password = newPassword
         newPassword = ""
         newPasswordConfirmation = ""
         await connect(reusingPendingClient: true)
     }
 
-    /// Renonce au changement de mot de passe et revient au formulaire d'identifiants.
+    /// Gives up on the password change and returns to the credentials form.
     func cancelPasswordChange() {
         state = .editing
         newPassword = ""
@@ -660,7 +660,7 @@ final class ConnectionViewModel {
         errorMessage = nil
     }
 
-    /// Annule la saisie du code et revient au formulaire d'identifiants.
+    /// Cancels code entry and returns to the credentials form.
     func cancelOTP() {
         state = .editing
         otpCode = ""
@@ -695,11 +695,11 @@ final class ConnectionViewModel {
         state = .editing
     }
 
-    // MARK: - Interne
+    // MARK: - Internal
 
-    /// `storesPassword` est faux quand la session a été ouverte sans mot de passe : il n'y
-    /// a rien à mémoriser, et écrire la chaîne vide dans le trousseau condamnerait la
-    /// reconnexion automatique du prochain lancement.
+    /// `storesPassword` is false when the session was opened without a password: there is
+    /// nothing to remember, and writing the empty string into the Keychain would doom the
+    /// automatic reconnection at the next launch.
     private func finish(
         with result: LoginResult,
         account: String,
@@ -718,11 +718,11 @@ final class ConnectionViewModel {
         if rememberDevice, let did = result.did, !did.isEmpty {
             CredentialStore.remember(deviceID: did, account: account, target: target)
         }
-        // Mémoriser (ou oublier) le mot de passe selon le choix « Rester connecté ».
+        // Remember (or forget) the password according to the "Stay signed in" choice.
         let remembersPassword: Bool
         if !storesPassword {
-            // Une connexion approuvée sur le mobile ne dit rien du mot de passe : celui
-            // qui était déjà mémorisé le reste, aucun n'est créé.
+            // A sign-in approved on the phone says nothing about the password: one that was
+            // already remembered stays so, and none is created.
             remembersPassword = CredentialStore.password(account: account, target: target) != nil
         } else if rememberPassword {
             remembersPassword = CredentialStore.remember(
@@ -735,8 +735,8 @@ final class ConnectionViewModel {
             CredentialStore.forget(account: account, target: target)
             remembersPassword = false
         }
-        // « Rester connecté » conserve la session elle-même : c'est ce qui évite, à la
-        // prochaine ouverture, un login complet ou une nouvelle approbation sur le mobile.
+        // "Stay signed in" keeps the session itself: that is what avoids, at the next
+        // launch, a full login or another approval on the phone.
         if rememberPassword, let stored = StoredDSMSession(result) {
             CredentialStore.rememberSession(stored, account: account, target: target)
         } else {
@@ -751,7 +751,7 @@ final class ConnectionViewModel {
         )
     }
 
-    /// Dernière étape commune au login et à la reprise d'une session mémorisée.
+    /// Final step shared by login and by resuming a remembered session.
     private func enterSession(
         account: String,
         target: NASConnectionTarget,
@@ -769,7 +769,7 @@ final class ConnectionViewModel {
             account: account,
             remembersPassword: remembersPassword
         )
-        // RootView bascule automatiquement vers l'écran de contenu.
+        // RootView automatically switches to the content screen.
         state = .editing
         errorMessage = nil
         lastError = nil

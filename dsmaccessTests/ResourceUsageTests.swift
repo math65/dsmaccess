@@ -4,9 +4,9 @@ import Testing
 
 @MainActor
 struct ResourceUsageTests {
-    /// Réponse relevée sur le DS920+ en DSM 7.4 le 29/07/2026, réduite aux champs que
-    /// l'app lit. Les valeurs sont celles du NAS : c'est ce qui garantit que le décodage
-    /// suit le contrat réel et non une reconstitution.
+    /// Response captured on the DS920+ running DSM 7.4 on 2026-07-29, reduced to the fields
+    /// the app reads. The values are the NAS's own: that is what guarantees the decoding
+    /// follows the real contract and not a reconstruction.
     private let payload = Data(#"""
     {"cpu":{"15min_load":96,"1min_load":57,"5min_load":69,"device":"System",
       "other_load":4,"system_load":3,"user_load":1},
@@ -23,9 +23,9 @@ struct ResourceUsageTests {
        "read_byte":3541674,"utilization":27,"write_access":0,"write_byte":0}]}}
     """#.utf8)
 
-    /// DSM transmet les moyennes de charge multipliées par cent : son propre client web
-    /// divise par 100 avant affichage. Les prendre pour des pourcentages afficherait
-    /// « 96 % » là où la machine est à 0,96 de charge.
+    /// DSM sends load averages multiplied by one hundred: its own web client divides by 100
+    /// before displaying them. Taking them for percentages would show "96 %" where the
+    /// machine is at a load of 0.96.
     @Test func readsLoadAveragesAsHundredthsNotPercentages() throws {
         let usage = try JSONDecoder().decode(ResourceUsage.self, from: payload)
 
@@ -33,14 +33,14 @@ struct ResourceUsageTests {
         #expect(cpu.oneMinuteLoad == 0.57)
         #expect(cpu.fiveMinuteLoad == 0.69)
         #expect(cpu.fifteenMinuteLoad == 0.96)
-        // Les charges instantanées, elles, sont bien des pourcentages.
+        // The instantaneous loads, on the other hand, really are percentages.
         #expect(cpu.userLoad == 1)
         #expect(cpu.systemLoad == 3)
     }
 
-    /// Disques et volumes partagent la même forme chez DSM, à ceci près que la liste
-    /// s'appelle `disk` d'un côté et `volume` de l'autre, et que l'entrée cumulée est
-    /// rangée à part sous `total`.
+    /// Disks and volumes share the same shape in DSM, except that the list is called `disk`
+    /// on one side and `volume` on the other, and the aggregate entry is kept apart under
+    /// `total`.
     @Test func readsDisksAndVolumesFromTheirTwoDifferentKeys() throws {
         let usage = try JSONDecoder().decode(ResourceUsage.self, from: payload)
 
@@ -54,13 +54,13 @@ struct ResourceUsageTests {
         let volume = try #require(usage.space?.devices.first)
         #expect(volume.name == "volume1")
         #expect(volume.utilization == 27)
-        // Un volume ne porte pas de type : le champ reste absent, sans faire échouer le tout.
+        // A volume carries no type: the field stays absent, without failing the whole decode.
         #expect(volume.type == nil)
     }
 
-    /// Relevé sur le NAS : 3,68 Go de mémoire, 0,13 Go libres, 2,89 Go de cache — et DSM
-    /// annonce 17 % d'utilisation. Compter le cache comme occupé donnerait 96 %, en
-    /// contradiction avec le pourcentage affiché juste au-dessus dans le même écran.
+    /// Measured on the NAS: 3.68 GB of memory, 0.13 GB free, 2.89 GB of cache — and DSM
+    /// reports 17 % usage. Counting the cache as used would give 96 %, contradicting the
+    /// percentage displayed just above it on the same screen.
     @Test func excludesCacheFromUsedMemoryLikeDSMDoes() throws {
         let payload = Data(#"""
         {"memory":{"avail_real":144700,"buffer":10240,"cached":3024532,
@@ -75,16 +75,16 @@ struct ResourceUsageTests {
         let available = try #require(memory.availReal)
 
         #expect(used == 677_088)
-        // Le calcul naïf, cache compris, annoncerait plus de cinq fois cette valeur.
+        // The naive computation, cache included, would report more than five times that value.
         #expect(total - available == 3_711_860)
-        // À l'arrondi près, on retrouve le pourcentage que DSM affiche lui-même : les deux
-        // lignes de l'écran mesurent enfin la même chose.
+        // Up to rounding, we get back the percentage DSM displays itself: the two lines on
+        // the screen finally measure the same thing.
         let percent = Int((Double(used) / Double(total) * 100).rounded())
         #expect(abs(percent - (memory.realUsage ?? 0)) <= 1)
     }
 
-    /// Un NAS sans disque exposé, ou une version de DSM qui omettrait ces blocs, ne doit
-    /// pas rendre tout l'écran des ressources illisible.
+    /// A NAS with no exposed disk, or a DSM version that would omit these blocks, must not
+    /// make the whole resources screen unreadable.
     @Test func survivesAResponseWithoutDisksOrVolumes() throws {
         let minimal = Data(#"{"cpu":{"user_load":2},"memory":{"real_usage":40}}"#.utf8)
 

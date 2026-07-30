@@ -2,7 +2,7 @@
 //  DownloadStationViewModel.swift
 //  dsmaccess
 //
-//  État et actions de Download Station.
+//  State and actions of Download Station.
 //
 
 import Foundation

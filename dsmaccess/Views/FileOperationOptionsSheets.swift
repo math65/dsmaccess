@@ -2,14 +2,14 @@
 //  FileOperationOptionsSheets.swift
 //  dsmaccess
 //
-//  Options explicites pour les mutations File Station susceptibles de rencontrer des conflits.
+//  Explicit options for File Station mutations liable to run into conflicts.
 //
 
 import SwiftUI
 
-/// Le titre nomme le dossier d'arrivée : sélectionner un dossier ne suffit pas à en faire
-/// la destination, il faut l'avoir ouvert. Sans cette mention, un collage réussi peut
-/// déposer les éléments ailleurs que là où l'utilisateur les croit partis.
+/// The title names the destination folder: selecting a folder is not enough to make it the
+/// destination, it has to have been opened. Without that mention, a successful paste can
+/// drop the items somewhere other than where the user believes they went.
 struct FileConflictPolicySheet: View {
     let title: String
     let itemCount: Int
@@ -402,8 +402,8 @@ struct FileOperationProgressBanner: View {
                     .lineLimit(2)
             }
 
-            // Débit et temps restant ne sont jamais annoncés : ils changent à chaque
-            // relevé et couvriraient tout le reste. Ils restent lisibles à la demande.
+            // Throughput and time remaining are never announced: they change at every
+            // sample and would drown out everything else. They stay readable on demand.
             if let throughput {
                 Text(throughput)
                     .font(.caption)
@@ -421,8 +421,8 @@ struct FileOperationProgressBanner: View {
         guard let timeRemaining else {
             return String(localized: "common.unit.per_second", defaultValue: "\(speed)/s")
         }
-        // Sous la minute, annoncer des secondes qui défilent n'aide personne ; dire que
-        // la fin est proche, si.
+        // Under a minute, announcing seconds ticking by helps nobody; saying the end is
+        // near does.
         guard timeRemaining >= .seconds(60) else {
             return String(localized: "files.operation.progress.remaining_under_minute", defaultValue: "\(speed)/s, less than a minute left")
         }
@@ -446,9 +446,9 @@ struct FileOperationProgressBanner: View {
     }
 }
 
-/// Le résultat d'une opération longue ne peut pas reposer sur la seule annonce VoiceOver :
-/// émise pendant que l'app est en arrière-plan, elle n'est jamais entendue. Le bandeau
-/// reste affiché jusqu'à ce que l'utilisateur le masque ou change de dossier.
+/// The result of a long operation cannot rest on the VoiceOver announcement alone: emitted
+/// while the app is in the background, it is never heard. The banner stays on screen until
+/// the user hides it or changes folder.
 struct FileOperationSummaryBanner: View {
     let summary: FileBrowserViewModel.OperationSummary
     let showBackgroundTasks: () -> Void

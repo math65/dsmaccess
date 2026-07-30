@@ -2,9 +2,9 @@
 //  ResourceMonitorHistoryView.swift
 //  dsmaccess
 //
-//  Onglet Historique du moniteur de ressources, en tableau triable comme les autres onglets
-//  du module. Un tableau et non une courbe : une série de points tracés ne dit rien à un
-//  lecteur d'écran, là où des lignes datées se parcourent et se trient.
+//  History tab of the resource monitor, as a sortable table like the module's other tabs.
+//  A table and not a curve: a series of plotted points says nothing to a screen reader,
+//  whereas dated rows can be browsed and sorted.
 //
 
 import SwiftUI
@@ -35,8 +35,8 @@ struct ResourceMonitorHistoryView: View {
             }
             .accessibilityFocused($focusContent)
         } else {
-            // L'interrupteur d'enregistrement reste accessible dans tous les états, y compris
-            // quand le journal est vide : c'est précisément là qu'il sert.
+            // The recording switch stays reachable in every state, including when the log is
+            // empty: that is exactly where it is useful.
             VStack(alignment: .leading, spacing: 0) {
                 if let error = vm.errorMessage {
                     Text(error)
@@ -69,8 +69,8 @@ struct ResourceMonitorHistoryView: View {
                 TableColumn("common.column.date", value: \.sortableDate) { entry in
                     Text(vm.dateText(for: entry))
                 }
-                // Trié par gravité et non par ordre alphabétique : « Critique » doit se
-                // ranger après « Avertissement », pas avant.
+                // Sorted by severity and not alphabetically: "Critical" must come after
+                // "Warning", not before.
                 TableColumn("common.column.level", value: \.sortableLevel) { entry in
                     Text(vm.levelText(for: entry))
                         .foregroundStyle(color(for: entry.level))
@@ -90,9 +90,9 @@ struct ResourceMonitorHistoryView: View {
         }
     }
 
-    /// Trois vides très différents, qu'un message unique confondrait en laissant croire à un
-    /// NAS irréprochable : l'enregistrement est coupé, aucune règle ne peut rien détecter, ou
-    /// rien n'a franchi de seuil.
+    /// Three very different kinds of emptiness, which a single message would conflate into
+    /// the impression of a faultless NAS: recording is off, no rule can detect anything, or
+    /// nothing has crossed a threshold.
     @ViewBuilder
     private var emptyState: some View {
         if vm.historyEnabled == false {
@@ -139,7 +139,7 @@ struct ResourceMonitorHistoryView: View {
         .padding(.vertical, 8)
     }
 
-    /// La couleur double le mot, elle ne le remplace pas : le niveau est toujours écrit.
+    /// The colour backs up the word, it does not replace it: the level is always written out.
     private func color(for level: ResourceMonitorLogEntry.Level) -> Color {
         switch level {
         case .critical: .readableRed

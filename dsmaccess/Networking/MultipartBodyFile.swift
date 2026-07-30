@@ -2,7 +2,7 @@
 //  MultipartBodyFile.swift
 //  dsmaccess
 //
-//  Construction de corps multipart sur disque, sans charger les fichiers envoyés en mémoire.
+//  Builds multipart bodies on disk, without loading the uploaded files into memory.
 //
 
 import Foundation
@@ -79,7 +79,7 @@ enum MultipartBodyFile {
         return Int64(fileSize)
     }
 
-    /// Empêche un nom de fichier local de fermer ou d'injecter un en-tête multipart.
+    /// Prevents a local file name from closing or injecting a multipart header.
     nonisolated private static func dispositionValue(_ value: String) -> String {
         value
             .replacingOccurrences(of: "\\", with: "_")

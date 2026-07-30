@@ -2,7 +2,7 @@
 //  PackagesViewModel.swift
 //  dsmaccess
 //
-//  Charge et administre les paquets installés sur DSM.
+//  Loads and administers the packages installed on DSM.
 //
 
 import Foundation

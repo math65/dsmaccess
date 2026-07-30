@@ -2,9 +2,9 @@
 //  ConnectionsView.swift
 //  dsmaccess
 //
-//  Onglet « Connexions » du moniteur de ressources, en tableau triable : chaque valeur
-//  reste dans sa colonne, et les en-têtes trient d'un clic comme partout sur le Mac.
-//  La coupure d'une session est confirmée avant d'être envoyée, et son résultat annoncé.
+//  “Connections” tab of the resource monitor, as a sortable table: every value stays in its
+//  column, and the headers sort with a single click as everywhere else on the Mac.
+//  Cutting a session is confirmed before being sent, and its result announced.
 //
 
 import SwiftUI
@@ -85,9 +85,9 @@ struct ConnectionsView: View {
                     TableColumn("connections.column.opened", value: \.sortableDate) { connection in
                         Text(vm.openedAtText(for: connection))
                     }
-                    // Trois valeurs que DSM n'affiche pas. « Client » et « Lieu » restent vides
-                    // sur un accès local — le NAS ne les renseigne que pour certaines sessions —
-                    // d'où le tiret, cohérent avec les autres colonnes de ce module.
+                    // Three values DSM does not display. “Client” and “Place” stay empty on a
+                    // local access — the NAS only fills them in for certain sessions — hence
+                    // the dash, consistent with the other columns of this module.
                     TableColumn("connections.column.client", value: \.sortableUserAgent) { connection in
                         Text(vm.clientText(for: connection))
                     }
@@ -97,9 +97,9 @@ struct ConnectionsView: View {
                     TableColumn("connections.column.two_step", value: \.sortableTwoFactor) { connection in
                         Text(vm.twoFactorText(for: connection))
                     }
-                    // Pas de colonne « session courante » : vérifié sur DSM 7.4, le NAS ne
-                    // lève `is_current_connected` que pour son client web. Interrogé par
-                    // l'app, il ne marque aucune ligne — la colonne n'aurait que des tirets.
+                    // No “current session” column: verified on DSM 7.4, the NAS only raises
+                    // `is_current_connected` for its own web client. Queried by the app, it
+                    // marks no row — the column would contain nothing but dashes.
                 }
                 .contextMenu(forSelectionType: String.self) { ids in
                     let targets = connections(for: ids)
@@ -141,8 +141,8 @@ struct ConnectionsView: View {
         vm.connections.filter { ids.contains($0.id) }
     }
 
-    /// Le libellé porte le nombre : sans lui, le bouton s'annonce « Couper » sans dire sur
-    /// quoi il porte, et rien ne distingue une session de six.
+    /// The label carries the count: without it, the button announces itself as “Disconnect”
+    /// without saying what it applies to, and nothing distinguishes one session from six.
     private var kickButtonLabel: String {
         let count = selectedConnections.filter(vm.canKick).count
         return count <= 1
@@ -175,9 +175,9 @@ struct ConnectionsView: View {
         )
     }
 
-    /// La confirmation nomme les sessions visées et dit ce qui se passe : un transfert en
-    /// cours sur ces sessions est interrompu. L'avertissement sur sa propre session n'est pas
-    /// une certitude — le NAS ne dit pas laquelle est celle de l'app — et le dit ainsi.
+    /// The confirmation names the targeted sessions and says what happens: a transfer in
+    /// progress on those sessions is interrupted. The warning about one's own session is not
+    /// a certainty — the NAS does not say which one belongs to the app — and says so.
     private var kickMessage: String {
         var sentences: [String] = []
         if let only = pendingKick.first, pendingKick.count == 1 {
@@ -197,9 +197,9 @@ struct ConnectionsView: View {
             )
         }
         if vm.mayCloseOwnSession(pendingKick) {
-            // Deux phrases complètes plutôt qu'une tournure qui vaudrait pour les deux cas :
-            // « l'une de ces sessions » devant une seule ligne sélectionnée s'entend comme une
-            // erreur, et un accord bricolé se traduirait mal.
+            // Two complete sentences rather than one phrasing covering both cases: “one of
+            // these sessions” in front of a single selected row sounds like a bug, and a
+            // patched-together agreement would translate badly.
             sentences.append(
                 pendingKick.count == 1
                     ? String(
@@ -215,8 +215,8 @@ struct ConnectionsView: View {
 
     private func kick(_ targets: [NASConnection]) async {
         let outcome = await vm.kick(targets)
-        // La liste a été rechargée : les identifiants retenus ne désignent plus rien, et une
-        // sélection fantôme réarmerait le bouton sur des sessions disparues.
+        // The list has been reloaded: the retained identifiers no longer point to anything,
+        // and a phantom selection would re-arm the button on sessions that are gone.
         selection = []
         switch outcome {
         case .success(let message):

@@ -5,8 +5,8 @@ import Testing
 @MainActor
 struct DSMAuthenticationServiceTests {
     @Test func logsInWithVersion7WhenTheNASSupportsIt() async throws {
-        // DSM 7.4 bride les sessions v6 (402 sur la gestion des comptes) : le login doit
-        // demander la version 7 dès qu'elle est disponible.
+        // DSM 7.4 restricts v6 sessions (402 on account management): login must ask for
+        // version 7 as soon as it is available.
         let stub = DSMRequestStub(results: [
             .response(Data(
                 #"{"success":true,"data":{"sid":"session-id","synotoken":"csrf-token"}}"#.utf8
@@ -31,9 +31,9 @@ struct DSMAuthenticationServiceTests {
     }
 
     @Test func omitsTheSessionNameSoStandardAccountsCanLogIn() async throws {
-        // DSM soumet « session » au contrôle de privilèges d'application : un nom qui ne
-        // correspond à aucune application installée passe pour un administrateur mais
-        // refuse tout compte standard en 402.
+        // DSM puts "session" through the application privilege check: a name that matches no
+        // installed application goes through for an administrator but refuses any standard
+        // account with a 402.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"sid":"session-id"}}"#.utf8)),
         ])
@@ -74,7 +74,7 @@ struct DSMAuthenticationServiceTests {
     }
 
     @Test func reportsThatThePasswordMustBeChanged() async throws {
-        // 410 : DSM impose un nouveau mot de passe après réinitialisation par l'administrateur.
+        // 410: DSM requires a new password after an administrator reset.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":false,"error":{"code":410}}"#.utf8)),
         ])
@@ -120,7 +120,7 @@ struct DSMAuthenticationServiceTests {
         let request = try await service.requestSecureSignIn(account: "martine", rememberDevice: false)
 
         #expect(request.requestID == "req-1")
-        // Le NAS ne joint pas toujours le chiffre : ne rien inventer quand il est absent.
+        // The NAS does not always include the number: invent nothing when it is absent.
         #expect(request.verifyNumber == nil)
         let sent = try #require(await stub.requests.first)
         #expect(sent.httpMethod == "POST")
@@ -133,9 +133,9 @@ struct DSMAuthenticationServiceTests {
     }
 
     @Test func reportsAnExpiredApprovalRatherThanRejectedCredentials() async throws {
-        // Sur ce chemin, 400 signale une demande périmée. Le traduire en « identifiants
-        // incorrects » accuserait l'utilisateur d'une faute de mot de passe qu'il n'a
-        // même pas saisi.
+        // On this path, 400 signals an expired request. Turning it into "incorrect
+        // credentials" would blame the user for a password mistake on a password they never
+        // even typed.
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":false,"error":{"code":400}}"#.utf8)),
         ])
@@ -225,7 +225,7 @@ struct DSMAuthenticationServiceTests {
         return DSMAuthenticationService(transport: transport)
     }
 
-    /// Le login Secure SignIn part en POST : ses paramètres sont dans le corps.
+    /// Secure SignIn login goes out as a POST: its parameters are in the body.
     private func body(from request: URLRequest) throws -> [String: String] {
         let data = try #require(request.httpBody)
         var components = URLComponents()

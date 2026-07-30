@@ -2,7 +2,7 @@
 //  ShareSheet.swift
 //  dsmaccess
 //
-//  Création accessible d’un lien File Station avec disponibilité et expiration exactes.
+//  Accessible creation of a File Station link with exact availability and expiration.
 //
 
 import AppKit

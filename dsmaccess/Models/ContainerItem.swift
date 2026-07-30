@@ -2,7 +2,7 @@
 //  ContainerItem.swift
 //  dsmaccess
 //
-//  Conteneurs et journaux exposés par Container Manager.
+//  Containers and logs exposed by Container Manager.
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  DSMUpgradeService.swift
 //  dsmaccess
 //
-//  Mise à jour manuelle de DSM : envoi du .pat, vérification, lancement et suivi.
+//  Manual DSM update: uploading the .pat, checking, starting and tracking it.
 //
 
 import Foundation
@@ -19,9 +19,9 @@ final class DSMUpgradeService {
         self.transport = transport
     }
 
-    /// Envoie le fichier de mise à jour. Contrat relevé sur DSM 7.4 : api, method, version et
-    /// session vont dans la query, le corps multipart ne porte que « target » et le fichier —
-    /// même convention que l'envoi d'un paquet et que File Station.
+    /// Uploads the update file. Contract captured on DSM 7.4: api, method, version and session
+    /// go in the query, the multipart body carries only "target" and the file — same
+    /// convention as uploading a package and as File Station.
     func uploadPatch(
         at fileURL: URL,
         progress: @escaping DSMTransferProgressHandler = { _ in }
@@ -50,7 +50,7 @@ final class DSMUpgradeService {
 
         var request = URLRequest(url: uploadURL)
         request.httpMethod = "POST"
-        // Un .pat pèse plusieurs centaines de mégaoctets : le délai par défaut ne suffit pas.
+        // A .pat weighs several hundred megabytes: the default timeout is not enough.
         request.timeoutInterval = 900
         request.setValue(
             "multipart/form-data; boundary=\(boundary)",
@@ -70,13 +70,13 @@ final class DSMUpgradeService {
         }
     }
 
-    /// Ce que DSM dit du fichier reçu, dont les paquets qu'il cessera de prendre en charge.
+    /// What DSM says about the file it received, including the packages it will stop supporting.
     func preCheck() async throws -> DSMUpgradePreCheck {
         try await transport.read(api: Self.preCheckAPI, method: "get", as: DSMUpgradePreCheck.self)
     }
 
-    /// Lance l'installation. Mutation en tentative unique : un délai dépassé ne doit jamais
-    /// relancer une mise à jour système.
+    /// Starts the installation. Single-attempt mutation: a timeout must never restart a system
+    /// update.
     func start() async throws {
         try await transport.perform(api: Self.upgradeAPI, method: "start")
     }
@@ -85,11 +85,11 @@ final class DSMUpgradeService {
         try await transport.read(api: Self.upgradeAPI, method: "progress", as: DSMUpgradeProgress.self)
     }
 
-    /// Interroge l'hôte sans passer par la session : pendant le redémarrage il n'y en a plus.
-    /// `boot_done` dit que le NAS répond, pas que la mise à jour est finie — seule une
-    /// reconnexion réussie le prouve.
+    /// Queries the host without going through the session: during the restart there is no
+    /// session left. `boot_done` says the NAS is answering, not that the update is finished —
+    /// only a successful reconnection proves that.
     func isBackOnline() async -> Bool {
-        // makeURL préfixe /webapi/ : pingpong vit ailleurs, l'URL se construit à la main.
+        // makeURL prefixes /webapi/: pingpong lives elsewhere, so the URL is built by hand.
         var components = URLComponents()
         components.scheme = transport.endpoint.scheme
         components.host = transport.endpoint.host

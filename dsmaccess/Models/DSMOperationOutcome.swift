@@ -2,7 +2,7 @@
 //  DSMOperationOutcome.swift
 //  dsmaccess
 //
-//  Résultat d'une action utilisateur envoyée au NAS.
+//  Result of a user action sent to the NAS.
 //
 
 import Foundation

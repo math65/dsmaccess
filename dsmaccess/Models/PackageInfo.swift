@@ -2,9 +2,9 @@
 //  PackageInfo.swift
 //  dsmaccess
 //
-//  Réponse de SYNO.Core.Package (method=list) : les paquets installés du Centre de paquets.
-//  API NON documentée. Structure confirmée sur DSM 7.4 : id/name/version en haut niveau,
-//  et l'état marche/arrêt imbriqué dans `additional.status` (« running », « stop »…).
+//  Response of SYNO.Core.Package (method=list): the installed packages of Package Center.
+//  UNDOCUMENTED API. Structure confirmed on DSM 7.4: id/name/version at the top level, and
+//  the running/stopped state nested in `additional.status` ("running", "stop"…).
 //
 
 import Foundation
@@ -13,7 +13,7 @@ struct PackageList: nonisolated Decodable, Sendable {
     let packages: [PackageInfo]?
 }
 
-/// Réponse du catalogue du Centre de paquets.
+/// Response of the Package Center catalogue.
 struct ServerPackageList: nonisolated Decodable, Sendable {
     let packages: [ServerPackage]?
 }
@@ -96,15 +96,15 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
     let version: String?
     let additional: Additional?
 
-    /// Champs supplémentaires demandés via le paramètre `additional` de l'API.
+    /// Extra fields requested through the API's `additional` parameter.
     struct Additional: nonisolated Decodable, Sendable {
         let status: String?
         let installType: String?
-        /// Le paquet peut-il être démarré/arrêté ? (absent pour les paquets non pilotables).
+        /// Can the package be started/stopped? (absent for packages that cannot be driven).
         let startable: Bool?
-        /// Le paquet est-il désinstallable depuis l'UI ? (faux pour certains paquets système).
+        /// Can the package be uninstalled from the UI? (false for some system packages).
         let ctlUninstall: Bool?
-        /// Le paquet propose-t-il des options de désinstallation custom dans DSM ?
+        /// Does the package offer custom uninstall options in DSM?
         let isUninstallPages: Bool?
 
         enum CodingKeys: String, CodingKey {
@@ -123,13 +123,13 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
 
     var id: String { pkgId }
 
-    /// Nom affiché : le nom fourni, sinon l'identifiant.
+    /// Displayed name: the name supplied, otherwise the identifier.
     var displayName: String {
         if let name, !name.isEmpty { return name }
         return pkgId
     }
 
-    /// État traduit (marche / arrêt).
+    /// Translated state (running / stopped).
     var statusText: String {
         let status = additional?.status?.lowercased()
         switch status {
@@ -143,7 +143,7 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         }
     }
 
-    /// Vrai si le paquet tourne actuellement (même logique d'état que `statusText`).
+    /// True if the package is currently running (same state logic as `statusText`).
     var isRunning: Bool {
         switch additional?.status?.lowercased() {
         case "running", "start", "started": return true
@@ -171,12 +171,12 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
             || status.hasPrefix("corrupt_")
     }
 
-    /// Vrai si le paquet peut être démarré/arrêté (certains paquets système ne le sont pas).
+    /// True if the package can be started/stopped (some system packages cannot).
     var canStartStop: Bool { additional?.startable == true }
 
-    /// Vrai si le paquet peut être désinstallé depuis l'app (certains paquets système non).
+    /// True if the package can be uninstalled from the app (some system packages cannot).
     var canUninstall: Bool { additional?.ctlUninstall == true }
 
-    /// Vrai si le paquet propose des options de désinstallation dans DSM (non exposées ici).
+    /// True if the package offers uninstall options in DSM (not exposed here).
     var hasUninstallOptions: Bool { additional?.isUninstallPages == true }
 }

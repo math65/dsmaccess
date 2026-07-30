@@ -65,15 +65,15 @@ struct FileTableView: NSViewRepresentable {
         table.onDelete = { [weak coordinator = context.coordinator] in coordinator?.deleteSelection() }
         table.onCopy = { [weak coordinator = context.coordinator] in coordinator?.copySelection() }
         table.onShowInfo = { [weak coordinator = context.coordinator] in coordinator?.showInfoForSelection() }
-        // Coller et déplacer visent le dossier affiché, pas la sélection :
-        // pas de logique dans le coordinateur.
+        // Paste and move target the displayed folder, not the selection:
+        // no logic in the coordinator.
         table.onPaste = { [weak coordinator = context.coordinator] in coordinator?.parent.onPaste() }
         table.onMoveHere = { [weak coordinator = context.coordinator] in coordinator?.parent.onMoveHere() }
         table.menuProvider = { [weak coordinator = context.coordinator] event in
             coordinator?.contextMenu(for: event)
         }
 
-        // Glisser vers le Finder : la copie est le seul sens proposé hors de l'app.
+        // Dragging to the Finder: copy is the only direction offered outside the app.
         table.setDraggingSourceOperationMask(.copy, forLocal: false)
 
         table.target = context.coordinator
@@ -268,7 +268,7 @@ private func closureMenuItem(title: String, handler: @escaping () -> Void) -> NS
     let item = NSMenuItem(title: title, action: #selector(ClosureMenuTarget.fire), keyEquivalent: "")
     item.target = target
     item.toolTip = title
-    // `target` est faible sur NSMenuItem ; representedObject le conserve pendant la vie du menu.
+    // `target` is weak on NSMenuItem; representedObject keeps it alive for the menu's lifetime.
     item.representedObject = target
     return item
 }
@@ -356,7 +356,7 @@ final class KeyboardTableView: NSTableView {
             onDelete?()
         case 8 where command:
             onCopy?()
-        // ⌘⌥V avant ⌘V : la clause « command » seule matcherait aussi ⌘⌥V.
+        // ⌘⌥V before ⌘V: the "command" clause alone would match ⌘⌥V as well.
         case 9 where command && option:
             onMoveHere?()
         case 9 where command:

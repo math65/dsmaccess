@@ -2,7 +2,7 @@
 //  NetworkSettingsViewModel.swift
 //  dsmaccess
 //
-//  Charge l'identité et la configuration réseau du NAS.
+//  Loads the NAS identity and network configuration.
 //
 
 import Foundation

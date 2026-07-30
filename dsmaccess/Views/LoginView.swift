@@ -2,8 +2,8 @@
 //  LoginView.swift
 //  dsmaccess
 //
-//  Écran de connexion directe ou QuickConnect. Bascule vers la saisie du code de
-//  vérification si DSM le réclame (état needsOTP).
+//  Direct or QuickConnect sign-in screen. Switches to the verification code entry if DSM
+//  asks for it (needsOTP state).
 //
 
 import SwiftUI
@@ -39,9 +39,9 @@ struct LoginView: View {
             "login.certificate.untrusted.title",
             isPresented: Binding(
                 get: { vm.pendingCertificateFingerprint != nil },
-                // Les boutons portent la décision. SwiftUI écrit aussi `false` pendant
-                // la fermeture de l'alerte, ce qui ne doit pas transformer une
-                // approbation en refus pendant la nouvelle tentative de connexion.
+                // The buttons carry the decision. SwiftUI also writes `false` while the
+                // alert is dismissing, which must not turn an approval into a refusal
+                // during the retried connection.
                 set: { _ in }
             )
         ) {
@@ -73,7 +73,7 @@ struct LoginView: View {
         }
     }
 
-    /// Écran plein affiché pendant la reconnexion automatique au lancement.
+    /// Full screen shown during the automatic reconnection at launch.
     private var restoringView: some View {
         VStack(spacing: 16) {
             ProgressView()
@@ -163,8 +163,8 @@ struct LoginView: View {
                     }
                     Picker("login.section.authentication", selection: $vm.authenticationMethod) {
                         Text("common.field.password").tag(ConnectionViewModel.AuthenticationMethod.password)
-                        // Le nom du service Synology d'abord : c'est celui que l'utilisateur
-                        // voit dans DSM et dans l'app mobile qui lui demandera d'approuver.
+                        // The Synology service name first: it is the one the user sees in DSM
+                        // and in the mobile app that will ask them to approve.
                         Text("login.method.secure_signin")
                             .tag(ConnectionViewModel.AuthenticationMethod.secureSignIn)
                     }

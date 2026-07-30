@@ -2,7 +2,7 @@
 //  FileTransfer.swift
 //  dsmaccess
 //
-//  Progression locale des envois et téléchargements File Station.
+//  Local progress of File Station uploads and downloads.
 //
 
 import Foundation

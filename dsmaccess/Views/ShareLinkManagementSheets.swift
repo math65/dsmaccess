@@ -2,7 +2,7 @@
 //  ShareLinkManagementSheets.swift
 //  dsmaccess
 //
-//  Détails et modification d’un lien de partage File Station.
+//  Details and editing of a File Station share link.
 //
 
 import AppKit

@@ -2,21 +2,21 @@
 //  SecureSignIn.swift
 //  dsmaccess
 //
-//  Connexion sans mot de passe DSM : demande d'approbation envoyée à l'app mobile
-//  Synology Secure SignIn, puis attente de la décision de l'utilisateur.
+//  Passwordless DSM sign-in: approval request sent to the Synology Secure SignIn mobile
+//  app, then waiting for the user's decision.
 //
 
 import Foundation
 
-/// Demande d'approbation acceptée par le NAS. Le NAS ne joint un `verifyNumber` qu'une
-/// fois sur deux environ : quand il est là, l'utilisateur doit reconnaître ce chiffre
-/// sur son téléphone, sinon un simple appui suffit.
+/// Approval request accepted by the NAS. The NAS only attaches a `verifyNumber` about one
+/// time in two: when it is there, the user has to recognize that number on their phone,
+/// otherwise a simple tap is enough.
 struct SecureSignInRequest: Equatable, Sendable {
     let requestID: String
     let verifyNumber: Int?
 }
 
-/// État d'une demande, tel que le NAS le rapporte tant qu'elle n'est pas tranchée.
+/// State of a request, as the NAS reports it as long as it has not been decided.
 enum SecureSignInStatus: Equatable, Sendable {
     case waiting(verifyNumber: Int?)
     case approved(token: String)
@@ -30,8 +30,8 @@ enum SecureSignInStatus: Equatable, Sendable {
     }
 }
 
-/// Fin de partie décidée côté NAS ou téléphone. Chaque cas porte son message : « refusée »
-/// et « expirée » n'appellent pas la même réaction de l'utilisateur.
+/// Outcome decided on the NAS or phone side. Each case carries its own message: "denied"
+/// and "expired" do not call for the same reaction from the user.
 enum SecureSignInRefusal: Error {
     case denied
     case expired
@@ -49,9 +49,9 @@ enum SecureSignInRefusal: Error {
     }
 }
 
-/// La demande d'approbation n'est plus valable. DSM répond 400 au login qui la porte, là
-/// où ce même code signifie « identifiants refusés » sur le chemin classique : sans cette
-/// distinction, une demande expirée accuserait l'utilisateur d'une faute de mot de passe.
+/// The approval request is no longer valid. DSM answers 400 to the login carrying it, where
+/// that same code means "credentials refused" on the classic path: without that distinction,
+/// an expired request would blame the user for a password mistake.
 struct SecureSignInExpired: Error {}
 
 struct SecureSignInRequestPayload: nonisolated Decodable, Sendable {
@@ -90,8 +90,8 @@ struct SecureSignInStatusPayload: nonisolated Decodable, Sendable {
         verifyNumber = container.flexInt(.verifyNumber)
     }
 
-    /// Les états rapportés par DSM. « corrupted » signale une installation abîmée du
-    /// paquet Secure SignIn côté NAS : traité comme un refus, avec son propre message.
+    /// The states DSM reports. "corrupted" signals a damaged installation of the Secure
+    /// SignIn package on the NAS side: treated as a denial, with its own message.
     var resolved: SecureSignInStatus? {
         switch status {
         case "waiting": .waiting(verifyNumber: verifyNumber)

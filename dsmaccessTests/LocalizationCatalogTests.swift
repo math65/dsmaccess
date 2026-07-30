@@ -1,11 +1,11 @@
 import Foundation
 import Testing
 
-/// Le repli de langue de l'app repose sur deux invariants faciles à casser en silence :
-/// la langue de développement doit rester l'anglais (un système ni français ni anglais
-/// reçoit l'anglais), et chaque clé du catalogue doit porter une entrée française
-/// explicite, sinon la chaîne fuit en anglais pour les utilisateurs francophones
-/// (le français n'est plus servi par retour de clé depuis qu'un fr.lproj existe).
+/// The app's language fallback rests on two invariants that are easy to break silently:
+/// the development language must stay English (a system that is neither French nor English
+/// gets English), and every catalog key must carry an explicit French entry, otherwise the
+/// string leaks out in English to French-speaking users (French is no longer served by key
+/// fallback now that an fr.lproj exists).
 struct LocalizationCatalogTests {
     private static func loadCatalog() throws -> [String: [String: Any]] {
         let catalogURL = URL(fileURLWithPath: #filePath)

@@ -2,7 +2,7 @@
 //  DSMNetworkService.swift
 //  dsmaccess
 //
-//  Identité et configuration réseau du NAS.
+//  NAS identity and network configuration.
 //
 
 import Foundation

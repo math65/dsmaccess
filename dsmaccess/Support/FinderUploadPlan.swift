@@ -2,19 +2,19 @@
 //  FinderUploadPlan.swift
 //  dsmaccess
 //
-//  Expansion locale d'une sélection du Finder en plan d'envoi : fichiers avec
-//  leur dossier relatif, arborescence de dossiers à recréer sur le NAS.
+//  Local expansion of a Finder selection into an upload plan: files with their
+//  relative folder, and the folder tree to recreate on the NAS.
 //
 
 import Foundation
 
-/// L'API d'envoi de File Station traite un fichier à la fois : un dossier collé
-/// ou choisi dans le Finder est donc développé côté Mac avant l'envoi.
+/// File Station's upload API handles one file at a time: a folder pasted or
+/// picked in the Finder is therefore expanded on the Mac side before uploading.
 struct FinderUploadPlan: Equatable, Sendable {
     struct File: Equatable, Sendable {
         let source: URL
-        /// Chemin du dossier relatif à la destination (« Vacances/2024 »),
-        /// ou `nil` pour un fichier envoyé directement dans la destination.
+        /// Folder path relative to the destination ("Vacances/2024"), or `nil`
+        /// for a file uploaded directly into the destination.
         let relativeFolder: String?
 
         func destinationFolder(under parent: String) -> String {
@@ -23,10 +23,10 @@ struct FinderUploadPlan: Equatable, Sendable {
     }
 
     var files: [File] = []
-    /// Tous les dossiers de l'arborescence, vides compris, en chemins relatifs.
+    /// Every folder in the tree, empty ones included, as relative paths.
     var folders: [String] = []
-    /// Éléments que l'énumération locale n'a pas pu lire : l'envoi ne doit pas
-    /// les passer sous silence.
+    /// Items the local enumeration could not read: the upload must not pass over
+    /// them in silence.
     var unreadableItems = 0
 
     func folderCreations(under parent: String) -> [FileStationFolderCreation] {
@@ -38,7 +38,7 @@ struct FinderUploadPlan: Equatable, Sendable {
         }
     }
 
-    /// L'énumération lit le disque : elle reste hors du MainActor.
+    /// The enumeration reads the disk: it stays off the MainActor.
     @concurrent
     static func make(from urls: [URL]) async -> FinderUploadPlan {
         var plan = FinderUploadPlan()
@@ -81,7 +81,7 @@ struct FinderUploadPlan: Equatable, Sendable {
         }
         let basePath = url.path + "/"
         for case let descendant as URL in enumerator {
-            // Métadonnée du Finder sans valeur sur le NAS.
+            // Finder metadata with no value on the NAS.
             if descendant.lastPathComponent == ".DS_Store" { continue }
             guard descendant.path.hasPrefix(basePath) else {
                 unreadable += 1

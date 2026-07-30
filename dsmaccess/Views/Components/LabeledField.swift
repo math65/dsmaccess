@@ -2,16 +2,16 @@
 //  LabeledField.swift
 //  dsmaccess
 //
-//  Champ de saisie avec libellé visible au-dessus. Le libellé décoratif est masqué
-//  à VoiceOver (le champ porte lui-même le libellé d'accessibilité), pour éviter une
-//  double lecture.
+//  Text field with a visible label above it. The decorative label is hidden from
+//  VoiceOver (the field itself carries the accessibility label), to avoid it being
+//  read twice.
 //
 
 import SwiftUI
 
 struct LabeledField<Content: View>: View {
-    // LocalizedStringKey pour que le libellé (affiché ET utilisé comme label
-    // d'accessibilité) soit traduit automatiquement via le String Catalog.
+    // LocalizedStringKey so that the label (displayed AND used as the accessibility
+    // label) is translated automatically through the String Catalog.
     let label: LocalizedStringKey
     @ViewBuilder let content: Content
 

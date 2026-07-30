@@ -2,7 +2,7 @@
 //  PackageInstallationModels.swift
 //  dsmaccess
 //
-//  Charges utiles utilisées par les installations du Centre de paquets DSM.
+//  Payloads used by DSM Package Center installations.
 //
 
 import Foundation
@@ -150,7 +150,7 @@ struct PackageInstallQueue: nonisolated Decodable, Sendable {
 
 struct PackageInstallQueueItem: nonisolated Decodable, Equatable, Sendable {
     let packageID: String
-    /// Absent sur certaines builds DSM 7.4 (90075 renvoie seulement pkg/beta/volume).
+    /// Missing on some DSM 7.4 builds (90075 only returns pkg/beta/volume).
     let operation: String?
     let version: String?
     let isBeta: Bool

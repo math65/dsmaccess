@@ -2,10 +2,10 @@
 //  LogsSecurityViewModel.swift
 //  dsmaccess
 //
-//  Journal système du NAS et liste de blocage du blocage automatique.
+//  NAS system log and the auto-block block list.
 //
-//  Les deux lectures sont indépendantes : un NAS dont la liste de blocage est refusée doit
-//  quand même montrer son journal, et l'inverse. Chacune porte donc son erreur.
+//  The two reads are independent: a NAS whose block list is denied must still show its log,
+//  and the other way round. Each therefore carries its own error.
 //
 
 import Foundation
@@ -14,45 +14,45 @@ import Observation
 @MainActor
 @Observable
 final class LogsSecurityViewModel {
-    /// Un NAS actif accumule des milliers d'entrées — 6995 sur le DS920+ de développement. La
-    /// page est large mais bornée, et l'écran dit ce qu'il ne montre pas.
+    /// An active NAS piles up thousands of entries — 6995 on the development DS920+. The page
+    /// is large but bounded, and the screen says what it is not showing.
     static let logPageLimit = 1000
     static let blockedPageLimit = 500
 
     private(set) var logs: [SystemLogEntry] = []
-    /// Nombre d'entrées conservées par le NAS, qui dépasse souvent la page chargée.
+    /// Number of entries kept by the NAS, which often exceeds the loaded page.
     private(set) var totalLogCount = 0
-    /// Vrai le temps d'aller chercher les entrées suivantes, pour désarmer le bouton.
+    /// True while the next entries are being fetched, to disarm the button.
     private(set) var isLoadingMore = false
-    /// Vrai le temps que le NAS produise le fichier d'export.
+    /// True while the NAS produces the export file.
     private(set) var isExporting = false
     private(set) var blockedAddresses: [BlockedAddress] = []
     private(set) var loginActivity: [LoginActivityEvent] = []
     var loginActivityError: String?
-    /// Réglages du blocage automatique. `nil` tant qu'ils n'ont pas été lus : l'écran ne
-    /// présente pas de valeurs par défaut comme si elles venaient du NAS.
+    /// Auto-block settings. `nil` until they have been read: the screen does not present
+    /// default values as if they came from the NAS.
     private(set) var autoBlock: AutoBlockSettings?
     var settingsError: String?
-    /// Vrai le temps qu'un réglage soit écrit, pour désarmer les commandes.
+    /// True while a setting is being written, to disarm the controls.
     private(set) var isSavingSettings = false
     private(set) var isLoading = false
-    /// Adresses dont le déblocage est en cours, pour désarmer leurs commandes.
+    /// Addresses currently being unblocked, to disarm their controls.
     private(set) var busyAddresses: Set<String> = []
     var errorMessage: String?
     var blockedAddressesError: String?
 
-    /// Recherche transmise au NAS, qui filtre lui-même le journal.
+    /// Search passed to the NAS, which filters the log itself.
     var searchText = "" {
         didSet { if searchText != oldValue { scheduleSearch() } }
     }
-    /// Gravité retenue. Le filtrage est local : vérifié sur DSM 7.4, le NAS accepte un
-    /// paramètre `level` puis l'ignore.
+    /// Selected severity. Filtering is local: verified on DSM 7.4, the NAS accepts a `level`
+    /// parameter and then ignores it.
     var levelFilter: LevelFilter = .all
 
-    /// Journal consulté. Le NAS en tient un par protocole en plus du système et des connexions.
+    /// Log being viewed. The NAS keeps one per protocol on top of the system and connection ones.
     private(set) var kind: SystemLogKind = .system
-    /// Journaux proposés : ceux que le NAS tient toujours, plus les protocoles dont la
-    /// journalisation des transferts est activée.
+    /// Logs offered: the ones the NAS always keeps, plus the protocols whose transfer logging
+    /// is turned on.
     private(set) var availableKinds: [SystemLogKind] = SystemLogKind.always
 
     enum LevelFilter: Hashable, CaseIterable, Identifiable {
@@ -66,7 +66,7 @@ final class LogsSecurityViewModel {
 
     private let session: SessionStore
     private var loadGeneration = 0
-    /// Une frappe ne doit pas déclencher une requête par caractère.
+    /// A keystroke must not trigger one request per character.
     private var searchTask: Task<Void, Never>?
 
     init(session: SessionStore) {
@@ -111,8 +111,9 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// L'activité de connexion vient du Conseiller de sécurité, une autre API que les journaux :
-    /// elle porte donc son erreur, pour qu'un refus n'emporte pas le reste de l'écran.
+    /// Sign-in activity comes from Security Advisor, a different API from the logs: it
+    /// therefore carries its own error, so that a denial does not take down the rest of the
+    /// screen.
     private func loadLoginActivity(generation: Int) async {
         loginActivityError = nil
         do {
@@ -131,8 +132,8 @@ final class LogsSecurityViewModel {
 
     static let loginActivityLimit = 200
 
-    /// Réglages : la journalisation des transferts est déjà lue pour peupler le sélecteur de
-    /// journal ; seul le blocage automatique reste à charger.
+    /// Settings: transfer logging is already read to populate the log picker; only auto-block
+    /// is left to load.
     private func loadSettings(generation: Int) async {
         settingsError = nil
         do {
@@ -146,8 +147,8 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Active ou coupe la journalisation d'un protocole. Le journal correspondant apparaît ou
-    /// disparaît du sélecteur, sans que les entrées déjà consignées soient perdues.
+    /// Turns a protocol's logging on or off. The matching log appears in or disappears from
+    /// the picker, without losing the entries already recorded.
     func setTransferLogging(_ kind: SystemLogKind, enabled: Bool) async -> DSMOperationOutcome {
         isSavingSettings = true
         defer { isSavingSettings = false }
@@ -158,7 +159,7 @@ final class LogsSecurityViewModel {
             try await session.withClient {
                 try await $0.setFileTransferLogging(FileTransferLogging(enabled: protocols))
             }
-            // Le sélecteur se reconstruit depuis le NAS plutôt que depuis notre hypothèse.
+            // The picker is rebuilt from the NAS rather than from our own assumption.
             availableKinds = SystemLogKind.always
             await load()
             return .success(
@@ -173,7 +174,7 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Enregistre les réglages du blocage automatique.
+    /// Saves the auto-block settings.
     func save(_ settings: AutoBlockSettings) async -> DSMOperationOutcome {
         isSavingSettings = true
         defer { isSavingSettings = false }
@@ -192,13 +193,12 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Protocoles journalisés, pour l'écran de réglages.
+    /// Logged protocols, for the settings screen.
     func isTransferLogged(_ kind: SystemLogKind) -> Bool { availableKinds.contains(kind) }
 
-    /// Journaux à proposer. Un journal de transfert dont le protocole n'est pas journalisé
-    /// renverrait zéro entrée sans erreur, ce qui se lirait comme un journal vide : mieux vaut
-    /// ne pas le proposer. L'échec de cette lecture n'est pas une erreur de l'écran — on s'en
-    /// tient alors aux journaux que le NAS tient toujours.
+    /// Logs to offer. A transfer log whose protocol is not logged would return zero entries
+    /// without an error, which would read as an empty log: better not to offer it. Failing
+    /// this read is not a screen error — we then stick to the logs the NAS always keeps.
     private func loadAvailableKinds(generation: Int) async {
         guard availableKinds == SystemLogKind.always else { return }
         let logging = try? await session.withClient { try await $0.fileTransferLogging() }
@@ -207,8 +207,8 @@ final class LogsSecurityViewModel {
             + SystemLogKind.transfers.filter(logging.enabled.contains)
     }
 
-    /// Change de journal. Chaque journal a sa propre pagination et son propre décompte : la
-    /// liste repart de sa première tranche.
+    /// Switches log. Each log has its own pagination and its own count: the list starts over
+    /// from its first page.
     func select(_ kind: SystemLogKind) async {
         guard kind != self.kind else { return }
         self.kind = kind
@@ -217,13 +217,13 @@ final class LogsSecurityViewModel {
         await load(announce: true)
     }
 
-    /// Ajoute la tranche suivante du journal à celle déjà affichée, sans rien remplacer : les
-    /// entrées déjà lues restent en place et le tableau grandit.
+    /// Appends the log's next page to the one already shown, replacing nothing: the entries
+    /// already read stay in place and the table grows.
     ///
-    /// La pagination du NAS se fait par rang, non par horodatage : si le NAS consigne une
-    /// nouvelle entrée entre deux tranches, tout se décale d'un cran et une entrée peut
-    /// apparaître deux fois ou passer à la trappe. DSM a la même limite. Renvoie le message à
-    /// annoncer, ou `nil` s'il n'y avait rien à charger.
+    /// The NAS paginates by rank, not by timestamp: if the NAS records a new entry between two
+    /// pages, everything shifts by one and an entry can show up twice or slip through the
+    /// cracks. DSM has the same limitation. Returns the message to announce, or `nil` if there
+    /// was nothing to load.
     func loadMore() async -> DSMOperationOutcome? {
         guard canLoadMore, !isLoadingMore else { return nil }
         isLoadingMore = true
@@ -242,10 +242,10 @@ final class LogsSecurityViewModel {
                     keyword: keyword
                 )
             }
-            // Un rechargement complet a pu partir entre-temps : sa page fait foi, pas la nôtre.
+            // A full reload may have started meanwhile: its page is authoritative, not ours.
             guard generation == loadGeneration else { return nil }
             guard !page.entries.isEmpty else {
-                // Le NAS n'a plus rien à donner : le total qu'il annonçait était optimiste.
+                // The NAS has nothing left to give: the total it announced was optimistic.
                 totalLogCount = logs.count
                 return .success(String(localized: "logs.entries.all_shown"))
             }
@@ -261,8 +261,8 @@ final class LogsSecurityViewModel {
 
     var canLoadMore: Bool { totalLogCount > logs.count }
 
-    /// La liste de blocage a sa propre erreur : le journal reste consultable même si le NAS la
-    /// refuse, ce qui est le cas d'un compte sans privilège d'administration.
+    /// The block list carries its own error: the log stays readable even if the NAS denies it,
+    /// which is what happens for an account without administration privileges.
     private func loadBlockedAddresses(generation: Int) async {
         blockedAddressesError = nil
         do {
@@ -281,8 +281,8 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Le NAS filtre le journal lui-même : la recherche est renvoyée chez lui, après une courte
-    /// pause pour ne pas interroger le NAS à chaque frappe.
+    /// The NAS filters the log itself: the search is sent back to it, after a short pause so
+    /// the NAS is not queried on every keystroke.
     private func scheduleSearch() {
         searchTask?.cancel()
         searchTask = Task { [weak self] in
@@ -292,8 +292,8 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Écrit le journal courant dans un fichier. L'export porte sur le journal entier, pas sur
-    /// les tranches chargées : le NAS produit le fichier lui-même.
+    /// Writes the current log to a file. The export covers the whole log, not the pages
+    /// loaded: the NAS produces the file itself.
     func export(as format: SystemLogExportFormat, to destination: URL) async -> DSMOperationOutcome {
         isExporting = true
         defer { isExporting = false }
@@ -312,8 +312,8 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Nom de fichier proposé : le journal et la date, pour que deux exports ne se recouvrent
-    /// pas dans le dossier de destination.
+    /// Suggested file name: the log and the date, so that two exports do not overwrite each
+    /// other in the destination folder.
     func suggestedExportName(for format: SystemLogExportFormat) -> String {
         let day = Date.now.formatted(.iso8601.year().month().day().dateSeparator(.dash))
         return "\(kindTitle) \(day).\(format.fileExtension)"
@@ -326,8 +326,8 @@ final class LogsSecurityViewModel {
         defer { busyAddresses.subtract(values) }
         do {
             try await session.withClient { try await $0.unblockAddresses(values) }
-            // La liste est rechargée plutôt que corrigée sur place : le blocage automatique
-            // peut avoir ajouté ou fait expirer des adresses entre-temps.
+            // The list is reloaded rather than patched in place: auto-block may have added or
+            // expired addresses meanwhile.
             await loadBlockedAddresses(generation: loadGeneration)
             if values.count == 1, let only = values.first {
                 return .success(String(localized: "logs.security.unblock.result.single", defaultValue: "Address unblocked: \(only)"))
@@ -340,10 +340,10 @@ final class LogsSecurityViewModel {
         }
     }
 
-    // MARK: - Présentation
+    // MARK: - Presentation
 
-    /// Entrées effectivement affichées. Seule la gravité est filtrée ici : le mot-clé a déjà
-    /// été appliqué par le NAS.
+    /// Entries actually shown. Only severity is filtered here: the keyword has already been
+    /// applied by the NAS.
     var visibleLogs: [SystemLogEntry] {
         guard levelFilter != .all else { return logs }
         return logs.filter { matches(levelFilter, $0.level) }
@@ -359,8 +359,8 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Un journal de transfert n'attribue aucune gravité : le tiret dit l'absence là où
-    /// « niveau inconnu » laisserait croire à une valeur que nous n'aurions pas su lire.
+    /// A transfer log assigns no severity: the dash states the absence, where "unknown level"
+    /// would suggest a value we had failed to read.
     func levelText(_ level: SystemLogEntry.Level?) -> String {
         switch level {
         case .info: String(localized: "common.level.information")
@@ -373,8 +373,8 @@ final class LogsSecurityViewModel {
 
     func addressText(for entry: SystemLogEntry) -> String { entry.address ?? "—" }
 
-    /// Opération enregistrée par un journal de transfert. DSM emploie des verbes courts et non
-    /// traduits ; les plus courants sont rendus en clair, les autres tels quels.
+    /// Operation recorded by a transfer log. DSM uses short, untranslated verbs; the most
+    /// common ones are spelled out, the others left as they are.
     func operationText(for entry: SystemLogEntry) -> String {
         switch entry.operation?.lowercased() {
         case "read": String(localized: "common.metric.read")
@@ -390,7 +390,7 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Taille du fichier. Un dossier n'en a pas, et le NAS y écrit zéro.
+    /// File size. A folder has none, and the NAS writes zero there.
     func sizeText(for entry: SystemLogEntry) -> String {
         guard let fileSize = entry.fileSize else {
             return entry.isDirectory ? String(localized: "common.value.folder") : "—"
@@ -398,11 +398,11 @@ final class LogsSecurityViewModel {
         return fileSize.formatted(.byteCount(style: .file))
     }
 
-    /// Vrai quand le journal courant décrit des transferts : ses colonnes ne sont pas les mêmes.
+    /// True when the current log describes transfers: its columns are not the same.
     var showsTransferColumns: Bool { kind.isTransfer }
 
-    /// Nom du journal. Les journaux de transfert portent le nom de leur protocole, tel que
-    /// Synology l'écrit : ces noms ne se traduisent pas.
+    /// Log name. Transfer logs carry their protocol's name, spelled the way Synology writes
+    /// it: those names are not translated.
     func kindText(_ kind: SystemLogKind) -> String {
         switch kind {
         case .system: String(localized: "logs.log_type.system")
@@ -416,7 +416,7 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Titre de l'écran pour le journal courant, et intitulé annoncé après un changement.
+    /// Screen title for the current log, and the wording announced after a change.
     var kindTitle: String {
         switch kind {
         case .system, .connection: kindText(kind)
@@ -433,9 +433,9 @@ final class LogsSecurityViewModel {
         }
     }
 
-    /// Catégorie de l'entrée. La valeur technique est traduite par l'app, pour qu'elle suive la
-    /// langue de l'app et non celle du compte DSM ; la traduction du NAS ne sert que de repli
-    /// pour une catégorie que nous ne connaissons pas.
+    /// Entry category. The technical value is translated by the app, so that it follows the
+    /// app's language and not the DSM account's; the NAS translation only serves as a fallback
+    /// for a category we do not know.
     func categoryText(for entry: SystemLogEntry) -> String {
         switch entry.technicalCategory?.lowercased() {
         case "system": String(localized: "common.label.system")
@@ -447,8 +447,8 @@ final class LogsSecurityViewModel {
 
     func accountText(for entry: SystemLogEntry) -> String { entry.account ?? "—" }
 
-    /// Horodatage rendu dans la langue du Mac. Un tiret quand DSM a envoyé une forme que nous
-    /// n'avons pas su lire : l'entrée reste listée, sans date inventée.
+    /// Timestamp rendered in the Mac's language. A dash when DSM sent a form we could not
+    /// read: the entry stays listed, with no invented date.
     func dateText(for entry: SystemLogEntry) -> String {
         guard let recordedAt = entry.recordedAt else { return "—" }
         return recordedAt.formatted(date: .abbreviated, time: .standard)
@@ -459,8 +459,8 @@ final class LogsSecurityViewModel {
         return blockedAt.formatted(date: .abbreviated, time: .standard)
     }
 
-    /// Un blocage sans expiration est la valeur par défaut de DSM. Le NAS envoie alors zéro,
-    /// qu'il formate lui-même en 1970 — d'où une date jamais reprise telle quelle.
+    /// A block with no expiry is DSM's default. The NAS then sends zero, which it formats
+    /// itself as 1970 — hence a date never taken as is.
     func expiryText(for address: BlockedAddress) -> String {
         guard let expiresAt = address.expiresAt else {
             return String(localized: "logs.security.autoblock.expiry.permanent")
@@ -475,12 +475,12 @@ final class LogsSecurityViewModel {
         return Locale.current.localizedString(forRegionCode: country) ?? country
     }
 
-    // MARK: - Activité de connexion
+    // MARK: - Sign-in activity
 
-    /// L'alerte en une phrase. Le NAS n'en fournit aucune : il envoie une clé de son catalogue
-    /// et des arguments, que son client web assemble. Chaque clé connue a donc sa phrase
-    /// complète, et le compte comme l'adresse restent dans leurs colonnes plutôt que d'être
-    /// répétés ici.
+    /// The alert as a single sentence. The NAS supplies none: it sends a key from its
+    /// catalogue plus arguments, which its web client assembles. Each known key therefore has
+    /// its own complete sentence, and both the account and the address stay in their columns
+    /// instead of being repeated here.
     func description(of event: LoginActivityEvent) -> String {
         switch event.kind {
         case .abnormalLogin:
@@ -501,8 +501,8 @@ final class LogsSecurityViewModel {
             }
             return String(localized: "logs.security.alert.repeated_signin")
         case .unknown(let section, let identifier):
-            // Le NAS a signalé quelque chose que nous ne savons pas formuler : le dire, plutôt
-            // que d'inventer une phrase ou de masquer l'alerte.
+            // The NAS reported something we do not know how to word: say so, rather than
+            // inventing a sentence or hiding the alert.
             let key = identifier.isEmpty ? section : "\(section):\(identifier)"
             return String(localized: "logs.security.alert.unrecognized", defaultValue: "Unrecognised security alert (\(key))")
         }
@@ -521,7 +521,7 @@ final class LogsSecurityViewModel {
         event.account ?? event.details.user ?? "—"
     }
 
-    /// Les adresses d'une alerte. Une attaque par force brute peut en porter plusieurs.
+    /// The addresses of an alert. A brute-force attack can carry several.
     func addressText(for event: LoginActivityEvent) -> String {
         let addresses = event.details.allAddresses
         guard !addresses.isEmpty else { return "—" }
@@ -533,8 +533,8 @@ final class LogsSecurityViewModel {
         return recordedAt.formatted(date: .abbreviated, time: .standard)
     }
 
-    /// Le NAS envoie un code de pays à deux lettres ; le Mac sait le nommer dans la langue de
-    /// l'utilisateur.
+    /// The NAS sends a two-letter country code; the Mac knows how to name it in the user's
+    /// language.
     private func countryName(_ code: String?) -> String? {
         guard let code, !code.isEmpty else { return nil }
         return Locale.current.localizedString(forRegionCode: code) ?? code
@@ -553,18 +553,18 @@ final class LogsSecurityViewModel {
         !busyAddresses.contains(address.address)
     }
 
-    /// Vrai quand le NAS en conserve plus que ce qui a été chargé.
+    /// True when the NAS keeps more of them than what has been loaded.
     var isTruncated: Bool { totalLogCount > logs.count }
 
-    /// Décompte des gravités présentes dans la page chargée. Recalculé sur place plutôt que lu
-    /// dans la réponse : le NAS renvoie bien `errorCount` et ses voisins, mais ils portent sur
-    /// la page entière, alors que l'écran peut en filtrer une partie.
+    /// Count of the severities present in the loaded page. Recomputed here rather than read
+    /// from the response: the NAS does return `errorCount` and its neighbours, but they cover
+    /// the whole page, whereas the screen may filter part of it out.
     var visibleErrorCount: Int { visibleLogs.filter { $0.level == .error }.count }
     var visibleWarningCount: Int { visibleLogs.filter { $0.level == .warning }.count }
 
     var summary: String {
         if let errorMessage { return errorMessage }
-        // Un journal de transfert n'a pas de gravité : annoncer « 0 erreur » y serait trompeur.
+        // A transfer log has no severity: announcing "0 errors" there would be misleading.
         if showsTransferColumns {
             if isTruncated {
                 return String(

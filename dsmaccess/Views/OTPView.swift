@@ -2,12 +2,11 @@
 //  OTPView.swift
 //  dsmaccess
 //
-//  Saisie du code de vérification à deux facteurs. Affiché uniquement quand DSM le
-//  réclame après une connexion par mot de passe. Le focus VoiceOver est placé sur le
-//  champ dès l'apparition.
+//  Entry of the two-factor verification code. Shown only when DSM asks for it after a
+//  password sign-in. VoiceOver focus is placed on the field as soon as it appears.
 //
-//  L'approbation « push » de Secure SignIn suit un autre chemin, sans mot de passe :
-//  voir SecureSignInApprovalView.
+//  Secure SignIn "push" approval follows another path, without a password: see
+//  SecureSignInApprovalView.
 //
 
 import SwiftUI

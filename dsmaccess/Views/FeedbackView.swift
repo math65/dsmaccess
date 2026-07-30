@@ -2,10 +2,10 @@
 //  FeedbackView.swift
 //  dsmaccess
 //
-//  Formulaire « Contacter le développeur » : signalement de problème (avec
-//  instantané de diagnostic), suggestion ou question. Accessible dans tous les
-//  états : focus posé à l'ouverture, envoi annoncé, erreur visible, annoncée et
-//  focalisée, fermeture automatique après succès.
+//  "Contact the developer" form: problem report (with a diagnostic snapshot),
+//  suggestion or question. Accessible in every state: focus placed on opening,
+//  sending announced, error visible, announced and focused, automatic dismissal
+//  after success.
 //
 
 import SwiftUI

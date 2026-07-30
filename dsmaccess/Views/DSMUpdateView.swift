@@ -2,7 +2,7 @@
 //  DSMUpdateView.swift
 //  dsmaccess
 //
-//  Mise à jour manuelle de DSM depuis un fichier .pat.
+//  Manual DSM update from a .pat file.
 //
 
 import SwiftUI
@@ -117,9 +117,9 @@ struct DSMUpdateView: View {
         }
     }
 
-    /// Le contenu du contrôle préalable n'a pas pu être mesuré sur un vrai NAS : quand DSM
-    /// répond dans une forme inconnue, l'écran le dit au lieu de laisser croire qu'il n'y a
-    /// aucune conséquence.
+    /// The contents of the pre-check could not be measured on a real NAS: when DSM answers in
+    /// an unknown shape, the screen says so instead of letting the user believe there is no
+    /// consequence.
     private func warningText(_ preCheck: DSMUpgradePreCheck) -> String { warningText(for: preCheck) }
 
     private func warningText(for preCheck: DSMUpgradePreCheck) -> String {
@@ -199,8 +199,8 @@ struct DSMUpdateView: View {
     }
 }
 
-/// Dernier point d'arrêt avant une opération qui coupe le NAS pendant une vingtaine de
-/// minutes : les conséquences sont énoncées, et la case doit être cochée pour continuer.
+/// Last stop before an operation that takes the NAS down for some twenty minutes: the
+/// consequences are stated, and the checkbox must be ticked to continue.
 private struct DSMUpdateConfirmationSheet: View {
     let currentVersion: String?
     let fileName: String

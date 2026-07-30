@@ -2,7 +2,7 @@
 //  USBCopyTask.swift
 //  dsmaccess
 //
-//  Tâches renvoyées par l’API privée SYNO.USBCopy.
+//  Tasks returned by the private SYNO.USBCopy API.
 //
 
 import Foundation

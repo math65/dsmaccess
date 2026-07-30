@@ -2,7 +2,7 @@
 //  PackageUpdate.swift
 //  dsmaccess
 //
-//  Métadonnées nécessaires à la mise à jour d'un paquet officiel.
+//  Metadata required to update an official package.
 //
 
 import Foundation

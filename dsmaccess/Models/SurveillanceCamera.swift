@@ -2,7 +2,7 @@
 //  SurveillanceCamera.swift
 //  dsmaccess
 //
-//  Caméras Surveillance Station et réglages de flux utiles à l’inventaire.
+//  Surveillance Station cameras and the stream settings useful for the inventory.
 //
 
 import Foundation

@@ -2,7 +2,7 @@
 //  UpdateSettingsView.swift
 //  dsmaccess
 //
-//  Réglages des mises à jour de l'app (Sparkle).
+//  Settings for the app's updates (Sparkle).
 //
 
 import SwiftUI

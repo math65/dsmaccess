@@ -2,11 +2,11 @@
 //  PackageSettings.swift
 //  dsmaccess
 //
-//  Réponse de SYNO.Core.Package.Setting (method=get) : préférences globales du Centre de
-//  paquets. API NON documentée. Particularité confirmée : `update_channel` est un booléen en
-//  lecture mais s'écrit en chaîne ("stable"/"beta"). On garde tous les champs (même ceux non
-//  exposés dans l'UI, comme default_vol/trust_level) pour les *préserver* à l'écriture : le
-//  `set` de l'API attend l'objet complet.
+//  Response of SYNO.Core.Package.Setting (method=get): global Package Center preferences.
+//  UNDOCUMENTED API. Confirmed quirk: `update_channel` is a boolean when read but is written
+//  as a string ("stable"/"beta"). All the fields are kept (even those not exposed in the UI,
+//  such as default_vol/trust_level) in order to *preserve* them on write: the API's `set`
+//  expects the complete object.
 //
 
 import Foundation
@@ -19,7 +19,7 @@ struct PackageSettings: nonisolated Decodable, Equatable, Sendable {
     var enableEmail: Bool
     var defaultVol: String
     var trustLevel: Int
-    /// Canal beta : true = versions beta affichées. Envoyé en "beta"/"stable" à l'écriture.
+    /// Beta channel: true = beta versions shown. Sent as "beta"/"stable" on write.
     var updateChannelBeta: Bool
 
     enum CodingKeys: String, CodingKey {
@@ -42,7 +42,7 @@ struct PackageSettings: nonisolated Decodable, Equatable, Sendable {
         enableEmail = try c.requiredFlexBool(.enableEmail)
         defaultVol = try c.requiredFlexString(.defaultVol)
         trustLevel = try c.requiredFlexInt(.trustLevel)
-        // update_channel : booléen en lecture, mais on tolère une chaîne ("beta"/"stable").
+        // update_channel: boolean when read, but a string ("beta"/"stable") is tolerated.
         if let b = try? c.decode(Bool.self, forKey: .updateChannelBeta) {
             updateChannelBeta = b
         } else if let s = try? c.decode(String.self, forKey: .updateChannelBeta) {
@@ -57,22 +57,22 @@ struct PackageSettings: nonisolated Decodable, Equatable, Sendable {
     }
 }
 
-/// Stratégie de mise à jour automatique, dérivée des trois champs bruts de l'API.
+/// Automatic update strategy, derived from the API's three raw fields.
 enum AutoUpdateMode: CaseIterable, Identifiable, Sendable {
-    case off        // désactivée
-    case important  // versions importantes (sécurité)
-    case latest     // dernières versions
+    case off        // disabled
+    case important  // important versions (security)
+    case latest     // latest versions
     var id: Self { self }
 }
 
 extension PackageSettings {
-    /// Mode courant, calculé depuis enable_autoupdate + autoupdateall.
+    /// Current mode, computed from enable_autoupdate + autoupdateall.
     var autoUpdateMode: AutoUpdateMode {
         guard enableAutoupdate else { return .off }
         return autoupdateAll ? .latest : .important
     }
 
-    /// Applique un mode aux trois champs bruts.
+    /// Applies a mode to the three raw fields.
     mutating func setAutoUpdateMode(_ mode: AutoUpdateMode) {
         switch mode {
         case .off:

@@ -2,7 +2,7 @@
 //  FileStationVirtualFoldersView.swift
 //  dsmaccess
 //
-//  Navigation dans les montages NFS, CIFS et ISO annoncés par File Station.
+//  Browsing the NFS, CIFS and ISO mounts announced by File Station.
 //
 
 import SwiftUI

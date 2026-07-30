@@ -2,7 +2,7 @@
 //  DSMUpdateViewModel.swift
 //  dsmaccess
 //
-//  Conduite d'une mise à jour manuelle de DSM, du choix du fichier au retour du NAS.
+//  Driving a manual DSM update, from picking the file to the NAS coming back.
 //
 
 import Foundation
@@ -11,8 +11,8 @@ import Observation
 @MainActor
 @Observable
 final class DSMUpdateViewModel {
-    /// Étapes de l'opération. Elles servent aussi à décider ce qui est annoncé : une
-    /// installation dure une vingtaine de minutes et l'écran change seul d'état.
+    /// Stages of the operation. They also decide what gets announced: an installation takes
+    /// about twenty minutes and the screen changes state on its own.
     enum Stage: Equatable {
         case idle
         case uploading
@@ -36,8 +36,8 @@ final class DSMUpdateViewModel {
     var errorMessage: String?
 
     private let session: SessionStore
-    /// Sondage du retour du NAS : 15 s entre deux essais, plafonné à 40 minutes. DSM annonce
-    /// 10 à 20 minutes ; au-delà du plafond, l'app le dit au lieu d'attendre indéfiniment.
+    /// Polling for the NAS's return: 15 s between attempts, capped at 40 minutes. DSM
+    /// announces 10 to 20 minutes; past the cap, the app says so instead of waiting forever.
     private let onlinePollInterval: Duration = .seconds(15)
     private let onlinePollLimit = 160
 
@@ -60,7 +60,7 @@ final class DSMUpdateViewModel {
         return String(localized: "common.status.installed_version", defaultValue: "Installed version: \(currentVersion)")
     }
 
-    /// Texte d'état, unique source de vérité pour l'affichage comme pour les annonces.
+    /// Status text, the single source of truth for both display and announcements.
     var statusText: String {
         switch stage {
         case .idle:
@@ -113,8 +113,8 @@ final class DSMUpdateViewModel {
         stage = .idle
     }
 
-    /// Envoie le fichier puis demande au NAS ce qu'il en pense. S'arrête avant d'installer :
-    /// la décision revient à l'utilisateur, une fois les conséquences connues.
+    /// Sends the file then asks the NAS what it thinks of it. Stops before installing: the
+    /// decision belongs to the user, once the consequences are known.
     func uploadAndCheck() async -> DSMOperationOutcome {
         guard let fileURL = selectedFile, !isBusy else { return .cancelled }
         stage = .uploading
@@ -143,7 +143,7 @@ final class DSMUpdateViewModel {
         }
     }
 
-    /// Lance l'installation, puis suit le NAS jusqu'à ce qu'il réponde de nouveau.
+    /// Starts the installation, then follows the NAS until it answers again.
     func startUpgrade() async -> DSMOperationOutcome {
         guard stage == .awaitingConfirmation else { return .cancelled }
         stage = .starting
@@ -169,8 +169,8 @@ final class DSMUpdateViewModel {
             ))
     }
 
-    /// Suit la progression tant que le NAS répond encore. Sa disparition n'est pas une erreur
-    /// ici : c'est le redémarrage attendu.
+    /// Follows progress for as long as the NAS still answers. Its disappearance is not an
+    /// error here: it is the expected restart.
     private func followInstallation() async {
         while !Task.isCancelled {
             do {

@@ -2,11 +2,12 @@
 //  PerformanceAlarmRuleSheet.swift
 //  dsmaccess
 //
-//  Composition d'une règle d'alarme. Le formulaire se réduit ou s'étend selon le type choisi :
-//  une règle système n'a pas de cible, une règle de service en exige une.
+//  Composing an alarm rule. The form shrinks or expands depending on the chosen type: a
+//  system rule has no target, a service rule requires one.
 //
-//  Le seuil est borné par le couple type / ressource, comme le fait DSM : hors bornes, le NAS
-//  refuse la règle. Les bornes sont donc dites à l'écran plutôt que découvertes par un échec.
+//  The threshold is bounded by the type / resource pair, as DSM does it: out of bounds, the
+//  NAS refuses the rule. The bounds are therefore stated on screen rather than discovered
+//  through a failure.
 //
 
 import SwiftUI
@@ -14,7 +15,7 @@ import SwiftUI
 struct PerformanceAlarmRuleSheet: View {
     @Bindable var vm: PerformanceAlarmViewModel
     @State private var draft: PerformanceAlarmRuleDraft
-    /// Reçoit le brouillon à enregistrer, ou `nil` si l'utilisateur renonce.
+    /// Receives the draft to save, or `nil` if the user backs out.
     let completion: (PerformanceAlarmRuleDraft?) -> Void
 
     @State private var thresholdText: String
@@ -132,8 +133,8 @@ struct PerformanceAlarmRuleSheet: View {
                     .foregroundStyle(.readableSecondary)
             }
         } else if targets.isEmpty {
-            // Le NAS n'a rien à proposer : le dire, plutôt que présenter une liste vide dont
-            // on ne saurait pas si elle a échoué ou si elle est vide.
+            // The NAS has nothing to offer: say so, rather than showing an empty list where
+            // you could not tell whether it failed or is genuinely empty.
             LabeledContent(title) {
                 Text("alarm.rule.target.empty")
                     .foregroundStyle(.readableOrange)
@@ -167,8 +168,8 @@ struct PerformanceAlarmRuleSheet: View {
         return String(localized: "alarm.rule.threshold.range_with_unit.hint", defaultValue: "Between \(measure.range.lowerBound) and \(measure.range.upperBound) \(unit)")
     }
 
-    /// Le catalogue des ressources change avec le type : une ressource qui n'existe pas pour
-    /// le nouveau type laisserait un formulaire que le NAS refuserait.
+    /// The resource catalog changes with the type: a resource that does not exist for the
+    /// new type would leave a form the NAS would refuse.
     private func adoptDefaults() {
         if !measures.contains(where: { $0.resource == draft.resource }),
            let first = measures.first {

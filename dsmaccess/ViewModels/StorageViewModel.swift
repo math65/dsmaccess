@@ -2,7 +2,7 @@
 //  StorageViewModel.swift
 //  dsmaccess
 //
-//  Charge et expose l'état du stockage (volumes + disques) du NAS.
+//  Loads and exposes the NAS's storage state (volumes + disks).
 //
 
 import Foundation
@@ -51,7 +51,7 @@ final class StorageViewModel {
         }
     }
 
-    /// Résumé annoncé à VoiceOver une fois chargé.
+    /// Summary announced to VoiceOver once loaded.
     var summary: String {
         if let errorMessage { return errorMessage }
         return String(localized: "storage.summary.counts", defaultValue: "\(volumes.count) volumes, \(disks.count) disks")

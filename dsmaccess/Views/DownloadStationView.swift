@@ -2,7 +2,7 @@
 //  DownloadStationView.swift
 //  dsmaccess
 //
-//  Gestion native des tâches Download Station.
+//  Native management of Download Station tasks.
 //
 
 import SwiftUI
