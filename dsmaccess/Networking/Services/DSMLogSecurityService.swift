@@ -11,6 +11,7 @@ import Foundation
 final class DSMLogSecurityService {
     private static let logAPI = DSMAPI("SYNO.Core.SyslogClient.Log")
     private static let blockListAPI = DSMAPI("SYNO.Core.Security.AutoBlock.Rules")
+    private static let transferLoggingAPI = DSMAPI("SYNO.Core.SyslogClient.FileTransfer")
 
     private let transport: DSMTransport
 
@@ -21,8 +22,19 @@ final class DSMLogSecurityService {
     /// Page du journal système. `keyword` est filtré par le NAS lui-même ; le niveau, lui, ne
     /// l'est pas : vérifié sur DSM 7.4, le paramètre `level` est accepté puis ignoré, et le
     /// filtrage par gravité se fait donc côté app.
-    func systemLogs(limit: Int, offset: Int = 0, keyword: String? = nil) async throws -> SystemLogPage {
+    ///
+    /// ⚠️ `logtype` est indispensable : sans lui le NAS ne renvoie que le journal système, alors
+    /// qu'il en tient un par protocole en plus de celui des connexions. Un type que le NAS ne
+    /// connaît pas renvoie zéro entrée **sans erreur** — d'où l'intérêt de ne proposer que les
+    /// journaux réellement actifs.
+    func systemLogs(
+        kind: SystemLogKind,
+        limit: Int,
+        offset: Int = 0,
+        keyword: String? = nil
+    ) async throws -> SystemLogPage {
         var parameters: [String: DSMParameter] = [
+            "logtype": .string(kind.rawValue),
             "offset": .integer(offset),
             "limit": .integer(limit),
             "sort_by": "time",
@@ -36,6 +48,15 @@ final class DSMLogSecurityService {
             method: "list",
             parameters: parameters,
             as: SystemLogPage.self
+        )
+    }
+
+    /// Protocoles dont les transferts sont journalisés. Détermine les journaux à proposer.
+    func fileTransferLogging() async throws -> FileTransferLogging {
+        try await transport.read(
+            api: Self.transferLoggingAPI,
+            method: "get",
+            as: FileTransferLogging.self
         )
     }
 

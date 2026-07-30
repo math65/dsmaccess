@@ -39,6 +39,12 @@ final class LogsSecurityViewModel {
     /// paramètre `level` puis l'ignore.
     var levelFilter: LevelFilter = .all
 
+    /// Journal consulté. Le NAS en tient un par protocole en plus du système et des connexions.
+    private(set) var kind: SystemLogKind = .system
+    /// Journaux proposés : ceux que le NAS tient toujours, plus les protocoles dont la
+    /// journalisation des transferts est activée.
+    private(set) var availableKinds: [SystemLogKind] = SystemLogKind.always
+
     enum LevelFilter: Hashable, CaseIterable, Identifiable {
         case all
         case error
@@ -64,10 +70,18 @@ final class LogsSecurityViewModel {
         errorMessage = nil
         defer { if generation == loadGeneration { isLoading = false } }
 
+        await loadAvailableKinds(generation: generation)
+
         let keyword = searchText.trimmingCharacters(in: .whitespaces)
         do {
+            let requested = kind
             let page = try await session.withClient {
-                try await $0.systemLogs(limit: Self.logPageLimit, offset: 0, keyword: keyword)
+                try await $0.systemLogs(
+                    kind: requested,
+                    limit: Self.logPageLimit,
+                    offset: 0,
+                    keyword: keyword
+                )
             }
             guard generation == loadGeneration else { return }
             logs = page.entries
@@ -83,6 +97,28 @@ final class LogsSecurityViewModel {
         if announce, generation == loadGeneration {
             VoiceOver.announce(summary, category: errorMessage == nil ? .result : .error)
         }
+    }
+
+    /// Journaux à proposer. Un journal de transfert dont le protocole n'est pas journalisé
+    /// renverrait zéro entrée sans erreur, ce qui se lirait comme un journal vide : mieux vaut
+    /// ne pas le proposer. L'échec de cette lecture n'est pas une erreur de l'écran — on s'en
+    /// tient alors aux journaux que le NAS tient toujours.
+    private func loadAvailableKinds(generation: Int) async {
+        guard availableKinds == SystemLogKind.always else { return }
+        let logging = try? await session.withClient { try await $0.fileTransferLogging() }
+        guard generation == loadGeneration, let logging else { return }
+        availableKinds = SystemLogKind.always
+            + SystemLogKind.transfers.filter(logging.enabled.contains)
+    }
+
+    /// Change de journal. Chaque journal a sa propre pagination et son propre décompte : la
+    /// liste repart de sa première tranche.
+    func select(_ kind: SystemLogKind) async {
+        guard kind != self.kind else { return }
+        self.kind = kind
+        logs = []
+        totalLogCount = 0
+        await load(announce: true)
     }
 
     /// Ajoute la tranche suivante du journal à celle déjà affichée, sans rien remplacer : les
@@ -101,8 +137,10 @@ final class LogsSecurityViewModel {
         let offset = logs.count
         let keyword = searchText.trimmingCharacters(in: .whitespaces)
         do {
+            let requested = kind
             let page = try await session.withClient {
                 try await $0.systemLogs(
+                    kind: requested,
                     limit: Self.logPageLimit,
                     offset: offset,
                     keyword: keyword
@@ -188,7 +226,7 @@ final class LogsSecurityViewModel {
         return logs.filter { matches(levelFilter, $0.level) }
     }
 
-    private func matches(_ filter: LevelFilter, _ level: SystemLogEntry.Level) -> Bool {
+    private func matches(_ filter: LevelFilter, _ level: SystemLogEntry.Level?) -> Bool {
         switch (filter, level) {
         case (.all, _): true
         case (.error, .error): true
@@ -198,12 +236,68 @@ final class LogsSecurityViewModel {
         }
     }
 
-    func levelText(_ level: SystemLogEntry.Level) -> String {
+    /// Un journal de transfert n'attribue aucune gravité : le tiret dit l'absence là où
+    /// « niveau inconnu » laisserait croire à une valeur que nous n'aurions pas su lire.
+    func levelText(_ level: SystemLogEntry.Level?) -> String {
         switch level {
         case .info: String(localized: "Information")
         case .warning: String(localized: "Avertissement")
         case .error: String(localized: "Erreur")
         case .other(let raw): raw.isEmpty ? String(localized: "Niveau inconnu") : raw
+        case nil: "—"
+        }
+    }
+
+    func addressText(for entry: SystemLogEntry) -> String { entry.address ?? "—" }
+
+    /// Opération enregistrée par un journal de transfert. DSM emploie des verbes courts et non
+    /// traduits ; les plus courants sont rendus en clair, les autres tels quels.
+    func operationText(for entry: SystemLogEntry) -> String {
+        switch entry.operation?.lowercased() {
+        case "read": String(localized: "Lecture")
+        case "write": String(localized: "Écriture")
+        case "delete": String(localized: "Suppression")
+        case "rename": String(localized: "Renommage")
+        case "move": String(localized: "Déplacement")
+        case "copy": String(localized: "Copie")
+        case "create": String(localized: "Création")
+        case "mkdir": String(localized: "Création de dossier")
+        case nil: "—"
+        default: entry.operation ?? "—"
+        }
+    }
+
+    /// Taille du fichier. Un dossier n'en a pas, et le NAS y écrit zéro.
+    func sizeText(for entry: SystemLogEntry) -> String {
+        guard let fileSize = entry.fileSize else {
+            return entry.isDirectory ? String(localized: "Dossier") : "—"
+        }
+        return fileSize.formatted(.byteCount(style: .file))
+    }
+
+    /// Vrai quand le journal courant décrit des transferts : ses colonnes ne sont pas les mêmes.
+    var showsTransferColumns: Bool { kind.isTransfer }
+
+    /// Nom du journal. Les journaux de transfert portent le nom de leur protocole, tel que
+    /// Synology l'écrit : ces noms ne se traduisent pas.
+    func kindText(_ kind: SystemLogKind) -> String {
+        switch kind {
+        case .system: String(localized: "Journal système")
+        case .connection: String(localized: "Journal de connexion")
+        case .afp: "AFP"
+        case .cifs: "SMB"
+        case .fileStation: "File Station"
+        case .ftp: "FTP"
+        case .tftp: "TFTP"
+        case .webdav: "WebDAV"
+        }
+    }
+
+    /// Titre de l'écran pour le journal courant, et intitulé annoncé après un changement.
+    var kindTitle: String {
+        switch kind {
+        case .system, .connection: kindText(kind)
+        default: String(localized: "Transferts \(kindText(kind))")
         }
     }
 
@@ -273,6 +367,15 @@ final class LogsSecurityViewModel {
 
     var summary: String {
         if let errorMessage { return errorMessage }
+        // Un journal de transfert n'a pas de gravité : annoncer « 0 erreur » y serait trompeur.
+        if showsTransferColumns {
+            if isTruncated {
+                return String(
+                    localized: "\(visibleLogs.count) entrées affichées sur \(totalLogCount)"
+                )
+            }
+            return String(localized: "\(visibleLogs.count) entrées de journal")
+        }
         let errors = visibleErrorCount
         let warnings = visibleWarningCount
         if isTruncated {

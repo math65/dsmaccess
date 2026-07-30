@@ -51,9 +51,24 @@ struct LogsSecurityView: View {
             }
         }
         .toolbar {
-            // Le filtre de niveau accompagne le champ de recherche dans la barre d'outils, et
-            // ne concerne que le journal.
+            // Le choix du journal et le filtre de niveau accompagnent le champ de recherche
+            // dans la barre d'outils, et ne concernent que l'onglet du journal.
             if pane == .logs {
+                ToolbarItem {
+                    Picker(
+                        "Journal",
+                        selection: Binding(
+                            get: { vm.kind },
+                            set: { chosen in Task { await vm.select(chosen) } }
+                        )
+                    ) {
+                        ForEach(vm.availableKinds) { kind in
+                            Text(vm.kindText(kind)).tag(kind)
+                        }
+                    }
+                    .help("Choisir le journal à consulter")
+                }
+
                 ToolbarItem {
                     Picker("Niveau", selection: $vm.levelFilter) {
                         ForEach(LogsSecurityViewModel.LevelFilter.allCases) { filter in
@@ -129,7 +144,7 @@ struct LogsSecurityView: View {
                         .padding(.top, 8)
                 }
 
-                Text("Journal système")
+                Text(vm.kindTitle)
                     .font(.headline)
                     .accessibilityAddTraits(.isHeader)
                     .padding(.horizontal, 12)
@@ -174,25 +189,52 @@ struct LogsSecurityView: View {
         }
     }
 
+    /// Les colonnes suivent le journal affiché : un journal de transfert n'attribue pas de
+    /// gravité mais donne l'adresse d'origine, l'opération et la taille du fichier. Deux
+    /// tableaux distincts plutôt qu'un seul aux colonnes toujours à moitié vides.
+    @ViewBuilder
     private var logTable: some View {
-        Table(vm.visibleLogs.sorted(using: logOrder), sortOrder: $logOrder) {
-            TableColumn("Heure", value: \.sortableDate) { entry in
-                Text(vm.dateText(for: entry))
+        if vm.showsTransferColumns {
+            Table(vm.visibleLogs.sorted(using: logOrder), sortOrder: $logOrder) {
+                TableColumn("Heure", value: \.sortableDate) { entry in
+                    Text(vm.dateText(for: entry))
+                }
+                TableColumn("Compte", value: \.sortableAccount) { entry in
+                    Text(vm.accountText(for: entry))
+                }
+                TableColumn("Adresse", value: \.sortableAddress) { entry in
+                    Text(vm.addressText(for: entry))
+                }
+                TableColumn("Opération", value: \.sortableOperation) { entry in
+                    Text(vm.operationText(for: entry))
+                }
+                TableColumn("Taille", value: \.sortableSize) { entry in
+                    Text(vm.sizeText(for: entry))
+                }
+                TableColumn("Fichier", value: \.sortableMessage) { entry in
+                    Text(entry.message)
+                }
             }
-            // Triée par gravité et non par ordre alphabétique : « Erreur » doit se ranger
-            // après « Avertissement ».
-            TableColumn("Niveau", value: \.sortableLevel) { entry in
-                Text(vm.levelText(entry.level))
-                    .foregroundStyle(color(for: entry.level))
-            }
-            TableColumn("Catégorie") { entry in
-                Text(vm.categoryText(for: entry))
-            }
-            TableColumn("Compte", value: \.sortableAccount) { entry in
-                Text(vm.accountText(for: entry))
-            }
-            TableColumn("Événement", value: \.sortableMessage) { entry in
-                Text(entry.message)
+        } else {
+            Table(vm.visibleLogs.sorted(using: logOrder), sortOrder: $logOrder) {
+                TableColumn("Heure", value: \.sortableDate) { entry in
+                    Text(vm.dateText(for: entry))
+                }
+                // Triée par gravité et non par ordre alphabétique : « Erreur » doit se ranger
+                // après « Avertissement ».
+                TableColumn("Niveau", value: \.sortableLevel) { entry in
+                    Text(vm.levelText(entry.level))
+                        .foregroundStyle(color(for: entry.level))
+                }
+                TableColumn("Catégorie") { entry in
+                    Text(vm.categoryText(for: entry))
+                }
+                TableColumn("Compte", value: \.sortableAccount) { entry in
+                    Text(vm.accountText(for: entry))
+                }
+                TableColumn("Événement", value: \.sortableMessage) { entry in
+                    Text(entry.message)
+                }
             }
         }
     }
@@ -261,11 +303,11 @@ struct LogsSecurityView: View {
     }
 
     /// La couleur double le mot, elle ne le remplace pas : le niveau est toujours écrit.
-    private func color(for level: SystemLogEntry.Level) -> Color {
+    private func color(for level: SystemLogEntry.Level?) -> Color {
         switch level {
         case .error: .readableRed
         case .warning: .readableOrange
-        case .info, .other: .primary
+        case .info, .other, nil: .primary
         }
     }
 }

@@ -151,8 +151,8 @@ struct LogsSecurityTests {
         ])
         let service = makeService(stub: stub)
 
-        _ = try await service.systemLogs(limit: 1000, keyword: "connexion")
-        _ = try await service.systemLogs(limit: 1000, keyword: "")
+        _ = try await service.systemLogs(kind: .system, limit: 1000, keyword: "connexion")
+        _ = try await service.systemLogs(kind: .system, limit: 1000, keyword: "")
 
         let requests = await stub.requests
         let searched = try query(from: requests[0])
@@ -160,6 +160,84 @@ struct LogsSecurityTests {
         #expect(searched["keyword"] == "\"connexion\"")
         #expect(searched["limit"] == "1000")
         #expect(try query(from: requests[1])["keyword"] == nil)
+    }
+
+    /// ⚠️ Sans `logtype`, le NAS ne renvoie que le journal système : sur le NAS de
+    /// développement, 6 997 entrées système contre plus de 114 000 au total. Le type doit donc
+    /// toujours partir, et sous la forme que le NAS attend — les journaux de transfert portent
+    /// le nom de leur protocole.
+    @Test func alwaysNamesTheLogItAsksFor() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"items":[],"total":0}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"items":[],"total":0}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        _ = try await service.systemLogs(kind: .connection, limit: 10)
+        _ = try await service.systemLogs(kind: .fileStation, limit: 10)
+
+        let requests = await stub.requests
+        #expect(try query(from: requests[0])["logtype"] == "\"connection\"")
+        // « filestation » est la valeur du NAS, que la casse Swift ne doit pas trahir.
+        #expect(try query(from: requests[1])["logtype"] == "\"filestation\"")
+    }
+
+    /// Les journaux de transfert n'existent que pour les protocoles dont la journalisation est
+    /// activée. Un journal désactivé renverrait zéro entrée sans erreur, ce qui se lirait comme
+    /// un journal vide : il ne doit pas être proposé.
+    @Test func readsWhichTransferLogsTheNASKeeps() throws {
+        let payload = Data(#"""
+        {"afp":false,"cifs":true,"filestation":true,"ftp":false,"tftp":false,"webdav":false}
+        """#.utf8)
+
+        let logging = try JSONDecoder().decode(FileTransferLogging.self, from: payload)
+
+        #expect(logging.enabled == [.cifs, .fileStation])
+        let offered = SystemLogKind.always + SystemLogKind.transfers.filter(logging.enabled.contains)
+        #expect(offered == [.system, .connection, .cifs, .fileStation])
+    }
+
+    /// Un journal de transfert n'a pas la même forme : aucune gravité, mais l'adresse
+    /// d'origine, l'opération et la taille. Forme relevée sur le journal SMB du DS920+.
+    @Test func readsATransferEntryWithItsOwnFields() throws {
+        let payload = Data(#"""
+        {"errorCount":0,"infoCount":0,"warnCount":0,"total":81420,
+         "items":[{"cmd":"read","descr":"/tmmac/sauvegarde.sparsebundle/token","filesize":32,
+           "ip":"192.168.1.20","isdir":false,"logtype":"SMB","orginalLogType":"cifs",
+           "time":"2026/07/30 08:24:59","username":"testeur"}]}
+        """#.utf8)
+
+        let entry = try #require(
+            try JSONDecoder().decode(SystemLogPage.self, from: payload).entries.first
+        )
+
+        // Pas de gravité : en inventer une serait un contresens.
+        #expect(entry.level == nil)
+        #expect(entry.sortableLevel == -1)
+        // Le compte se lit dans `username` ici, et dans `who` ailleurs.
+        #expect(entry.account == "testeur")
+        #expect(entry.address == "192.168.1.20")
+        #expect(entry.operation == "read")
+        #expect(entry.fileSize == 32)
+        #expect(!entry.isDirectory)
+        #expect(SystemLogKind.cifs.isTransfer)
+        #expect(!SystemLogKind.system.isTransfer)
+    }
+
+    /// Un dossier n'a pas de taille utile, et le NAS y écrit zéro : l'afficher comme « zéro
+    /// octet » ferait passer un dossier pour un fichier vide.
+    @Test func treatsAFolderAsHavingNoSize() throws {
+        let payload = Data(#"""
+        {"items":[{"cmd":"mkdir","descr":"/tmmac/dossier","filesize":0,"isdir":true,
+          "time":"2026/07/30 08:24:59","username":"testeur"}],"total":1}
+        """#.utf8)
+
+        let entry = try #require(
+            try JSONDecoder().decode(SystemLogPage.self, from: payload).entries.first
+        )
+
+        #expect(entry.isDirectory)
+        #expect(entry.fileSize == nil)
     }
 
     /// La tranche suivante se demande par rang. Sans décalage des identifiants, la deuxième
@@ -187,7 +265,12 @@ struct LogsSecurityTests {
         ])
         let service = makeService(stub: stub)
 
-        _ = try await service.systemLogs(limit: 1000, offset: 1000, keyword: "connexion")
+        _ = try await service.systemLogs(
+            kind: .system,
+            limit: 1000,
+            offset: 1000,
+            keyword: "connexion"
+        )
 
         let parameters = try query(from: try #require(await stub.requests.first))
         #expect(parameters["offset"] == "1000")

@@ -300,7 +300,13 @@ protocol DSMClientProtocol: AnyObject {
     func listSurveillanceCameras() async throws -> [SurveillanceCamera]
     func setSurveillanceCameras(ids: Set<String>, enabled: Bool) async throws
     func surveillanceSnapshot(cameraID: String) async throws -> Data
-    func systemLogs(limit: Int, offset: Int, keyword: String?) async throws -> SystemLogPage
+    func systemLogs(
+        kind: SystemLogKind,
+        limit: Int,
+        offset: Int,
+        keyword: String?
+    ) async throws -> SystemLogPage
+    func fileTransferLogging() async throws -> FileTransferLogging
     func blockedAddresses(limit: Int) async throws -> BlockedAddressPage
     func unblockAddresses(_ addresses: [String]) async throws
     func networkInfo() async throws -> NetworkInfo
@@ -1183,8 +1189,22 @@ final class DSMClient: DSMClientProtocol {
         try await surveillance.snapshot(cameraID: cameraID)
     }
 
-    func systemLogs(limit: Int, offset: Int, keyword: String?) async throws -> SystemLogPage {
-        try await logsSecurity.systemLogs(limit: limit, offset: offset, keyword: keyword)
+    func systemLogs(
+        kind: SystemLogKind,
+        limit: Int,
+        offset: Int,
+        keyword: String?
+    ) async throws -> SystemLogPage {
+        try await logsSecurity.systemLogs(
+            kind: kind,
+            limit: limit,
+            offset: offset,
+            keyword: keyword
+        )
+    }
+
+    func fileTransferLogging() async throws -> FileTransferLogging {
+        try await logsSecurity.fileTransferLogging()
     }
 
     func blockedAddresses(limit: Int) async throws -> BlockedAddressPage {

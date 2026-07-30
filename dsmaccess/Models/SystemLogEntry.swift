@@ -18,6 +18,57 @@
 
 import Foundation
 
+/// Journal demandé au NAS. ⚠️ `SYNO.Core.SyslogClient.Log` ne tient pas un journal mais
+/// plusieurs, et sans `logtype` il ne renvoie que celui du système : sur le DS920+ de
+/// développement, 6 997 entrées système contre plus de 114 000 au total. La valeur brute est
+/// celle que le NAS attend, et les journaux de transfert portent le nom de leur protocole.
+enum SystemLogKind: String, nonisolated Sendable, Hashable, Identifiable, CaseIterable {
+    case system
+    case connection
+    case afp
+    case cifs
+    case fileStation = "filestation"
+    case ftp
+    case tftp
+    case webdav
+
+    var id: String { rawValue }
+
+    /// Journaux que le NAS tient toujours, sans réglage à activer.
+    static let always: [SystemLogKind] = [.system, .connection]
+
+    /// Journaux de transfert, chacun conditionné par la journalisation de son protocole.
+    static let transfers: [SystemLogKind] = [.afp, .cifs, .fileStation, .ftp, .tftp, .webdav]
+
+    /// Les journaux de transfert n'ont pas la même forme que les autres : pas de gravité, mais
+    /// l'adresse d'origine, l'opération et la taille du fichier. Les colonnes en dépendent.
+    var isTransfer: Bool { Self.transfers.contains(self) }
+}
+
+/// Protocoles dont le NAS journalise les transferts (SYNO.Core.SyslogClient.FileTransfer get).
+/// Ce réglage décide quels journaux de transfert existent : demander un journal désactivé
+/// renvoie zéro entrée sans erreur, ce qui se lirait comme un journal vide.
+struct FileTransferLogging: nonisolated Decodable, Sendable {
+    let enabled: Set<SystemLogKind>
+
+    enum CodingKeys: String, CodingKey {
+        case afp, cifs, filestation, ftp, tftp, webdav
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        var active: Set<SystemLogKind> = []
+        let flags: [(CodingKeys, SystemLogKind)] = [
+            (.afp, .afp), (.cifs, .cifs), (.filestation, .fileStation),
+            (.ftp, .ftp), (.tftp, .tftp), (.webdav, .webdav),
+        ]
+        for (key, kind) in flags where c.flexBool(key) == true {
+            active.insert(kind)
+        }
+        enabled = active
+    }
+}
+
 struct SystemLogPage: nonisolated Decodable, Sendable {
     let entries: [SystemLogEntry]
     /// Nombre d'entrées que le NAS conserve, indépendant de la page demandée.
@@ -56,15 +107,26 @@ struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
     fileprivate(set) var position = 0
     /// Horodatage brut du NAS, au format « aaaa/MM/jj HH:mm:ss ».
     let rawTime: String?
-    let level: Level
+    /// `nil` dans les journaux de transfert, qui n'attribuent aucune gravité. Une colonne
+    /// « niveau inconnu » y serait un contresens.
+    let level: Level?
     /// Catégorie technique, non traduite : « system ». Sert de clé d'affichage.
     let technicalCategory: String?
     /// Catégorie telle que le NAS l'a traduite, dans la langue du compte DSM. Repli quand la
     /// valeur technique est inconnue de l'app.
     let translatedCategory: String?
-    /// Compte concerné par l'événement, quand il y en a un.
+    /// Compte concerné. Le journal système et celui des connexions l'écrivent dans `who`, les
+    /// journaux de transfert dans `username`.
     let account: String?
     let message: String
+    /// Adresse d'origine, présente dans les journaux de transfert seulement.
+    let address: String?
+    /// Opération enregistrée par un journal de transfert : lecture, écriture, suppression…
+    let operation: String?
+    /// Taille du fichier transféré, en octets. `nil` pour un dossier ou hors transfert.
+    let fileSize: Int64?
+    /// Vrai quand l'entrée porte sur un dossier et non un fichier.
+    let isDirectory: Bool
 
     var id: Int { position }
 
@@ -90,8 +152,13 @@ struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
     var sortableDate: Date { recordedAt ?? .distantPast }
     var sortableAccount: String { account ?? "" }
     var sortableMessage: String { message }
-    /// Trié par gravité décroissante, et non par ordre alphabétique.
-    var sortableLevel: Int { level.severity }
+    var sortableAddress: String { address ?? "" }
+    var sortableOperation: String { operation ?? "" }
+    /// Une entrée sans taille se range avant les autres plutôt que d'empêcher le tri.
+    var sortableSize: Int64 { fileSize ?? -1 }
+    /// Trié par gravité décroissante, et non par ordre alphabétique. Une entrée sans gravité se
+    /// range avant les informations.
+    var sortableLevel: Int { level?.severity ?? -1 }
 
     /// Gravité telle que DSM la code : trois valeurs courtes. Une quatrième serait une
     /// évolution de DSM, conservée telle quelle plutôt que rangée d'office dans l'une d'elles.
@@ -122,7 +189,7 @@ struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case time, level, logtype, who
+        case time, level, logtype, who, username, ip, cmd, filesize, isdir
         case technicalCategory = "orginalLogType"
         case message = "descr"
     }
@@ -130,11 +197,23 @@ struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
     nonisolated init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: CodingKeys.self)
         rawTime = c.flexString(.time)
-        level = Level(rawValue: c.flexString(.level))
+        // Absent des journaux de transfert : une gravité inventée y serait fausse.
+        level = c.flexString(.level).map { Level(rawValue: $0) }
         technicalCategory = c.flexString(.technicalCategory).flatMap { $0.isEmpty ? nil : $0 }
         translatedCategory = c.flexString(.logtype).flatMap { $0.isEmpty ? nil : $0 }
-        account = c.flexString(.who).flatMap { $0.isEmpty ? nil : $0 }
+        account = Self.meaningful(c.flexString(.who) ?? c.flexString(.username))
         message = c.flexString(.message) ?? ""
+        address = Self.meaningful(c.flexString(.ip))
+        operation = Self.meaningful(c.flexString(.cmd))
+        // Un dossier n'a pas de taille utile, et le NAS y écrit zéro.
+        isDirectory = c.flexBool(.isdir) ?? false
+        fileSize = isDirectory ? nil : c.flexInt64(.filesize).flatMap { $0 > 0 ? $0 : nil }
+    }
+
+    nonisolated private static func meaningful(_ value: String?) -> String? {
+        guard let value else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespaces)
+        return trimmed.isEmpty || trimmed == "-" ? nil : trimmed
     }
 
     private static let nasFormatter: DateFormatter = {
