@@ -35,6 +35,14 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
     let processID: Int?
     /// Jeton d'appareil. Renseigné pour les sessions web, vide pour les autres.
     let deviceID: String?
+    /// Client à l'origine de la session, tel que le NAS l'a vu. Souvent vide.
+    let userAgent: String?
+    /// Localisation déduite par DSM. Vide sur un accès local.
+    let location: String?
+    /// L'appareil a été marqué de confiance lors d'une vérification en deux étapes.
+    let isTrustedDevice: Bool
+    /// La session a été ouverte avec une vérification en deux étapes.
+    let usesTwoFactor: Bool
 
     /// Le NAS n'attribue pas d'identifiant de session. `did` entre dans la clé parce que
     /// plusieurs sessions web du même compte partagent souvent compte, adresse, protocole et
@@ -50,6 +58,11 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
     var sortableType: String { type ?? "" }
     var sortableDescription: String { descriptionText ?? "" }
     var sortableDate: Date { openedAt ?? .distantPast }
+    var sortableUserAgent: String { userAgent ?? "" }
+    var sortableLocation: String { location ?? "" }
+    /// Trié comme un texte : `Bool` n'est pas `Comparable`, et la colonne doit pouvoir se
+    /// trier comme les autres.
+    var sortableTwoFactor: String { usesTwoFactor ? "1" : "0" }
 
     /// Horodatage rendu dans la langue et le fuseau du Mac. DSM n'indiquant pas le fuseau
     /// de sa valeur, elle est lue comme locale — juste tant que le NAS et le Mac partagent
@@ -99,9 +112,12 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
     }
 
     enum CodingKeys: String, CodingKey {
-        case who, from, type, descr, time, pid, did
+        case who, from, type, descr, time, pid, did, location
+        case userAgent = "user_agent"
         case isCurrent = "is_current_connected"
         case canBeKicked = "can_be_kicked"
+        case isTrustedDevice = "is_otp_trusted"
+        case usesTwoFactor = "is_amfa"
     }
 
     nonisolated init(from decoder: Decoder) throws {
@@ -115,5 +131,11 @@ struct NASConnection: nonisolated Decodable, Sendable, Identifiable {
         canBeKicked = c.flexBool(.canBeKicked) ?? false
         processID = c.flexInt(.pid)
         deviceID = c.flexString(.did)
+        // Ces trois champs reviennent le plus souvent vides sur un accès local : une valeur
+        // vide vaut absence, pour que l'affichage puisse simplement ne rien dire.
+        userAgent = c.flexString(.userAgent).flatMap { $0.isEmpty ? nil : $0 }
+        location = c.flexString(.location).flatMap { $0.isEmpty ? nil : $0 }
+        isTrustedDevice = c.flexBool(.isTrustedDevice) ?? false
+        usesTwoFactor = c.flexBool(.usesTwoFactor) ?? false
     }
 }

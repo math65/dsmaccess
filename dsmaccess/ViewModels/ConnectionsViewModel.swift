@@ -99,6 +99,32 @@ final class ConnectionsViewModel {
         connection.account ?? String(localized: "Compte inconnu")
     }
 
+    // MARK: - Valeurs que DSM n'affiche pas
+    //
+    // Le NAS les renvoie depuis toujours. Un tiret quand elles sont vides, comme partout
+    // ailleurs dans ce module : le NAS ne renseigne le client et le lieu que pour certaines
+    // sessions, et un accès local n'en produit aucun.
+
+    func clientText(for connection: NASConnection) -> String {
+        connection.userAgent ?? "—"
+    }
+
+    func locationText(for connection: NASConnection) -> String {
+        connection.location ?? "—"
+    }
+
+    /// Savoir qu'une session s'est ouverte *sans* second facteur est au moins aussi utile que
+    /// l'inverse : la colonne dit toujours quelque chose. L'appareil de confiance est précisé
+    /// dans la même colonne, faute de mériter la sienne.
+    func twoFactorText(for connection: NASConnection) -> String {
+        switch (connection.usesTwoFactor, connection.isTrustedDevice) {
+        case (true, true): String(localized: "Oui, appareil de confiance")
+        case (true, false): String(localized: "Oui")
+        case (false, true): String(localized: "Non, appareil de confiance")
+        case (false, false): String(localized: "Non")
+        }
+    }
+
     /// Horodatage rendu dans la langue du Mac. Un tiret quand DSM a envoyé une forme que
     /// nous n'avons pas su lire : la connexion reste listée, sans date inventée.
     func openedAtText(for connection: NASConnection) -> String {

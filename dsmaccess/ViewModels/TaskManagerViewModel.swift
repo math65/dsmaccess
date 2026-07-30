@@ -122,6 +122,32 @@ final class TaskManagerViewModel {
         return bytes.formatted(.byteCount(style: .memory, spellsOutZero: false))
     }
 
+    // MARK: - Mesures que DSM n'affiche pas
+
+    /// Temps processeur cumulé depuis le démarrage du service.
+    func cpuTimeText(for group: ProcessGroup) -> String {
+        guard let seconds = group.cpuTime, seconds >= 0 else { return "—" }
+        return Duration.seconds(seconds).formatted(
+            .units(allowed: [.hours, .minutes, .seconds], width: .narrow)
+        )
+    }
+
+    func readRateText(for group: ProcessGroup) -> String {
+        rateText(group.readBytesPerSecond)
+    }
+
+    func writeRateText(for group: ProcessGroup) -> String {
+        rateText(group.writeBytesPerSecond)
+    }
+
+    /// Un tiret quand DSM n'a pas mesuré, un débit sinon — y compris zéro, qui est ici une
+    /// mesure et non une absence : un service au repos n'écrit réellement rien.
+    private func rateText(_ bytesPerSecond: Int64?) -> String {
+        guard let bytesPerSecond, bytesPerSecond >= 0 else { return "—" }
+        let formatted = bytesPerSecond.formatted(.byteCount(style: .memory, spellsOutZero: false))
+        return String(localized: "\(formatted)/s")
+    }
+
     func cpuText(for process: SystemProcess) -> String {
         guard let cpu = process.cpuPercent else { return "—" }
         return String(localized: "\(cpu) %")

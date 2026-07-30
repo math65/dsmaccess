@@ -16,6 +16,7 @@ struct ConnectionsView: View {
     @State private var pendingKick: [NASConnection] = []
     @AccessibilityFocusState private var focusContent: Bool
 
+
     var body: some View {
         content
             .task {
@@ -83,6 +84,18 @@ struct ConnectionsView: View {
                     }
                     TableColumn("Ouverte le", value: \.sortableDate) { connection in
                         Text(vm.openedAtText(for: connection))
+                    }
+                    // Trois valeurs que DSM n'affiche pas. « Client » et « Lieu » restent vides
+                    // sur un accès local — le NAS ne les renseigne que pour certaines sessions —
+                    // d'où le tiret, cohérent avec les autres colonnes de ce module.
+                    TableColumn("Client", value: \.sortableUserAgent) { connection in
+                        Text(vm.clientText(for: connection))
+                    }
+                    TableColumn("Lieu", value: \.sortableLocation) { connection in
+                        Text(vm.locationText(for: connection))
+                    }
+                    TableColumn("Deux étapes", value: \.sortableTwoFactor) { connection in
+                        Text(vm.twoFactorText(for: connection))
                     }
                     // Pas de colonne « session courante » : vérifié sur DSM 7.4, le NAS ne
                     // lève `is_current_connected` que pour son client web. Interrogé par

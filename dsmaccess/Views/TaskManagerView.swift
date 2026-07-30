@@ -20,6 +20,7 @@ struct TaskManagerView: View {
     @State private var processOrder = [KeyPathComparator(\SystemProcess.sortableCPU, order: .reverse)]
     @AccessibilityFocusState private var focusContent: Bool
 
+
     var body: some View {
         content
             .task {
@@ -80,6 +81,18 @@ struct TaskManagerView: View {
                 }
                 TableColumn("Processus", value: \.processCount) { group in
                     Text(group.processCount, format: .number)
+                }
+                // Trois mesures que le NAS renvoie et qu'aucune colonne ne montrait. Ce sont
+                // elles qui répondent à « qu'est-ce qui travaille ? » quand la colonne
+                // Processeur affiche 0,0 % : un service peut écrire beaucoup sans calculer.
+                TableColumn("Temps processeur", value: \.sortableCPUTime) { group in
+                    Text(vm.cpuTimeText(for: group))
+                }
+                TableColumn("Lecture", value: \.sortableReadRate) { group in
+                    Text(vm.readRateText(for: group))
+                }
+                TableColumn("Écriture", value: \.sortableWriteRate) { group in
+                    Text(vm.writeRateText(for: group))
                 }
             }
         }

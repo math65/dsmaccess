@@ -89,6 +89,9 @@ struct ProcessGroup: nonisolated Decodable, Sendable, Identifiable {
     /// bloquer le tri, elle se range en fin de liste.
     var sortableCPU: Double { cpuPercent ?? -1 }
     var sortableMemory: Int64 { memoryBytes ?? -1 }
+    var sortableCPUTime: Double { cpuTime ?? -1 }
+    var sortableReadRate: Int64 { readBytesPerSecond ?? -1 }
+    var sortableWriteRate: Int64 { writeBytesPerSecond ?? -1 }
 
     var displayName: String {
         let candidates = [name, localizedName, unitName].compactMap { $0 }
