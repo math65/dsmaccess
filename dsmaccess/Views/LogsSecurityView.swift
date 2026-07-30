@@ -132,11 +132,28 @@ struct LogsSecurityView: View {
                     logTable
                 }
 
-                Text(vm.summary)
-                    .font(.callout)
-                    .foregroundStyle(.readableSecondary)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
+                HStack(spacing: 12) {
+                    Text(vm.summary)
+                        .font(.callout)
+                        .foregroundStyle(.readableSecondary)
+
+                    if vm.canLoadMore {
+                        Button("Charger les entrées plus anciennes") {
+                            Task {
+                                if let outcome = await vm.loadMore() {
+                                    VoiceOver.announce(outcome, priority: .high)
+                                }
+                            }
+                        }
+                        .disabled(vm.isLoadingMore)
+                        .accessibilityHint("Ajoute les entrées suivantes à la suite de celles déjà affichées")
+                        .help("Ajouter la tranche suivante du journal")
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
             }
         }
     }

@@ -68,6 +68,15 @@ struct SystemLogEntry: nonisolated Decodable, Sendable, Identifiable {
 
     var id: Int { position }
 
+    /// Renumérote l'entrée à partir du rang donné. Les pages suivantes du journal repartent de
+    /// zéro : sans ce décalage, la deuxième page porterait les identifiants de la première et
+    /// le tableau confondrait ses lignes.
+    nonisolated func renumbered(from start: Int) -> SystemLogEntry {
+        var copy = self
+        copy.position += start
+        return copy
+    }
+
     /// Horodatage rendu dans la langue et le fuseau du Mac. DSM n'indique pas le fuseau de sa
     /// valeur : elle est lue comme locale, ce qui est juste tant que le NAS et le Mac partagent
     /// le même.

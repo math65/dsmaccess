@@ -162,6 +162,39 @@ struct LogsSecurityTests {
         #expect(try query(from: requests[1])["keyword"] == nil)
     }
 
+    /// La tranche suivante se demande par rang. Sans décalage des identifiants, la deuxième
+    /// page porterait ceux de la première et le tableau confondrait ses lignes.
+    @Test func numbersTheNextSliceAfterTheOneAlreadyShown() throws {
+        let payload = Data(#"""
+        {"items":[{"descr":"a","level":"info","time":"2026/07/30 09:00:00"},
+                  {"descr":"b","level":"info","time":"2026/07/30 09:00:01"}],"total":4}
+        """#.utf8)
+        let page = try JSONDecoder().decode(SystemLogPage.self, from: payload)
+
+        let firstSlice = page.entries
+        let secondSlice = page.entries.map { $0.renumbered(from: firstSlice.count) }
+
+        #expect(firstSlice.map(\.id) == [0, 1])
+        #expect(secondSlice.map(\.id) == [2, 3])
+        #expect(Set((firstSlice + secondSlice).map(\.id)).count == 4)
+    }
+
+    /// Le rang demandé doit suivre ce qui est déjà affiché, et la recherche rester attachée à la
+    /// tranche : sans elle, la suite porterait sur un journal non filtré.
+    @Test func asksForTheNextSliceAtTheRightOffset() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"items":[],"total":6995}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        _ = try await service.systemLogs(limit: 1000, offset: 1000, keyword: "connexion")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["offset"] == "1000")
+        #expect(parameters["limit"] == "1000")
+        #expect(parameters["keyword"] == "\"connexion\"")
+    }
+
     /// Débloquer est une mutation : un délai d'attente ne doit pas la rejouer. Le NAS peut
     /// avoir retiré l'adresse avant de répondre, et le blocage automatique peut l'avoir
     /// rebloquée entre-temps.

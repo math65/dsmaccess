@@ -22,6 +22,8 @@ final class LogsSecurityViewModel {
     private(set) var logs: [SystemLogEntry] = []
     /// Nombre d'entrées conservées par le NAS, qui dépasse souvent la page chargée.
     private(set) var totalLogCount = 0
+    /// Vrai le temps d'aller chercher les entrées suivantes, pour désarmer le bouton.
+    private(set) var isLoadingMore = false
     private(set) var blockedAddresses: [BlockedAddress] = []
     private(set) var isLoading = false
     /// Adresses dont le déblocage est en cours, pour désarmer leurs commandes.
@@ -65,7 +67,7 @@ final class LogsSecurityViewModel {
         let keyword = searchText.trimmingCharacters(in: .whitespaces)
         do {
             let page = try await session.withClient {
-                try await $0.systemLogs(limit: Self.logPageLimit, keyword: keyword)
+                try await $0.systemLogs(limit: Self.logPageLimit, offset: 0, keyword: keyword)
             }
             guard generation == loadGeneration else { return }
             logs = page.entries
@@ -82,6 +84,48 @@ final class LogsSecurityViewModel {
             VoiceOver.announce(summary, category: errorMessage == nil ? .result : .error)
         }
     }
+
+    /// Ajoute la tranche suivante du journal à celle déjà affichée, sans rien remplacer : les
+    /// entrées déjà lues restent en place et le tableau grandit.
+    ///
+    /// La pagination du NAS se fait par rang, non par horodatage : si le NAS consigne une
+    /// nouvelle entrée entre deux tranches, tout se décale d'un cran et une entrée peut
+    /// apparaître deux fois ou passer à la trappe. DSM a la même limite. Renvoie le message à
+    /// annoncer, ou `nil` s'il n'y avait rien à charger.
+    func loadMore() async -> DSMOperationOutcome? {
+        guard canLoadMore, !isLoadingMore else { return nil }
+        isLoadingMore = true
+        defer { isLoadingMore = false }
+
+        let generation = loadGeneration
+        let offset = logs.count
+        let keyword = searchText.trimmingCharacters(in: .whitespaces)
+        do {
+            let page = try await session.withClient {
+                try await $0.systemLogs(
+                    limit: Self.logPageLimit,
+                    offset: offset,
+                    keyword: keyword
+                )
+            }
+            // Un rechargement complet a pu partir entre-temps : sa page fait foi, pas la nôtre.
+            guard generation == loadGeneration else { return nil }
+            guard !page.entries.isEmpty else {
+                // Le NAS n'a plus rien à donner : le total qu'il annonçait était optimiste.
+                totalLogCount = logs.count
+                return .success(String(localized: "Tout le journal est affiché"))
+            }
+            logs += page.entries.map { $0.renumbered(from: offset) }
+            if let total = page.total { totalLogCount = total }
+            return .success(summary)
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "Échec du chargement de la suite : \(reason)"))
+        }
+    }
+
+    var canLoadMore: Bool { totalLogCount > logs.count }
 
     /// La liste de blocage a sa propre erreur : le journal reste consultable même si le NAS la
     /// refuse, ce qui est le cas d'un compte sans privilège d'administration.

@@ -21,9 +21,9 @@ final class DSMLogSecurityService {
     /// Page du journal système. `keyword` est filtré par le NAS lui-même ; le niveau, lui, ne
     /// l'est pas : vérifié sur DSM 7.4, le paramètre `level` est accepté puis ignoré, et le
     /// filtrage par gravité se fait donc côté app.
-    func systemLogs(limit: Int, keyword: String? = nil) async throws -> SystemLogPage {
+    func systemLogs(limit: Int, offset: Int = 0, keyword: String? = nil) async throws -> SystemLogPage {
         var parameters: [String: DSMParameter] = [
-            "offset": .integer(0),
+            "offset": .integer(offset),
             "limit": .integer(limit),
             "sort_by": "time",
             "sort_direction": "DESC",
