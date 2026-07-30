@@ -28,6 +28,15 @@ struct AnnouncementSettingsView: View {
                 Text("Une annonce prononcée pendant que DSM Access est en arrière-plan n’est pas entendue. La notification, elle, vous parvient. macOS demande votre autorisation la première fois.")
                     .font(.callout)
                     .foregroundStyle(.readableSecondary)
+
+                Toggle(
+                    "Jouer un son à la fin d’une opération",
+                    isOn: $settings.playsCompletionSound
+                )
+                .help("Joue un son court quand une opération longue se termine alors que DSM Access est au premier plan")
+                Text("Devant l’écran, l’annonce peut passer inaperçue si votre attention est ailleurs. Le son la double, sans jamais la remplacer. Hors premier plan, c’est la notification qui vous prévient.")
+                    .font(.callout)
+                    .foregroundStyle(.readableSecondary)
             }
 
             Section {

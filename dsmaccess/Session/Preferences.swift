@@ -25,6 +25,7 @@ enum Preferences {
         static let enabledAnnouncementCategories = "enabledAnnouncementCategories"
         static let queueAnnouncements = "queueAnnouncements"
         static let notifiesFinishedOperations = "notifiesFinishedOperations"
+        static let playsCompletionSound = "playsCompletionSound"
         static let authenticationMethod = "authenticationMethod"
         static let sidebarOrder = "sidebarOrder"
         static let enabledSidebarModules = "enabledSidebarModules"
@@ -118,6 +119,17 @@ enum Preferences {
             return defaults.bool(forKey: Key.notifiesFinishedOperations)
         }
         set { defaults.set(newValue, forKey: Key.notifiesFinishedOperations) }
+    }
+
+    /// Son court à la fin d'une opération longue, quand l'app est au premier plan. Actif par
+    /// défaut : il double l'annonce VoiceOver pour qui regarde ailleurs sur son écran, et ne
+    /// dit rien à lui seul. Hors premier plan, c'est la notification qui prend le relais.
+    static var playsCompletionSound: Bool {
+        get {
+            guard defaults.object(forKey: Key.playsCompletionSound) != nil else { return true }
+            return defaults.bool(forKey: Key.playsCompletionSound)
+        }
+        set { defaults.set(newValue, forKey: Key.playsCompletionSound) }
     }
 
     /// Dernier mode d'authentification choisi sur l'écran de connexion. Une valeur inconnue

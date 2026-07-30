@@ -1470,7 +1470,7 @@ final class FileBrowserViewModel {
                 await search(query)
             }
             operationSummary = OperationSummary(message: message, continuesInBackground: false)
-            await OperationNotifier.postIfInBackground(title: label, body: message)
+            await OperationNotifier.signalCompletion(title: label, body: message, succeeded: true)
             return .success(message)
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
@@ -1481,7 +1481,11 @@ final class FileBrowserViewModel {
                 await loadCurrent()
             }
             operationSummary = summary
-            await OperationNotifier.postIfInBackground(title: label, body: summary.message)
+            await OperationNotifier.signalCompletion(
+                title: label,
+                body: summary.message,
+                succeeded: false
+            )
             return .failure(summary.message)
         }
     }

@@ -1,6 +1,54 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Jouer un son à la fin d’une opération" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play a sound when an operation finishes"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jouer un son à la fin d’une opération"
+          }
+        }
+      }
+    },
+    "Joue un son court quand une opération longue se termine alors que DSM Access est au premier plan" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Plays a short sound when a long operation finishes while DSM Access is in the foreground"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Joue un son court quand une opération longue se termine alors que DSM Access est au premier plan"
+          }
+        }
+      }
+    },
+    "Devant l’écran, l’annonce peut passer inaperçue si votre attention est ailleurs. Le son la double, sans jamais la remplacer. Hors premier plan, c’est la notification qui vous prévient." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In front of the screen, the announcement can go unnoticed if your attention is elsewhere. The sound doubles it, and never replaces it. Out of the foreground, the notification is what reaches you."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Devant l’écran, l’annonce peut passer inaperçue si votre attention est ailleurs. Le son la double, sans jamais la remplacer. Hors premier plan, c’est la notification qui vous prévient."
+          }
+        }
+      }
+    },
     "Journalisation des transferts" : {
       "localizations" : {
         "en" : {
