@@ -63,4 +63,52 @@ final class DSMSystemService {
             as: NASConnectionPage.self
         ).items
     }
+
+    /// Coupe les sessions indiquées. DSM attend deux listes distinctes selon le protocole et
+    /// n'accepte pas d'identifiant de session : chaque entrée est réidentifiée par les valeurs
+    /// que `get` a renvoyées. Les deux paramètres sont toujours envoyés, fût-ce vides, comme
+    /// le fait le client web.
+    ///
+    /// Mutation : chemin sans nouvelle tentative. Un délai plus large que la valeur par défaut
+    /// est laissé au NAS, qui ferme des sessions réseau avant de répondre.
+    func kickConnections(_ references: [NASConnection.KickReference]) async throws {
+        var webReferences: [WebConnectionReference] = []
+        var serviceReferences: [ServiceConnectionReference] = []
+        for reference in references {
+            switch reference {
+            case let .web(deviceID, account, resource, address):
+                webReferences.append(
+                    WebConnectionReference(did: deviceID, who: account, descr: resource, from: address)
+                )
+            case let .service(processID, type, account, address):
+                serviceReferences.append(
+                    ServiceConnectionReference(pid: processID, type: type, who: account, from: address)
+                )
+            }
+        }
+
+        try await transport.perform(
+            api: Self.connectionAPI,
+            method: "kick_connection",
+            parameters: [
+                "http_conn": try .json(webReferences),
+                "service_conn": try .json(serviceReferences),
+            ],
+            timeoutInterval: 100
+        )
+    }
+
+    private struct WebConnectionReference: Encodable {
+        let did: String
+        let who: String
+        let descr: String
+        let from: String
+    }
+
+    private struct ServiceConnectionReference: Encodable {
+        let pid: Int
+        let type: String
+        let who: String
+        let from: String
+    }
 }

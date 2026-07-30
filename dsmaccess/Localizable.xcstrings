@@ -1,6 +1,294 @@
 {
   "sourceLanguage" : "fr",
   "strings" : {
+    "Cette session peut être celle de cette app : vous seriez alors déconnecté du NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This session may be this app’s: you would then be disconnected from the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette session peut être celle de cette app : vous seriez alors déconnecté du NAS."
+          }
+        }
+      }
+    },
+    "Laisser ces sessions ouvertes" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Leave these sessions open"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Laisser ces sessions ouvertes"
+          }
+        }
+      }
+    },
+    "Couper la session…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect session…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper la session…"
+          }
+        }
+      }
+    },
+    "Fermer les sessions sélectionnées sur le NAS" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close the selected sessions on the NAS"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fermer les sessions sélectionnées sur le NAS"
+          }
+        }
+      }
+    },
+    "Couper la session sélectionnée…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect the selected session…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper la session sélectionnée…"
+          }
+        }
+      }
+    },
+    "Couper les %lld sessions sélectionnées…" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect the %lld selected sessions…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper les %lld sessions sélectionnées…"
+          }
+        }
+      }
+    },
+    "Couper cette session ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect this session?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper cette session ?"
+          }
+        }
+      }
+    },
+    "Couper ces %lld sessions ?" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect these %lld sessions?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper ces %lld sessions ?"
+          }
+        }
+      }
+    },
+    "Couper les %lld sessions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect the %lld sessions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper les %lld sessions"
+          }
+        }
+      }
+    },
+    "Couper la session de %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disconnect %@’s session"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couper la session de %@"
+          }
+        }
+      }
+    },
+    "Le NAS ne permet pas de couper cette sélection." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The NAS does not allow this selection to be disconnected."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le NAS ne permet pas de couper cette sélection."
+          }
+        }
+      }
+    },
+    "Session de %@ coupée" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@’s session disconnected"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Session de %@ coupée"
+          }
+        }
+      }
+    },
+    "%lld sessions coupées" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sessions disconnected"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld sessions coupées"
+          }
+        }
+      }
+    },
+    "Échec de la coupure : %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Could not disconnect: %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Échec de la coupure : %@"
+          }
+        }
+      }
+    },
+    "La session de %@ ouverte depuis %@ sera fermée, et tout transfert en cours sur cette session interrompu." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@’s session from %@ will be closed, and any transfer in progress on it interrupted."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La session de %@ ouverte depuis %@ sera fermée, et tout transfert en cours sur cette session interrompu."
+          }
+        }
+      }
+    },
+    "Ces sessions seront fermées et tout transfert en cours interrompu. Comptes concernés : %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "These sessions will be closed and any transfer in progress interrupted. Accounts affected: %@."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces sessions seront fermées et tout transfert en cours interrompu. Comptes concernés : %@."
+          }
+        }
+      }
+    },
+    "L’une de ces sessions peut être celle de cette app : vous seriez alors déconnecté du NAS." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One of these sessions may be this app’s: you would then be disconnected from the NAS."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L’une de ces sessions peut être celle de cette app : vous seriez alors déconnecté du NAS."
+          }
+        }
+      }
+    },
+    "une adresse inconnue" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "an unknown address"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "une adresse inconnue"
+          }
+        }
+      }
+    },
     "Ressource" : {
       "localizations" : {
         "en" : {

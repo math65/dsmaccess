@@ -3,8 +3,7 @@
 //  dsmaccess
 //
 //  Onglet Connexions du moniteur de ressources : qui est connecté au NAS, depuis où et
-//  par quel protocole. Lecture seule pour l'instant — DSM sait aussi couper une session
-//  (`kick_connection`), action destructive qui reste à cadrer.
+//  par quel protocole, et la coupure des sessions ouvertes.
 //
 
 import Foundation
@@ -16,6 +15,8 @@ final class ConnectionsViewModel {
     private(set) var connections: [NASConnection] = []
     private(set) var isLoading = false
     var errorMessage: String?
+    /// Sessions dont la coupure est en cours, pour désarmer le bouton le temps de l'appel.
+    private(set) var busyIDs: Set<String> = []
 
     private let session: SessionStore
     private var loadGeneration = 0
@@ -46,6 +47,56 @@ final class ConnectionsViewModel {
         if announce, generation == loadGeneration {
             VoiceOver.announce(summary, category: .result, priority: .low)
         }
+    }
+
+    /// Coupe les sessions indiquées en un seul appel, comme le fait DSM. Les entrées que le
+    /// NAS déclare non coupables sont écartées ici : les envoyer ferait échouer tout le lot.
+    func kick(_ selection: [NASConnection]) async -> DSMOperationOutcome {
+        let kickable = selection.filter { $0.kickReference != nil }
+        guard !kickable.isEmpty else {
+            return .failure(String(localized: "Le NAS ne permet pas de couper cette sélection."))
+        }
+
+        busyIDs.formUnion(kickable.map(\.id))
+        defer { busyIDs.subtract(kickable.map(\.id)) }
+
+        do {
+            let references = kickable.compactMap(\.kickReference)
+            try await session.withClient { try await $0.kickConnections(references) }
+            // La liste est rechargée plutôt que corrigée sur place : couper une session web
+            // en ferme parfois d'autres du même appareil, et le NAS seul sait lesquelles.
+            await load()
+            if let only = kickable.first, kickable.count == 1 {
+                return .success(
+                    String(localized: "Session de \(accountText(for: only)) coupée")
+                )
+            }
+            return .success(String(localized: "\(kickable.count) sessions coupées"))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "Échec de la coupure : \(reason)"))
+        }
+    }
+
+    /// Vrai quand la sélection contient une session web du compte avec lequel l'app est
+    /// connectée. `is_current_connected` ne sert à rien ici : vérifié sur DSM 7.4, le NAS ne
+    /// le lève que pour son propre client web. La comparaison du compte reste donc le seul
+    /// signal disponible, et elle peut désigner une autre session que celle de l'app.
+    func mayCloseOwnSession(_ selection: [NASConnection]) -> Bool {
+        guard let account = session.activeProfile?.account else { return false }
+        return selection.contains {
+            $0.isWebSession
+                && $0.account?.caseInsensitiveCompare(account) == .orderedSame
+        }
+    }
+
+    func canKick(_ connection: NASConnection) -> Bool {
+        connection.kickReference != nil && !busyIDs.contains(connection.id)
+    }
+
+    func accountText(for connection: NASConnection) -> String {
+        connection.account ?? String(localized: "Compte inconnu")
     }
 
     /// Horodatage rendu dans la langue du Mac. Un tiret quand DSM a envoyé une forme que
