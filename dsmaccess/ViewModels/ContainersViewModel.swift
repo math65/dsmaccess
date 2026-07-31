@@ -14,15 +14,20 @@ final class ContainersViewModel {
     private(set) var containers: [ContainerItem] = []
     private(set) var logs: [ContainerLogEntry] = []
     private(set) var logsContainerName: String?
+    private(set) var processes: [ContainerProcess] = []
+    private(set) var processesContainerName: String?
     private(set) var isLoading = false
     private(set) var isLoadingLogs = false
+    private(set) var isLoadingProcesses = false
     private(set) var busyNames: Set<String> = []
     var errorMessage: String?
     var logErrorMessage: String?
+    var processErrorMessage: String?
 
     private let session: SessionStore
     private var loadGeneration = 0
     private var logGeneration = 0
+    private var processGeneration = 0
 
     init(session: SessionStore) {
         self.session = session
@@ -65,6 +70,47 @@ final class ContainersViewModel {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
             return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(container.name): \(reason)"))
+        }
+    }
+
+    func delete(_ container: ContainerItem) async -> DSMOperationOutcome {
+        busyNames.insert(container.name)
+        defer { busyNames.remove(container.name) }
+
+        do {
+            try await session.withClient { try await $0.deleteContainer(name: container.name) }
+            await load(silently: true)
+            return .success(String(
+                localized: "containers.action.delete.success",
+                defaultValue: "Container deleted: \(container.name)"
+            ))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(container.name): \(reason)"))
+        }
+    }
+
+    func loadProcesses(for container: ContainerItem) async {
+        processGeneration += 1
+        let generation = processGeneration
+        isLoadingProcesses = true
+        processErrorMessage = nil
+        processesContainerName = container.name
+        defer { if generation == processGeneration { isLoadingProcesses = false } }
+
+        do {
+            let result = try await session.withClient {
+                try await $0.containerProcesses(name: container.name)
+            }
+            guard generation == processGeneration, processesContainerName == container.name else { return }
+            processes = result
+        } catch {
+            guard generation == processGeneration,
+                  processesContainerName == container.name,
+                  !DSMError.isCancellation(error) else { return }
+            processes = []
+            processErrorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
         }
     }
 

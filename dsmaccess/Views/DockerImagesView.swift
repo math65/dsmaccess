@@ -14,6 +14,7 @@ struct DockerImagesView: View {
     @State private var selection: DockerImage.ID?
     @State private var pendingDelete: DockerImage?
     @State private var isPresentingPull = false
+    @State private var isConfirmingPrune = false
     @AccessibilityFocusState private var focusContent: Bool
 
     var body: some View {
@@ -24,6 +25,17 @@ struct DockerImagesView: View {
             }
             .sheet(isPresented: $isPresentingPull) {
                 DockerImagePullSheet(vm: vm)
+            }
+            .confirmationDialog(
+                "containers.image.prune.confirm.title",
+                isPresented: $isConfirmingPrune
+            ) {
+                Button("containers.image.prune", role: .destructive) {
+                    Task { VoiceOver.announce(await vm.prune(), priority: .high) }
+                }
+                Button("common.button.cancel", role: .cancel) { }
+            } message: {
+                Text("containers.image.prune.confirm.message")
             }
             .confirmationDialog(
                 deleteTitle,
@@ -115,6 +127,19 @@ struct DockerImagesView: View {
             }
             .disabled(vm.isPulling)
             .help("containers.image.action.pull.hint")
+
+            Button("containers.image.action.upgrade") {
+                guard let image = selectedImage else { return }
+                Task { VoiceOver.announce(await vm.upgrade(image), priority: .high) }
+            }
+            .disabled(selectedImage?.isUpgradable != true || selectedIsBusy || vm.isPulling)
+            .help("containers.image.action.upgrade.hint")
+
+            Button("containers.image.prune") {
+                isConfirmingPrune = true
+            }
+            .disabled(vm.isPulling)
+            .help("containers.image.prune.hint")
 
             Button("common.button.delete", role: .destructive) {
                 pendingDelete = selectedImage

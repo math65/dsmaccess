@@ -114,6 +114,60 @@ final class DockerImagesViewModel {
         }
     }
 
+    /// Downloads the newer build of an image already present, polling like a pull. The
+    /// containers using it keep running on the old build until they are recreated.
+    func upgrade(_ image: DockerImage) async -> DSMOperationOutcome {
+        busyImageIDs.insert(image.id)
+        isPulling = true
+        pullDescription = String(
+            localized: "containers.image.upgrade.in_progress",
+            defaultValue: "Updating \(image.displayName)…"
+        )
+        defer {
+            busyImageIDs.remove(image.id)
+            isPulling = false
+            pullDescription = nil
+        }
+
+        do {
+            let task = try await session.withClient {
+                try await $0.startDockerImageUpgrade(repository: image.repository)
+            }
+            while true {
+                try Task.checkCancellation()
+                let status = try await session.withClient {
+                    try await $0.dockerImageUpgradeStatus(taskID: task.taskID)
+                }
+                if status.isFinished { break }
+                try await Task.sleep(for: .seconds(2))
+            }
+            await load(silently: true)
+            return .success(String(
+                localized: "containers.image.upgrade.success",
+                defaultValue: "Image updated: \(image.displayName)"
+            ))
+        } catch is CancellationError {
+            return .cancelled
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(image.displayName): \(reason)"))
+        }
+    }
+
+    /// Removes every image no container references, as Container Manager's button does.
+    func prune() async -> DSMOperationOutcome {
+        do {
+            try await session.withClient { try await $0.pruneDockerImages() }
+            await load(silently: true)
+            return .success(String(localized: "containers.image.prune.success"))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "common.error.operation_failed", defaultValue: "The operation failed: \(reason)"))
+        }
+    }
+
     var summary: String {
         if let errorMessage { return errorMessage }
         let total = images.compactMap(\.sizeBytes).reduce(0, +)

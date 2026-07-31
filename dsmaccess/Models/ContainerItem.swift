@@ -233,3 +233,43 @@ enum ContainerAction: String, Sendable {
     case stop
     case restart
 }
+
+/// One process inside a running container. Captured on DSM 7.4: `pid` arrives as a string,
+/// `cpu` and `memoryPercent` as fractions of a percent, `start` as a short human date.
+struct ContainerProcess: nonisolated Decodable, Identifiable, Hashable, Sendable {
+    let pid: String
+    let command: String
+    let cpuPercent: Double?
+    let memoryBytes: Int64?
+    let startedText: String?
+
+    var id: String { pid }
+
+    enum CodingKeys: String, CodingKey {
+        case pid
+        case command
+        case cpuPercent = "cpu"
+        case memoryBytes = "memory"
+        case startedText = "start"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        pid = try values.requiredFlexString(.pid)
+        command = values.flexString(.command) ?? ""
+        cpuPercent = values.flexDouble(.cpuPercent)
+        memoryBytes = values.flexInt64(.memoryBytes)
+        startedText = values.flexString(.startedText).flatMap { $0.isEmpty ? nil : $0 }
+    }
+}
+
+struct ContainerProcessList: nonisolated Decodable, Sendable {
+    let processes: [ContainerProcess]
+
+    enum CodingKeys: String, CodingKey { case processes }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        processes = try values.decodeIfPresent([ContainerProcess].self, forKey: .processes) ?? []
+    }
+}

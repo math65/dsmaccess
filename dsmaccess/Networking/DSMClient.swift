@@ -310,6 +310,19 @@ protocol DSMClientProtocol: AnyObject {
     func dockerImagePullStatus(taskID: String) async throws -> DockerImagePullStatus
     func listDockerNetworks() async throws -> [DockerNetwork]
     func dockerRegistries() async throws -> DockerRegistryList
+    func deleteContainer(name: String) async throws
+    func containerProcesses(name: String) async throws -> [ContainerProcess]
+    func pruneDockerImages() async throws
+    func startDockerImageUpgrade(repository: String) async throws -> DockerImagePullTask
+    func dockerImageUpgradeStatus(taskID: String) async throws -> DockerImagePullStatus
+    func dockerLog(
+        offset: Int,
+        limit: Int,
+        level: DockerLogLevelFilter,
+        keyword: String
+    ) async throws -> DockerLogPage
+    func clearDockerLog() async throws
+    func exportDockerLog(format: DockerLogExportFormat, to destination: URL) async throws
     func listSurveillanceCameras() async throws -> [SurveillanceCamera]
     func setSurveillanceCameras(ids: Set<String>, enabled: Bool) async throws
     func surveillanceSnapshot(cameraID: String) async throws -> Data
@@ -1240,6 +1253,43 @@ final class DSMClient: DSMClientProtocol {
 
     func dockerRegistries() async throws -> DockerRegistryList {
         try await containers.registries()
+    }
+
+    func deleteContainer(name: String) async throws {
+        try await containers.deleteContainer(name: name)
+    }
+
+    func containerProcesses(name: String) async throws -> [ContainerProcess] {
+        try await containers.containerProcesses(name: name)
+    }
+
+    func pruneDockerImages() async throws {
+        try await containers.pruneImages()
+    }
+
+    func startDockerImageUpgrade(repository: String) async throws -> DockerImagePullTask {
+        try await containers.startImageUpgrade(repository: repository)
+    }
+
+    func dockerImageUpgradeStatus(taskID: String) async throws -> DockerImagePullStatus {
+        try await containers.imageUpgradeStatus(taskID: taskID)
+    }
+
+    func dockerLog(
+        offset: Int,
+        limit: Int,
+        level: DockerLogLevelFilter,
+        keyword: String
+    ) async throws -> DockerLogPage {
+        try await containers.dockerLog(offset: offset, limit: limit, level: level, keyword: keyword)
+    }
+
+    func clearDockerLog() async throws {
+        try await containers.clearDockerLog()
+    }
+
+    func exportDockerLog(format: DockerLogExportFormat, to destination: URL) async throws {
+        try await containers.exportDockerLog(format: format, to: destination)
     }
 
     func listSurveillanceCameras() async throws -> [SurveillanceCamera] {

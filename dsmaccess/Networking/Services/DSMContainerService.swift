@@ -16,6 +16,7 @@ final class DSMContainerService {
     private static let imageAPI = DSMAPI("SYNO.Docker.Image", preferredVersion: 1)
     private static let networkAPI = DSMAPI("SYNO.Docker.Network", preferredVersion: 1)
     private static let registryAPI = DSMAPI("SYNO.Docker.Registry", preferredVersion: 1)
+    private static let dockerLogAPI = DSMAPI("SYNO.Docker.Log", preferredVersion: 1)
 
     private let transport: DSMTransport
 
@@ -80,6 +81,30 @@ final class DSMContainerService {
             as: ContainerLogList.self
         )
         return result.logs
+    }
+
+    /// Deletes a container. Captured contract: `preserve_profile` false matches DSM's own
+    /// Delete action (true would be its Reset, which keeps the profile for recreation).
+    func deleteContainer(name: String) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "delete",
+            parameters: [
+                "name": .string(name),
+                "force": .boolean(false),
+                "preserve_profile": .boolean(false),
+            ]
+        )
+    }
+
+    func containerProcesses(name: String) async throws -> [ContainerProcess] {
+        let result = try await transport.read(
+            api: Self.containerAPI,
+            method: "get_process",
+            parameters: ["name": .string(name)],
+            as: ContainerProcessList.self
+        )
+        return result.processes
     }
 
     // MARK: - Projects
@@ -191,6 +216,29 @@ final class DSMContainerService {
         )
     }
 
+    /// Removes local images no container references, as Container Manager's own button does.
+    func pruneImages() async throws {
+        try await transport.perform(api: Self.imageAPI, method: "prune")
+    }
+
+    func startImageUpgrade(repository: String) async throws -> DockerImagePullTask {
+        try await transport.value(
+            api: Self.imageAPI,
+            method: "upgrade_start",
+            parameters: ["repository": .string(repository)],
+            as: DockerImagePullTask.self
+        )
+    }
+
+    func imageUpgradeStatus(taskID: String) async throws -> DockerImagePullStatus {
+        try await transport.read(
+            api: Self.imageAPI,
+            method: "upgrade_status",
+            parameters: ["task_id": .string(taskID)],
+            as: DockerImagePullStatus.self
+        )
+    }
+
     // MARK: - Networks
 
     func networks() async throws -> [DockerNetwork] {
@@ -200,6 +248,70 @@ final class DSMContainerService {
             as: DockerNetworkList.self
         )
         return result.networks
+    }
+
+    // MARK: - Container Manager log
+
+    func dockerLog(
+        offset: Int,
+        limit: Int,
+        level: DockerLogLevelFilter,
+        keyword: String
+    ) async throws -> DockerLogPage {
+        try await transport.read(
+            api: Self.dockerLogAPI,
+            method: "list",
+            parameters: [
+                "action": .string("load"),
+                "offset": .integer(offset),
+                "limit": .integer(limit),
+                "sort_by": .string("time"),
+                "sort_dir": .string("DESC"),
+                "loglevel": .string(level.rawValue),
+                "filter_content": .string(keyword),
+                "datefrom": .integer(0),
+                "dateto": .integer(0),
+            ],
+            as: DockerLogPage.self
+        )
+    }
+
+    func clearDockerLog() async throws {
+        try await transport.perform(api: Self.dockerLogAPI, method: "clear")
+    }
+
+    /// Exports the whole log to a file. On refusal DSM answers JSON instead of the file;
+    /// the content type is what gives it away, as with the system log export.
+    func exportDockerLog(format: DockerLogExportFormat, to destination: URL) async throws {
+        let url = try await transport.makeURL(
+            api: Self.dockerLogAPI,
+            method: "export",
+            parameters: [
+                "format": .string(format.rawValue),
+                "loglevel": .string(""),
+                "filter_content": .string(""),
+                "datefrom": .integer(0),
+                "dateto": .integer(0),
+            ]
+        )
+        let (temporaryURL, response) = try await transport.download(from: url)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode) else {
+            throw DSMError.invalidResponse
+        }
+        if let mimeType = response.mimeType, mimeType.contains("json") {
+            let data = try await MultipartBodyFile.readData(at: temporaryURL)
+            let decoded = try await DSMTransport.decodeResponse(EmptyData.self, from: data)
+            guard !decoded.success else { throw DSMError.invalidResponse }
+            throw transport.error(from: decoded.error)
+        }
+
+        let fileManager = FileManager.default
+        if fileManager.fileExists(atPath: destination.path) {
+            _ = try fileManager.replaceItemAt(destination, withItemAt: temporaryURL)
+        } else {
+            try fileManager.moveItem(at: temporaryURL, to: destination)
+        }
     }
 
     // MARK: - Registries

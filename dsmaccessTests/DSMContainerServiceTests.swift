@@ -24,7 +24,7 @@ struct DSMContainerServiceTests {
 
         let requests = await stub.requests
         #expect(requests.count == 2)
-        #expect(try query(from: requests[0])["type"] == "all")
+        #expect(try query(from: requests[0])["type"] == #""all""#)
         #expect(try query(from: requests[1])["api"] == "SYNO.Docker.Container.Resource")
         #expect(try query(from: requests[1])["method"] == "get")
     }
@@ -181,6 +181,80 @@ struct DSMContainerServiceTests {
         #expect(targets == [Target(repository: "hello-world", tags: ["latest"])])
     }
 
+    @Test func containerDeleteSendsCapturedParameters() async throws {
+        // Captured contract: DSM's Delete action, distinct from its Reset which preserves
+        // the profile.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.deleteContainer(name: "web")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "delete")
+        #expect(parameters["name"] == #""web""#)
+        #expect(parameters["force"] == "false")
+        #expect(parameters["preserve_profile"] == "false")
+    }
+
+    @Test func decodesProcessesWithStringPIDs() async throws {
+        // Captured on DSM 7.4: `pid` is a string, `cpu` a fraction of a percent.
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"processes":[{"command":"openvpn --config fr.ovpn","cpu":0.17,"memory":5808128,"memoryPercent":0.14,"pid":"17787","start":"Jul30"}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let processes = try await service.containerProcesses(name: "transmission")
+
+        let process = try #require(processes.first)
+        #expect(process.pid == "17787")
+        #expect(process.cpuPercent == 0.17)
+        #expect(process.memoryBytes == 5_808_128)
+    }
+
+    @Test func dockerLogRequestCarriesCapturedFiltersAndDecodesCounts() async throws {
+        // Captured contract: `action=load` is mandatory alongside offset/limit.
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"error_count":0,"info_count":615,"limit":3,"logs":[{"event":"Delete image hello-world:latest","level":"info","log_type":"dockerlog","time":"2026/07/31 20:13:45","user":"math65"}],"offset":0,"total":615,"warn_count":0}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let page = try await service.dockerLog(offset: 0, limit: 3, level: .information, keyword: "image")
+
+        #expect(page.total == 615)
+        let entry = try #require(page.entries.first)
+        #expect(entry.event == "Delete image hello-world:latest")
+        #expect(entry.user == "math65")
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["action"] == #""load""#)
+        // Measured vocabulary: the filter wants full words, the entries carry `info`/`err`.
+        #expect(parameters["loglevel"] == #""information""#)
+        #expect(parameters["filter_content"] == #""image""#)
+        #expect(parameters["sort_by"] == #""time""#)
+        #expect(parameters["datefrom"] == "0")
+        #expect(parameters["dateto"] == "0")
+    }
+
+    @Test func imageUpgradeStartSendsRepositoryOnly() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"task_id":"@administrators/UPGRADE1"}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        let task = try await service.startImageUpgrade(repository: "nginx")
+
+        #expect(task.taskID == "@administrators/UPGRADE1")
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "upgrade_start")
+        #expect(parameters["repository"] == #""nginx""#)
+        #expect(parameters["tag"] == nil)
+    }
+
     @Test func decodesNetworksAndFlagsBuiltInOnes() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(
@@ -201,15 +275,18 @@ struct DSMContainerServiceTests {
     private func makeService(stub: DSMRequestStub) -> DSMContainerService {
         var capabilities = DSMCapabilities()
         capabilities.merge([
+            // The real DS920+ declares requestFormat JSON for every SYNO.Docker API.
             "SYNO.Docker.Container": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
-                maxVersion: 1
+                maxVersion: 1,
+                requestFormat: "JSON"
             ),
             "SYNO.Docker.Container.Resource": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
-                maxVersion: 1
+                maxVersion: 1,
+                requestFormat: "JSON"
             ),
             "SYNO.Docker.Container.Log": APIInfoEntry(
                 path: "entry.cgi",
@@ -236,6 +313,12 @@ struct DSMContainerServiceTests {
                 requestFormat: "JSON"
             ),
             "SYNO.Docker.Registry": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.Docker.Log": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1,
