@@ -33541,6 +33541,54 @@
           }
         }
       }
+    },
+    "users.create_group.create_with_permissions.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create and set permissions…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer et définir les permissions…"
+          }
+        }
+      }
+    },
+    "users.create_group.create_with_permissions.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create the group, then open its permissions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer le groupe puis ouvrir ses permissions"
+          }
+        }
+      }
+    },
+    "error.group.name_taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A group named %@ already exists. Choose another name."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un groupe nommé %@ existe déjà. Choisissez un autre nom."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

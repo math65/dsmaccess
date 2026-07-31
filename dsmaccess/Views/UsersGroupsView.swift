@@ -26,6 +26,7 @@ struct UsersGroupsView: View {
     /// Account whose permissions will open once the creation sheet is closed: two sheets
     /// cannot follow each other without waiting for the first one to close.
     @State private var userAwaitingPermissions: String?
+    @State private var groupAwaitingPermissions: String?
     @State private var operationFailure: String?
     @AccessibilityFocusState private var contentFocused: Bool
 
@@ -60,9 +61,18 @@ struct UsersGroupsView: View {
                 )
             }
             .sheet(isPresented: $showCreateGroup) {
-                CreateGroupSheet { draft in
-                    Task { await announce(viewModel.createGroup(draft)) }
-                }
+                guard let name = groupAwaitingPermissions else { return }
+                groupAwaitingPermissions = nil
+                holderToConfigure = .group(name)
+            } content: {
+                CreateGroupSheet(
+                    onCreate: { draft in
+                        let outcome = await viewModel.createGroup(draft)
+                        if case .success = outcome { await announce(outcome) }
+                        return outcome
+                    },
+                    onConfigurePermissions: { groupAwaitingPermissions = $0 }
+                )
             }
             .sheet(item: $holderToConfigure) { holder in
                 SharePermissionsSheet(holder: holder, session: session) { outcome in
@@ -580,15 +590,22 @@ private struct CreateUserSheet: View {
 }
 
 private struct CreateGroupSheet: View {
-    let onCreate: (DSMGroupDraft) -> Void
+    let onCreate: (DSMGroupDraft) async -> DSMOperationOutcome
+    /// Moves straight on to the permissions of the group just created: a group with no access
+    /// to anything is of no use, and nothing on this screen says where to grant it.
+    let onConfigurePermissions: (String) -> Void
 
     @State private var name = ""
     @State private var description = ""
+    @State private var isCreating = false
+    @State private var failureMessage: String?
     @FocusState private var nameFocused: Bool
     @AccessibilityFocusState private var accessibilityFocused: Bool
+    @AccessibilityFocusState private var failureFocused: Bool
     @Environment(\.dismiss) private var dismiss
 
     private var trimmedName: String { name.trimmingCharacters(in: .whitespacesAndNewlines) }
+    private var canCreate: Bool { !trimmedName.isEmpty && !isCreating }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -605,22 +622,36 @@ private struct CreateGroupSheet: View {
                 TextField("common.field.description_optional", text: $description)
                     .help("users.create_group.description_field.hint")
             }
+            if let failureMessage {
+                Text(failureMessage)
+                    .foregroundStyle(.readableRed)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .accessibilityFocused($failureFocused)
+            }
             HStack {
+                if isCreating {
+                    ProgressView()
+                        .controlSize(.small)
+                        .accessibilityLabel("users.create.progress.label")
+                }
                 Spacer()
                 Button("common.button.cancel", role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
                     .help("users.create_group.cancel.hint")
-                Button("common.button.create") {
-                    onCreate(DSMGroupDraft(name: trimmedName, description: description))
-                    dismiss()
+                Button("users.create_group.create_with_permissions.button") {
+                    create(thenConfiguringPermissions: true)
                 }
-                .keyboardShortcut(.defaultAction)
-                .disabled(trimmedName.isEmpty)
-                .help("users.create_group.submit.button")
+                .disabled(!canCreate)
+                .help("users.create_group.create_with_permissions.hint")
+                Button("common.button.create") { create(thenConfiguringPermissions: false) }
+                    .keyboardShortcut(.defaultAction)
+                    .disabled(!canCreate)
+                    .help("users.create_group.submit.button")
             }
         }
         .padding(20)
-        .frame(width: 400)
+        .frame(width: 460)
         .onAppear {
             nameFocused = true
             accessibilityFocused = true
@@ -628,6 +659,30 @@ private struct CreateGroupSheet: View {
                 String(localized: "users.create_group.title"),
                 category: .navigation
             )
+        }
+    }
+
+    private func create(thenConfiguringPermissions configuresPermissions: Bool) {
+        guard canCreate else { return }
+        let draft = DSMGroupDraft(name: trimmedName, description: description)
+        isCreating = true
+        failureMessage = nil
+        Task {
+            let outcome = await onCreate(draft)
+            isCreating = false
+            switch outcome {
+            case .success:
+                if configuresPermissions { onConfigurePermissions(draft.name) }
+                dismiss()
+            case .failure(let message):
+                // The sheet stays open: a name already taken is corrected here rather than
+                // retyped from scratch.
+                failureMessage = message
+                failureFocused = true
+                VoiceOver.announce(message, category: .error, priority: .high)
+            case .cancelled:
+                break
+            }
         }
     }
 }

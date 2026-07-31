@@ -15,6 +15,9 @@ final class DSMAccountService {
     private static let passwordPolicyAPI = DSMAPI("SYNO.Core.User.PasswordPolicy")
     /// DSM's answer when the password does not satisfy the NAS's strength rules.
     private static let weakPasswordCode = 3121
+    /// Answered by `SYNO.Core.Group create` on a name the NAS already holds. Observed on
+    /// DSM 7.4 by creating an existing group; without this, the sheet showed a bare code.
+    private static let groupNameTakenCode = 3206
 
     private let transport: DSMTransport
 
@@ -160,14 +163,18 @@ final class DSMAccountService {
     }
 
     func createGroup(_ draft: DSMGroupDraft) async throws {
-        try await transport.perform(
-            api: Self.groupAPI,
-            method: "create",
-            parameters: [
-                "name": .string(draft.name),
-                "description": .string(draft.description),
-            ]
-        )
+        do {
+            try await transport.perform(
+                api: Self.groupAPI,
+                method: "create",
+                parameters: [
+                    "name": .string(draft.name),
+                    "description": .string(draft.description),
+                ]
+            )
+        } catch DSMError.apiError(Self.groupNameTakenCode) {
+            throw DSMError.groupNameTaken(name: draft.name)
+        }
     }
 
     func deleteGroup(_ name: String) async throws {

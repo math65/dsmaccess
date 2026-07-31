@@ -51,6 +51,8 @@ enum DSMError: Error, LocalizedError, Equatable {
     case userCreatedWithoutGroups(name: String, groups: [String])
     /// DSM refused these group changes on an existing account. The changes it accepted stand.
     case membershipsRefused(groups: [String])
+    /// A group by that name already exists on the NAS.
+    case groupNameTaken(name: String)
     /// Any other API error returned by DSM.
     case apiError(code: Int)
     /// Package Center requires a decision or a wizard that the app must not guess.
@@ -112,6 +114,8 @@ enum DSMError: Error, LocalizedError, Equatable {
         case .membershipsRefused(let groups):
             let list = groups.formatted(.list(type: .and))
             return String(localized: "error.user.memberships_refused", defaultValue: "The NAS refused these groups: \(list). The other changes were applied.")
+        case .groupNameTaken(let name):
+            return String(localized: "error.group.name_taken", defaultValue: "A group named \(name) already exists. Choose another name.")
         case .apiError(let code):
             return String(localized: "error.nas.code", defaultValue: "NAS error (code \(code)).")
         case .packageCenter(let message):
