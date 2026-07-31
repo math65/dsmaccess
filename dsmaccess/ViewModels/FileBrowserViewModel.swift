@@ -484,7 +484,11 @@ final class FileBrowserViewModel {
     func download(_ item: FileStationItem, to destination: URL) async -> DSMOperationOutcome {
         guard canDownload else { return unavailableOutcome(for: .download) }
         defer { destination.stopAccessingSecurityScopedResource() }
-        return await performSingleDownload(item, to: destination)
+        await OperationNotifier.prepare()
+        return await signalled(
+            String(localized: "common.operation.download"),
+            await performSingleDownload(item, to: destination)
+        )
     }
 
     /// Download triggered by a file promise dropped into the Finder. No security scope to
@@ -536,6 +540,7 @@ final class FileBrowserViewModel {
     func download(_ selectedItems: [FileStationItem], to directory: URL) async -> DSMOperationOutcome {
         guard canDownload else { return unavailableOutcome(for: .download) }
         defer { directory.stopAccessingSecurityScopedResource() }
+        await OperationNotifier.prepare()
         activeDownloadCount += 1
         defer { activeDownloadCount -= 1 }
         var completed = 0
@@ -581,13 +586,20 @@ final class FileBrowserViewModel {
                 if firstError == nil { firstError = message }
             }
         }
+        let label = String(localized: "common.operation.download")
         if completed == selectedItems.count {
-            return .success(String(localized: "files.download.done.announcement", defaultValue: "\(completed) items downloaded"))
+            return await signalled(
+                label,
+                .success(String(localized: "files.download.done.announcement", defaultValue: "\(completed) items downloaded"))
+            )
         }
-        return .failure(
-            String(
-                localized: "files.download.partial_failure.announcement",
-                defaultValue: "\(completed) downloaded, \(selectedItems.count - completed) failed. \(firstError ?? "")"
+        return await signalled(
+            label,
+            .failure(
+                String(
+                    localized: "files.download.partial_failure.announcement",
+                    defaultValue: "\(completed) downloaded, \(selectedItems.count - completed) failed. \(firstError ?? "")"
+                )
             )
         )
     }
@@ -601,6 +613,7 @@ final class FileBrowserViewModel {
             return .failure(String(localized: "files.archive.min_selection.error"))
         }
         defer { destination.stopAccessingSecurityScopedResource() }
+        await OperationNotifier.prepare()
         let transferID = addTransfer(
             direction: .download,
             name: destination.lastPathComponent,
@@ -621,10 +634,13 @@ final class FileBrowserViewModel {
                 )
             }
             updateTransfer(id: transferID, state: .completed)
-            return .success(
-                String(
-                    localized: "files.archive_download.done.announcement",
-                    defaultValue: "Archive downloaded: \(destination.lastPathComponent)"
+            return await signalled(
+                String(localized: "common.operation.download"),
+                .success(
+                    String(
+                        localized: "files.archive_download.done.announcement",
+                        defaultValue: "Archive downloaded: \(destination.lastPathComponent)"
+                    )
                 )
             )
         } catch {
@@ -634,7 +650,10 @@ final class FileBrowserViewModel {
             }
             let message = errorMessage(for: error)
             updateTransfer(id: transferID, state: .failed(message))
-            return .failure(String(localized: "files.archive_download.error", defaultValue: "Failed to download archive: \(message)"))
+            return await signalled(
+                String(localized: "common.operation.download"),
+                .failure(String(localized: "files.archive_download.error", defaultValue: "Failed to download archive: \(message)"))
+            )
         }
     }
 
@@ -684,6 +703,7 @@ final class FileBrowserViewModel {
         }
         isWorking = true
         defer { isWorking = false }
+        await OperationNotifier.prepare()
         let plan = await FinderUploadPlan.make(from: urls)
         if !plan.folders.isEmpty {
             do {
@@ -757,18 +777,23 @@ final class FileBrowserViewModel {
         } else if !query.isEmpty {
             await search(query)
         }
+        let label = String(localized: "common.operation.upload")
         let failed = plan.files.count - sent
         if failed > 0 {
-            return .failure(
-                String(
-                    localized: "files.upload.partial_failure.announcement",
-                    defaultValue: "\(sent) uploaded, \(failed) failed: \(firstFailure ?? "")"
+            return await signalled(
+                label,
+                .failure(
+                    String(
+                        localized: "files.upload.partial_failure.announcement",
+                        defaultValue: "\(sent) uploaded, \(failed) failed: \(firstFailure ?? "")"
+                    )
                 )
             )
         }
         if plan.unreadableItems > 0 {
-            return .failure(
-                String(localized: "files.upload.partial_read.error")
+            return await signalled(
+                label,
+                .failure(String(localized: "files.upload.partial_read.error"))
             )
         }
         if plan.folders.isEmpty {
@@ -778,17 +803,23 @@ final class FileBrowserViewModel {
                     defaultValue: "File uploaded: \(plan.files[0].source.lastPathComponent)"
                 )
                 : String(localized: "files.upload.files_done.announcement", defaultValue: "\(sent) files uploaded")
-            return .success(message)
+            return await signalled(label, .success(message))
         }
         if urls.count == 1 {
-            return .success(
-                String(
-                    localized: "files.upload.folder_done.announcement",
-                    defaultValue: "Folder uploaded: \(urls[0].lastPathComponent)"
+            return await signalled(
+                label,
+                .success(
+                    String(
+                        localized: "files.upload.folder_done.announcement",
+                        defaultValue: "Folder uploaded: \(urls[0].lastPathComponent)"
+                    )
                 )
             )
         }
-        return .success(String(localized: "files.upload.items_done.announcement", defaultValue: "\(urls.count) items uploaded"))
+        return await signalled(
+            label,
+            .success(String(localized: "files.upload.items_done.announcement", defaultValue: "\(urls.count) items uploaded"))
+        )
     }
 
     func clearFinishedTransfers() {
@@ -1506,6 +1537,25 @@ final class FileBrowserViewModel {
                 )
             )
         }
+    }
+
+    /// Sound and notification for uploads and downloads. They track progress file by file for
+    /// the transfers window instead of going through `performProgressOperation`, and so ended
+    /// in silence — precisely the operations long enough to walk away from. One signal per
+    /// batch, not per file, and nothing on a cancellation the user asked for themselves.
+    private func signalled(
+        _ label: String,
+        _ outcome: DSMOperationOutcome
+    ) async -> DSMOperationOutcome {
+        switch outcome {
+        case .success(let message):
+            await OperationNotifier.signalCompletion(title: label, body: message, succeeded: true)
+        case .failure(let message):
+            await OperationNotifier.signalCompletion(title: label, body: message, succeeded: false)
+        case .cancelled:
+            break
+        }
+        return outcome
     }
 
     private func performProgressOperation(
