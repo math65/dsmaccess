@@ -1,3 +1,25 @@
+## v1.1-beta.19 (build 20) — 31 juillet 2026
+
+### Corrections
+
+- Fichiers : envoyer un fichier vers le NAS, ou en rapatrier un, joue enfin le
+  son à la fin. Il ne se déclenchait que pour les opérations qui restent sur le
+  NAS — copier, déplacer, supprimer — ce qui laissait de côté justement les
+  transferts assez longs pour qu'on aille faire autre chose. La notification
+  manquait aussi sur ceux-là.
+- Fichiers : coller ou envoyer n'ouvre plus un formulaire au préalable. L'app
+  compare les noms avec la destination et ne pose la question que si quelque
+  chose serait remplacé, en le nommant : « budget.xlsx existe déjà dans ce
+  dossier ». Le formulaire d'envoi et ses trois sélecteurs de date ont disparu ;
+  DSM ne les demande pas non plus.
+- Cinq messages parlés étaient en français pour tout le monde : modification
+  d'un lien de partage, recherche avancée, détails d'un paquet, création d'une
+  archive, et un dernier. Ils avaient échappé au travail de traduction.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.19.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.19/dsmaccess-1.1-beta.19.zip)
+
 ## v1.1-beta.18 (build 19) — 30 juillet 2026
 
 ### Corrections

@@ -1,3 +1,23 @@
+## v1.1-beta.19 (build 20) — 2026-07-31
+
+### Fixes
+
+- Files: sending a file to the NAS, or bringing one back, now plays the sound at
+  the end. It only ever played for operations that stay on the NAS — copying,
+  moving, deleting — which left out the transfers long enough to walk away
+  from. The notification was missing on those too.
+- Files: pasting or sending no longer opens a form first. The app compares the
+  names with the destination and only asks when something would be replaced,
+  naming it: "budget.xlsx already exists in this folder". The upload form and
+  its three date pickers are gone; DSM does not ask for those either.
+- Five spoken announcements were in French for everyone — editing a share link,
+  advanced search, package details, creating an archive, and one more. They had
+  slipped past the translation work.
+
+### Download
+
+[dsmaccess-1.1-beta.19.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.19/dsmaccess-1.1-beta.19.zip)
+
 ## v1.1-beta.18 (build 19) — 2026-07-30
 
 ### Fixes
