@@ -297,6 +297,19 @@ protocol DSMClientProtocol: AnyObject {
     func listContainers() async throws -> [ContainerItem]
     func performContainerAction(_ action: ContainerAction, name: String) async throws
     func containerLogs(name: String) async throws -> [ContainerLogEntry]
+    func listDockerProjects() async throws -> [DockerProject]
+    func dockerProject(id: String) async throws -> DockerProject
+    func performDockerProjectAction(
+        _ action: DockerProjectAction,
+        projectID: String
+    ) async throws -> DockerStreamResult
+    func deleteDockerProject(id: String) async throws
+    func listDockerImages() async throws -> [DockerImage]
+    func deleteDockerImage(repository: String, tags: [String]) async throws
+    func startDockerImagePull(repository: String, tag: String) async throws -> DockerImagePullTask
+    func dockerImagePullStatus(taskID: String) async throws -> DockerImagePullStatus
+    func listDockerNetworks() async throws -> [DockerNetwork]
+    func dockerRegistries() async throws -> DockerRegistryList
     func listSurveillanceCameras() async throws -> [SurveillanceCamera]
     func setSurveillanceCameras(ids: Set<String>, enabled: Bool) async throws
     func surveillanceSnapshot(cameraID: String) async throws -> Data
@@ -1184,6 +1197,49 @@ final class DSMClient: DSMClientProtocol {
 
     func containerLogs(name: String) async throws -> [ContainerLogEntry] {
         try await containers.logs(name: name)
+    }
+
+    func listDockerProjects() async throws -> [DockerProject] {
+        try await containers.projects()
+    }
+
+    func dockerProject(id: String) async throws -> DockerProject {
+        try await containers.project(id: id)
+    }
+
+    func performDockerProjectAction(
+        _ action: DockerProjectAction,
+        projectID: String
+    ) async throws -> DockerStreamResult {
+        try await containers.performProjectAction(action, projectID: projectID)
+    }
+
+    func deleteDockerProject(id: String) async throws {
+        try await containers.deleteProject(id: id)
+    }
+
+    func listDockerImages() async throws -> [DockerImage] {
+        try await containers.images()
+    }
+
+    func deleteDockerImage(repository: String, tags: [String]) async throws {
+        try await containers.deleteImage(repository: repository, tags: tags)
+    }
+
+    func startDockerImagePull(repository: String, tag: String) async throws -> DockerImagePullTask {
+        try await containers.startImagePull(repository: repository, tag: tag)
+    }
+
+    func dockerImagePullStatus(taskID: String) async throws -> DockerImagePullStatus {
+        try await containers.imagePullStatus(taskID: taskID)
+    }
+
+    func listDockerNetworks() async throws -> [DockerNetwork] {
+        try await containers.networks()
+    }
+
+    func dockerRegistries() async throws -> DockerRegistryList {
+        try await containers.registries()
     }
 
     func listSurveillanceCameras() async throws -> [SurveillanceCamera] {

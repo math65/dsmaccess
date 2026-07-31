@@ -2,12 +2,67 @@
 //  ContainersView.swift
 //  dsmaccess
 //
-//  Native container management and viewing of their logs.
+//  Containers module: containers, compose projects, images and networks of
+//  Container Manager, one tab each as in DSM.
 //
 
 import SwiftUI
 
 struct ContainersView: View {
+    /// Container Manager's own sections, minus those its package does not expose here.
+    /// Registries are folded into the Images tab: the DSM screen for them is one row.
+    private enum Pane: String, CaseIterable, Identifiable {
+        case containers
+        case projects
+        case images
+        case networks
+
+        var id: Self { self }
+    }
+
+    @State private var pane = Pane.containers
+    @State private var projects: DockerProjectsViewModel
+    @State private var images: DockerImagesViewModel
+    @State private var networks: DockerNetworksViewModel
+    private let session: SessionStore
+
+    init(session: SessionStore) {
+        self.session = session
+        _projects = State(initialValue: DockerProjectsViewModel(session: session))
+        _images = State(initialValue: DockerImagesViewModel(session: session))
+        _networks = State(initialValue: DockerNetworksViewModel(session: session))
+    }
+
+    var body: some View {
+        // A TabView and not a segmented picker, for the same reason as the resource monitor:
+        // tabs announce themselves as tabs. Wrapped in a VStack so they stay in the content.
+        VStack(spacing: 0) {
+            TabView(selection: $pane) {
+                ContainersPaneView(session: session, isActive: pane == .containers)
+                    .tabItem { Text("containers.tab.containers") }
+                    .tag(Pane.containers)
+                if session.capabilities.supports("SYNO.Docker.Project") {
+                    DockerProjectsView(vm: projects)
+                        .tabItem { Text("containers.tab.projects") }
+                        .tag(Pane.projects)
+                }
+                if session.capabilities.supports("SYNO.Docker.Image") {
+                    DockerImagesView(vm: images)
+                        .tabItem { Text("containers.tab.images") }
+                        .tag(Pane.images)
+                }
+                if session.capabilities.supports("SYNO.Docker.Network") {
+                    DockerNetworksView(vm: networks)
+                        .tabItem { Text("containers.tab.networks") }
+                        .tag(Pane.networks)
+                }
+            }
+        }
+    }
+}
+
+/// The historical containers list, unchanged in behaviour, now the first tab of the module.
+struct ContainersPaneView: View {
     private enum DetailsSection: Hashable {
         case information
         case logs
@@ -21,15 +76,18 @@ struct ContainersView: View {
     @State private var detailsSection = DetailsSection.information
     @AccessibilityFocusState private var contentFocused: Bool
     @AccessibilityFocusState private var detailsSectionFocused: Bool
+    /// Whether this tab is the selected one. Its search field and toolbar live at the window
+    /// level: left unconditioned, they linger — disabled but reachable — over the other tabs.
+    private let isActive: Bool
 
-    init(session: SessionStore) {
+    init(session: SessionStore, isActive: Bool) {
         _viewModel = State(initialValue: ContainersViewModel(session: session))
+        self.isActive = isActive
     }
 
     var body: some View {
-        content
-            .searchable(text: $searchText, prompt: "containers.search.prompt")
-            .toolbar { toolbar }
+        searchableContent
+            .toolbar { if isActive { toolbar } }
             .safeAreaInset(edge: .bottom) { statusBar }
             .task { await load(restoresInitialFocus: true) }
             .task(id: autoRefresh) { await refreshPeriodically() }
@@ -41,6 +99,15 @@ struct ContainersView: View {
                     detailsContainer = nil
                 }
             }
+    }
+
+    @ViewBuilder
+    private var searchableContent: some View {
+        if isActive {
+            content.searchable(text: $searchText, prompt: "containers.search.prompt")
+        } else {
+            content
+        }
     }
 
     @ViewBuilder
