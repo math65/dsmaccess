@@ -12,6 +12,10 @@ final class DSMContainerService {
     private static let containerAPI = DSMAPI("SYNO.Docker.Container", preferredVersion: 1)
     private static let resourceAPI = DSMAPI("SYNO.Docker.Container.Resource", preferredVersion: 1)
     private static let logAPI = DSMAPI("SYNO.Docker.Container.Log", preferredVersion: 1)
+    private static let projectAPI = DSMAPI("SYNO.Docker.Project", preferredVersion: 1)
+    private static let imageAPI = DSMAPI("SYNO.Docker.Image", preferredVersion: 1)
+    private static let networkAPI = DSMAPI("SYNO.Docker.Network", preferredVersion: 1)
+    private static let registryAPI = DSMAPI("SYNO.Docker.Registry", preferredVersion: 1)
 
     private let transport: DSMTransport
 
@@ -76,5 +80,135 @@ final class DSMContainerService {
             as: ContainerLogList.self
         )
         return result.logs
+    }
+
+    // MARK: - Projects
+
+    func projects() async throws -> [DockerProject] {
+        let result = try await transport.read(
+            api: Self.projectAPI,
+            method: "list",
+            as: DockerProjectList.self
+        )
+        return result.projects
+    }
+
+    func project(id: String) async throws -> DockerProject {
+        try await transport.read(
+            api: Self.projectAPI,
+            method: "get",
+            parameters: ["id": .string(id)],
+            as: DockerProject.self
+        )
+    }
+
+    /// Runs a compose action. These `*_stream` methods answer with plain text — the
+    /// docker-compose output followed by an `Exit Code:` line — instead of the usual JSON
+    /// envelope, so they bypass the decoding path. Mutations: a single attempt, never replayed.
+    func performProjectAction(
+        _ action: DockerProjectAction,
+        projectID: String
+    ) async throws -> DockerStreamResult {
+        let url = try await transport.makeURL(
+            api: Self.projectAPI,
+            method: action.rawValue,
+            parameters: ["id": .string(projectID)]
+        )
+        var request = URLRequest(url: url)
+        // Compose pulls and builds can legitimately take a while.
+        request.timeoutInterval = 300
+        let (data, response) = try await transport.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode),
+              let text = String(data: data, encoding: .utf8) else {
+            throw DSMError.invalidResponse
+        }
+        // A failed call (bad identifier, privilege) still comes back as the JSON envelope.
+        if let envelope = try? JSONDecoder().decode(DSMResponse<EmptyData>.self, from: data),
+           envelope.success == false {
+            throw transport.error(from: envelope.error)
+        }
+        return DockerStreamResult(output: text)
+    }
+
+    func deleteProject(id: String) async throws {
+        try await transport.perform(
+            api: Self.projectAPI,
+            method: "delete",
+            parameters: ["id": .string(id)]
+        )
+    }
+
+    // MARK: - Images
+
+    func images() async throws -> [DockerImage] {
+        // `limit` and `offset` are mandatory: DSM 7.4 answers error 114 without them.
+        let result = try await transport.read(
+            api: Self.imageAPI,
+            method: "list",
+            parameters: [
+                "limit": .integer(-1),
+                "offset": .integer(0),
+                "show_dsm": .boolean(false),
+            ],
+            as: DockerImageList.self
+        )
+        return result.images
+    }
+
+    /// Deletes one image. Captured contract: the target travels as a JSON array of
+    /// repository/tags pairs, not as separate parameters.
+    func deleteImage(repository: String, tags: [String]) async throws {
+        struct Target: Encodable {
+            let repository: String
+            let tags: [String]
+        }
+        try await transport.perform(
+            api: Self.imageAPI,
+            method: "delete",
+            parameters: ["images": try .json([Target(repository: repository, tags: tags)])]
+        )
+    }
+
+    func startImagePull(repository: String, tag: String) async throws -> DockerImagePullTask {
+        try await transport.value(
+            api: Self.imageAPI,
+            method: "pull_start",
+            parameters: [
+                "repository": .string(repository),
+                "tag": .string(tag),
+            ],
+            as: DockerImagePullTask.self
+        )
+    }
+
+    func imagePullStatus(taskID: String) async throws -> DockerImagePullStatus {
+        try await transport.read(
+            api: Self.imageAPI,
+            method: "pull_status",
+            parameters: ["task_id": .string(taskID)],
+            as: DockerImagePullStatus.self
+        )
+    }
+
+    // MARK: - Networks
+
+    func networks() async throws -> [DockerNetwork] {
+        let result = try await transport.read(
+            api: Self.networkAPI,
+            method: "list",
+            as: DockerNetworkList.self
+        )
+        return result.networks
+    }
+
+    // MARK: - Registries
+
+    func registries() async throws -> DockerRegistryList {
+        try await transport.read(
+            api: Self.registryAPI,
+            method: "get",
+            as: DockerRegistryList.self
+        )
     }
 }
