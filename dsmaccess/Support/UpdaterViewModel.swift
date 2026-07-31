@@ -9,11 +9,11 @@ import SwiftUI
 import Combine
 import Sparkle
 
-/// Subscribes prereleases to the beta channel and stable versions to the default channel.
+/// Opens the beta channel when the user asks for it. Sparkle calls this on every check, so
+/// the setting takes effect from the next one without restarting anything.
 final class UpdaterChannelDelegate: NSObject, SPUUpdaterDelegate {
     func allowedChannels(for updater: SPUUpdater) -> Set<String> {
-        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
-        return version.localizedCaseInsensitiveContains("beta") ? ["beta"] : []
+        Preferences.receivesBetaUpdates ? ["beta"] : []
     }
 }
 
@@ -62,6 +62,19 @@ final class UpdaterViewModel: ObservableObject {
         set {
             objectWillChange.send()
             updaterController.updater.automaticallyDownloadsUpdates = newValue
+        }
+    }
+
+    /// Whether the beta channel is included in the checks. Turning it on looks for a beta right
+    /// away, silently: waiting up to a day for the scheduler would look like the setting had
+    /// done nothing. Turning it off changes nothing to the installed version — the app stays on
+    /// the beta it is running until a stable release overtakes it.
+    var receivesBetaUpdates: Bool {
+        get { Preferences.receivesBetaUpdates }
+        set {
+            objectWillChange.send()
+            Preferences.receivesBetaUpdates = newValue
+            if newValue { updaterController.updater.checkForUpdatesInBackground() }
         }
     }
 

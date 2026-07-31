@@ -26,7 +26,24 @@ struct UpdateSettingsView: View {
                 .help("updates.settings.auto_install.description")
                 Text("updates.settings.section.footer")
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
+            }
+
+            Section("updates.settings.beta.section") {
+                Toggle("updates.settings.beta", isOn: $updater.receivesBetaUpdates)
+                    .help("updates.settings.beta.description")
+                // Turning this off on a beta build does not go back to the stable version:
+                // saying so here spares the impression that updates have stopped working.
+                Text(
+                    updater.receivesBetaUpdates
+                        ? "updates.settings.beta.on.description"
+                        : Preferences.isRunningBeta
+                            ? "updates.settings.beta.off_on_beta.description"
+                            : "updates.settings.beta.off.description"
+                )
+                .font(.callout)
+                .foregroundStyle(.readableSecondary)
+                .fixedSize(horizontal: false, vertical: true)
             }
 
             Section {

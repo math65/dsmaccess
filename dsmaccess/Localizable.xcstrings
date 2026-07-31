@@ -33621,6 +33621,102 @@
           }
         }
       }
+    },
+    "updates.settings.beta.section": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test versions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versions de test"
+          }
+        }
+      }
+    },
+    "updates.settings.beta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Receive beta versions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recevoir les versions bêta"
+          }
+        }
+      }
+    },
+    "updates.settings.beta.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Include test versions in update checks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inclure les versions de test dans la recherche de mises à jour"
+          }
+        }
+      }
+    },
+    "updates.settings.beta.on.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Betas ship more often and carry fixes sooner, and they get less testing. Reports on them are what make the stable versions solid."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les bêtas sortent plus souvent et apportent les correctifs plus tôt, mais elles sont moins éprouvées. Ce sont les retours sur ces versions qui rendent les versions stables solides."
+          }
+        }
+      }
+    },
+    "updates.settings.beta.off.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only stable versions are offered."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seules les versions stables sont proposées."
+          }
+        }
+      }
+    },
+    "updates.settings.beta.off_on_beta.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only stable versions are offered from now on. This does not undo the beta already installed: the app stays on it until a stable version goes past it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seules les versions stables seront désormais proposées. Cela ne revient pas sur la bêta déjà installée : l'app y reste jusqu'à ce qu'une version stable la dépasse."
+          }
+        }
+      }
     }
   },
   "version": "1.0"

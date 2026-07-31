@@ -26,6 +26,7 @@ enum Preferences {
         static let queueAnnouncements = "queueAnnouncements"
         static let notifiesFinishedOperations = "notifiesFinishedOperations"
         static let playsCompletionSound = "playsCompletionSound"
+        static let receivesBetaUpdates = "receivesBetaUpdates"
         static let authenticationMethod = "authenticationMethod"
         static let sidebarOrder = "sidebarOrder"
         static let enabledSidebarModules = "enabledSidebarModules"
@@ -130,6 +131,26 @@ enum Preferences {
             return defaults.bool(forKey: Key.playsCompletionSound)
         }
         set { defaults.set(newValue, forKey: Key.playsCompletionSound) }
+    }
+
+    /// Whether updates are drawn from the beta channel. Until this setting existed the channel
+    /// was deduced from the installed version, with no way out: someone who had tried a beta
+    /// stayed on the betas for good. The default keeps that behaviour — a running beta was
+    /// installed on purpose, and a stable version must not start receiving test builds because
+    /// a checkbox happened to default to on.
+    static var receivesBetaUpdates: Bool {
+        get {
+            guard defaults.object(forKey: Key.receivesBetaUpdates) != nil else {
+                return isRunningBeta
+            }
+            return defaults.bool(forKey: Key.receivesBetaUpdates)
+        }
+        set { defaults.set(newValue, forKey: Key.receivesBetaUpdates) }
+    }
+
+    static var isRunningBeta: Bool {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
+        return version.localizedCaseInsensitiveContains("beta")
     }
 
     /// Last authentication mode chosen on the sign-in screen. An unknown value (a setting
