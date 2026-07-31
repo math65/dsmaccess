@@ -78,6 +78,9 @@ errors with this setup; the command-line build is authoritative.
   international project, and its code is read by contributors who do not speak French.
 - Give state one owner. Derive values instead of mirroring state that can drift. Keep views
   declarative and move multi-step operations into the view model or service that owns them.
+- What a sheet or an alert displays travels with its presentation: use `.sheet(item:)` and pass
+  the data in. A `.sheet(isPresented:)` reading a separate `@State` shows whatever that state
+  holds when the sheet draws, which is not always what it held when the sheet was asked for.
 - Extract a helper or component when it represents a real concept, removes meaningful
   repetition, or makes behavior testable. Do not create protocols, wrappers, builders, or
   single-use utilities solely to make a small change look architectural.
@@ -188,7 +191,10 @@ systems set to any unsupported language fall back to English — and `xcodebuild
 - SwiftUI literals in `Text`, `Button`, `Label`, `Toggle`, alerts, and accessibility modifiers
   are localization keys. Add both catalog entries for each new key.
 - Strings created outside SwiftUI—including view-model summaries, errors, confirmation text,
-  and VoiceOver announcements—must use `String(localized:)`.
+  and VoiceOver announcements—must use `String(localized:)`. A bare literal handed to
+  `VoiceOver.announce` compiles, ships, and is spoken in the language it was typed in: the
+  compiler extracts nothing from it, so neither the catalog nor its tests can see it missing.
+  `grep 'VoiceOver.announce("'` is what finds those.
 - **A string with arguments carries its format in `defaultValue`**, holding the English text
   with the Swift expressions in the order English needs:
   `String(localized: "logs.export.done", defaultValue: "Log exported to \(name)")`.
