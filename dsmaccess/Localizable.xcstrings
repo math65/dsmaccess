@@ -6520,13 +6520,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Information and logs for %@"
+            "value": "Details for %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Informations et journaux de %@"
+            "value": "Détails de %@"
           }
         }
       }
@@ -34946,6 +34946,518 @@
           "stringUnit": {
             "state": "translated",
             "value": "%1$@ a échoué pour %2$@"
+          }
+        }
+      }
+    },
+    "containers.log.search.prompt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search the log"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher dans le journal"
+          }
+        }
+      }
+    },
+    "containers.log.column.event": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Événement"
+          }
+        }
+      }
+    },
+    "containers.log.module_empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No events"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun événement"
+          }
+        }
+      }
+    },
+    "containers.log.module_empty.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Container Manager has not recorded any event matching these filters."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Container Manager n'a enregistré aucun événement correspondant à ces filtres."
+          }
+        }
+      }
+    },
+    "containers.log.clear": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear the log"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer le journal"
+          }
+        }
+      }
+    },
+    "containers.log.clear.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removes every event from Container Manager's log."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprime tous les événements du journal de Container Manager."
+          }
+        }
+      }
+    },
+    "containers.log.clear.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log cleared"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Journal effacé"
+          }
+        }
+      }
+    },
+    "containers.log.clear.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clear the Container Manager log?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer le journal de Container Manager ?"
+          }
+        }
+      }
+    },
+    "containers.log.clear.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every recorded event will be removed for all containers. This cannot be undone; export the log first to keep a copy."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les événements enregistrés seront supprimés, pour tous les conteneurs. Cette action ne peut pas être annulée ; exportez d'abord le journal pour en garder une copie."
+          }
+        }
+      }
+    },
+    "containers.log.refresh.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reloads the log from the NAS."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recharge le journal depuis le NAS."
+          }
+        }
+      }
+    },
+    "containers.log.summary.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld events"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld événements"
+          }
+        }
+      }
+    },
+    "containers.log.summary.partial": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld events shown of %2$lld"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$lld événements affichés sur %2$lld"
+          }
+        }
+      }
+    },
+    "containers.image.action.upgrade": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mettre à jour"
+          }
+        }
+      }
+    },
+    "containers.image.action.upgrade.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloads the newer build of the selected image. Containers keep the old build until they are recreated."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharge la nouvelle version de l'image sélectionnée. Les conteneurs gardent l'ancienne version tant qu'ils ne sont pas recréés."
+          }
+        }
+      }
+    },
+    "containers.image.upgrade.in_progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Updating %@…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mise à jour de %@…"
+          }
+        }
+      }
+    },
+    "containers.image.upgrade.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image updated: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image mise à jour : %@"
+          }
+        }
+      }
+    },
+    "containers.image.prune": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete unused images"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer les images inutilisées"
+          }
+        }
+      }
+    },
+    "containers.image.prune.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removes every image no container references."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprime toutes les images qu'aucun conteneur n'utilise."
+          }
+        }
+      }
+    },
+    "containers.image.prune.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unused images deleted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Images inutilisées supprimées"
+          }
+        }
+      }
+    },
+    "containers.image.prune.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete every unused image?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer toutes les images inutilisées ?"
+          }
+        }
+      }
+    },
+    "containers.image.prune.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every image no container references will be removed from the NAS. This cannot be undone; the images can be downloaded again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toutes les images qu'aucun conteneur n'utilise seront supprimées du NAS. Cette action ne peut pas être annulée ; les images peuvent être téléchargées de nouveau."
+          }
+        }
+      }
+    },
+    "containers.action.delete.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Container deleted: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conteneur supprimé : %@"
+          }
+        }
+      }
+    },
+    "containers.action.delete.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removes the selected container and its settings."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprime le conteneur sélectionné et ses réglages."
+          }
+        }
+      }
+    },
+    "containers.delete.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete “%@”?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer « %@ » ?"
+          }
+        }
+      }
+    },
+    "containers.delete.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The container “%@” will be stopped if needed, then removed with its settings. Data in mounted folders stays on the NAS. This cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le conteneur « %@ » sera arrêté si besoin, puis supprimé avec ses réglages. Les données des dossiers montés restent sur le NAS. Cette action ne peut pas être annulée."
+          }
+        }
+      }
+    },
+    "containers.detail.processes": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processus"
+          }
+        }
+      }
+    },
+    "containers.detail.processes.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading processes…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement des processus…"
+          }
+        }
+      }
+    },
+    "containers.detail.processes.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No processes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun processus"
+          }
+        }
+      }
+    },
+    "containers.detail.processes.empty.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The NAS did not report any process for this container."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS n'a signalé aucun processus pour ce conteneur."
+          }
+        }
+      }
+    },
+    "containers.detail.processes.column.pid": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PID"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PID"
+          }
+        }
+      }
+    },
+    "containers.detail.processes.column.command": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commande"
+          }
+        }
+      }
+    },
+    "containers.detail.processes.table_label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processes of %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processus de %@"
           }
         }
       }

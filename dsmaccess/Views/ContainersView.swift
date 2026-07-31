@@ -16,6 +16,7 @@ struct ContainersView: View {
         case projects
         case images
         case networks
+        case log
 
         var id: Self { self }
     }
@@ -24,6 +25,7 @@ struct ContainersView: View {
     @State private var projects: DockerProjectsViewModel
     @State private var images: DockerImagesViewModel
     @State private var networks: DockerNetworksViewModel
+    @State private var log: DockerLogViewModel
     private let session: SessionStore
 
     init(session: SessionStore) {
@@ -31,6 +33,7 @@ struct ContainersView: View {
         _projects = State(initialValue: DockerProjectsViewModel(session: session))
         _images = State(initialValue: DockerImagesViewModel(session: session))
         _networks = State(initialValue: DockerNetworksViewModel(session: session))
+        _log = State(initialValue: DockerLogViewModel(session: session))
     }
 
     var body: some View {
@@ -56,6 +59,11 @@ struct ContainersView: View {
                         .tabItem { Text("containers.tab.networks") }
                         .tag(Pane.networks)
                 }
+                if session.capabilities.supports("SYNO.Docker.Log") {
+                    DockerLogView(vm: log, isActive: pane == .log)
+                        .tabItem { Text("common.label.log") }
+                        .tag(Pane.log)
+                }
             }
         }
     }
@@ -66,6 +74,7 @@ struct ContainersPaneView: View {
     private enum DetailsSection: Hashable {
         case information
         case logs
+        case processes
     }
 
     @State private var viewModel: ContainersViewModel
@@ -74,6 +83,7 @@ struct ContainersPaneView: View {
     @State private var autoRefresh = true
     @State private var detailsContainer: ContainerItem?
     @State private var detailsSection = DetailsSection.information
+    @State private var pendingDelete: ContainerItem?
     @AccessibilityFocusState private var contentFocused: Bool
     @AccessibilityFocusState private var detailsSectionFocused: Bool
     /// Whether this tab is the selected one. Its search field and toolbar live at the window
@@ -92,6 +102,27 @@ struct ContainersPaneView: View {
             .task { await load(restoresInitialFocus: true) }
             .task(id: autoRefresh) { await refreshPeriodically() }
             .sheet(item: $detailsContainer, content: detailsSheet)
+            .confirmationDialog(
+                deleteTitle,
+                isPresented: Binding(
+                    get: { pendingDelete != nil },
+                    set: { if !$0 { pendingDelete = nil } }
+                )
+            ) {
+                Button("common.button.delete", role: .destructive) {
+                    guard let container = pendingDelete else { return }
+                    pendingDelete = nil
+                    Task { VoiceOver.announce(await viewModel.delete(container), priority: .high) }
+                }
+                Button("common.button.cancel", role: .cancel) { }
+            } message: {
+                if let container = pendingDelete {
+                    Text(String(
+                        localized: "containers.delete.confirm.message",
+                        defaultValue: "The container “\(container.name)” will be stopped if needed, then removed with its settings. Data in mounted folders stays on the NAS. This cannot be undone."
+                    ))
+                }
+            }
             .onChange(of: viewModel.containers) {
                 guard let selection else { return }
                 if !viewModel.containers.contains(where: { $0.id == selection }) {
@@ -236,6 +267,8 @@ struct ContainersPaneView: View {
                 Button("containers.action.restart") { Task { await perform(.restart, on: container) } }
                     .help("containers.action.restart.hint")
             }
+            Button("common.button.delete") { pendingDelete = container }
+                .help("containers.action.delete.hint")
             Button("containers.detail.title") {
                 presentDetails(for: container)
             }
@@ -254,11 +287,20 @@ struct ContainersPaneView: View {
             Button("common.button.start") { Task { await perform(.start, on: container) } }
                 .help("containers.action.start.hint")
         }
+        Button("common.button.delete", role: .destructive) { pendingDelete = container }
+            .help("containers.action.delete.hint")
         Divider()
         Button("containers.detail.title") {
             presentDetails(for: container)
         }
         .help("containers.action.show_details.hint")
+    }
+
+    private var deleteTitle: Text {
+        Text(String(
+            localized: "containers.delete.confirm.title",
+            defaultValue: "Delete “\(pendingDelete?.name ?? "")”?"
+        ))
     }
 
     private func detailsSheet(_ container: ContainerItem) -> some View {
@@ -267,6 +309,7 @@ struct ContainersPaneView: View {
                 Picker("containers.detail.title", selection: $detailsSection) {
                     Text("common.label.information").tag(DetailsSection.information)
                     Text("common.label.log").tag(DetailsSection.logs)
+                    Text("containers.detail.processes").tag(DetailsSection.processes)
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
@@ -275,7 +318,9 @@ struct ContainersPaneView: View {
 
                 Divider()
 
-                if detailsSection == .information {
+                if detailsSection == .processes {
+                    processView(container)
+                } else if detailsSection == .information {
                     Form {
                         Section("containers.column.name") {
                             LabeledContent("common.column.name", value: container.name)
@@ -307,8 +352,8 @@ struct ContainersPaneView: View {
                     logView(container)
                 }
             }
-            .accessibilityLabel(String(localized: "containers.detail.title_named", defaultValue: "Information and logs for \(container.name)"))
-            .navigationTitle(String(localized: "containers.detail.title_named", defaultValue: "Information and logs for \(container.name)"))
+            .accessibilityLabel(String(localized: "containers.detail.title_named", defaultValue: "Details for \(container.name)"))
+            .navigationTitle(String(localized: "containers.detail.title_named", defaultValue: "Details for \(container.name)"))
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("common.status.done") { detailsContainer = nil }
@@ -320,6 +365,45 @@ struct ContainersPaneView: View {
         .frame(minWidth: 520, minHeight: 430)
         .task { await focusDetails(for: container) }
         .onDisappear { detailsSectionFocused = false }
+    }
+
+    @ViewBuilder
+    private func processView(_ container: ContainerItem) -> some View {
+        if viewModel.isLoadingProcesses && viewModel.processesContainerName == container.name {
+            ModuleLoadingView("containers.detail.processes.loading")
+        } else if let message = viewModel.processErrorMessage {
+            ModuleErrorView(message: message) {
+                Task { await viewModel.loadProcesses(for: container) }
+            }
+        } else if viewModel.processes.isEmpty || viewModel.processesContainerName != container.name {
+            EmptyModuleView(
+                title: "containers.detail.processes.empty.title",
+                systemImage: "gearshape.2",
+                description: "containers.detail.processes.empty.description"
+            )
+        } else {
+            Table(viewModel.processes) {
+                TableColumn("containers.detail.processes.column.pid") { process in
+                    Text(process.pid)
+                }
+                TableColumn("common.metric.processor") { process in
+                    Text(process.cpuPercent.map {
+                        "\($0.formatted(.number.precision(.fractionLength(1)))) %"
+                    } ?? "—")
+                }
+                TableColumn("common.metric.memory") { process in
+                    Text(process.memoryBytes?.formatted(.byteCount(style: .memory)) ?? "—")
+                }
+                TableColumn("containers.detail.processes.column.command") { process in
+                    Text(process.command)
+                        .font(.system(.caption, design: .monospaced))
+                }
+            }
+            .accessibilityLabel(String(
+                localized: "containers.detail.processes.table_label",
+                defaultValue: "Processes of \(container.name)"
+            ))
+        }
     }
 
     @ViewBuilder
@@ -421,6 +505,7 @@ struct ContainersPaneView: View {
         detailsSection = .information
         detailsContainer = container
         Task { await viewModel.loadLogs(for: container) }
+        Task { await viewModel.loadProcesses(for: container) }
     }
 
     private func focusDetails(for container: ContainerItem) async {
@@ -428,7 +513,7 @@ struct ContainersPaneView: View {
         guard detailsContainer?.id == container.id else { return }
         detailsSectionFocused = true
         VoiceOver.announce(
-            String(localized: "containers.detail.title_named", defaultValue: "Information and logs for \(container.name)"),
+            String(localized: "containers.detail.title_named", defaultValue: "Details for \(container.name)"),
             category: .navigation
         )
     }
