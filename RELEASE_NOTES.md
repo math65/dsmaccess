@@ -1,3 +1,22 @@
+## v1.1-beta.18 (build 19) — 2026-07-30
+
+### Fixes
+
+- Files: pasting into an empty folder works. The keyboard shortcut did nothing
+  there — the one place where pasting is the only thing left to do. The folder
+  is still announced as empty when you arrive in it.
+- Users and groups: creating an account no longer announces that adding it to
+  its groups failed when it did not. The NAS puts every account in the "users"
+  group itself and refuses any change to it, so the app no longer offers it as
+  a choice; the screen says instead that every account belongs to it.
+- Users and groups: when the NAS does refuse a group, the app names it and
+  keeps the ones the NAS accepted. Until now the first refusal silently
+  dropped every group listed after it.
+
+### Download
+
+[dsmaccess-1.1-beta.18.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.18/dsmaccess-1.1-beta.18.zip)
+
 ## v1.1-beta.17 (build 18) — 2026-07-30
 
 ### Highlights

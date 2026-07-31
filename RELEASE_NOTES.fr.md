@@ -1,3 +1,22 @@
+## v1.1-beta.18 (build 19) — 30 juillet 2026
+
+### Corrections
+
+- Fichiers : le collage dans un dossier vide fonctionne. Le raccourci clavier
+  n'y faisait rien, alors que c'est le seul endroit où coller est la seule chose
+  qui reste à faire. Le dossier est toujours annoncé comme vide à l'arrivée.
+- Utilisateurs et groupes : la création d'un compte n'annonce plus un échec
+  d'ajout aux groupes qui n'a pas eu lieu. Le NAS place lui-même tout compte
+  dans le groupe « users » et refuse qu'on y touche : l'app ne le propose donc
+  plus, et l'écran indique à la place que tout compte lui appartient.
+- Utilisateurs et groupes : quand le NAS refuse réellement un groupe, l'app le
+  nomme et conserve ceux qu'il a acceptés. Jusqu'ici, le premier refus
+  abandonnait en silence tous les groupes listés après lui.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.18.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.18/dsmaccess-1.1-beta.18.zip)
+
 ## v1.1-beta.17 (build 18) — 30 juillet 2026
 
 ### En bref
