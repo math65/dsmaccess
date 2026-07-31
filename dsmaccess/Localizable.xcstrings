@@ -34011,13 +34011,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ failed for %2$@, exit code %3$@"
+            "value": "%1$@ failed for %2$@, exit code %3$lld"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ a échoué pour %2$@, code de sortie %3$@"
+            "value": "%1$@ a échoué pour %2$@, code de sortie %3$lld"
           }
         }
       }
@@ -34235,13 +34235,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ failed for %2$@, exit code %3$@"
+            "value": "%1$@ failed for %2$@, exit code %3$lld"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "%1$@ a échoué pour %2$@, code de sortie %3$@"
+            "value": "%1$@ a échoué pour %2$@, code de sortie %3$lld"
           }
         }
       }
@@ -34898,6 +34898,54 @@
           "stringUnit": {
             "state": "translated",
             "value": "Détails du projet"
+          }
+        }
+      }
+    },
+    "containers.project.action.build.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recreates the containers of the project from its compose file."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recrée les conteneurs du projet à partir de son fichier compose."
+          }
+        }
+      }
+    },
+    "containers.project.status.build_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Build failed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de construction"
+          }
+        }
+      }
+    },
+    "containers.project.action.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ failed for %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ a échoué pour %2$@"
           }
         }
       }

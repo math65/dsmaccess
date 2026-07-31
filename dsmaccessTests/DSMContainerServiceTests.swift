@@ -120,6 +120,25 @@ struct DSMContainerServiceTests {
         #expect(result.lines == ["Error response from daemon"])
     }
 
+    @Test func streamWithoutExitCodeReadsAsFailure() {
+        // Observed on DSM 7.4: a build that dies at the image pull ends with the daemon error,
+        // without any Exit Code line.
+        let result = DockerStreamResult(
+            output: "teamtalk_canour Pulling\nteamtalk_canour Error\npull access denied\n"
+        )
+        #expect(!result.succeeded)
+        #expect(result.exitCode == nil)
+        #expect(result.lines.count == 3)
+    }
+
+    @Test func projectStatusParsesObservedValues() {
+        #expect(DockerProjectStatus(rawValue: "RUNNING") == .running)
+        #expect(DockerProjectStatus(rawValue: "STOPPED") == .stopped)
+        // Left behind by a failed compose build; stays until a build succeeds.
+        #expect(DockerProjectStatus(rawValue: "BUILD_FAILED") == .buildFailed)
+        #expect(DockerProjectStatus(rawValue: "SOMETHING_NEW") == .unknown("SOMETHING_NEW"))
+    }
+
     @Test func imageListSendsMandatoryPagingAndDecodes() async throws {
         // DSM 7.4 answers error 114 when `limit`/`offset` are missing.
         let stub = DSMRequestStub(results: [

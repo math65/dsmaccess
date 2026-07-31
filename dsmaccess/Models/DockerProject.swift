@@ -10,12 +10,15 @@ import Foundation
 enum DockerProjectStatus: nonisolated Hashable, Sendable {
     case running
     case stopped
+    /// Observed on DSM 7.4 after a compose build whose image pull was refused.
+    case buildFailed
     case unknown(String)
 
     nonisolated init(rawValue: String) {
         switch rawValue.uppercased() {
         case "RUNNING": self = .running
         case "STOPPED": self = .stopped
+        case "BUILD_FAILED": self = .buildFailed
         default: self = .unknown(rawValue)
         }
     }
@@ -27,16 +30,18 @@ enum DockerProjectStatus: nonisolated Hashable, Sendable {
         switch self {
         case .running: String(localized: "common.status.running")
         case .stopped: String(localized: "common.status.stopped")
+        case .buildFailed: String(localized: "containers.project.status.build_failed")
         case .unknown(let value): value.isEmpty ? String(localized: "common.status.unknown") : value
         }
     }
 
-    /// Sort key: running projects first, then stopped, then whatever DSM invents next.
+    /// Sort key: running projects first, then the states that need attention.
     var sortRank: Int {
         switch self {
         case .running: 0
         case .stopped: 1
-        case .unknown: 2
+        case .buildFailed: 2
+        case .unknown: 3
         }
     }
 }

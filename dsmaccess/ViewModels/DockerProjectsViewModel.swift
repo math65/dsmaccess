@@ -69,9 +69,16 @@ final class DockerProjectsViewModel {
             if result.succeeded {
                 return .success(successMessage(for: action, project: project))
             }
+            // A build that dies before compose finishes ends without an Exit Code line.
+            if let exitCode = result.exitCode {
+                return .failure(String(
+                    localized: "containers.project.action.failed_with_code",
+                    defaultValue: "\(Self.label(for: action)) failed for \(project.name), exit code \(exitCode)"
+                ))
+            }
             return .failure(String(
-                localized: "containers.project.action.failed_with_code",
-                defaultValue: "\(Self.label(for: action)) failed for \(project.name), exit code \(result.exitCode.map(String.init) ?? "?")"
+                localized: "containers.project.action.failed",
+                defaultValue: "\(Self.label(for: action)) failed for \(project.name)"
             ))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }

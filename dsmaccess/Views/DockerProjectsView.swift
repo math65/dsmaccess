@@ -148,6 +148,13 @@ struct DockerProjectsView: View {
             .disabled(selectedProject?.isRunning != true || selectedIsBusy)
             .help("containers.project.action.restart.hint")
 
+            Button("containers.project.action.build") {
+                guard let project = selectedProject else { return }
+                Task { await perform(.build, on: project) }
+            }
+            .disabled(selectedProject == nil || selectedIsBusy)
+            .help("containers.project.action.build.hint")
+
             Button("containers.project.action.clean") {
                 pendingClean = selectedProject
             }
@@ -185,6 +192,7 @@ struct DockerProjectsView: View {
         } else {
             Button("common.button.start") { Task { await perform(.start, on: project) } }
         }
+        Button("containers.project.action.build") { Task { await perform(.build, on: project) } }
         Divider()
         Button("containers.project.action.clean") { pendingClean = project }
         Button("common.button.delete", role: .destructive) { pendingDelete = project }
@@ -300,9 +308,15 @@ struct DockerStreamReportSheet: View {
                 defaultValue: "\(report.actionLabel) finished for \(report.projectName)"
             )
         }
+        if let exitCode = report.result.exitCode {
+            return String(
+                localized: "containers.project.report.failure",
+                defaultValue: "\(report.actionLabel) failed for \(report.projectName), exit code \(exitCode)"
+            )
+        }
         return String(
-            localized: "containers.project.report.failure",
-            defaultValue: "\(report.actionLabel) failed for \(report.projectName), exit code \(report.result.exitCode.map(String.init) ?? "?")"
+            localized: "containers.project.action.failed",
+            defaultValue: "\(report.actionLabel) failed for \(report.projectName)"
         )
     }
 }
