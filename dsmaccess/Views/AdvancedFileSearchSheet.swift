@@ -218,7 +218,7 @@ struct AdvancedFileSearchSheet: View {
         .frame(width: 610, height: 690)
         .onAppear {
             focusTitle = true
-            VoiceOver.announce("Recherche avancée", category: .navigation)
+            VoiceOver.announce(String(localized: "files.search.advanced.title"), category: .navigation)
         }
     }
 

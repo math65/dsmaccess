@@ -144,6 +144,21 @@ final class FileBrowserViewModel {
     var canGoUp: Bool { stack.count > 1 }
     var canWrite: Bool { currentLevel.path != nil && currentFolderIsWritable != false }
     var canPaste: Bool { clipboard != nil && canWrite }
+
+    /// Names among `candidates` that the displayed folder already holds. Uploading and pasting
+    /// both target the folder on screen, so its loaded contents answer the only question worth
+    /// asking before acting: is anything about to be overwritten?
+    func existingNames(among candidates: [String]) -> [String] {
+        Self.existingNames(among: candidates, in: items.map(\.name))
+    }
+
+    /// The rule alone, so it can be exercised without a loaded folder. Comparison is exact:
+    /// NAS volumes distinguish case, and "Photo.jpg" beside "photo.jpg" is two files, not one
+    /// about to be replaced.
+    static func existingNames(among candidates: [String], in present: [String]) -> [String] {
+        let present = Set(present)
+        return candidates.filter(present.contains)
+    }
     var hasActiveTransfers: Bool {
         transfers.contains { $0.state == .queued || $0.state == .running }
     }

@@ -24,12 +24,12 @@ struct FileBrowserView: View {
     @State private var showingTransfers = false
     @State private var showingBackgroundTasks = false
     @State private var showingAdvancedSearch = false
-    @State private var showingPasteOptions = false
-    @State private var pasteMovesItems = false
-    /// Captured at the time of the gesture: the sheet must name the folder targeted then, not
-    /// the one the screen would be showing when the user confirms.
-    @State private var pasteDestination = ""
-    @State private var showingUploadOptions = false
+    /// Everything the conflict sheet needs, captured at the time of the gesture: the folder
+    /// targeted then rather than the one on screen when the user confirms, and the names that
+    /// are about to be replaced. Carried by the presentation itself — a separate `@State`
+    /// read at draw time can already have moved on, and the sheet then names nothing.
+    @State private var pasteConflict: PasteConflict?
+    @State private var uploadConflict: UploadConflict?
     @State private var pendingUploadURLs = [URL]()
     @State private var extractionItem: FileStationItem?
     @State private var transferTask: Task<Void, Never>?
@@ -38,6 +38,18 @@ struct FileBrowserView: View {
     @State private var stopTask: Task<Void, Never>?
     @State private var tableFocusRequestID = 0
     @AccessibilityFocusState private var focusEmptyState: Bool
+
+    private struct PasteConflict: Identifiable {
+        let destination: String
+        let moving: Bool
+        let names: [String]
+        var id: String { "\(moving)-\(destination)-\(names.joined(separator: "|"))" }
+    }
+
+    private struct UploadConflict: Identifiable {
+        let names: [String]
+        var id: String { names.joined(separator: "|") }
+    }
 
     private enum WriteSheet: Identifiable {
         case createFolder
@@ -204,22 +216,24 @@ struct FileBrowserView: View {
                     AdvancedFileSearchSheet(folderPath: folderPath, onSubmit: startAdvancedSearch)
                 }
             }
-            .sheet(isPresented: $showingPasteOptions) {
+            .sheet(item: $pasteConflict) { conflict in
                 FileConflictPolicySheet(
-                    title: pasteMovesItems
-                        ? String(localized: "files.button.move_into", defaultValue: "Move into \(pasteDestination)")
-                        : String(localized: "files.button.paste_into", defaultValue: "Paste into \(pasteDestination)"),
-                    itemCount: vm.clipboard?.items.count ?? 0,
-                    confirmLabel: pasteMovesItems ? "files.button.move" : "common.button.paste"
+                    title: conflict.moving
+                        ? String(localized: "files.button.move_into", defaultValue: "Move into \(conflict.destination)")
+                        : String(localized: "files.button.paste_into", defaultValue: "Paste into \(conflict.destination)"),
+                    conflictingNames: conflict.names,
+                    confirmLabel: conflict.moving ? "files.button.move" : "common.button.paste"
                 ) { policy in
-                    performPaste(conflictPolicy: policy)
+                    performPaste(moving: conflict.moving, conflictPolicy: policy)
                 }
             }
-            .sheet(isPresented: $showingUploadOptions, onDismiss: discardPendingUploads) {
-                let counts = pendingUploadCounts
-                FileUploadOptionsSheet(fileCount: counts.files, folderCount: counts.folders) {
-                    options in
-                    performUpload(options: options)
+            .sheet(item: $uploadConflict, onDismiss: discardPendingUploads) { conflict in
+                FileConflictPolicySheet(
+                    title: String(localized: "files.upload.options.title"),
+                    conflictingNames: conflict.names,
+                    confirmLabel: "common.button.upload"
+                ) { policy in
+                    performUpload(options: FileStationUploadOptions(conflictPolicy: policy))
                 }
             }
             .sheet(item: $extractionItem) { item in
@@ -755,25 +769,40 @@ struct FileBrowserView: View {
             _ = url.startAccessingSecurityScopedResource()
         }
         pendingUploadURLs = urls
-        showingUploadOptions = true
+        // Nothing to decide when no name collides: DSM asks nothing when you drop a file, and
+        // neither does the Finder. The sheet is for the one question that has an answer worth
+        // giving — replace what is already there, or keep it.
+        let existing = vm.existingNames(among: urls.map(\.lastPathComponent))
+        if existing.isEmpty {
+            performUpload(options: FileStationUploadOptions(conflictPolicy: .skip))
+        } else {
+            uploadConflict = UploadConflict(names: existing)
+        }
     }
 
     private func requestPaste(moving: Bool) {
         guard vm.canPaste, !vm.isWorking, let destination = vm.currentLevel.path else { return }
-        pasteMovesItems = moving
-        pasteDestination = destination
-        showingPasteOptions = true
+        let existing = vm.existingNames(among: vm.clipboard?.items.map(\.name) ?? [])
+        if existing.isEmpty {
+            performPaste(moving: moving, conflictPolicy: .skip)
+        } else {
+            pasteConflict = PasteConflict(
+                destination: destination,
+                moving: moving,
+                names: existing
+            )
+        }
     }
 
-    private func performPaste(conflictPolicy: FileConflictPolicy) {
+    private func performPaste(moving: Bool, conflictPolicy: FileConflictPolicy) {
         VoiceOver.announce(
-            pasteMovesItems
+            moving
                 ? String(localized: "files.progress.moving")
                 : String(localized: "files.progress.pasting"),
             category: .progress,
             priority: .low
         )
-        startOperation({ await vm.paste(moving: pasteMovesItems, conflictPolicy: conflictPolicy) }) {
+        startOperation({ await vm.paste(moving: moving, conflictPolicy: conflictPolicy) }) {
             selection.removeAll()
         }
     }
@@ -864,17 +893,6 @@ struct FileBrowserView: View {
         }
     }
 
-    private var pendingUploadCounts: (files: Int, folders: Int) {
-        pendingUploadURLs.reduce(into: (files: 0, folders: 0)) { counts, url in
-            let isDirectory = (try? url.resourceValues(forKeys: [.isDirectoryKey]))?.isDirectory
-            if isDirectory == true {
-                counts.folders += 1
-            } else {
-                counts.files += 1
-            }
-        }
-    }
-
     private func startUpload() {
         guard vm.canWrite, !vm.hasActiveTransfers else { return }
         let panel = NSOpenPanel()
@@ -887,7 +905,12 @@ struct FileBrowserView: View {
             _ = url.startAccessingSecurityScopedResource()
         }
         pendingUploadURLs = panel.urls
-        showingUploadOptions = true
+        let existing = vm.existingNames(among: panel.urls.map(\.lastPathComponent))
+        if existing.isEmpty {
+            performUpload(options: FileStationUploadOptions(conflictPolicy: .skip))
+        } else {
+            uploadConflict = UploadConflict(names: existing)
+        }
     }
 
     private func performUpload(options: FileStationUploadOptions) {

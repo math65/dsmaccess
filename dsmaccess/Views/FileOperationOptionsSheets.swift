@@ -7,14 +7,20 @@
 
 import SwiftUI
 
-/// The title names the destination folder: selecting a folder is not enough to make it the
-/// destination, it has to have been opened. Without that mention, a successful paste can
-/// drop the items somewhere other than where the user believes they went.
+/// Shown only when a name already exists at the destination — an upload or a paste that
+/// collides with nothing goes straight through. The title names the destination folder:
+/// selecting a folder is not enough to make it the destination, it has to have been opened.
+/// Without that mention, a successful paste can drop the items somewhere other than where the
+/// user believes they went.
 struct FileConflictPolicySheet: View {
     let title: String
-    let itemCount: Int
+    /// What the destination already holds. Naming them is the point: "3 items" says nothing
+    /// about what is at stake, "budget.xlsx" says everything.
+    let conflictingNames: [String]
     let confirmLabel: LocalizedStringKey
     let onSubmit: (FileConflictPolicy) -> Void
+
+    private static let namesShown = 3
 
     @Environment(\.dismiss) private var dismiss
     @State private var conflictPolicy = FileConflictPolicy.skip
@@ -27,8 +33,8 @@ struct FileConflictPolicySheet: View {
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusTitle)
 
-            LabeledContent("files.selection.items") { Text(itemCount, format: .number) }
-                .labeledContentStyle(.readable)
+            Text(conflictSummary)
+                .fixedSize(horizontal: false, vertical: true)
 
             ConflictPolicyPicker(selection: $conflictPolicy)
 
@@ -47,115 +53,20 @@ struct FileConflictPolicySheet: View {
         .frame(width: 460)
         .onAppear { focusTitle = true }
     }
-}
 
-struct FileUploadOptionsSheet: View {
-    let fileCount: Int
-    var folderCount = 0
-    let onSubmit: (FileStationUploadOptions) -> Void
-
-    @Environment(\.dismiss) private var dismiss
-    @State private var conflictPolicy = FileConflictPolicy.skip
-    @State private var createsParentFolders = true
-    @State private var setsModificationDate = false
-    @State private var modificationDate = Date.now
-    @State private var setsCreationDate = false
-    @State private var creationDate = Date.now
-    @State private var setsAccessDate = false
-    @State private var accessDate = Date.now
-    @AccessibilityFocusState private var focusTitle: Bool
-
-    var body: some View {
-        VStack(spacing: 0) {
-            Text("files.upload.options.title")
-                .font(.headline)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding()
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityFocused($focusTitle)
-
-            Divider()
-
-            Form {
-                Section("files.selection.section") {
-                    if fileCount > 0 {
-                        LabeledContent("common.module.files") { Text(fileCount, format: .number) }
-                    }
-                    if folderCount > 0 {
-                        LabeledContent("files.selection.folders") {
-                            Text(folderCount, format: .number)
-                        }
-                    }
-                }
-
-                Section("files.conflict.section") {
-                    ConflictPolicyPicker(selection: $conflictPolicy)
-                }
-
-                Section("common.label.folders") {
-                    Toggle("files.upload.create_parents", isOn: $createsParentFolders)
-                }
-
-                Section("files.upload.dates.section") {
-                    dateOption(
-                        "files.upload.dates.set_modification",
-                        isEnabled: $setsModificationDate,
-                        date: $modificationDate
-                    )
-                    dateOption(
-                        "files.upload.dates.set_creation",
-                        isEnabled: $setsCreationDate,
-                        date: $creationDate
-                    )
-                    dateOption(
-                        "files.upload.dates.set_last_access",
-                        isEnabled: $setsAccessDate,
-                        date: $accessDate
-                    )
-                }
-            }
-            .formStyle(.grouped)
-
-            Divider()
-
-            HStack {
-                Button("common.button.cancel", role: .cancel) { dismiss() }
-                    .keyboardShortcut(.cancelAction)
-                Spacer()
-                Button("common.button.upload", action: submit)
-                    .keyboardShortcut(.defaultAction)
-            }
-            .padding()
+    private var conflictSummary: String {
+        guard conflictingNames.count > Self.namesShown else {
+            let names = conflictingNames.formatted(.list(type: .and))
+            return conflictingNames.count == 1
+                ? String(localized: "files.conflict.existing.one", defaultValue: "\(names) already exists in this folder.")
+                : String(localized: "files.conflict.existing.some", defaultValue: "\(names) already exist in this folder.")
         }
-        .frame(width: 550, height: 560)
-        .onAppear { focusTitle = true }
-    }
-
-    private func dateOption(
-        _ title: LocalizedStringKey,
-        isEnabled: Binding<Bool>,
-        date: Binding<Date>
-    ) -> some View {
-        VStack(alignment: .leading) {
-            Toggle(title, isOn: isEnabled)
-            if isEnabled.wrappedValue {
-                DatePicker("files.upload.dates.mode.date_time", selection: date)
-                    .padding(.leading, 20)
-            }
-        }
-    }
-
-    private func submit() {
-        onSubmit(
-            FileStationUploadOptions(
-                conflictPolicy: conflictPolicy,
-                createParentFolders: createsParentFolders,
-                modificationDate: setsModificationDate ? modificationDate : nil,
-                creationDate: setsCreationDate ? creationDate : nil,
-                accessDate: setsAccessDate ? accessDate : nil
-            )
+        let shown = conflictingNames.prefix(Self.namesShown).formatted(.list(type: .and))
+        let others = conflictingNames.count - Self.namesShown
+        return String(
+            localized: "files.conflict.existing.many",
+            defaultValue: "\(shown) and \(others) other items already exist in this folder."
         )
-        dismiss()
     }
 }
 
@@ -250,7 +161,7 @@ struct FileCompressionOptionsSheet: View {
         .frame(width: 520, height: 460)
         .onAppear {
             nameIsFocused = true
-            VoiceOver.announce("Créer une archive", category: .navigation)
+            VoiceOver.announce(String(localized: "files.archive.create.title"), category: .navigation)
         }
     }
 

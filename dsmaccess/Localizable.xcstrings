@@ -14067,22 +14067,6 @@
         }
       }
     },
-    "files.selection.folders": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Folders (contents included)"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dossiers (contenu inclus)"
-          }
-        }
-      }
-    },
     "files.selection.item_count": {
       "localizations": {
         "en": {
@@ -14111,38 +14095,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 élément"
-          }
-        }
-      }
-    },
-    "files.selection.items": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Items"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Éléments"
-          }
-        }
-      }
-    },
-    "files.selection.section": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Selected items"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Éléments sélectionnés"
           }
         }
       }
@@ -14595,102 +14547,6 @@
         }
       }
     },
-    "files.upload.create_parents": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Create missing parent folders"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Créer les dossiers parents manquants"
-          }
-        }
-      }
-    },
-    "files.upload.dates.mode.date_time": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Date and time"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Date et heure"
-          }
-        }
-      }
-    },
-    "files.upload.dates.section": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dates applied to uploaded files"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dates appliquées aux fichiers envoyés"
-          }
-        }
-      }
-    },
-    "files.upload.dates.set_creation": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set creation date"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Définir la date de création"
-          }
-        }
-      }
-    },
-    "files.upload.dates.set_last_access": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set last-access date"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Définir la date de dernier accès"
-          }
-        }
-      }
-    },
-    "files.upload.dates.set_modification": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Set modification date"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Définir la date de modification"
-          }
-        }
-      }
-    },
     "files.upload.file_done.announcement": {
       "localizations": {
         "en": {
@@ -14776,13 +14632,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Upload options"
+            "value": "Items already exist"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Options d’envoi"
+            "value": "Des éléments existent déjà"
           }
         }
       }
@@ -33586,6 +33442,102 @@
           "stringUnit": {
             "state": "translated",
             "value": "Téléchargement"
+          }
+        }
+      }
+    },
+    "files.share.edit.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit share link"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier le lien de partage"
+          }
+        }
+      }
+    },
+    "files.share.details.loaded.announcement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link details loaded"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Détails du lien chargés"
+          }
+        }
+      }
+    },
+    "packages.details.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Package details"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Détails du paquet"
+          }
+        }
+      }
+    },
+    "files.conflict.existing.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ already exists in this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ existe déjà dans ce dossier."
+          }
+        }
+      }
+    },
+    "files.conflict.existing.some": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ already exist in this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ existent déjà dans ce dossier."
+          }
+        }
+      }
+    },
+    "files.conflict.existing.many": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ and %2$lld other items already exist in this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ et %2$lld autres éléments existent déjà dans ce dossier."
           }
         }
       }

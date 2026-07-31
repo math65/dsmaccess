@@ -119,7 +119,7 @@ struct ShareLinkEditorSheet: View {
         .frame(width: 560, height: 600)
         .onAppear {
             focusHeading = true
-            VoiceOver.announce("Modifier le lien de partage", category: .navigation)
+            VoiceOver.announce(String(localized: "files.share.edit.title"), category: .navigation)
         }
     }
 
@@ -305,7 +305,7 @@ struct ShareLinkDetailsSheet: View {
             VoiceOver.announce(error, category: .error, priority: .high)
         } else {
             focusHeading = true
-            VoiceOver.announce("Détails du lien chargés", category: .result)
+            VoiceOver.announce(String(localized: "files.share.details.loaded.announcement"), category: .result)
         }
     }
 

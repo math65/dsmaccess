@@ -252,7 +252,7 @@ struct PackageDetailsSheet: View {
         .frame(width: 620, height: 650)
         .onAppear {
             focusHeading = true
-            VoiceOver.announce("Détails du paquet", category: .navigation)
+            VoiceOver.announce(String(localized: "packages.details.title"), category: .navigation)
         }
     }
 
