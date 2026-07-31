@@ -833,8 +833,15 @@ struct FileBrowserView: View {
             panel.canCreateDirectories = true
             guard panel.runModal() == .OK, let url = panel.url else { return }
             _ = url.startAccessingSecurityScopedResource()
+            // A folder comes back as an archive built by the NAS. Saying so beforehand spares
+            // the surprise of finding a .zip where a folder was expected.
             VoiceOver.announce(
-                String(localized: "files.progress.downloading_single"),
+                item.isdir
+                    ? String(
+                        localized: "files.download.folder_as_archive.announcement",
+                        defaultValue: "The folder will be downloaded as the archive \(vm.suggestedFilename(for: item))"
+                    )
+                    : String(localized: "files.progress.downloading_single"),
                 category: .progress,
                 priority: .low
             )
@@ -964,6 +971,18 @@ struct FileBrowserView: View {
             category: .progress,
             priority: .high
         )
+        // A transfer runs in this view's own task; a NAS task is stopped through the NAS. The
+        // banner shows the same button for both, so it has to reach the right one.
+        if vm.isTransferring {
+            transferTask?.cancel()
+            transferTask = nil
+            VoiceOver.announce(
+                String(localized: "files.operation.stopped"),
+                category: .result,
+                priority: .high
+            )
+            return
+        }
         stopTask = Task {
             let outcome = await vm.stopActiveOperation()
             operationTask?.cancel()

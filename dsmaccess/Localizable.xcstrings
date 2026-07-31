@@ -33589,6 +33589,38 @@
           }
         }
       }
+    },
+    "files.download.preparing_archive": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preparing the archive on the NAS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Préparation de l'archive sur le NAS"
+          }
+        }
+      }
+    },
+    "files.download.folder_as_archive.announcement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder will be downloaded as the archive %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le dossier sera téléchargé sous forme d'archive %@"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

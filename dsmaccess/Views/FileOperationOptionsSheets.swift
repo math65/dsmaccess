@@ -282,7 +282,7 @@ struct FileExtractionOptionsSheet: View {
 
 struct FileOperationProgressBanner: View {
     let label: String
-    let progress: FileOperationProgress?
+    let progress: FileProgressDisplay?
     var bytesPerSecond: Double?
     var timeRemaining: Duration?
     let cancel: () -> Void

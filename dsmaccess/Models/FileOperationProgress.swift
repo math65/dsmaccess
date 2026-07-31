@@ -57,6 +57,37 @@ struct FileOperationProgress: Equatable, Sendable {
     var normalizedFraction: Double? {
         fractionCompleted.map { min(max($0, 0), 1) }
     }
+
+    var display: FileProgressDisplay {
+        FileProgressDisplay(
+            identity: taskID,
+            fractionCompleted: fractionCompleted,
+            processedSize: processedSize,
+            totalSize: totalSize,
+            processedItemCount: processedItemCount,
+            totalItemCount: totalItemCount,
+            currentPath: currentPath
+        )
+    }
+}
+
+/// What the progress banner actually reads. Kept apart from `FileOperationProgress`, whose
+/// `kind` carries the name of a DSM API: uploads and downloads are HTTP transfers, not NAS
+/// tasks, and giving them a fake API name to reach the banner would make the network model lie.
+struct FileProgressDisplay: Equatable, Sendable {
+    /// Distinguishes one run from the next. `FileOperationRate` drops its samples when this
+    /// changes, so a second upload does not inherit the speed of the first.
+    let identity: String
+    let fractionCompleted: Double?
+    let processedSize: Int64?
+    let totalSize: Int64?
+    let processedItemCount: Int?
+    let totalItemCount: Int?
+    let currentPath: String?
+
+    var normalizedFraction: Double? {
+        fractionCompleted.map { min(max($0, 0), 1) }
+    }
 }
 
 /// Speed and remaining time of an operation, derived from successive samples: DSM never
@@ -78,12 +109,12 @@ struct FileOperationRate: Equatable, Sendable {
     private var samples: [Sample] = []
     private var taskID: String?
 
-    mutating func record(_ progress: FileOperationProgress, at date: Date = .now) {
+    mutating func record(_ progress: FileProgressDisplay, at date: Date = .now) {
         guard let bytes = progress.processedSize else { return }
-        // A new task, or a volume that goes backwards, invalidates the previous samples.
-        if taskID != progress.taskID || bytes < (samples.last?.bytes ?? 0) {
+        // A new run, or a volume that goes backwards, invalidates the previous samples.
+        if taskID != progress.identity || bytes < (samples.last?.bytes ?? 0) {
             samples.removeAll()
-            taskID = progress.taskID
+            taskID = progress.identity
         }
         samples.append(Sample(date: date, bytes: bytes))
         if samples.count > Self.windowLength {
@@ -104,7 +135,7 @@ struct FileOperationRate: Equatable, Sendable {
     /// Remaining time for the given progress, when the NAS reports a total size.
     /// A very short duration is returned as is: it is up to the display to say
     /// "less than a minute" rather than counting off seconds.
-    func remaining(for progress: FileOperationProgress) -> Duration? {
+    func remaining(for progress: FileProgressDisplay) -> Duration? {
         guard let rate = bytesPerSecond,
               let processed = progress.processedSize,
               let total = progress.totalSize, total > processed else { return nil }

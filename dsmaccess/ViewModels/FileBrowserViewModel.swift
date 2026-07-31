@@ -66,10 +66,22 @@ final class FileBrowserViewModel {
     private(set) var isShowingSearchResults = false
     private(set) var searchQuery = ""
     private(set) var searchProgress: FileStationSearchProgress?
-    private(set) var operationProgress: FileOperationProgress?
+    private(set) var operationProgress: FileProgressDisplay?
+    /// The running NAS task, kept whole because stopping it needs its API and its identifier —
+    /// which is exactly what the banner has no business knowing.
+    private var activeTask: FileOperationProgress?
     private var operationRate = FileOperationRate()
+    /// Identifies the batch of transfers currently feeding the banner. Nil for a NAS task,
+    /// which carries its own identity.
+    private var activeTransferBatch: [UUID] = []
+    /// True while the NAS is still packing a folder into an archive, before the first byte.
+    private var isPreparingArchive = false
 
-    /// Current throughput of the tracked operation, when DSM reports a processed volume.
+    /// True while the banner is showing a transfer rather than a NAS task. The two are stopped
+    /// by different means, and the banner's Cancel button must reach the right one.
+    var isTransferring: Bool { !activeTransferBatch.isEmpty }
+
+    /// Current throughput of the tracked operation, when a processed volume is reported.
     var operationBytesPerSecond: Double? { operationRate.bytesPerSecond }
     /// Estimated time remaining, absent as long as it is not reliable or under a minute.
     var operationTimeRemaining: Duration? {
@@ -528,6 +540,16 @@ final class FileBrowserViewModel {
         )
         activeDownloadCount += 1
         defer { activeDownloadCount -= 1 }
+        // A folder is packed into an archive by the NAS before a single byte moves. That wait
+        // reports nothing, so it is named rather than left as a progress bar stuck at zero.
+        beginTransferBanner(
+            label: item.isdir
+                ? String(localized: "files.download.preparing_archive")
+                : String(localized: "common.operation.download"),
+            ids: [transferID],
+            preparingArchive: item.isdir
+        )
+        defer { endTransferBanner() }
         updateTransfer(id: transferID, state: .running)
         do {
             try await session.withClient {
@@ -535,7 +557,14 @@ final class FileBrowserViewModel {
                     path: item.path,
                     to: destination,
                     progress: { [weak self] progress in
-                        self?.updateTransfer(id: transferID, progress: progress)
+                        guard let self else { return }
+                        // The first byte means the archive is built and the download is under
+                        // way: the label stops promising preparation.
+                        if item.isdir, progress.completedBytes > 0, self.isPreparingArchive {
+                            self.isPreparingArchive = false
+                            self.activeOperationLabel = String(localized: "common.operation.download")
+                        }
+                        self.updateTransfer(id: transferID, progress: progress)
                     }
                 )
             }
@@ -573,6 +602,11 @@ final class FileBrowserViewModel {
                 )
             )
         }
+        beginTransferBanner(
+            label: String(localized: "common.operation.download"),
+            ids: queuedTransfers.map(\.2)
+        )
+        defer { endTransferBanner() }
         for (index, transfer) in queuedTransfers.enumerated() {
             let (item, destination, transferID) = transfer
             do {
@@ -637,6 +671,13 @@ final class FileBrowserViewModel {
         )
         activeDownloadCount += 1
         defer { activeDownloadCount -= 1 }
+        // Several items always come back as one archive, which the NAS builds first.
+        beginTransferBanner(
+            label: String(localized: "files.download.preparing_archive"),
+            ids: [transferID],
+            preparingArchive: true
+        )
+        defer { endTransferBanner() }
         updateTransfer(id: transferID, state: .running)
         do {
             try await session.withClient {
@@ -644,7 +685,12 @@ final class FileBrowserViewModel {
                     paths: selectedItems.map(\.path),
                     to: destination,
                     progress: { [weak self] progress in
-                        self?.updateTransfer(id: transferID, progress: progress)
+                        guard let self else { return }
+                        if progress.completedBytes > 0, self.isPreparingArchive {
+                            self.isPreparingArchive = false
+                            self.activeOperationLabel = String(localized: "common.operation.download")
+                        }
+                        self.updateTransfer(id: transferID, progress: progress)
                     }
                 )
             }
@@ -757,6 +803,11 @@ final class FileBrowserViewModel {
                 )
             )
         }
+        beginTransferBanner(
+            label: String(localized: "common.operation.upload"),
+            ids: queuedTransfers.map(\.1)
+        )
+        defer { endTransferBanner() }
         for (index, transfer) in queuedTransfers.enumerated() {
             let (file, transferID) = transfer
             do {
@@ -935,7 +986,10 @@ final class FileBrowserViewModel {
     /// Stop explicitly requested by the user: this is the only action that interrupts the
     /// task on the NAS. Leaving the screen only stops tracking it.
     func stopActiveOperation() async -> DSMOperationOutcome {
-        guard let progress = operationProgress else {
+        // A transfer is stopped by cancelling its task, not by asking the NAS: the view owns
+        // that task, so it is told to do it rather than being answered a misleading failure.
+        guard !isTransferring else { return .cancelled }
+        guard let progress = activeTask else {
             // The NAS has not returned a task identifier yet: there is nothing to stop
             // at this instant, but the operation itself has indeed started.
             return .failure(
@@ -1580,19 +1634,22 @@ final class FileBrowserViewModel {
         isWorking = true
         activeOperationLabel = label
         operationProgress = nil
+        activeTask = nil
         operationRate = FileOperationRate()
         operationSummary = nil
         defer {
             isWorking = false
             activeOperationLabel = nil
             operationProgress = nil
+            activeTask = nil
             operationRate = FileOperationRate()
         }
         await OperationNotifier.prepare()
         do {
             let message = try await operation { [weak self] progress in
-                self?.operationProgress = progress
-                self?.operationRate.record(progress)
+                self?.activeTask = progress
+                self?.operationProgress = progress.display
+                self?.operationRate.record(progress.display)
             }
             let query = searchQuery
             let criteria = advancedSearchCriteria
@@ -1778,6 +1835,70 @@ final class FileBrowserViewModel {
                 transfers[index].progress = DSMTransferProgress(completedBytes: 1, totalBytes: 1)
             }
         }
+        refreshTransferBanner()
+    }
+
+    /// Starts feeding the banner from a batch of transfers. Uploads and downloads are HTTP
+    /// transfers rather than NAS tasks, so nothing pushed them to the banner: on the main
+    /// screen a large upload showed only a spinner in the corner, and the speed and the time
+    /// remaining lived in a window nobody had opened.
+    private func beginTransferBanner(label: String, ids: [UUID], preparingArchive: Bool = false) {
+        activeOperationLabel = label
+        activeTransferBatch = ids
+        isPreparingArchive = preparingArchive
+        operationProgress = nil
+        operationRate = FileOperationRate()
+        operationSummary = nil
+        refreshTransferBanner()
+    }
+
+    private func endTransferBanner() {
+        activeTransferBatch = []
+        isPreparingArchive = false
+        activeOperationLabel = nil
+        operationProgress = nil
+        operationRate = FileOperationRate()
+    }
+
+    /// Sums the batch rather than showing one file at a time: a total that only ever grows is
+    /// what lets `FileOperationRate` derive a speed, and sending thirty files is one operation
+    /// from where the user stands, not thirty.
+    private func refreshTransferBanner() {
+        guard !activeTransferBatch.isEmpty else { return }
+        let batch = transfers.filter { activeTransferBatch.contains($0.id) }
+        guard !batch.isEmpty else { return }
+
+        let display = Self.batchProgress(
+            of: batch,
+            identity: activeTransferBatch.first?.uuidString ?? ""
+        )
+        operationProgress = display
+        operationRate.record(display)
+    }
+
+    /// Rolls a batch of transfers into what the banner shows. Split out so the arithmetic can
+    /// be exercised without a NAS: an aggregate that stalls or goes backwards silently ruins
+    /// the speed and the time remaining, and nothing on screen would say why.
+    static func batchProgress(
+        of batch: [FileTransferRecord],
+        identity: String
+    ) -> FileProgressDisplay {
+        let processed = batch.reduce(Int64(0)) { $0 + ($1.progress?.completedBytes ?? 0) }
+        // A total means something only once every file has announced its size; until then the
+        // banner shows an indeterminate bar rather than a fraction that would jump around.
+        let totals = batch.map(\.progress?.totalBytes)
+        let total = totals.allSatisfy { $0 != nil }
+            ? totals.compactMap { $0 }.reduce(Int64(0), +)
+            : nil
+        return FileProgressDisplay(
+            identity: identity,
+            fractionCompleted: total.map { Double(processed) / Double($0) },
+            processedSize: processed,
+            totalSize: total,
+            processedItemCount: batch.filter { $0.state == .completed }.count,
+            totalItemCount: batch.count,
+            currentPath: batch.first { $0.state == .running }?.name
+        )
     }
 
     private func errorMessage(for error: Error) -> String {

@@ -129,8 +129,16 @@ final class FileStationFilePromiseDelegate: NSObject, NSFilePromiseProviderDeleg
                 ))
                 return
             }
+            // Dragging a folder to the Finder yields an archive the NAS builds first: said
+            // here, because the Finder shows a folder icon being dragged and nothing warns
+            // that a .zip will land instead.
             VoiceOver.announce(
-                String(localized: "finder.paste.download.progress"),
+                item.isdir
+                    ? String(
+                        localized: "files.download.folder_as_archive.announcement",
+                        defaultValue: "The folder will be downloaded as the archive \(item.promisedFileName)"
+                    )
+                    : String(localized: "finder.paste.download.progress"),
                 category: .progress,
                 priority: .low
             )

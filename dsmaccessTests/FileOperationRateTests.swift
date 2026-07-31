@@ -4,11 +4,13 @@ import Testing
 
 @MainActor
 struct FileOperationRateTests {
+    /// Goes through `display`, the form the banner and the rate both consume, so the
+    /// conversion from a NAS task is exercised by every test here.
     private func progress(
         taskID: String = "copy-1",
         processed: Int64?,
         total: Int64? = 100_000_000_000
-    ) -> FileOperationProgress {
+    ) -> FileProgressDisplay {
         FileOperationProgress(
             kind: .copyMove,
             taskID: taskID,
@@ -20,7 +22,7 @@ struct FileOperationRateTests {
             totalItemCount: nil,
             currentPath: nil,
             destinationPath: nil
-        )
+        ).display
     }
 
     private let start = Date(timeIntervalSince1970: 1_700_000_000)
