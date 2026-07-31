@@ -1,3 +1,34 @@
+## v1.1-beta.20 (build 21) — 2026-07-31
+
+### New
+
+- Updates: you now choose whether to receive beta versions, in Settings >
+  Updates. Until now the channel followed the version installed, so trying a
+  beta once meant staying on the betas. Turning it off does not undo the beta
+  already installed: the app stays on it until a stable version goes past it.
+- Files: sending or downloading now shows the same banner as a copy — what is
+  running, how much is done, the speed, the time left, and a Cancel button that
+  really stops it. Until now a large upload showed a spinner in a corner, and
+  the details lived in a window you had to think of opening.
+- Users and groups: creating a group offers "Create and set permissions…", as
+  creating a user already did. A new group could reach nothing, and nothing on
+  screen said where to grant it anything.
+
+### Fixes
+
+- Files: dragging a folder to the Finder produces a zip archive built by the
+  NAS, and downloading one does the same. That is now said, with the name of
+  the archive, instead of a .zip appearing unannounced.
+- Files: while the NAS packs a folder into an archive, nothing is transferred
+  yet. That wait is now named rather than left as a progress bar sitting at
+  zero with no explanation.
+- Users and groups: creating a group with a name already taken kept the sheet
+  open and says so, instead of closing and discarding what was typed.
+
+### Download
+
+[dsmaccess-1.1-beta.20.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.20/dsmaccess-1.1-beta.20.zip)
+
 ## v1.1-beta.19 (build 20) — 2026-07-31
 
 ### Fixes
