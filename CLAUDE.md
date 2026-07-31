@@ -35,9 +35,13 @@ package dependency. Do not add another dependency without explicit approval.
   renames, formatting, or architectural rewrites into the task.
 - Reuse an established component or pattern when it genuinely fits. Do not force reuse when
   it makes behavior less clear.
-- Do not guess a DSM API contract. Confirm it from existing code, fixtures, captured behavior,
-  or published Synology documentation. Make uncertainty explicit rather than inventing fields,
-  versions, success responses, or fallbacks.
+- **Never invent a DSM API contract — always test the API.** Before writing code against an
+  endpoint, measure the real request and response on the NAS: a live call, an interception of
+  the web client's traffic, or the package's own JavaScript, then calibrate models on what
+  actually came back. Existing code, fixtures and published Synology documentation are
+  starting points, not proof. When a contract cannot be measured (package not installed,
+  call too destructive to try), say so explicitly and ship the smallest verifiable scope
+  instead of a guess.
 - Do not edit these instruction files unless the user specifically requested it.
 
 ## Repository map and boundaries
