@@ -376,6 +376,143 @@ struct DSMContainerServiceTests {
         #expect(!DockerProject.isValidName("projet-éclair"))
     }
 
+    // MARK: - Networks
+
+    @Test func omitsTheAddressFieldsWhenAddressingIsAutomatic() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.createNetwork(
+            name: "app-net",
+            addressing: .automatic,
+            disablesMasquerade: false,
+            enablesIPv6: false
+        )
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "create")
+        #expect(parameters["name"] == #""app-net""#)
+        #expect(parameters["disable_masquerade"] == "false")
+        #expect(parameters["enable_ipv6"] == "false")
+        // DSM drops these three in automatic mode rather than sending them empty, and an
+        // empty subnet is not the same request as no subnet at all.
+        #expect(parameters["subnet"] == nil)
+        #expect(parameters["iprange"] == nil)
+        #expect(parameters["gateway"] == nil)
+        // DSM only ever creates bridges, and sends no driver.
+        #expect(parameters["driver"] == nil)
+    }
+
+    @Test func sendsTheThreeAddressFieldsWhenAddressingIsManual() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.createNetwork(
+            name: "app-net",
+            addressing: .manual(
+                subnet: "172.31.0.0/16",
+                ipRange: "172.31.0.0/24",
+                gateway: "172.31.0.1"
+            ),
+            disablesMasquerade: true,
+            enablesIPv6: true
+        )
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["subnet"] == #""172.31.0.0\/16""#)
+        #expect(parameters["iprange"] == #""172.31.0.0\/24""#)
+        #expect(parameters["gateway"] == #""172.31.0.1""#)
+        #expect(parameters["disable_masquerade"] == "true")
+        #expect(parameters["enable_ipv6"] == "true")
+    }
+
+    @Test func removesNetworksByNameAlone() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"failed":[]}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        let result = try await service.removeNetworks(named: ["app-net"])
+
+        #expect(result.failed.isEmpty)
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "remove")
+        // DSM's own client posts whole network objects; the name alone is enough, checked
+        // against the NAS.
+        #expect(parameters["networks"] == #"[{"name":"app-net"}]"#)
+    }
+
+    @Test func reportsARefusedRemovalThatDSMStillCallsASuccess() async throws {
+        // Measured on DSM 7.4: removing a network that does not exist answers success: true
+        // and hides the refusal in data.failed. Trusting the envelope would announce a
+        // deletion that never happened.
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"failed":[{"errMsg":"{\"message\":\"network app-net not found\"}","network":"app-net","statusCode":404}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let result = try await service.removeNetworks(named: ["app-net"])
+
+        let failure = try #require(result.failed.first)
+        #expect(failure.network == "app-net")
+        #expect(failure.statusCode == 404)
+        // The daemon's message arrives wrapped in JSON inside a string.
+        #expect(failure.message == "network app-net not found")
+    }
+
+    @Test func keepsAnUnparsableRemovalMessageRatherThanDroppingIt() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"failed":[{"errMsg":"plain refusal","network":"app-net"}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let result = try await service.removeNetworks(named: ["app-net"])
+
+        let failure = try #require(result.failed.first)
+        #expect(failure.message == "plain refusal")
+        #expect(failure.statusCode == nil)
+    }
+
+    @Test func sendsTheWantedContainerSetWithTheCamelCaseNetworkName() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.setNetworkContainers(
+            networkName: "app-net",
+            containerNames: ["web", "db"]
+        )
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "set")
+        // camelCase here, alone in this module.
+        #expect(parameters["networkName"] == #""app-net""#)
+        #expect(parameters["containers"] == #"["web","db"]"#)
+    }
+
+    @Test func listsAttachableContainersWithMandatoryPaging() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"containers":[{"name":"web"}]}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        let containers = try await service.networkContainers()
+
+        #expect(containers.map(\.name) == ["web"])
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "list_container")
+        #expect(parameters["limit"] == "-1")
+        #expect(parameters["offset"] == "0")
+    }
+
     private func makeService(stub: DSMRequestStub) -> DSMContainerService {
         var capabilities = DSMCapabilities()
         capabilities.merge([
