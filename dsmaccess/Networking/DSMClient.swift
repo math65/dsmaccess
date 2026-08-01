@@ -303,6 +303,13 @@ protocol DSMClientProtocol: AnyObject {
         _ action: DockerProjectAction,
         projectID: String
     ) async throws -> DockerStreamResult
+    func dockerProjectShareInfo(path: String) async throws -> DockerProjectShareInfo
+    func createDockerProject(
+        name: String,
+        sharePath: String,
+        content: String
+    ) async throws -> DockerProjectCreation
+    func updateDockerProject(id: String, content: String) async throws
     func deleteDockerProject(id: String) async throws
     func listDockerImages() async throws -> [DockerImage]
     func deleteDockerImage(repository: String, tags: [String]) async throws
@@ -1225,6 +1232,22 @@ final class DSMClient: DSMClientProtocol {
         projectID: String
     ) async throws -> DockerStreamResult {
         try await containers.performProjectAction(action, projectID: projectID)
+    }
+
+    func dockerProjectShareInfo(path: String) async throws -> DockerProjectShareInfo {
+        try await containers.projectShareInfo(path: path)
+    }
+
+    func createDockerProject(
+        name: String,
+        sharePath: String,
+        content: String
+    ) async throws -> DockerProjectCreation {
+        try await containers.createProject(name: name, sharePath: sharePath, content: content)
+    }
+
+    func updateDockerProject(id: String, content: String) async throws {
+        try await containers.updateProject(id: id, content: content)
     }
 
     func deleteDockerProject(id: String) async throws {

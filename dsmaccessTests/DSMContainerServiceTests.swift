@@ -272,6 +272,110 @@ struct DSMContainerServiceTests {
         #expect(network.containerNames == ["web"])
     }
 
+    // MARK: - Project creation
+
+    @Test func sendsTheWholeCreationProfileMeasuredOnDSM74() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"id":"project-id","name":"web","services":["hello"]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let creation = try await service.createProject(
+            name: "web",
+            sharePath: "/docker/web",
+            content: "services: {hello: {image: hello-world}}"
+        )
+
+        #expect(creation.id == "project-id")
+        #expect(creation.name == "web")
+        #expect(creation.services == ["hello"])
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["api"] == "SYNO.Docker.Project")
+        #expect(parameters["method"] == "create")
+        #expect(parameters["name"] == #""web""#)
+        // JSONEncoder escapes the slashes of a path. Checked against the NAS: DSM answers a
+        // path sent as "\/docker\/x" exactly as it answers "/docker/x".
+        #expect(parameters["share_path"] == #""\/docker\/web""#)
+        #expect(parameters["content"] == #""services: {hello: {image: hello-world}}""#)
+        // DSM sends the four portal fields even with the portal off; leaving them out is what
+        // its own client never does, so the app does not either.
+        #expect(parameters["enable_service_portal"] == "false")
+        #expect(parameters["service_portal_name"] == #""""#)
+        #expect(parameters["service_portal_port"] == "0")
+        #expect(parameters["service_portal_protocol"] == #""""#)
+    }
+
+    @Test func readsWhatACandidateFolderAlreadyHolds() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"compose_path":"/volume1/docker/web/compose.yaml","content":"services: {}","is_docker_compose_yml_exist":true}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let info = try await service.projectShareInfo(path: "/docker/web")
+
+        #expect(info.hasComposeFile)
+        #expect(info.content == "services: {}")
+        // The answer mixes both path shapes: share-relative in, absolute out.
+        #expect(info.composePath == "/volume1/docker/web/compose.yaml")
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "get_share_info")
+        #expect(parameters["path"] == #""\/docker\/web""#)
+    }
+
+    @Test func readsAnEmptyFolderWithoutTreatingItAsAFailure() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"compose_path":"","content":"","is_docker_compose_yml_exist":false}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let info = try await service.projectShareInfo(path: "/docker")
+
+        #expect(!info.hasComposeFile)
+        #expect(info.content.isEmpty)
+        #expect(info.composePath.isEmpty)
+    }
+
+    @Test func updatesOnlyTheComposeFileOfAProject() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.updateProject(id: "project-id", content: "services: {}")
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["method"] == "update")
+        #expect(parameters["id"] == #""project-id""#)
+        #expect(parameters["content"] == #""services: {}""#)
+        #expect(parameters["name"] == nil)
+        #expect(parameters["share_path"] == nil)
+    }
+
+    @Test func acceptsTheProjectNamesDSMAcceptsAndRefusesTheOthers() {
+        #expect(DockerProject.isValidName("web"))
+        #expect(DockerProject.isValidName("dsmaccess-test"))
+        #expect(DockerProject.isValidName("app_2"))
+        #expect(DockerProject.isValidName("2048"))
+
+        #expect(!DockerProject.isValidName(""))
+        // Measured on the NAS: each of these answers error 2206.
+        #expect(!DockerProject.isValidName("Web"))
+        #expect(!DockerProject.isValidName("DSM Access Test"))
+        #expect(!DockerProject.isValidName("-web"))
+        #expect(!DockerProject.isValidName("_web"))
+        #expect(!DockerProject.isValidName("web.app"))
+        #expect(!DockerProject.isValidName("projet-éclair"))
+    }
+
     private func makeService(stub: DSMRequestStub) -> DSMContainerService {
         var capabilities = DSMCapabilities()
         capabilities.merge([

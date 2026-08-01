@@ -3763,6 +3763,134 @@
         }
       }
     },
+    "common.folder_picker.choose.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose This Folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir ce dossier"
+          }
+        }
+      }
+    },
+    "common.folder_picker.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld folders available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld dossiers disponibles"
+          }
+        }
+      }
+    },
+    "common.folder_picker.count_one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 folder available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1 dossier disponible"
+          }
+        }
+      }
+    },
+    "common.folder_picker.new_folder.announcement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name of the folder to create"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom du dossier à créer"
+          }
+        }
+      }
+    },
+    "common.folder_picker.new_folder.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a folder in the one shown"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer un dossier dans celui affiché"
+          }
+        }
+      }
+    },
+    "common.folder_picker.new_folder.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder created: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier créé : %@"
+          }
+        }
+      }
+    },
+    "common.folder_picker.open.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre ce dossier."
+          }
+        }
+      }
+    },
+    "common.folder_picker.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose Shared Folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir un dossier partagé"
+          }
+        }
+      }
+    },
     "common.format.pair": {
       "localizations": {
         "en": {
@@ -6671,6 +6799,566 @@
           "stringUnit": {
             "state": "translated",
             "value": "Journal de %@"
+          }
+        }
+      }
+    },
+    "containers.project.action.create": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create Project"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer un projet"
+          }
+        }
+      }
+    },
+    "containers.project.action.create.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a compose project"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer un projet compose"
+          }
+        }
+      }
+    },
+    "containers.project.compose.editor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compose file"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier compose"
+          }
+        }
+      }
+    },
+    "containers.project.compose.save.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save the compose file without applying it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer le fichier compose sans l’appliquer"
+          }
+        }
+      }
+    },
+    "containers.project.compose.save_and_build": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save and Rebuild"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer et reconstruire"
+          }
+        }
+      }
+    },
+    "containers.project.compose.save_and_build.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Save the compose file, then rebuild the project"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrer le fichier compose, puis reconstruire le projet"
+          }
+        }
+      }
+    },
+    "containers.project.compose.saved": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compose file saved for %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier compose enregistré pour %@"
+          }
+        }
+      }
+    },
+    "containers.project.compose.saving": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving the compose file…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement du fichier compose en cours…"
+          }
+        }
+      }
+    },
+    "containers.project.compose.saving_and_building": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saving the compose file, then rebuilding…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistrement du fichier compose, puis reconstruction en cours…"
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.existing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This folder already holds %@. Creating the project overwrites it with the text below."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce dossier contient déjà %@. La création du projet le remplacera par le texte ci-dessous."
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.existing.announcement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This folder already holds a compose file. Creating the project overwrites it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce dossier contient déjà un fichier compose. La création du projet le remplacera."
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.import": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load a File…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charger un fichier…"
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.import.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Load a compose file from this Mac"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Charger un fichier compose depuis ce Mac"
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.import_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This file could not be read as text. Choose a compose file encoded in UTF-8."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce fichier n’a pas pu être lu comme du texte. Choisissez un fichier compose encodé en UTF-8."
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.imported": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compose file loaded from %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier compose chargé depuis %@"
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compose file"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier compose"
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.reuse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Use the Existing File"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reprendre le fichier existant"
+          }
+        }
+      }
+    },
+    "containers.project.create.compose.reused": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Existing compose file loaded"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier compose existant repris"
+          }
+        }
+      }
+    },
+    "containers.project.create.error.invalid_name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Invalid name: lowercase letters, digits, hyphen and underscore only, starting with a letter or a digit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom non valide : uniquement des minuscules, des chiffres, le tiret et le tiret bas, en commençant par une lettre ou un chiffre."
+          }
+        }
+      }
+    },
+    "containers.project.create.error.name_taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A project named %@ already exists."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un projet nommé %@ existe déjà."
+          }
+        }
+      }
+    },
+    "containers.project.create.error.name_taken_short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This name is already used by another project."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce nom est déjà utilisé par un autre projet."
+          }
+        }
+      }
+    },
+    "containers.project.create.error.path_taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This folder already belongs to another project. Choose another one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce dossier appartient déjà à un autre projet. Choisissez-en un autre."
+          }
+        }
+      }
+    },
+    "containers.project.create.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creating %@ failed: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La création de %@ a échoué : %@"
+          }
+        }
+      }
+    },
+    "containers.project.create.in_progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creating the project…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Création du projet en cours…"
+          }
+        }
+      }
+    },
+    "containers.project.create.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project name"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom du projet"
+          }
+        }
+      }
+    },
+    "containers.project.create.name.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lowercase letters, digits, hyphen and underscore, starting with a letter or a digit."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minuscules, chiffres, tiret et tiret bas, en commençant par une lettre ou un chiffre."
+          }
+        }
+      }
+    },
+    "containers.project.create.path": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier"
+          }
+        }
+      }
+    },
+    "containers.project.create.path.browse": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Browse"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parcourir"
+          }
+        }
+      }
+    },
+    "containers.project.create.path.browse.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a folder on the NAS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir un dossier sur le NAS"
+          }
+        }
+      }
+    },
+    "containers.project.create.path.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Path of a folder on the NAS, for example /docker/my-project."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chemin d’un dossier du NAS, par exemple /docker/mon-projet."
+          }
+        }
+      }
+    },
+    "containers.project.create.start_after": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start the project after creating it"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Démarrer le projet après sa création"
+          }
+        }
+      }
+    },
+    "containers.project.create.start_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project %@ was created, but starting it failed. Its output is in the report."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le projet %@ a été créé, mais son démarrage a échoué. Sa sortie figure dans le rapport."
+          }
+        }
+      }
+    },
+    "containers.project.create.started.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project created and started: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Projet créé et démarré : %@"
+          }
+        }
+      }
+    },
+    "containers.project.create.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project created: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Projet créé : %@"
+          }
+        }
+      }
+    },
+    "containers.project.create.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Project"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau projet"
           }
         }
       }
@@ -28854,86 +29542,6 @@
         }
       }
     },
-    "usb_copy.folder_picker.choose.action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose This Folder"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choisir ce dossier"
-          }
-        }
-      }
-    },
-    "usb_copy.folder_picker.count": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld folders available"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld dossiers disponibles"
-          }
-        }
-      }
-    },
-    "usb_copy.folder_picker.count_one": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 folder available"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 dossier disponible"
-          }
-        }
-      }
-    },
-    "usb_copy.folder_picker.open.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opens this folder."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ouvre ce dossier."
-          }
-        }
-      }
-    },
-    "usb_copy.folder_picker.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose Shared Folder"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choisir un dossier partagé"
-          }
-        }
-      }
-    },
     "usb_copy.list.cancel_copy.button": {
       "localizations": {
         "en": {
@@ -34434,22 +35042,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chargement du fichier compose"
-          }
-        }
-      }
-    },
-    "containers.project.detail.compose_missing": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The NAS did not return the compose file."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le NAS n'a pas renvoyé le fichier compose."
           }
         }
       }

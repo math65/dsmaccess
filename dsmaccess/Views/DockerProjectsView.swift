@@ -16,6 +16,7 @@ struct DockerProjectsView: View {
     @State private var detailsProject: DockerProject?
     @State private var pendingClean: DockerProject?
     @State private var pendingDelete: DockerProject?
+    @State private var showsCreation = false
     @AccessibilityFocusState private var focusContent: Bool
 
     var body: some View {
@@ -29,6 +30,9 @@ struct DockerProjectsView: View {
             }
             .sheet(item: $detailsProject) { project in
                 DockerProjectDetailsSheet(project: project, vm: vm)
+            }
+            .sheet(isPresented: $showsCreation) {
+                DockerProjectCreationSheet(vm: vm)
             }
             .confirmationDialog(
                 cleanTitle,
@@ -86,37 +90,42 @@ struct DockerProjectsView: View {
                 Task { await load(announce: true) }
             }
             .accessibilityFocused($focusContent)
-        } else if vm.projects.isEmpty {
-            EmptyModuleView(
-                title: "containers.project.empty.title",
-                systemImage: "square.stack.3d.up",
-                description: "containers.project.empty.description"
-            )
-            .accessibilityFocused($focusContent)
         } else {
             VStack(alignment: .leading, spacing: 0) {
-                Table(
-                    vm.projects.sorted(using: order),
-                    selection: $selection,
-                    sortOrder: $order
-                ) {
-                    TableColumn("common.column.name", value: \.name)
-                    TableColumn("common.column.state", value: \.status.sortRank) { project in
-                        Text(project.status.localizedName)
+                if vm.projects.isEmpty {
+                    // The empty state keeps the action bar below it: creating a project is
+                    // exactly what is wanted here, so the button must stay reachable.
+                    EmptyModuleView(
+                        title: "containers.project.empty.title",
+                        systemImage: "square.stack.3d.up",
+                        description: "containers.project.empty.description"
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .accessibilityFocused($focusContent)
+                } else {
+                    Table(
+                        vm.projects.sorted(using: order),
+                        selection: $selection,
+                        sortOrder: $order
+                    ) {
+                        TableColumn("common.column.name", value: \.name)
+                        TableColumn("common.column.state", value: \.status.sortRank) { project in
+                            Text(project.status.localizedName)
+                        }
+                        TableColumn("containers.project.column.containers", value: \.containerCount) { project in
+                            Text(project.containerCount.formatted())
+                        }
+                        TableColumn("common.column.path", value: \.path)
+                        TableColumn("containers.project.column.updated", value: \.sortableUpdatedAt) { project in
+                            Text(project.updatedAt?.formatted(date: .abbreviated, time: .shortened) ?? "—")
+                        }
                     }
-                    TableColumn("containers.project.column.containers", value: \.containerCount) { project in
-                        Text(project.containerCount.formatted())
-                    }
-                    TableColumn("common.column.path", value: \.path)
-                    TableColumn("containers.project.column.updated", value: \.sortableUpdatedAt) { project in
-                        Text(project.updatedAt?.formatted(date: .abbreviated, time: .shortened) ?? "—")
-                    }
-                }
-                .accessibilityLabel("containers.tab.projects")
-                .accessibilityFocused($focusContent)
-                .contextMenu(forSelectionType: DockerProject.ID.self) { ids in
-                    if let project = vm.projects.first(where: { ids.contains($0.id) }) {
-                        projectActions(project)
+                    .accessibilityLabel("containers.tab.projects")
+                    .accessibilityFocused($focusContent)
+                    .contextMenu(forSelectionType: DockerProject.ID.self) { ids in
+                        if let project = vm.projects.first(where: { ids.contains($0.id) }) {
+                            projectActions(project)
+                        }
                     }
                 }
 
@@ -133,6 +142,11 @@ struct DockerProjectsView: View {
 
     private var actionBar: some View {
         HStack(spacing: 8) {
+            Button("containers.project.action.create") {
+                showsCreation = true
+            }
+            .help("containers.project.action.create.hint")
+
             Button(vm.projects.first { $0.id == selection }?.isRunning == true
                    ? "common.button.stop"
                    : "common.button.start") {
@@ -322,13 +336,17 @@ struct DockerStreamReportSheet: View {
     }
 }
 
-/// Read-only project details, compose file included.
+/// Project details, with its compose file editable. DSM asks after saving whether to rebuild;
+/// the app offers the two outcomes as two buttons instead, which says what each one does
+/// before it is pressed rather than after.
 struct DockerProjectDetailsSheet: View {
     let project: DockerProject
     let vm: DockerProjectsViewModel
     @Environment(\.dismiss) private var dismiss
     @State private var composeContent: String?
+    @State private var loadedContent: String?
     @State private var loadErrorMessage: String?
+    @State private var isSaving = false
     @AccessibilityFocusState private var focusTitle: Bool
 
     var body: some View {
@@ -367,10 +385,35 @@ struct DockerProjectDetailsSheet: View {
                     }
                 }
                 Section("containers.project.detail.compose") {
-                    if let composeContent {
-                        Text(composeContent)
-                            .font(.system(.caption, design: .monospaced))
-                            .textSelection(.enabled)
+                    if composeContent != nil {
+                        TextEditor(text: Binding(
+                            get: { composeContent ?? "" },
+                            set: { composeContent = $0 }
+                        ))
+                        .font(.system(.body, design: .monospaced))
+                        .frame(minHeight: 200)
+                        .accessibilityLabel("containers.project.compose.editor")
+                        .disabled(isSaving)
+
+                        HStack {
+                            Button("common.button.save") {
+                                Task { await save(rebuild: false) }
+                            }
+                            .disabled(!canSave)
+                            .help("containers.project.compose.save.hint")
+
+                            Button("containers.project.compose.save_and_build") {
+                                Task { await save(rebuild: true) }
+                            }
+                            .disabled(!canSave)
+                            .help("containers.project.compose.save_and_build.hint")
+
+                            if isSaving {
+                                ProgressView()
+                                    .controlSize(.small)
+                                    .accessibilityLabel("containers.project.compose.saving")
+                            }
+                        }
                     } else if let loadErrorMessage {
                         Text(loadErrorMessage)
                             .foregroundStyle(.readableRed)
@@ -399,12 +442,44 @@ struct DockerProjectDetailsSheet: View {
             await Task.yield()
             focusTitle = true
             do {
-                composeContent = try await vm.projectDetails(id: project.id).content
-                    ?? String(localized: "containers.project.detail.compose_missing")
+                let loaded = try await vm.projectDetails(id: project.id).content ?? ""
+                composeContent = loaded
+                loadedContent = loaded
             } catch {
                 guard !DSMError.isCancellation(error) else { return }
                 loadErrorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
             }
+        }
+    }
+
+    /// Nothing to save until the file actually differs from the one on the NAS.
+    private var canSave: Bool {
+        guard !isSaving, let composeContent, let loadedContent else { return false }
+        return composeContent != loadedContent
+            && !composeContent.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+    }
+
+    private func save(rebuild: Bool) async {
+        guard let composeContent, canSave else { return }
+        isSaving = true
+        VoiceOver.announce(
+            String(localized: rebuild
+                   ? "containers.project.compose.saving_and_building"
+                   : "containers.project.compose.saving"),
+            category: .progress
+        )
+        let outcome = await vm.updateCompose(of: project, content: composeContent, rebuild: rebuild)
+        isSaving = false
+        VoiceOver.announce(outcome, priority: .high)
+        guard !rebuild else {
+            // The rebuild leaves its docker-compose output in the report sheet, which the list
+            // behind this one presents — and that is as true of a build that failed as of one
+            // that worked. Staying here would hide it either way.
+            if outcome != .cancelled { dismiss() }
+            return
+        }
+        if case .success = outcome {
+            loadedContent = composeContent
         }
     }
 }
