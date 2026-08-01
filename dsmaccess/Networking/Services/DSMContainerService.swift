@@ -156,6 +156,55 @@ final class DSMContainerService {
         return DockerStreamResult(output: text)
     }
 
+    /// Asks what a candidate folder already holds, so creation can offer to reuse a compose
+    /// file instead of overwriting it. The path is the share-relative one (`/docker/app`).
+    func projectShareInfo(path: String) async throws -> DockerProjectShareInfo {
+        try await transport.read(
+            api: Self.projectAPI,
+            method: "get_share_info",
+            parameters: ["path": .string(path)],
+            as: DockerProjectShareInfo.self
+        )
+    }
+
+    /// Creates a compose project. Captured contract: DSM sends the whole profile, the four web
+    /// portal fields included, and their neutral values are what it sends when the portal is
+    /// off. The portal itself needs Web Station, which this app does not configure.
+    func createProject(
+        name: String,
+        sharePath: String,
+        content: String
+    ) async throws -> DockerProjectCreation {
+        try await transport.value(
+            api: Self.projectAPI,
+            method: "create",
+            parameters: [
+                "name": .string(name),
+                "content": .string(content),
+                "share_path": .string(sharePath),
+                "enable_service_portal": .boolean(false),
+                "service_portal_name": .string(""),
+                "service_portal_port": .integer(0),
+                "service_portal_protocol": .string(""),
+            ],
+            as: DockerProjectCreation.self
+        )
+    }
+
+    /// Rewrites the compose file of an existing project. This only saves it: bringing the
+    /// change into effect takes a `build` action afterwards, as DSM's own editor offers.
+    func updateProject(id: String, content: String) async throws {
+        try await transport.perform(
+            api: Self.projectAPI,
+            method: "update",
+            parameters: [
+                "id": .string(id),
+                "content": .string(content),
+            ]
+        )
+    }
+
+    /// Deletes a project. Captured contract: the folder and its `compose.yaml` stay on disk.
     func deleteProject(id: String) async throws {
         try await transport.perform(
             api: Self.projectAPI,

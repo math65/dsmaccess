@@ -66,6 +66,19 @@ struct DockerProject: nonisolated Decodable, Identifiable, Hashable, Sendable {
 
     var isRunning: Bool { status.isRunning }
 
+    /// DSM's own naming rule, read from the client-side validation of its creation wizard
+    /// (`^[a-z0-9][a-z0-9_-]*$`): a lowercase letter or a digit first, then lowercase letters,
+    /// digits, `_` and `-`. Sending anything else answers error 2206.
+    static nonisolated func isValidName(_ name: String) -> Bool {
+        func isLowercaseOrDigit(_ character: Character) -> Bool {
+            character.isASCII && (character.isLowercase || character.isNumber)
+        }
+        guard let first = name.first, isLowercaseOrDigit(first) else { return false }
+        return name.dropFirst().allSatisfy {
+            isLowercaseOrDigit($0) || $0 == "_" || $0 == "-"
+        }
+    }
+
     enum CodingKeys: String, CodingKey {
         case id
         case name
@@ -149,6 +162,50 @@ struct DockerStreamResult: nonisolated Equatable, Sendable {
         let marker = "Exit Code:"
         guard line.hasPrefix(marker) else { return nil }
         return Int(line.dropFirst(marker.count).trimmingCharacters(in: .whitespaces))
+    }
+}
+
+/// What `get_share_info` reports about a candidate folder. DSM asks this before creating a
+/// project, to offer reusing a compose file the folder already holds. The three fields always
+/// come back, empty rather than absent when the folder holds nothing.
+struct DockerProjectShareInfo: nonisolated Decodable, Sendable {
+    let hasComposeFile: Bool
+    /// The compose file already in the folder, empty when there is none.
+    let content: String
+    /// Absolute path (`/volume1/…`), where the folder is chosen as a share-relative one.
+    let composePath: String
+
+    enum CodingKeys: String, CodingKey {
+        case hasComposeFile = "is_docker_compose_yml_exist"
+        case content
+        case composePath = "compose_path"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        hasComposeFile = values.flexBool(.hasComposeFile) ?? false
+        content = values.flexString(.content) ?? ""
+        composePath = values.flexString(.composePath) ?? ""
+    }
+}
+
+/// What `create` answers. `services` lists the compose services DSM parsed out of the file.
+struct DockerProjectCreation: nonisolated Decodable, Sendable {
+    let id: String
+    let name: String
+    let services: [String]
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case services
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = try values.requiredFlexString(.id)
+        name = values.flexString(.name) ?? ""
+        services = try values.decodeIfPresent([String].self, forKey: .services) ?? []
     }
 }
 

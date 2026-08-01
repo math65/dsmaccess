@@ -509,9 +509,9 @@ private struct USBCopyPathField: View {
             }
         }
         .sheet(isPresented: $showsFolderPicker) {
-            USBCopyFolderPickerSheet(
+            SharedFolderPickerSheet(
                 initialPath: path,
-                shares: shares,
+                shareNames: shares.map(\.name),
                 loadFolders: loadFolders
             ) { selectedPath in
                 path = selectedPath

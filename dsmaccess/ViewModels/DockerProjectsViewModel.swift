@@ -110,6 +110,135 @@ final class DockerProjectsViewModel {
         try await session.withClient { try await $0.dockerProject(id: id) }
     }
 
+    // MARK: - Creation
+
+    /// Creates the project, then builds it when asked. Captured contract: starting a project
+    /// on creation is not a parameter of `create` — DSM chains a build on the returned id.
+    ///
+    /// `projectExists` tells the form whether the project is on the NAS regardless of the
+    /// outcome: a build that fails still leaves a created project, and offering to submit the
+    /// same form again would only earn a duplicate-name refusal.
+    func create(
+        name: String,
+        sharePath: String,
+        content: String,
+        startAfterCreation: Bool
+    ) async -> (outcome: DSMOperationOutcome, projectExists: Bool) {
+        do {
+            let creation = try await session.withClient {
+                try await $0.createDockerProject(name: name, sharePath: sharePath, content: content)
+            }
+            await load(silently: true)
+            guard startAfterCreation else {
+                return (.success(String(
+                    localized: "containers.project.create.success",
+                    defaultValue: "Project created: \(creation.name)"
+                )), true)
+            }
+
+            let result = try await session.withClient {
+                try await $0.performDockerProjectAction(.build, projectID: creation.id)
+            }
+            await load(silently: true)
+            actionReport = ActionReport(
+                projectName: creation.name,
+                actionLabel: Self.label(for: .build),
+                result: result
+            )
+            if result.succeeded {
+                return (.success(String(
+                    localized: "containers.project.create.started.success",
+                    defaultValue: "Project created and started: \(creation.name)"
+                )), true)
+            }
+            return (.failure(String(
+                localized: "containers.project.create.start_failed",
+                defaultValue: "Project \(creation.name) was created, but starting it failed. Its output is in the report."
+            )), true)
+        } catch {
+            guard !DSMError.isCancellation(error) else { return (.cancelled, false) }
+            return (.failure(creationFailure(error, name: name)), false)
+        }
+    }
+
+    /// DSM's own wizard rejects these three before sending anything; the app says the same
+    /// thing when the server is the one to catch them.
+    private func creationFailure(_ error: Error, name: String) -> String {
+        if case .apiError(let code) = error as? DSMError {
+            switch code {
+            case 2102:
+                return String(
+                    localized: "containers.project.create.error.name_taken",
+                    defaultValue: "A project named \(name) already exists."
+                )
+            case 2103:
+                return String(localized: "containers.project.create.error.path_taken")
+            case 2206:
+                return String(localized: "containers.project.create.error.invalid_name")
+            default:
+                break
+            }
+        }
+        let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+        return String(
+            localized: "containers.project.create.failed",
+            defaultValue: "Creating \(name) failed: \(reason)"
+        )
+    }
+
+    /// What the chosen folder already holds, so creation can offer to reuse a compose file
+    /// rather than silently write over it.
+    func shareInfo(path: String) async throws -> DockerProjectShareInfo {
+        try await session.withClient { try await $0.dockerProjectShareInfo(path: path) }
+    }
+
+    func shareNames() async throws -> [String] {
+        try await session.withClient { try await $0.listShares() }.map(\.name)
+    }
+
+    func folders(in path: String) async throws -> [FileStationItem] {
+        try await session.withClient { client in
+            try await client.list(folderPath: path)
+                .filter(\.isdir)
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        }
+    }
+
+    func createFolder(in parent: String, named name: String) async throws {
+        try await session.withClient { try await $0.createFolder(in: parent, name: name) }
+    }
+
+    // MARK: - Compose editing
+
+    /// Saves the compose file. DSM offers the same two outcomes after an edit: save only, or
+    /// save and rebuild — which is a `build` on top of the update, not a variant of it.
+    func updateCompose(
+        of project: DockerProject,
+        content: String,
+        rebuild: Bool
+    ) async -> DSMOperationOutcome {
+        busyProjectIDs.insert(project.id)
+        defer { busyProjectIDs.remove(project.id) }
+
+        do {
+            try await session.withClient {
+                try await $0.updateDockerProject(id: project.id, content: content)
+            }
+            guard rebuild else {
+                await load(silently: true)
+                return .success(String(
+                    localized: "containers.project.compose.saved",
+                    defaultValue: "Compose file saved for \(project.name)"
+                ))
+            }
+            return await perform(.build, on: project)
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(project.name): \(reason)"))
+        }
+    }
+
     var summary: String {
         if let errorMessage { return errorMessage }
         let running = projects.filter(\.isRunning).count
