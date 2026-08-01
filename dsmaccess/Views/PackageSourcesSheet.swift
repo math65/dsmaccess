@@ -91,7 +91,7 @@ struct PackageSourcesSheet: View {
         } else if let error = vm.errorMessage, vm.sources.isEmpty {
             VStack(spacing: 12) {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                 Button("common.button.retry") { Task { await load() } }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -113,7 +113,7 @@ struct PackageSourcesSheet: View {
                 if let error = vm.operationErrorMessage ?? vm.errorMessage {
                     HStack {
                         Label(error, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.readableRed)
                             .accessibilityFocused($focusStatus)
                         Spacer()
                         Button("common.button.dismiss_error") {
@@ -130,7 +130,7 @@ struct PackageSourcesSheet: View {
                                 .fontWeight(.medium)
                             Text(source.feed)
                                 .font(.caption)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.readableSecondary)
                                 .textSelection(.enabled)
                         }
                         Spacer()
@@ -251,14 +251,14 @@ private struct PackageSourceEditorSheet: View {
                     .accessibilityFocused($focus, equals: .feed)
                 Text("packages.sources.add.footer")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
             .formStyle(.grouped)
 
             if let message = validationMessage ?? vm.operationErrorMessage {
                 Label(message, systemImage: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .accessibilityFocused($focus, equals: .error)
             }
 

@@ -109,7 +109,7 @@ struct FileCompressionOptionsSheet: View {
                 if let validationMessage {
                     Section {
                         Label(validationMessage, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.readableRed)
                             .accessibilityFocused($focusError)
                     }
                 }

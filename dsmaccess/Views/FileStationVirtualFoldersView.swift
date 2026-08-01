@@ -104,7 +104,7 @@ struct FileStationVirtualFoldersView: View {
         } else if let error = vm.virtualFoldersError {
             VStack(spacing: 12) {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .multilineTextAlignment(.center)
                 Button("common.button.retry") { Task { await load() } }
             }
@@ -131,13 +131,13 @@ struct FileStationVirtualFoldersView: View {
                 Text(folder.name)
                 Text(folder.path)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 if let summary = volumeSummary(folder.additional?.volumeStatus) {
                     Text(summary)
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.readableSecondary)
                 }
             }
             Spacer()

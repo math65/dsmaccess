@@ -155,7 +155,7 @@ struct DownloadStationView: View {
                     Spacer()
                     Text(statusText(task.status))
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.readableSecondary)
                 }
                 if let progress = task.progress {
                     ProgressView(value: progress)
@@ -173,7 +173,7 @@ struct DownloadStationView: View {
                     }
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.readableSecondary)
             }
         }
         .padding(.vertical, 3)
@@ -226,7 +226,7 @@ struct DownloadStationView: View {
             }
         }
         .font(.caption)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.readableSecondary)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(.bar)
@@ -385,7 +385,7 @@ private struct CreateDownloadSheet: View {
             }
             Text("download_station.add.destination.footer")
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.readableSecondary)
                 .fixedSize(horizontal: false, vertical: true)
             HStack {
                 Spacer()

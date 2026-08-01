@@ -91,13 +91,13 @@ private struct TransferRow: View {
             if let progress = transfer.progress {
                 Text(progressLabel(progress))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
             }
 
             if case .failed(let message) = transfer.state {
                 Text(message)
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .accessibilityLabel(String(localized: "transfers.error", defaultValue: "Error: \(message)"))
             }
         }

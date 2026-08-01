@@ -110,7 +110,7 @@ struct MainView: View {
         if let notice = session.reconnectionNotice {
             HStack {
                 Label(notice, systemImage: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.orange)
+                    .foregroundStyle(.readableOrange)
                     .accessibilityFocused($focusReconnectionNotice)
                 Spacer()
                 Button("main.notice.dismiss") {

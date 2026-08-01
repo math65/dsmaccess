@@ -54,7 +54,7 @@ struct FeedbackView: View {
             VStack(alignment: .leading, spacing: 4) {
                 Text("feedback.field.message")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .accessibilityHidden(true)
                 TextEditor(text: $model.message)
                     .font(.body)
@@ -77,7 +77,7 @@ struct FeedbackView: View {
 
             if let errorMessage = model.errorMessage {
                 Text(errorMessage)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .accessibilityFocused($errorFocused)
             }
 

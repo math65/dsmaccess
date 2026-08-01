@@ -17,7 +17,7 @@ struct SidebarSettingsView: View {
                 ForEach(AppModuleSection.allCases) { section in
                     Text(section.title)
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.readableSecondary)
                         .padding(.top, section == .overview ? 0 : 8)
                         .accessibilityAddTraits(.isHeader)
 

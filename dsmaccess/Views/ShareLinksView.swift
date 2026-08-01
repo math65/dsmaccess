@@ -113,7 +113,7 @@ struct ShareLinksView: View {
         if let operationError {
             VStack(spacing: 12) {
                 Text(operationError)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .multilineTextAlignment(.center)
                     .accessibilityFocused($focusStatus)
                 Button("common.button.dismiss_error") { self.operationError = nil }
@@ -124,7 +124,7 @@ struct ShareLinksView: View {
                 .accessibilityFocused($focusStatus)
         } else if let error = vm.shareLinksError {
             VStack(spacing: 12) {
-                Text(error).foregroundStyle(.red).multilineTextAlignment(.center)
+                Text(error).foregroundStyle(.readableRed).multilineTextAlignment(.center)
                 Button("common.button.retry") { Task { await loadShareLinks(forceRefresh: true) } }
                     .help("share_links.error.retry.button")
             }
@@ -172,12 +172,12 @@ struct ShareLinksView: View {
                     .truncationMode(.middle)
                 Text(link.url)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Text(linkSummary(link))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
             }
             Spacer()
             Button("common.button.details", systemImage: "info.circle") { detailsLink = link }

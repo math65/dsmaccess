@@ -74,7 +74,7 @@ struct FileBrowserView: View {
             if let permissionMessage = vm.permissionMessage {
                 Label(permissionMessage, systemImage: "lock.fill")
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)
                     .frame(maxWidth: .infinity, alignment: .leading)
