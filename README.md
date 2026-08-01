@@ -20,17 +20,19 @@ DSM Access vise une expérience 100 % accessible : navigation clavier logique, l
 explicites, annonces des chargements et des erreurs, gestion du focus à chaque écran.
 
 ### État actuel
-- ✅ **Connexion au NAS** en adresse locale (HTTPS par défaut, approbation explicite de l'empreinte des certificats auto-signés), avec option **« Rester connecté »**
-- ✅ Prise en charge de la **double authentification** (code de vérification si DSM le demande)
-- ✅ **File Station** : navigation, téléchargement (un dossier arrive en ZIP), créer/renommer/supprimer, envoi de fichiers, copier/déplacer, liens de partage (mot de passe + expiration)
+- ✅ **Connexion au NAS** par adresse directe ou **QuickConnect** (HTTPS par défaut, approbation explicite de l'empreinte des certificats auto-signés), avec option **« Rester connecté »**
+- ✅ **Double authentification** (code de vérification si DSM le demande) et **connexion sans mot de passe**, approuvée depuis l'app Synology Secure SignIn
+- ✅ **File Station** : navigation, téléchargement (un dossier arrive en ZIP), créer/renommer/supprimer, envoi de fichiers, copier/déplacer, liens de partage (mot de passe + expiration), compression et extraction, et suivi des tâches longues exécutées par le NAS
+- ✅ **Intégration au Finder** : des fichiers copiés dans le Finder se collent directement dans un dossier du NAS
 - ✅ **Informations système** (modèle, version DSM, mémoire, uptime, température)
 - ✅ **Stockage** : volumes et disques (santé, température, capacité), groupes de stockage/RAID
 - ✅ **Moniteur de ressources** en temps réel (CPU, mémoire, réseau)
-- ✅ **Administration** des dossiers partagés, services de fichiers, utilisateurs, groupes et paquets
+- ✅ **Administration** des dossiers partagés, services de fichiers, paquets, et des utilisateurs et groupes avec leurs permissions
+- ✅ **Panneau de configuration** : réseau et identité du serveur, mise à jour de DSM
 - ✅ **Container Manager** : conteneurs, projets Compose, images, réseaux et journal — démarrer, arrêter, redémarrer, reconstruire un projet, mettre à jour ou supprimer une image, le tout en tableaux triables
-- ✅ **Applications** : Download Station, Virtual Machine Manager et Surveillance Station
-- ✅ **Journaux et sécurité** : journal système et déblocage d'adresses lorsque les API sont exposées
-- ✅ **Mises à jour automatiques** via **Sparkle**
+- ✅ **Applications** : Download Station, USB Copy, Virtual Machine Manager et Surveillance Station
+- ✅ **Journaux et sécurité** : journal système, connexions signalées, liste de blocage et réglages de journalisation
+- ✅ **Mises à jour automatiques** via **Sparkle**, au choix sur le canal stable ou bêta
 - ✅ **Multilingue** : français et anglais
 
 ### Télécharger
@@ -65,6 +67,14 @@ projet sur GitHub Pages et les fichiers de version publiés sur GitHub afin de r
 télécharger les mises à jour. Les mots de passe, jetons d'appareil et empreintes de
 certificats approuvées sont conservés dans le **Trousseau** macOS.
 
+L'app comporte un canal de retour : un formulaire de contact et les annonces affichées au
+lancement, qui passent par un serveur tenu par le développeur. Rien n'y est envoyé sans une
+action de votre part. Un rapport contient la version de l'app, celle de macOS, la langue,
+l'état de VoiceOver, vos réglages d'affichage, ainsi que le fait qu'une session soit ouverte
+et le nombre de profils enregistrés — jamais l'adresse de votre NAS, vos identifiants ni le
+contenu de vos fichiers. Si vous signalez une réponse illisible du NAS, le rapport ajoute
+l'appel concerné et les **noms** des champs reçus, pas leurs valeurs.
+
 ---
 
 ## 🇬🇧 English
@@ -75,17 +85,19 @@ fully accessible experience: logical keyboard navigation, explicit labels, loadi
 announcements, and focus management on every screen.
 
 ### Current status
-- ✅ **NAS login** over a local address (HTTPS by default, explicit fingerprint approval for self-signed certificates), with a **"stay signed in"** option
-- ✅ **Two-factor authentication** support (verification code when DSM requires it)
-- ✅ **File Station**: browsing, downloads (a folder comes down as a ZIP), create/rename/delete, uploads, copy/move, share links (password + expiry)
+- ✅ **NAS login** over a direct address or **QuickConnect** (HTTPS by default, explicit fingerprint approval for self-signed certificates), with a **"stay signed in"** option
+- ✅ **Two-factor authentication** (verification code when DSM requires it) and **passwordless sign-in**, approved from the Synology Secure SignIn app
+- ✅ **File Station**: browsing, downloads (a folder comes down as a ZIP), create/rename/delete, uploads, copy/move, share links (password + expiry), compression and extraction, and progress for the long tasks the NAS runs
+- ✅ **Finder integration**: files copied in the Finder paste straight into a NAS folder
 - ✅ **System information** (model, DSM version, memory, uptime, temperature)
 - ✅ **Storage**: volumes and disks (health, temperature, capacity), storage pools/RAID
 - ✅ **Resource monitor** in real time (CPU, memory, network)
-- ✅ **Administration** of shared folders, file services, users, groups, and packages
+- ✅ **Administration** of shared folders, file services, packages, and of users and groups with their permissions
+- ✅ **Control Panel**: network and server identity, DSM updates
 - ✅ **Container Manager**: containers, Compose projects, images, networks, and log — start, stop, restart, rebuild a project, update or delete an image, all in sortable tables
-- ✅ **Applications**: Download Station, Virtual Machine Manager, and Surveillance Station
-- ✅ **Logs and security**: system logs and address unblocking when DSM exposes the APIs
-- ✅ **Automatic updates** via **Sparkle**
+- ✅ **Applications**: Download Station, USB Copy, Virtual Machine Manager, and Surveillance Station
+- ✅ **Logs and security**: system log, flagged sign-ins, block list, and logging settings
+- ✅ **Automatic updates** via **Sparkle**, on either the stable or the beta channel
 - ✅ **Localized** in French and English
 
 ### Download
@@ -117,6 +129,14 @@ DSM Access contains no telemetry or advertising. NAS administration operations a
 are exchanged only with **your** NAS. Sparkle contacts the project's GitHub Pages appcast
 and release files hosted on GitHub to check for and download updates. Passwords, device
 tokens, and approved certificate fingerprints are stored in the macOS **Keychain**.
+
+The app carries a feedback channel: a contact form and the announcements shown at launch,
+both of which go through a server run by the developer. Nothing is sent without an action
+from you. A report carries the app version, the macOS version, the language, whether
+VoiceOver is running, your display settings, plus whether a session is open and how many
+profiles are saved — never your NAS address, your credentials, or the contents of your
+files. If you report an unreadable NAS response, the report adds the call involved and the
+**names** of the fields received, not their values.
 
 ---
 
