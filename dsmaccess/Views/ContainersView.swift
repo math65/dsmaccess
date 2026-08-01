@@ -318,7 +318,7 @@ struct ContainersPaneView: View {
                             LabeledContent("common.column.name", value: container.name)
                             LabeledContent("common.column.state", value: container.isRunning ? String(localized: "common.status.running") : String(localized: "common.status.stopped"))
                             if let image = container.image { LabeledContent("common.label.image", value: image) }
-                            LabeledContent("containers.detail.auto_restart", value: container.autoRestart ? "Oui" : "Non")
+                            LabeledContent("containers.detail.auto_restart", value: container.autoRestart ? String(localized: "common.answer.yes") : String(localized: "common.answer.no"))
                         }
                         if hasResourceInformation(container) {
                             Section("common.label.resources") {
