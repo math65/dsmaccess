@@ -70,7 +70,7 @@ struct ArchiveBrowserSheet: View {
                     .accessibilityFocused($focusHeading)
                 Text(levels.map(\.name).joined(separator: " ▸ "))
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
             }
             Spacer()
             Button("common.button.refresh", systemImage: "arrow.clockwise") {
@@ -121,10 +121,10 @@ struct ArchiveBrowserSheet: View {
         } else if let error = vm.archiveError {
             VStack(spacing: 12) {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .multilineTextAlignment(.center)
                 Text("files.archive.read_failed.hint")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                 Button("common.button.retry") { Task { await load() } }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -150,7 +150,7 @@ struct ArchiveBrowserSheet: View {
                             Text(item.modificationTime)
                         }
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.readableSecondary)
                     }
                     Spacer()
                     if item.isDirectory {

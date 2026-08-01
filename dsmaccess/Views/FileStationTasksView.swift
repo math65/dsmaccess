@@ -25,7 +25,7 @@ struct FileStationTasksView: View {
 
             if let operationError {
                 Text(operationError)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .accessibilityFocused($focusStatus)
             }
 
@@ -74,7 +74,7 @@ struct FileStationTasksView: View {
         } else if let error = vm.backgroundTasksError {
             VStack(spacing: 12) {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .multilineTextAlignment(.center)
                 Button("common.button.retry") { Task { await loadTasks() } }
             }
@@ -102,7 +102,7 @@ struct FileStationTasksView: View {
                     .font(.headline)
                 Spacer()
                 Text(task.finished ? "common.status.completed.feminine" : "common.status.in_progress")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
             }
 
             if let path = task.processingPath ?? task.path {
@@ -110,7 +110,7 @@ struct FileStationTasksView: View {
                     .lineLimit(1)
                     .truncationMode(.middle)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
             }
 
             if let fraction = task.normalizedProgress {
@@ -126,7 +126,7 @@ struct FileStationTasksView: View {
                         format: Date.FormatStyle(date: .abbreviated, time: .shortened)
                     )
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                 }
                 Spacer()
                 if !task.finished, FileOperationKind(rawValue: task.api) != nil {

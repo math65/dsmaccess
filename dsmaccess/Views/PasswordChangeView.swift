@@ -30,7 +30,7 @@ struct PasswordChangeView: View {
                 .accessibilityAddTraits(.isHeader)
 
             Text("password_change.description")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.readableSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             LabeledField(label: "common.field.new_password") {
@@ -47,7 +47,7 @@ struct PasswordChangeView: View {
 
             if let error = vm.errorMessage {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .accessibilityFocused($focusError)
             }
 
@@ -57,7 +57,7 @@ struct PasswordChangeView: View {
                         .controlSize(.small)
                         .accessibilityLabel("password_change.progress.label")
                     Text("password_change.progress.announcement")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.readableSecondary)
                         .accessibilityHidden(true)
                 }
                 Spacer()

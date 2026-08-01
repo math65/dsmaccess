@@ -46,7 +46,7 @@ struct AnnouncementSettingsView: View {
                             Text(category.title)
                             Text(category.detail)
                                 .font(.callout)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(.readableSecondary)
                         }
                     }
                     .accessibilityLabel(category.title)

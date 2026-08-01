@@ -134,7 +134,7 @@ struct SurveillanceView: View {
                     if let resolution = camera.resolution { Text(resolution) }
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.readableSecondary)
             }
             Spacer()
             if viewModel.busyIDs.contains(camera.id) {
@@ -253,7 +253,7 @@ struct SurveillanceView: View {
             Spacer()
         }
         .font(.caption)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.readableSecondary)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(.bar)

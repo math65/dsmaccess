@@ -66,7 +66,7 @@ struct FileInfoSheet: View {
         } else if let error = vm.inspectorError {
             VStack(spacing: 12) {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .multilineTextAlignment(.center)
                     .accessibilityFocused($focusError)
                 Button("common.button.retry") { Task { await load() } }
@@ -234,7 +234,7 @@ struct FileInfoSheet: View {
                     Section("files.info.partial.title") {
                         ForEach(vm.inspectorDetailErrors, id: \.self) { error in
                             Text(error)
-                                .foregroundStyle(.red)
+                                .foregroundStyle(.readableRed)
                         }
                     }
                 }

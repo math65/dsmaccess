@@ -23,7 +23,7 @@ struct ControlPanelView: View {
                         .accessibilityFocused($focusTitle)
                     Text("control_panel.description")
                         .font(.callout)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.readableSecondary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     VStack(spacing: 8) {

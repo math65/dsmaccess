@@ -19,7 +19,7 @@ struct ModuleLoadingView: View {
             ProgressView()
                 .controlSize(.small)
             Text(message)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.readableSecondary)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .accessibilityElement(children: .combine)

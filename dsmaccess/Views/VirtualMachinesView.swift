@@ -154,7 +154,7 @@ struct VirtualMachinesView: View {
                     if let memory = memoryText(machine) { Text(memory) }
                 }
                 .font(.caption)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.readableSecondary)
             }
             Spacer()
             if machine.isTransitioning {
@@ -265,7 +265,7 @@ struct VirtualMachinesView: View {
             Spacer()
         }
         .font(.caption)
-        .foregroundStyle(.secondary)
+        .foregroundStyle(.readableSecondary)
         .padding(.horizontal, 12)
         .padding(.vertical, 6)
         .background(.bar)

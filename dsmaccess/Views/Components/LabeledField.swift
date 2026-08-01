@@ -19,7 +19,7 @@ struct LabeledField<Content: View>: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(label)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.readableSecondary)
                 .accessibilityHidden(true)
             content
                 .textFieldStyle(.roundedBorder)

@@ -35,12 +35,12 @@ struct NASProfileSettingsRow: View {
                     .help("nas.profile.rename.hint")
                 connectionDescription
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
             }
 
             if isConnected {
                 Text("common.status.connected")
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .accessibilityLabel("nas.profile.connected")
             }
 

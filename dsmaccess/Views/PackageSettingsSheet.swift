@@ -36,7 +36,7 @@ struct PackageSettingsSheet: View {
 
             if let error = vm.saveErrorMessage {
                 Label(error, systemImage: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .accessibilityFocused($focusStatus)
             }
 
@@ -69,13 +69,13 @@ struct PackageSettingsSheet: View {
         if vm.isLoading && vm.settings == nil {
             HStack(spacing: 12) {
                 ProgressView().controlSize(.small)
-                Text("common.status.loading").foregroundStyle(.secondary)
+                Text("common.status.loading").foregroundStyle(.readableSecondary)
             }
             .accessibilityElement(children: .combine)
             .accessibilityFocused($focusStatus)
         } else if let error = vm.errorMessage, vm.settings == nil {
             VStack(alignment: .leading, spacing: 12) {
-                Text(error).foregroundStyle(.red)
+                Text(error).foregroundStyle(.readableRed)
                 Button("common.button.retry") { Task { await load() } }
                     .help("packages.settings.retry.button")
             }
@@ -97,7 +97,7 @@ struct PackageSettingsSheet: View {
                 .help("packages.settings.automatic_updates.hint")
                 Text("packages.settings.auto_update.footer")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -110,7 +110,7 @@ struct PackageSettingsSheet: View {
                 .help("packages.settings.beta_versions.hint")
                 Text("packages.settings.beta.description")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .fixedSize(horizontal: false, vertical: true)
             }
 
@@ -145,7 +145,7 @@ struct PackageSettingsSheet: View {
                 }
                 Text("packages.settings.trust_level.description")
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .fixedSize(horizontal: false, vertical: true)
                 if canManagePackageSources {
                     Button("packages.settings.manage_sources.button") {
@@ -155,7 +155,7 @@ struct PackageSettingsSheet: View {
                 } else {
                     Text("packages.settings.manage_sources.unavailable")
                         .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.readableSecondary)
                 }
             }
         }

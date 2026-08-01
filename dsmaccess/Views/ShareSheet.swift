@@ -56,7 +56,7 @@ struct ShareSheet: View {
             .accessibilityFocused($focusHeading)
 
         Text(item.name)
-            .foregroundStyle(.secondary)
+            .foregroundStyle(.readableSecondary)
 
         LabeledField(label: "share_links.create.password.label") {
             SecureField("share_links.create.password.label", text: $password)
@@ -80,7 +80,7 @@ struct ShareSheet: View {
 
         if let errorMessage {
             Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
-                .foregroundStyle(.red)
+                .foregroundStyle(.readableRed)
                 .accessibilityFocused($focusError)
         }
 

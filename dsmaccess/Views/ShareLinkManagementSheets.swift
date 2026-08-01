@@ -64,7 +64,7 @@ struct ShareLinkEditorSheet: View {
                         SecureField("common.field.new_password", text: $password)
                         Text("share_links.edit.password.hint")
                             .font(.callout)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.readableSecondary)
                     }
                 }
 
@@ -91,7 +91,7 @@ struct ShareLinkEditorSheet: View {
                 if let errorMessage {
                     Section {
                         Label(errorMessage, systemImage: "exclamationmark.triangle.fill")
-                            .foregroundStyle(.red)
+                            .foregroundStyle(.readableRed)
                             .accessibilityFocused($focusError)
                     }
                 }
@@ -215,7 +215,7 @@ struct ShareLinkDetailsSheet: View {
         } else if let error = vm.shareLinkDetailsError {
             VStack(spacing: 12) {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .multilineTextAlignment(.center)
                     .accessibilityFocused($focusError)
                 Button("common.button.retry") { Task { await load() } }

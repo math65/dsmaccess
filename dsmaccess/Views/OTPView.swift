@@ -23,7 +23,7 @@ struct OTPView: View {
                 .accessibilityAddTraits(.isHeader)
 
             Text("otp.code.description")
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.readableSecondary)
                 .fixedSize(horizontal: false, vertical: true)
 
             LabeledField(label: "otp.code.label") {
@@ -38,7 +38,7 @@ struct OTPView: View {
 
             if let error = vm.errorMessage {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .accessibilityFocused($focusError)
             }
 
@@ -48,7 +48,7 @@ struct OTPView: View {
                         .controlSize(.small)
                         .accessibilityLabel("otp.verifying.label")
                     Text("otp.verifying.progress")
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(.readableSecondary)
                         .accessibilityHidden(true)
                 }
                 Spacer()

@@ -117,7 +117,7 @@ struct FileStationFavoritesView: View {
         if let operationError {
             VStack(spacing: 12) {
                 Text(operationError)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .multilineTextAlignment(.center)
                     .accessibilityFocused($focusStatus)
                 Button("common.button.dismiss_error") { self.operationError = nil }
@@ -129,7 +129,7 @@ struct FileStationFavoritesView: View {
         } else if let error = vm.managedFavoritesError {
             VStack(spacing: 12) {
                 Text(error)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(.readableRed)
                     .multilineTextAlignment(.center)
                 Button("common.button.retry") { Task { await load() } }
             }
@@ -171,7 +171,7 @@ struct FileStationFavoritesView: View {
                 Text(favorite.name)
                 Text(favorite.path)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
                 Text(
@@ -180,7 +180,7 @@ struct FileStationFavoritesView: View {
                         : String(localized: "common.status.unavailable")
                 )
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(.readableSecondary)
             }
             Spacer()
             Button("common.button.open", systemImage: "arrow.forward") {

@@ -134,7 +134,7 @@ struct LoginView: View {
                         if let portError = vm.portValidationMessage {
                             Text(portError)
                                 .font(.caption)
-                                .foregroundStyle(.red)
+                                .foregroundStyle(.readableRed)
                                 .accessibilityIdentifier("login.port-error")
                         }
                     } else {
@@ -148,12 +148,12 @@ struct LoginView: View {
                         if let quickConnectError = vm.quickConnectValidationMessage {
                             Text(quickConnectError)
                                 .font(.caption)
-                                .foregroundStyle(.red)
+                                .foregroundStyle(.readableRed)
                                 .accessibilityIdentifier("login.quickconnect-error")
                         }
                         Text("login.quickconnect.footer")
                             .font(.callout)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.readableSecondary)
                     }
                     LabeledField(label: "login.username.label") {
                         TextField("", text: $vm.account)
@@ -195,7 +195,7 @@ struct LoginView: View {
 
                 if let error = vm.errorMessage {
                     Text(error)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(.readableRed)
                         .accessibilityFocused($focusError)
                 }
 
@@ -205,7 +205,7 @@ struct LoginView: View {
                             .controlSize(.small)
                             .accessibilityLabel(Text(verbatim: progress))
                         Text(verbatim: progress)
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(.readableSecondary)
                             .accessibilityHidden(true)
                     }
                     Spacer()
