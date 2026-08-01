@@ -79,6 +79,7 @@ struct ContainersPaneView: View {
 
     @State private var viewModel: ContainersViewModel
     @State private var selection: String?
+    @State private var order = [KeyPathComparator(\ContainerItem.name)]
     @State private var searchText = ""
     @State private var autoRefresh = true
     @State private var detailsContainer: ContainerItem?
@@ -159,13 +160,32 @@ struct ContainersPaneView: View {
             )
             .accessibilityFocused($contentFocused)
         } else {
-            List(filteredContainers, selection: $selection) { container in
-                containerRow(container)
-                    .tag(container.id)
-                    .contextMenu { containerActions(container) }
+            Table(
+                filteredContainers.sorted(using: order),
+                selection: $selection,
+                sortOrder: $order
+            ) {
+                TableColumn("containers.column.name", value: \.name)
+                TableColumn("common.column.state", value: \.sortableState) { container in
+                    Text(container.isRunning ? "common.status.running" : "common.status.stopped")
+                }
+                TableColumn("containers.column.image", value: \.sortableImage) { container in
+                    Text(container.image ?? "—")
+                }
+                TableColumn("containers.column.processor", value: \.sortableCPU) { container in
+                    Text(cpuText(container))
+                }
+                TableColumn("containers.column.memory", value: \.sortableMemory) { container in
+                    Text(container.memoryBytes?.formatted(.byteCount(style: .memory)) ?? "—")
+                }
             }
             .accessibilityLabel("common.module.containers")
             .accessibilityFocused($contentFocused)
+            .contextMenu(forSelectionType: ContainerItem.ID.self) { ids in
+                if let container = viewModel.containers.first(where: { ids.contains($0.id) }) {
+                    containerActions(container)
+                }
+            }
         }
     }
 
@@ -235,45 +255,10 @@ struct ContainersPaneView: View {
         }
     }
 
-    private func containerRow(_ container: ContainerItem) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "shippingbox.fill")
-                .foregroundStyle(container.isRunning ? Color.green : Color.secondary)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(container.name).fontWeight(.medium)
-                HStack(spacing: 8) {
-                    Text(container.isRunning ? "common.status.running" : "common.status.stopped")
-                    if let image = container.image, !image.isEmpty { Text(image) }
-                }
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-            }
-            Spacer()
-            if let cpu = container.cpuPercent, container.isRunning {
-                Text(String(localized: "containers.column.cpu", defaultValue: "Processor \(cpu.formatted(.number.precision(.fractionLength(1))))%"))
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(containerAccessibilityLabel(container))
-        .accessibilityActions {
-            Button(container.isRunning ? "common.button.stop" : "common.button.start") {
-                Task { await perform(container.isRunning ? .stop : .start, on: container) }
-            }
-            .help(container.isRunning ? "containers.action.stop.hint" : "containers.action.start.hint")
-            if container.isRunning {
-                Button("containers.action.restart") { Task { await perform(.restart, on: container) } }
-                    .help("containers.action.restart.hint")
-            }
-            Button("common.button.delete") { pendingDelete = container }
-                .help("containers.action.delete.hint")
-            Button("containers.detail.title") {
-                presentDetails(for: container)
-            }
-            .help("containers.action.show_details.hint")
-        }
+    /// A stopped container reports no usage; the dash says so rather than showing 0 %.
+    private func cpuText(_ container: ContainerItem) -> String {
+        guard container.isRunning, let cpu = container.cpuPercent else { return "—" }
+        return cpu.formatted(.percent.precision(.fractionLength(1)).scale(1))
     }
 
     @ViewBuilder
@@ -516,14 +501,6 @@ struct ContainersPaneView: View {
             String(localized: "containers.detail.title_named", defaultValue: "Details for \(container.name)"),
             category: .navigation
         )
-    }
-
-    private func containerAccessibilityLabel(_ container: ContainerItem) -> String {
-        var parts = [container.name, container.isRunning ? String(localized: "containers.status.running") : String(localized: "containers.status.stopped")]
-        if let image = container.image { parts.append(String(localized: "containers.row.image", defaultValue: "image \(image)")) }
-        if let cpu = container.cpuPercent { parts.append(String(localized: "containers.row.cpu_spoken", defaultValue: "processor \(cpu.formatted()) percent")) }
-        if let memory = container.memoryBytes { parts.append(memory.formatted(.byteCount(style: .memory))) }
-        return parts.formatted(.list(type: .and))
     }
 
     private func dateText(_ timestamp: String?) -> String? {

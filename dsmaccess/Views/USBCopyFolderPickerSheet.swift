@@ -99,7 +99,7 @@ struct USBCopyFolderPickerSheet: View {
                                     .contentShape(Rectangle())
                             }
                             .buttonStyle(.plain)
-                            .accessibilityHint("common.button.open")
+                            .accessibilityHint("usb_copy.folder_picker.open.hint")
 
                             Divider()
                         }

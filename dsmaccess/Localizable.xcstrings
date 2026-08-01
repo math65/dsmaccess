@@ -344,13 +344,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "A rule that is off stays saved but raises no alert"
+            "value": "A rule that is off stays saved but raises no alert."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Une règle inactive reste enregistrée mais ne déclenche aucune alerte"
+            "value": "Une règle inactive reste enregistrée mais ne déclenche aucune alerte."
           }
         }
       }
@@ -3832,13 +3832,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Updates the values every 5 seconds"
+            "value": "Updates the values every 5 seconds."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Met à jour les valeurs toutes les 5 secondes"
+            "value": "Met à jour les valeurs toutes les 5 secondes."
           }
         }
       }
@@ -6467,6 +6467,38 @@
         }
       }
     },
+    "containers.column.image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        }
+      }
+    },
+    "containers.column.memory": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memory"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mémoire"
+          }
+        }
+      }
+    },
     "containers.column.name": {
       "localizations": {
         "en": {
@@ -6479,6 +6511,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conteneur"
+          }
+        }
+      }
+    },
+    "containers.column.processor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processor"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processeur"
           }
         }
       }
@@ -9528,13 +9576,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Turns this protocol on or off"
+            "value": "Turns this protocol on or off."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Active ou désactive ce protocole"
+            "value": "Active ou désactive ce protocole."
           }
         }
       }
@@ -10680,13 +10728,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Go up to the parent folder"
+            "value": "Goes up to the parent folder."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remonte au dossier parent"
+            "value": "Remonte au dossier parent."
           }
         }
       }
@@ -16392,13 +16440,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keeps the session open for the next time you open the app"
+            "value": "Keeps the session open for the next time you open the app."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Garde la session ouverte pour les prochaines ouvertures de l’app"
+            "value": "Garde la session ouverte pour les prochaines ouvertures de l’app."
           }
         }
       }
@@ -16952,13 +17000,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Adds the next entries after the ones already shown"
+            "value": "Adds the next entries after the ones already shown."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ajoute les entrées suivantes à la suite de celles déjà affichées"
+            "value": "Ajoute les entrées suivantes à la suite de celles déjà affichées."
           }
         }
       }
@@ -18568,13 +18616,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The NAS records resource alerts while this setting is on"
+            "value": "The NAS records resource alerts while this setting is on."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le NAS consigne les alertes de ressources tant que ce réglage est actif"
+            "value": "Le NAS consigne les alertes de ressources tant que ce réglage est actif."
           }
         }
       }
@@ -28850,6 +28898,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 dossier disponible"
+          }
+        }
+      }
+    },
+    "usb_copy.folder_picker.open.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre ce dossier."
           }
         }
       }

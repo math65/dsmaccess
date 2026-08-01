@@ -112,6 +112,7 @@ struct DockerProjectsView: View {
                         Text(project.updatedAt?.formatted(date: .abbreviated, time: .shortened) ?? "—")
                     }
                 }
+                .accessibilityLabel("containers.tab.projects")
                 .accessibilityFocused($focusContent)
                 .contextMenu(forSelectionType: DockerProject.ID.self) { ids in
                     if let project = vm.projects.first(where: { ids.contains($0.id) }) {

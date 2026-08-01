@@ -237,6 +237,7 @@ struct LogsSecurityView: View {
                     Text(entry.message)
                 }
             }
+            .accessibilityLabel("common.label.log")
         } else {
             Table(vm.visibleLogs.sorted(using: logOrder), sortOrder: $logOrder) {
                 TableColumn("logs.column.time", value: \.sortableDate) { entry in
@@ -258,6 +259,7 @@ struct LogsSecurityView: View {
                     Text(entry.message)
                 }
             }
+            .accessibilityLabel("common.label.log")
         }
     }
 
@@ -304,6 +306,7 @@ struct LogsSecurityView: View {
                         Text(vm.description(of: event))
                     }
                 }
+                .accessibilityLabel("logs.tab.flagged_signins")
 
                 Text(vm.loginActivitySummary)
                     .font(.callout)
@@ -365,6 +368,7 @@ struct LogsSecurityView: View {
                         Text(vm.countryText(for: address))
                     }
                 }
+                .accessibilityLabel("logs.tab.block_list")
 
                 HStack {
                     Button("logs.security.unblock.button", role: .destructive) {

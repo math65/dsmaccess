@@ -40,12 +40,18 @@ extension LabeledContentStyle where Self == ReadableLabeledContentStyle {
 }
 
 private extension Color {
+    /// The light-mode fraction is measured, not chosen: at 0.35 green reached
+    /// only 3.93:1 and orange 4.07:1 against a table's alternating row colour,
+    /// below the 4.5:1 AA threshold. `ReadableStylesTests` holds the measurement.
+    static let lightBlendFraction: CGFloat = 0.45
+    static let darkBlendFraction: CGFloat = 0.25
+
     static func readable(_ base: NSColor) -> Color {
         Color(nsColor: NSColor(name: nil) { appearance in
             let blend: NSColor? =
                 appearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-                    ? base.blended(withFraction: 0.25, of: .white)
-                    : base.blended(withFraction: 0.35, of: .black)
+                    ? base.blended(withFraction: darkBlendFraction, of: .white)
+                    : base.blended(withFraction: lightBlendFraction, of: .black)
             return blend ?? base
         })
     }

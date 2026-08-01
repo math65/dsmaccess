@@ -13,7 +13,7 @@ import Observation
 final class DockerLogViewModel {
     /// One request covers the whole log of a personal NAS (615 entries on the reference
     /// machine); the server-side filters narrow it further.
-    static let pageSize = 1000
+    static let pageSize = auditCappedPageLimit(1000)
 
     private(set) var entries: [DockerLogEntry] = []
     private(set) var total = 0

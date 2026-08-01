@@ -24,6 +24,13 @@ struct ContainerItem: nonisolated Decodable, Identifiable, Hashable, Sendable {
         return value == "running" || value.hasPrefix("up")
     }
 
+    /// Sort keys for the containers table. Running first, and containers without a
+    /// measurement last rather than mixed in with the ones reporting zero.
+    var sortableState: Int { isRunning ? 0 : 1 }
+    var sortableImage: String { image ?? "" }
+    var sortableCPU: Double { cpuPercent ?? -1 }
+    var sortableMemory: Int64 { memoryBytes ?? -1 }
+
     enum CodingKeys: String, CodingKey {
         case id
         case name
