@@ -102,6 +102,7 @@ struct DockerImagesView: View {
                              : String(localized: "containers.image.update.up_to_date"))
                     }
                 }
+                .accessibilityLabel("containers.tab.images")
                 .accessibilityFocused($focusContent)
                 .contextMenu(forSelectionType: DockerImage.ID.self) { ids in
                     if let image = vm.images.first(where: { ids.contains($0.id) }) {

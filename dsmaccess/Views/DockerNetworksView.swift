@@ -65,6 +65,7 @@ struct DockerNetworksView: View {
                              : network.containerNames.joined(separator: ", "))
                     }
                 }
+                .accessibilityLabel("containers.tab.networks")
                 .accessibilityFocused($focusContent)
 
                 Text(vm.summary)

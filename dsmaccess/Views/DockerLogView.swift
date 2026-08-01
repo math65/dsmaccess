@@ -87,6 +87,7 @@ struct DockerLogView: View {
                             Text(entry.event)
                         }
                     }
+                    .accessibilityLabel("common.label.log")
                     .accessibilityFocused($focusContent)
                 }
 
