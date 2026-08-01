@@ -149,11 +149,18 @@ loading, content, empty, validation failure, operation in progress, and error.
   AppKit only for Finder-style keyboard handling; `Views/FileTableView.swift` is that pattern.
   Never combine a table row into a single accessibility element, and never carry meaning in a
   row's color alone — the word is always written, the color only doubles it.
+- A table carries its own `accessibilityLabel`, naming what it lists. Without one VoiceOver
+  announces an unnamed table, and the audit reports the table as having no description.
 - A screen that filters its content puts the search field in the toolbar with `.searchable`,
   where every other module keeps it, rather than inline above the content.
 - Give icon-only and ambiguous controls explicit localized labels. Add hints only when the
   action or consequence is not clear from the label. Accessibility identifiers are for tests;
   they do not replace labels.
+- A label starts with a capital, takes no final period, and never names the control type — the
+  trait already says it, and repeating it makes VoiceOver read "Delete button, button". A hint
+  states the result in the third person and ends with a period, which is what gives VoiceOver
+  its inflection: "Opens this folder.", never "Open" or "Click to open". This applies to
+  `accessibilityHint` only; `.help` is a tooltip and keeps the shorter form used everywhere else.
 - Never communicate status only by color, icon, animation, placeholder text, or disabled state.
 - For status and metadata text in module views, use the contrast-checked styles from
   `Views/Components/ReadableStyles.swift` (`.readableSecondary`, `.readableGreen`,

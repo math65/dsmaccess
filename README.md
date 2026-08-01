@@ -27,7 +27,8 @@ explicites, annonces des chargements et des erreurs, gestion du focus à chaque 
 - ✅ **Stockage** : volumes et disques (santé, température, capacité), groupes de stockage/RAID
 - ✅ **Moniteur de ressources** en temps réel (CPU, mémoire, réseau)
 - ✅ **Administration** des dossiers partagés, services de fichiers, utilisateurs, groupes et paquets
-- ✅ **Applications** : Download Station, Container Manager, Virtual Machine Manager et Surveillance Station
+- ✅ **Container Manager** : conteneurs, projets Compose, images, réseaux et journal — démarrer, arrêter, redémarrer, reconstruire un projet, mettre à jour ou supprimer une image, le tout en tableaux triables
+- ✅ **Applications** : Download Station, Virtual Machine Manager et Surveillance Station
 - ✅ **Journaux et sécurité** : journal système et déblocage d'adresses lorsque les API sont exposées
 - ✅ **Mises à jour automatiques** via **Sparkle**
 - ✅ **Multilingue** : français et anglais
@@ -81,7 +82,8 @@ announcements, and focus management on every screen.
 - ✅ **Storage**: volumes and disks (health, temperature, capacity), storage pools/RAID
 - ✅ **Resource monitor** in real time (CPU, memory, network)
 - ✅ **Administration** of shared folders, file services, users, groups, and packages
-- ✅ **Applications**: Download Station, Container Manager, Virtual Machine Manager, and Surveillance Station
+- ✅ **Container Manager**: containers, Compose projects, images, networks, and log — start, stop, restart, rebuild a project, update or delete an image, all in sortable tables
+- ✅ **Applications**: Download Station, Virtual Machine Manager, and Surveillance Station
 - ✅ **Logs and security**: system logs and address unblocking when DSM exposes the APIs
 - ✅ **Automatic updates** via **Sparkle**
 - ✅ **Localized** in French and English
