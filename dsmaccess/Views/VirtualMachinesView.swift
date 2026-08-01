@@ -217,7 +217,7 @@ struct VirtualMachinesView: View {
                     if let description = machine.description, !description.isEmpty {
                         LabeledContent("vm.detail.description.label", value: description)
                     }
-                    LabeledContent("vm.detail.autostart.label", value: machine.autoRun ? "Oui" : "Non")
+                    LabeledContent("vm.detail.autostart.label", value: machine.autoRun ? String(localized: "common.answer.yes") : String(localized: "common.answer.no"))
                 }
                 Section("common.label.resources") {
                     LabeledContent("vm.detail.vcpu.label", value: machine.vCPUCount.formatted())
