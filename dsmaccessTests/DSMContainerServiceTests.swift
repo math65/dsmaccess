@@ -513,6 +513,168 @@ struct DSMContainerServiceTests {
         #expect(parameters["offset"] == "0")
     }
 
+    // MARK: - Registries
+
+    @Test func decodesRegistryListWithTheActiveRegistryAndItsAccount() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"offset":0,"total":2,"using":"Docker Hub","registries":[{"enable_registry_mirror":false,"enable_trust_SSC":false,"mirror_urls":[],"name":"Docker Hub","syno":true,"url":"https://registry.hub.docker.com"},{"enable_trust_SSC":true,"name":"work","syno":false,"url":"https://ghcr.io","username":"builder"}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let list = try await service.registries()
+
+        #expect(list.selected == "Docker Hub")
+        #expect(list.registries.map(\.name) == ["Docker Hub", "work"])
+        let hub = try #require(list.registries.first)
+        #expect(hub.username.isEmpty)
+        let private_ = try #require(list.registries.last)
+        #expect(private_.username == "builder")
+        #expect(private_.trustsSelfSignedCertificate)
+        // A registry the NAS returns without mirror keys at all must still decode.
+        #expect(private_.mirrorURLs.isEmpty)
+    }
+
+    /// DSM refuses to delete Docker Hub, and decides that on the name rather than on `syno`.
+    @Test func recognisesTheDefaultRegistryByNameNotBySynologyFlag() throws {
+        let payload = Data(
+            #"{"registries":[{"name":"Docker Hub","syno":false,"url":"https://registry.hub.docker.com"},{"name":"work","syno":true,"url":"https://ghcr.io"}]}"#.utf8
+        )
+        let list = try JSONDecoder().decode(DockerRegistryList.self, from: payload)
+
+        let hub = try #require(list.registries.first)
+        let other = try #require(list.registries.last)
+        #expect(hub.isDefaultRegistry)
+        #expect(!other.isDefaultRegistry)
+    }
+
+    /// Captured contract: `name` and `url` are both required, and the password is only sent
+    /// when filled — an empty one would overwrite the stored password with nothing.
+    @Test func createsRegistryWithoutSendingAnEmptyPassword() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.createRegistry(
+            name: "work",
+            url: "https://ghcr.io",
+            username: "",
+            password: "",
+            trustsSelfSignedCertificate: true
+        )
+
+        let request = try #require(await stub.requests.first)
+        let parameters = try query(from: request)
+        #expect(parameters["api"] == "SYNO.Docker.Registry")
+        #expect(parameters["method"] == "create")
+        #expect(parameters["name"] == #""work""#)
+        // JSON escapes the slashes, as it does for the project share paths.
+        #expect(parameters["url"] == #""https:\/\/ghcr.io""#)
+        #expect(parameters["enable_trust_SSC"] == "true")
+        #expect(parameters["password"] == nil)
+        #expect(parameters["username"] == nil)
+    }
+
+    @Test func createsRegistryWithCredentialsWhenTheyAreFilled() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.createRegistry(
+            name: "work",
+            url: "https://ghcr.io",
+            username: "builder",
+            password: "secret",
+            trustsSelfSignedCertificate: false
+        )
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["username"] == #""builder""#)
+        #expect(parameters["password"] == #""secret""#)
+    }
+
+    /// Captured contract: `set` designates its target by `oldname` — DSM answers 101 without
+    /// it — which is also what makes renaming possible.
+    @Test func updatesRegistryThroughOldNameSoRenamingWorks() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.updateRegistry(
+            oldName: "work",
+            name: "work-eu",
+            url: "https://ghcr.io",
+            username: "builder",
+            password: "",
+            trustsSelfSignedCertificate: false
+        )
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "set")
+        #expect(parameters["oldname"] == #""work""#)
+        #expect(parameters["name"] == #""work-eu""#)
+        #expect(parameters["password"] == nil)
+    }
+
+    @Test func sendsTheRegistryNameToDeleteAndToUse() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.deleteRegistry(named: "work")
+        try await service.useRegistry(named: "Docker Hub")
+
+        let requests = await stub.requests
+        #expect(try query(from: requests[0])["method"] == "delete")
+        #expect(try query(from: requests[0])["name"] == #""work""#)
+        #expect(try query(from: requests[1])["method"] == "using")
+        #expect(try query(from: requests[1])["name"] == #""Docker Hub""#)
+    }
+
+    /// Captured contract: the results sit under a second `data` key. Container Manager's own
+    /// JavaScript names them `title`/`stars`/`link`, which are display names and decode to
+    /// nothing.
+    @Test func decodesSearchResultsFromTheNestedDataKey() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"limit":50,"offset":0,"page_size":50,"total":103773,"data":[{"description":"A minimal Docker image","downloads":12057019456,"is_automated":false,"is_official":true,"name":"alpine","registry":"https://registry.hub.docker.com","star_count":11552}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let page = try await service.searchImages(keyword: "alpine", offset: 0, limit: 50)
+
+        #expect(page.total == 103_773)
+        let result = try #require(page.results.first)
+        #expect(result.name == "alpine")
+        #expect(result.downloads == 12_057_019_456)
+        #expect(result.starCount == 11_552)
+        #expect(result.isOfficial)
+        #expect(!result.isAutomated)
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "search")
+        #expect(parameters["q"] == #""alpine""#)
+        #expect(parameters["page_size"] == "50")
+    }
+
+    /// Captured contract: the parameter is `repo`. `repository` answers 1052, as if the image
+    /// did not exist.
+    @Test func readsImageTagsThroughRepoAndNotRepository() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":[{"tag":"latest"},{"tag":"3.19"}]}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        let tags = try await service.imageTags(repository: "alpine")
+
+        #expect(tags.map(\.tag) == ["latest", "3.19"])
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "tags")
+        #expect(parameters["repo"] == #""alpine""#)
+        #expect(parameters["repository"] == nil)
+    }
+
     private func makeService(stub: DSMRequestStub) -> DSMContainerService {
         var capabilities = DSMCapabilities()
         capabilities.merge([

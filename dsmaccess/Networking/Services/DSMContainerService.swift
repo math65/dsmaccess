@@ -442,4 +442,118 @@ final class DSMContainerService {
             as: DockerRegistryList.self
         )
     }
+
+    /// Adds a registry. Captured contract: `name` and `url` are both required — `create`
+    /// answers 101 without the URL — and the answer carries no identifier, the name being the
+    /// key every other method works from. The credentials are only sent when filled, since a
+    /// registry without them is stored with an empty `username`.
+    func createRegistry(
+        name: String,
+        url: String,
+        username: String,
+        password: String,
+        trustsSelfSignedCertificate: Bool
+    ) async throws {
+        try await transport.perform(
+            api: Self.registryAPI,
+            method: "create",
+            parameters: registryParameters(
+                name: name,
+                url: url,
+                username: username,
+                password: password,
+                trustsSelfSignedCertificate: trustsSelfSignedCertificate
+            )
+        )
+    }
+
+    /// Edits a registry. Captured contract: **`oldname` designates the target** — without it
+    /// DSM answers 101 — so `name` may differ, which is how a registry gets renamed.
+    func updateRegistry(
+        oldName: String,
+        name: String,
+        url: String,
+        username: String,
+        password: String,
+        trustsSelfSignedCertificate: Bool
+    ) async throws {
+        var parameters = registryParameters(
+            name: name,
+            url: url,
+            username: username,
+            password: password,
+            trustsSelfSignedCertificate: trustsSelfSignedCertificate
+        )
+        parameters["oldname"] = .string(oldName)
+        try await transport.perform(api: Self.registryAPI, method: "set", parameters: parameters)
+    }
+
+    private func registryParameters(
+        name: String,
+        url: String,
+        username: String,
+        password: String,
+        trustsSelfSignedCertificate: Bool
+    ) -> [String: DSMParameter] {
+        var parameters: [String: DSMParameter] = [
+            "name": .string(name),
+            "url": .string(url),
+            "enable_trust_SSC": .boolean(trustsSelfSignedCertificate),
+        ]
+        if !username.isEmpty {
+            parameters["username"] = .string(username)
+        }
+        // DSM never returns the stored password, so an edit that leaves the field untouched
+        // must not send an empty one over the top of it.
+        if !password.isEmpty {
+            parameters["password"] = .string(password)
+        }
+        return parameters
+    }
+
+    func deleteRegistry(named name: String) async throws {
+        try await transport.perform(
+            api: Self.registryAPI,
+            method: "delete",
+            parameters: ["name": .string(name)]
+        )
+    }
+
+    /// Makes a registry the active one. Measured on the NAS: this restarts nothing, containers
+    /// keep running.
+    func useRegistry(named name: String) async throws {
+        try await transport.perform(
+            api: Self.registryAPI,
+            method: "using",
+            parameters: ["name": .string(name)]
+        )
+    }
+
+    /// Searches images. Measured on the NAS: this queries the **active registry only**, and a
+    /// registry with no search API — ghcr.io, most private ones — answers 1052 or 1053 rather
+    /// than an empty page.
+    func searchImages(keyword: String, offset: Int, limit: Int) async throws -> DockerRegistrySearchPage {
+        try await transport.read(
+            api: Self.registryAPI,
+            method: "search",
+            parameters: [
+                "q": .string(keyword),
+                "offset": .integer(offset),
+                "limit": .integer(limit),
+                "page_size": .integer(limit),
+            ],
+            as: DockerRegistrySearchPage.self
+        )
+    }
+
+    /// The versions an image is published under. Captured contract: the parameter is `repo`,
+    /// and `repository` answers 1052 as if the image did not exist.
+    func imageTags(repository: String) async throws -> [DockerImageTag] {
+        try await transport.read(
+            api: Self.registryAPI,
+            method: "tags",
+            parameters: ["repo": .string(repository)],
+            as: [DockerImageTag].self
+        )
+    }
 }
