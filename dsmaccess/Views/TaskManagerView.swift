@@ -94,6 +94,7 @@ struct TaskManagerView: View {
                     Text(vm.writeRateText(for: group))
                 }
             }
+            .accessibilityLabel("tasks.services.tab")
         }
         .frame(minHeight: 160)
     }
@@ -117,6 +118,7 @@ struct TaskManagerView: View {
                     Text(vm.memoryText(for: process))
                 }
             }
+            .accessibilityLabel("tasks.processes.section.title")
 
             // The scale is stated here and not on every row: the NAS returns a load summed
             // over the cores, which a single process can therefore push beyond 100%.

@@ -79,6 +79,7 @@ struct OpenedFilesView: View {
                         Text(vm.hostText(for: file))
                     }
                 }
+                .accessibilityLabel("common.label.open_files")
 
                 Text("opened_files.columns.dash.description")
                     .font(.callout)

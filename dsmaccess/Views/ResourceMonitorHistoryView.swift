@@ -79,6 +79,7 @@ struct ResourceMonitorHistoryView: View {
                     Text(vm.eventText(for: entry))
                 }
             }
+            .accessibilityLabel("monitor.history.title")
 
             if vm.isTruncated {
                 Text(String(localized: "monitor.history.count.filtered.footer", defaultValue: "\(vm.entries.count) of \(vm.totalCount) recorded alerts shown."))
