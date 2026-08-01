@@ -35,6 +35,10 @@ final class AccessibilityAuditTests: XCTestCase {
         continueAfterFailure = true
 
         app = XCUIApplication()
+        // Auditing interrogates every element of a page: full 1000-row log pages
+        // take minutes each and starve the app's own DSM requests. Fifty rows
+        // exhibit the same issues.
+        app.launchEnvironment["DSMACCESS_AUDIT_PAGE_LIMIT"] = "50"
         app.launch()
 
         let sidebar = app.outlines.firstMatch
@@ -51,6 +55,24 @@ final class AccessibilityAuditTests: XCTestCase {
             Thread.sleep(forTimeInterval: 3)
             audit(screen: module)
             audited += 1
+
+            if module == "Conteneurs" {
+                // The module opens on its first tab, already audited above;
+                // each remaining tab holds its own table and toolbar.
+                for tab in ["Projets", "Images", "Réseaux", "Journal"] {
+                    // The tab buttons are AXRadioButton/AXTabButton, which XCUITest
+                    // does not surface as .radioButton; match on the label instead.
+                    let item = app.descendants(matching: .any)
+                        .matching(NSPredicate(format: "label == %@", tab)).firstMatch
+                    guard item.waitForExistence(timeout: 3) else {
+                        XCTFail("Onglet Conteneurs « \(tab) » introuvable — non audité.")
+                        continue
+                    }
+                    item.click()
+                    Thread.sleep(forTimeInterval: 3)
+                    audit(screen: "Conteneurs — \(tab)")
+                }
+            }
 
             if module == "Centre de paquets" {
                 let catalog = app.radioButtons["Catalogue officiel"]

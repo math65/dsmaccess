@@ -16,8 +16,8 @@ import Observation
 final class LogsSecurityViewModel {
     /// An active NAS piles up thousands of entries — 6995 on the development DS920+. The page
     /// is large but bounded, and the screen says what it is not showing.
-    static let logPageLimit = 1000
-    static let blockedPageLimit = 500
+    static let logPageLimit = auditCappedPageLimit(1000)
+    static let blockedPageLimit = auditCappedPageLimit(500)
 
     private(set) var logs: [SystemLogEntry] = []
     /// Number of entries kept by the NAS, which often exceeds the loaded page.
@@ -130,7 +130,7 @@ final class LogsSecurityViewModel {
         }
     }
 
-    static let loginActivityLimit = 200
+    static let loginActivityLimit = auditCappedPageLimit(200)
 
     /// Settings: transfer logging is already read to populate the log picker; only auto-block
     /// is left to load.
