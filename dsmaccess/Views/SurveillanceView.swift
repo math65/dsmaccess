@@ -187,7 +187,7 @@ struct SurveillanceView: View {
                     Section("surveillance.camera.column") {
                         LabeledContent("common.column.name", value: camera.name)
                         LabeledContent("common.column.state", value: statusText(camera.status))
-                        LabeledContent("common.status.enabled.feminine", value: camera.enabled ? "Oui" : "Non")
+                        LabeledContent("common.status.enabled.feminine", value: camera.enabled ? String(localized: "common.answer.yes") : String(localized: "common.answer.no"))
                         if let address = addressText(camera) { LabeledContent("common.column.address", value: address) }
                         if let vendor = camera.vendor { LabeledContent("surveillance.camera.vendor.label", value: vendor) }
                         if let model = camera.model { LabeledContent("common.label.model", value: model) }
