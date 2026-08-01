@@ -101,6 +101,7 @@ struct ConnectionsView: View {
                     // `is_current_connected` for its own web client. Queried by the app, it
                     // marks no row — the column would contain nothing but dashes.
                 }
+                .accessibilityLabel("connections.table.label")
                 .contextMenu(forSelectionType: String.self) { ids in
                     let targets = connections(for: ids)
                     if targets.contains(where: vm.canKick) {
