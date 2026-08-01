@@ -299,6 +299,76 @@ final class DSMContainerService {
         return result.networks
     }
 
+    /// Creates a bridge network. Captured contract: there is no `driver` parameter — DSM only
+    /// ever creates bridges — and in automatic addressing it **omits** subnet, range and
+    /// gateway instead of sending them empty.
+    func createNetwork(
+        name: String,
+        addressing: DockerNetworkAddressing,
+        disablesMasquerade: Bool,
+        enablesIPv6: Bool
+    ) async throws {
+        var parameters: [String: DSMParameter] = [
+            "name": .string(name),
+            "disable_masquerade": .boolean(disablesMasquerade),
+            "enable_ipv6": .boolean(enablesIPv6),
+        ]
+        if case .manual(let subnet, let ipRange, let gateway) = addressing {
+            parameters["subnet"] = .string(subnet)
+            parameters["iprange"] = .string(ipRange)
+            parameters["gateway"] = .string(gateway)
+        }
+        try await transport.perform(api: Self.networkAPI, method: "create", parameters: parameters)
+    }
+
+    /// Removes networks by name.
+    ///
+    /// Captured contract, and the reason this returns something: **DSM answers `success: true`
+    /// even when it deleted nothing**, listing the refusals in `data.failed`. The caller has to
+    /// read that list; the envelope alone would report a deletion that never happened. DSM's
+    /// own client sends whole network objects here — only the name is needed, verified
+    /// against the NAS.
+    func removeNetworks(named names: [String]) async throws -> DockerNetworkRemovalResult {
+        struct Target: Encodable {
+            let name: String
+        }
+        return try await transport.value(
+            api: Self.networkAPI,
+            method: "remove",
+            parameters: ["networks": try .json(names.map(Target.init))],
+            as: DockerNetworkRemovalResult.self
+        )
+    }
+
+    /// Sets which containers are attached to a network. Captured contract: `networkName` is
+    /// camelCase here, alone in this module, and the list is the **wanted final set** — DSM
+    /// works out for itself what to attach and what to detach.
+    func setNetworkContainers(networkName: String, containerNames: [String]) async throws {
+        try await transport.perform(
+            api: Self.networkAPI,
+            method: "set",
+            parameters: [
+                "networkName": .string(networkName),
+                "containers": try .json(containerNames),
+            ]
+        )
+    }
+
+    /// The containers that can be attached to a network. It does not say which ones already
+    /// are: that comes from the `containers` of each network in `list`.
+    func networkContainers() async throws -> [DockerNetworkContainer] {
+        let result = try await transport.read(
+            api: Self.networkAPI,
+            method: "list_container",
+            parameters: [
+                "limit": .integer(-1),
+                "offset": .integer(0),
+            ],
+            as: DockerNetworkContainerList.self
+        )
+        return result.containers
+    }
+
     // MARK: - Container Manager log
 
     func dockerLog(

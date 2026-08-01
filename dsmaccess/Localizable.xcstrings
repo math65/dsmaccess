@@ -6803,6 +6803,678 @@
         }
       }
     },
+    "containers.network.action.containers": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage Containers"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gérer les conteneurs"
+          }
+        }
+      }
+    },
+    "containers.network.action.containers.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose which containers this network carries"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir les conteneurs reliés à ce réseau"
+          }
+        }
+      }
+    },
+    "containers.network.action.create": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create Network"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer un réseau"
+          }
+        }
+      }
+    },
+    "containers.network.action.create.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Create a container network"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Créer un réseau de conteneurs"
+          }
+        }
+      }
+    },
+    "containers.network.action.delete.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove the selected network"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le réseau sélectionné"
+          }
+        }
+      }
+    },
+    "containers.network.action.in_progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Operation in progress"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opération en cours"
+          }
+        }
+      }
+    },
+    "containers.network.containers.empty.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No container can be connected to this network."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun conteneur ne peut être relié à ce réseau."
+          }
+        }
+      }
+    },
+    "containers.network.containers.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No container"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun conteneur"
+          }
+        }
+      }
+    },
+    "containers.network.containers.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading the containers…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement des conteneurs…"
+          }
+        }
+      }
+    },
+    "containers.network.containers.saving": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applying the connections…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Application des connexions…"
+          }
+        }
+      }
+    },
+    "containers.network.containers.section": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected containers"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conteneurs reliés"
+          }
+        }
+      }
+    },
+    "containers.network.containers.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connections updated for %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexions mises à jour pour %@"
+          }
+        }
+      }
+    },
+    "containers.network.containers.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Containers of %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conteneurs de %@"
+          }
+        }
+      }
+    },
+    "containers.network.create.addressing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IPv4 addressing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adressage IPv4"
+          }
+        }
+      }
+    },
+    "containers.network.create.addressing.automatic": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatic"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Automatique"
+          }
+        }
+      }
+    },
+    "containers.network.create.addressing.manual": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manuel"
+          }
+        }
+      }
+    },
+    "containers.network.create.disable_masquerade": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disable IP masquerade"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactiver l’IP masquerade"
+          }
+        }
+      }
+    },
+    "containers.network.create.disable_masquerade.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stops Docker from rewriting the source address of outgoing traffic."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêche Docker de réécrire l’adresse source du trafic sortant."
+          }
+        }
+      }
+    },
+    "containers.network.create.error.gateway_out_of_range": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The gateway is outside the subnet. Choose an address inside it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La passerelle est hors du sous-réseau. Choisissez une adresse qui s’y trouve."
+          }
+        }
+      }
+    },
+    "containers.network.create.error.gateway_taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This gateway is already used by another network. Choose another subnet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette passerelle est déjà utilisée par un autre réseau. Choisissez un autre sous-réseau."
+          }
+        }
+      }
+    },
+    "containers.network.create.error.name_taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A network named %@ already exists."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un réseau nommé %@ existe déjà."
+          }
+        }
+      }
+    },
+    "containers.network.create.error.name_taken_short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This name is already used by another network."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce nom est déjà utilisé par un autre réseau."
+          }
+        }
+      }
+    },
+    "containers.network.create.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creating %@ failed: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La création de %@ a échoué : %@"
+          }
+        }
+      }
+    },
+    "containers.network.create.gateway": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gateway"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passerelle"
+          }
+        }
+      }
+    },
+    "containers.network.create.gateway.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takes one address inside the subnet, for example 172.31.0.1."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attend une adresse située dans le sous-réseau, par exemple 172.31.0.1."
+          }
+        }
+      }
+    },
+    "containers.network.create.in_progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creating the network…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Création du réseau en cours…"
+          }
+        }
+      }
+    },
+    "containers.network.create.iprange": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "IP range"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plage d’IP"
+          }
+        }
+      }
+    },
+    "containers.network.create.iprange.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takes CIDR notation, and must sit inside the subnet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attend la notation CIDR, et doit tenir dans le sous-réseau."
+          }
+        }
+      }
+    },
+    "containers.network.create.ipv6": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable IPv6"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer l’IPv6"
+          }
+        }
+      }
+    },
+    "containers.network.create.manual.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The three fields are required in manual mode."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les trois champs sont obligatoires en mode manuel."
+          }
+        }
+      }
+    },
+    "containers.network.create.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network name"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom du réseau"
+          }
+        }
+      }
+    },
+    "containers.network.create.name.rule": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Names the network in Container Manager."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nomme le réseau dans Container Manager."
+          }
+        }
+      }
+    },
+    "containers.network.create.subnet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subnet"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous-réseau"
+          }
+        }
+      }
+    },
+    "containers.network.create.subnet.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Takes CIDR notation, for example 172.31.0.0/16."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Attend la notation CIDR, par exemple 172.31.0.0/16."
+          }
+        }
+      }
+    },
+    "containers.network.create.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network created: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réseau créé : %@"
+          }
+        }
+      }
+    },
+    "containers.network.create.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New Network"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouveau réseau"
+          }
+        }
+      }
+    },
+    "containers.network.remove.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The network “%@” will be removed from Container Manager."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le réseau « %@ » sera supprimé de Container Manager."
+          }
+        }
+      }
+    },
+    "containers.network.remove.confirm.message_in_use": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The network “%@” still carries %@. Docker refuses to remove a network in use: disconnect them first."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le réseau « %@ » relie encore %@. Docker refuse de supprimer un réseau en service : déconnectez-les d’abord."
+          }
+        }
+      }
+    },
+    "containers.network.remove.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remove “%@”?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer « %@ » ?"
+          }
+        }
+      }
+    },
+    "containers.network.remove.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removing %@ failed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La suppression de %@ a échoué."
+          }
+        }
+      }
+    },
+    "containers.network.remove.failed_with_reason": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Removing %@ failed: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La suppression de %@ a échoué : %@"
+          }
+        }
+      }
+    },
+    "containers.network.remove.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network removed: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réseau supprimé : %@"
+          }
+        }
+      }
+    },
     "containers.project.action.create": {
       "localizations": {
         "en": {

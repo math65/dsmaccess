@@ -316,6 +316,15 @@ protocol DSMClientProtocol: AnyObject {
     func startDockerImagePull(repository: String, tag: String) async throws -> DockerImagePullTask
     func dockerImagePullStatus(taskID: String) async throws -> DockerImagePullStatus
     func listDockerNetworks() async throws -> [DockerNetwork]
+    func createDockerNetwork(
+        name: String,
+        addressing: DockerNetworkAddressing,
+        disablesMasquerade: Bool,
+        enablesIPv6: Bool
+    ) async throws
+    func removeDockerNetworks(named names: [String]) async throws -> DockerNetworkRemovalResult
+    func setDockerNetworkContainers(networkName: String, containerNames: [String]) async throws
+    func dockerNetworkContainers() async throws -> [DockerNetworkContainer]
     func dockerRegistries() async throws -> DockerRegistryList
     func deleteContainer(name: String) async throws
     func containerProcesses(name: String) async throws -> [ContainerProcess]
@@ -1272,6 +1281,35 @@ final class DSMClient: DSMClientProtocol {
 
     func listDockerNetworks() async throws -> [DockerNetwork] {
         try await containers.networks()
+    }
+
+    func createDockerNetwork(
+        name: String,
+        addressing: DockerNetworkAddressing,
+        disablesMasquerade: Bool,
+        enablesIPv6: Bool
+    ) async throws {
+        try await containers.createNetwork(
+            name: name,
+            addressing: addressing,
+            disablesMasquerade: disablesMasquerade,
+            enablesIPv6: enablesIPv6
+        )
+    }
+
+    func removeDockerNetworks(named names: [String]) async throws -> DockerNetworkRemovalResult {
+        try await containers.removeNetworks(named: names)
+    }
+
+    func setDockerNetworkContainers(networkName: String, containerNames: [String]) async throws {
+        try await containers.setNetworkContainers(
+            networkName: networkName,
+            containerNames: containerNames
+        )
+    }
+
+    func dockerNetworkContainers() async throws -> [DockerNetworkContainer] {
+        try await containers.networkContainers()
     }
 
     func dockerRegistries() async throws -> DockerRegistryList {
