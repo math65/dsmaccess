@@ -42,6 +42,11 @@ package dependency. Do not add another dependency without explicit approval.
   starting points, not proof. When a contract cannot be measured (package not installed,
   call too destructive to try), say so explicitly and ship the smallest verifiable scope
   instead of a guess.
+- **Knowing that an API exists is not knowing its contract.** `SYNO.API.Info` returns names,
+  paths and version ranges — never the methods, the parameters or the shape of the reply. An
+  inventory, whether read here or sent by a tester, says where to point the measurement; it
+  never authorises a line of code on its own. The same holds for a name found in DSM's
+  JavaScript or in someone's forum post.
 - Do not edit these instruction files unless the user specifically requested it.
 
 ## Repository map and boundaries
