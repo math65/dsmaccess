@@ -6467,6 +6467,38 @@
         }
       }
     },
+    "containers.column.image": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Image"
+          }
+        }
+      }
+    },
+    "containers.column.memory": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Memory"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mémoire"
+          }
+        }
+      }
+    },
     "containers.column.name": {
       "localizations": {
         "en": {
@@ -6479,6 +6511,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conteneur"
+          }
+        }
+      }
+    },
+    "containers.column.processor": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processor"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Processeur"
           }
         }
       }
