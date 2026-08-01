@@ -17,6 +17,10 @@ final class DockerImagesViewModel {
     private(set) var busyImageIDs: Set<String> = []
     private(set) var isPulling = false
     private(set) var pullDescription: String?
+    /// Import, export and upload share one flag: they all move one image at a time, and letting
+    /// two of them run at once would only produce two progress lines for one NAS.
+    private(set) var isTransferring = false
+    private(set) var transferDescription: String?
     var errorMessage: String?
 
     private let session: SessionStore
@@ -45,6 +49,133 @@ final class DockerImagesViewModel {
         } catch {
             guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+        }
+    }
+
+    /// What the image declares about itself. DSM keys this on the image identifier, and its
+    /// answer carries no name, so the caller keeps the one it already has.
+    func detail(for image: DockerImage) async throws -> DockerImageDetail {
+        try await session.withClient { try await $0.dockerImageDetail(identity: image.id) }
+    }
+
+    // MARK: - Moving images in and out
+
+    /// Writes the image to a folder of the NAS. DSM names the archive itself, so the result
+    /// says where it landed rather than pretending the name was a choice.
+    func export(_ image: DockerImage, tag: String, to folderPath: String) async -> DSMOperationOutcome {
+        isTransferring = true
+        transferDescription = String(
+            localized: "containers.image.export.in_progress",
+            defaultValue: "Exporting \(image.displayName)"
+        )
+        defer {
+            isTransferring = false
+            transferDescription = nil
+        }
+
+        do {
+            try await session.withClient {
+                try await $0.exportDockerImage(
+                    repository: image.repository,
+                    tag: tag,
+                    folderPath: folderPath
+                )
+            }
+            let fileName = image.exportArchiveName(tag: tag)
+            return .success(String(
+                localized: "containers.image.export.success",
+                defaultValue: "Image exported to \(folderPath)/\(fileName)"
+            ))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(
+                localized: "containers.image.export.failed",
+                defaultValue: "Exporting \(image.displayName) failed: \(reason)"
+            ))
+        }
+    }
+
+    /// Loads an archive that already sits on the NAS.
+    func importImage(at path: String) async -> DSMOperationOutcome {
+        isTransferring = true
+        transferDescription = String(localized: "containers.image.import.in_progress")
+        defer {
+            isTransferring = false
+            transferDescription = nil
+        }
+
+        do {
+            try await session.withClient { try await $0.importDockerImage(path: path) }
+            await load(silently: true)
+            return .success(String(localized: "containers.image.import.success"))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(
+                localized: "containers.image.import.failed",
+                defaultValue: "Importing failed: \(reason)"
+            ))
+        }
+    }
+
+    /// Sends an archive from the Mac. The progress is reported in bytes because DSM gives no
+    /// step of its own for an upload.
+    func uploadImage(at fileURL: URL) async -> DSMOperationOutcome {
+        isTransferring = true
+        transferDescription = String(localized: "containers.image.upload.in_progress")
+        defer {
+            isTransferring = false
+            transferDescription = nil
+        }
+
+        do {
+            try await session.withClient { client in
+                try await client.uploadDockerImage(at: fileURL) { [weak self] progress in
+                    self?.transferDescription = Self.uploadProgress(progress)
+                }
+            }
+            await load(silently: true)
+            return .success(String(localized: "containers.image.import.success"))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(
+                localized: "containers.image.upload.failed",
+                defaultValue: "Sending the archive failed: \(reason)"
+            ))
+        }
+    }
+
+    private static func uploadProgress(_ progress: DSMTransferProgress) -> String {
+        guard let fraction = progress.fractionCompleted else {
+            return String(localized: "containers.image.upload.in_progress")
+        }
+        return String(
+            localized: "containers.image.upload.progress",
+            defaultValue: "Sending the archive: \(fraction.formatted(.percent.precision(.fractionLength(0))))"
+        )
+    }
+
+    func shareNames() async throws -> [String] {
+        try await session.withClient { try await $0.listShares() }.map(\.name)
+    }
+
+    func folders(in path: String) async throws -> [FileStationItem] {
+        try await session.withClient { client in
+            try await client.list(folderPath: path)
+                .filter(\.isdir)
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        }
+    }
+
+    /// The image archives of a folder. DSM writes them with a `.syno.tar` suffix, and offering
+    /// anything else to import would only earn a refusal from the NAS.
+    func archives(in path: String) async throws -> [FileStationItem] {
+        try await session.withClient { client in
+            try await client.list(folderPath: path)
+                .filter { !$0.isdir && $0.name.hasSuffix(".syno.tar") }
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         }
     }
 

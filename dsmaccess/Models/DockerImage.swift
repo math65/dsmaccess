@@ -24,6 +24,13 @@ struct DockerImage: nonisolated Decodable, Identifiable, Hashable, Sendable {
         return "\(repository):\(tag)"
     }
 
+    /// The archive `export` writes. DSM names the file itself and takes no say in it, so the
+    /// app works the name out the same way to be able to tell the user where it landed:
+    /// `containrrr/watchtower:latest` becomes `containrrr-watchtower(latest).syno.tar`.
+    func exportArchiveName(tag: String) -> String {
+        "\(repository.replacingOccurrences(of: "/", with: "-"))(\(tag)).syno.tar"
+    }
+
     enum CodingKeys: String, CodingKey {
         case id
         case repository
@@ -160,6 +167,99 @@ struct DockerRegistrySearchPage: nonisolated Decodable, Sendable {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         results = try values.decodeIfPresent([DockerRegistrySearchResult].self, forKey: .results) ?? []
         total = values.flexInt(.total)
+    }
+}
+
+/// What an image declares about itself, as DSM's own “Details” screen shows it. Captured on
+/// DSM 7.4 from `SYNO.Docker.Image get`, which needs the image identifier alone.
+///
+/// The reply also carries `image` and `tag`, and **both are always empty** — verified across
+/// every image on the NAS — so the name has to come from the listing instead.
+struct DockerImageDetail: nonisolated Decodable, Sendable {
+    let id: String
+    let author: String
+    let dockerVersion: String
+    let digest: String?
+    let command: [String]
+    let entrypoint: [String]
+    let environment: [DockerImageEnvironmentVariable]
+    let exposedPorts: [DockerImagePort]
+    let volumes: [String]
+    let sizeBytes: Int64?
+    let virtualSizeBytes: Int64?
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case author
+        case dockerVersion = "docker_version"
+        case digest
+        case command = "cmd"
+        case entrypoint
+        case environment = "env"
+        case exposedPorts = "ports"
+        case volumes
+        case sizeBytes = "size"
+        case virtualSizeBytes = "virtual_size"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        id = values.flexString(.id) ?? ""
+        author = values.flexString(.author) ?? ""
+        dockerVersion = values.flexString(.dockerVersion) ?? ""
+        digest = values.flexString(.digest).flatMap { $0.isEmpty ? nil : $0 }
+        command = try values.decodeIfPresent([String].self, forKey: .command) ?? []
+        entrypoint = try values.decodeIfPresent([String].self, forKey: .entrypoint) ?? []
+        environment = try values.decodeIfPresent(
+            [DockerImageEnvironmentVariable].self,
+            forKey: .environment
+        ) ?? []
+        exposedPorts = try values.decodeIfPresent([DockerImagePort].self, forKey: .exposedPorts) ?? []
+        volumes = try values.decodeIfPresent([String].self, forKey: .volumes) ?? []
+        sizeBytes = values.flexInt64(.sizeBytes)
+        virtualSizeBytes = values.flexInt64(.virtualSizeBytes)
+    }
+}
+
+struct DockerImageEnvironmentVariable: nonisolated Decodable, Identifiable, Hashable, Sendable {
+    let key: String
+    let value: String
+
+    var id: String { key }
+
+    enum CodingKeys: String, CodingKey {
+        case key
+        case value
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        key = try values.requiredFlexString(.key)
+        value = values.flexString(.value) ?? ""
+    }
+}
+
+/// A port the image declares. Captured on DSM 7.4: the port arrives as a **string**.
+struct DockerImagePort: nonisolated Decodable, Identifiable, Hashable, Sendable {
+    let port: String
+    let networkProtocol: String
+
+    var id: String { "\(port)/\(networkProtocol)" }
+
+    /// What Docker itself writes, and what a Dockerfile shows: `8080/tcp`.
+    var displayName: String {
+        networkProtocol.isEmpty ? port : "\(port)/\(networkProtocol)"
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case port
+        case networkProtocol = "protocol"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        port = try values.requiredFlexString(.port)
+        networkProtocol = values.flexString(.networkProtocol) ?? ""
     }
 }
 

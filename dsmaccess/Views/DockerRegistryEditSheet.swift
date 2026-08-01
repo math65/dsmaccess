@@ -82,6 +82,9 @@ struct DockerRegistryEditSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel(isEditing
+                                ? String(localized: "containers.registry.edit.title")
+                                : String(localized: "containers.registry.add.title"))
             .navigationTitle(isEditing ? "containers.registry.edit.title" : "containers.registry.add.title")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
