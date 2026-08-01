@@ -326,6 +326,29 @@ protocol DSMClientProtocol: AnyObject {
     func setDockerNetworkContainers(networkName: String, containerNames: [String]) async throws
     func dockerNetworkContainers() async throws -> [DockerNetworkContainer]
     func dockerRegistries() async throws -> DockerRegistryList
+    func createDockerRegistry(
+        name: String,
+        url: String,
+        username: String,
+        password: String,
+        trustsSelfSignedCertificate: Bool
+    ) async throws
+    func updateDockerRegistry(
+        oldName: String,
+        name: String,
+        url: String,
+        username: String,
+        password: String,
+        trustsSelfSignedCertificate: Bool
+    ) async throws
+    func deleteDockerRegistry(named name: String) async throws
+    func useDockerRegistry(named name: String) async throws
+    func searchDockerImages(
+        keyword: String,
+        offset: Int,
+        limit: Int
+    ) async throws -> DockerRegistrySearchPage
+    func dockerImageTags(repository: String) async throws -> [DockerImageTag]
     func deleteContainer(name: String) async throws
     func containerProcesses(name: String) async throws -> [ContainerProcess]
     func pruneDockerImages() async throws
@@ -1314,6 +1337,60 @@ final class DSMClient: DSMClientProtocol {
 
     func dockerRegistries() async throws -> DockerRegistryList {
         try await containers.registries()
+    }
+
+    func createDockerRegistry(
+        name: String,
+        url: String,
+        username: String,
+        password: String,
+        trustsSelfSignedCertificate: Bool
+    ) async throws {
+        try await containers.createRegistry(
+            name: name,
+            url: url,
+            username: username,
+            password: password,
+            trustsSelfSignedCertificate: trustsSelfSignedCertificate
+        )
+    }
+
+    func updateDockerRegistry(
+        oldName: String,
+        name: String,
+        url: String,
+        username: String,
+        password: String,
+        trustsSelfSignedCertificate: Bool
+    ) async throws {
+        try await containers.updateRegistry(
+            oldName: oldName,
+            name: name,
+            url: url,
+            username: username,
+            password: password,
+            trustsSelfSignedCertificate: trustsSelfSignedCertificate
+        )
+    }
+
+    func deleteDockerRegistry(named name: String) async throws {
+        try await containers.deleteRegistry(named: name)
+    }
+
+    func useDockerRegistry(named name: String) async throws {
+        try await containers.useRegistry(named: name)
+    }
+
+    func searchDockerImages(
+        keyword: String,
+        offset: Int,
+        limit: Int
+    ) async throws -> DockerRegistrySearchPage {
+        try await containers.searchImages(keyword: keyword, offset: offset, limit: limit)
+    }
+
+    func dockerImageTags(repository: String) async throws -> [DockerImageTag] {
+        try await containers.imageTags(repository: repository)
     }
 
     func deleteContainer(name: String) async throws {

@@ -75,8 +75,17 @@ struct DockerRegistry: nonisolated Decodable, Identifiable, Hashable, Sendable {
     let usesRegistryMirror: Bool
     let mirrorURLs: [String]
     let trustsSelfSignedCertificate: Bool
+    /// Account the registry signs in with, empty when it needs none. Captured on DSM 7.4: the
+    /// password is never returned, so an edit form cannot prefill it.
+    let username: String
 
     var id: String { name }
+
+    /// Docker Hub cannot be removed, and DSM decides that on the **name** rather than on the
+    /// `syno` flag — verified in Container Manager's own client.
+    var isDefaultRegistry: Bool {
+        name.caseInsensitiveCompare("Docker Hub") == .orderedSame
+    }
 
     enum CodingKeys: String, CodingKey {
         case name
@@ -85,6 +94,7 @@ struct DockerRegistry: nonisolated Decodable, Identifiable, Hashable, Sendable {
         case usesRegistryMirror = "enable_registry_mirror"
         case mirrorURLs = "mirror_urls"
         case trustsSelfSignedCertificate = "enable_trust_SSC"
+        case username
     }
 
     nonisolated init(from decoder: Decoder) throws {
@@ -95,6 +105,77 @@ struct DockerRegistry: nonisolated Decodable, Identifiable, Hashable, Sendable {
         usesRegistryMirror = values.flexBool(.usesRegistryMirror) ?? false
         mirrorURLs = try values.decodeIfPresent([String].self, forKey: .mirrorURLs) ?? []
         trustsSelfSignedCertificate = values.flexBool(.trustsSelfSignedCertificate) ?? false
+        username = values.flexString(.username) ?? ""
+    }
+}
+
+/// One image found by `SYNO.Docker.Registry search`, which queries the active registry only.
+struct DockerRegistrySearchResult: nonisolated Decodable, Identifiable, Hashable, Sendable {
+    let name: String
+    let descriptionText: String
+    let downloads: Int64?
+    let starCount: Int?
+    let isOfficial: Bool
+    let isAutomated: Bool
+    /// URL of the registry that answered, which is the active one.
+    let registry: String
+
+    var id: String { name }
+
+    enum CodingKeys: String, CodingKey {
+        case name
+        case descriptionText = "description"
+        case downloads
+        case starCount = "star_count"
+        case isOfficial = "is_official"
+        case isAutomated = "is_automated"
+        case registry
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        name = try values.requiredFlexString(.name)
+        descriptionText = values.flexString(.descriptionText) ?? ""
+        downloads = values.flexInt64(.downloads)
+        starCount = values.flexInt(.starCount)
+        isOfficial = values.flexBool(.isOfficial) ?? false
+        isAutomated = values.flexBool(.isAutomated) ?? false
+        registry = values.flexString(.registry) ?? ""
+    }
+}
+
+/// A page of search results. Captured on DSM 7.4: the results sit under a **second** `data`
+/// key inside the response payload, not under `images` as Container Manager's own JavaScript
+/// suggests — its `title`/`stars`/`link` are display names, not wire fields.
+struct DockerRegistrySearchPage: nonisolated Decodable, Sendable {
+    let results: [DockerRegistrySearchResult]
+    let total: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case results = "data"
+        case total
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        results = try values.decodeIfPresent([DockerRegistrySearchResult].self, forKey: .results) ?? []
+        total = values.flexInt(.total)
+    }
+}
+
+/// One available version of an image, as `SYNO.Docker.Registry tags` returns it.
+struct DockerImageTag: nonisolated Decodable, Identifiable, Hashable, Sendable {
+    let tag: String
+
+    var id: String { tag }
+
+    enum CodingKeys: String, CodingKey {
+        case tag
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        tag = try values.requiredFlexString(.tag)
     }
 }
 

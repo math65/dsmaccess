@@ -10,11 +10,11 @@ import SwiftUI
 
 struct ContainersView: View {
     /// Container Manager's own sections, minus those its package does not expose here.
-    /// Registries are folded into the Images tab: the DSM screen for them is one row.
     private enum Pane: String, CaseIterable, Identifiable {
         case containers
         case projects
         case images
+        case registries
         case networks
         case log
 
@@ -24,6 +24,7 @@ struct ContainersView: View {
     @State private var pane = Pane.containers
     @State private var projects: DockerProjectsViewModel
     @State private var images: DockerImagesViewModel
+    @State private var registries: DockerRegistriesViewModel
     @State private var networks: DockerNetworksViewModel
     @State private var log: DockerLogViewModel
     private let session: SessionStore
@@ -32,6 +33,7 @@ struct ContainersView: View {
         self.session = session
         _projects = State(initialValue: DockerProjectsViewModel(session: session))
         _images = State(initialValue: DockerImagesViewModel(session: session))
+        _registries = State(initialValue: DockerRegistriesViewModel(session: session))
         _networks = State(initialValue: DockerNetworksViewModel(session: session))
         _log = State(initialValue: DockerLogViewModel(session: session))
     }
@@ -53,6 +55,11 @@ struct ContainersView: View {
                     DockerImagesView(vm: images)
                         .tabItem { Text("containers.tab.images") }
                         .tag(Pane.images)
+                }
+                if session.capabilities.supports("SYNO.Docker.Registry") {
+                    DockerRegistriesView(vm: registries, images: images)
+                        .tabItem { Text("containers.tab.registries") }
+                        .tag(Pane.registries)
                 }
                 if session.capabilities.supports("SYNO.Docker.Network") {
                     DockerNetworksView(vm: networks)
