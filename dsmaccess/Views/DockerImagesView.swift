@@ -7,15 +7,32 @@
 //
 
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct DockerImagesView: View {
     @Bindable var vm: DockerImagesViewModel
     @State private var order = [KeyPathComparator(\DockerImage.displayName)]
     @State private var selection: DockerImage.ID?
     @State private var pendingDelete: DockerImage?
+    @State private var detailedImage: DockerImage?
+    @State private var archiveMode: ArchiveMode?
+    @State private var isImportingFromMac = false
     @State private var isPresentingPull = false
     @State private var isConfirmingPrune = false
     @AccessibilityFocusState private var focusContent: Bool
+
+    /// `.sheet(item:)` needs something identifiable, and what the sheet shows has to travel
+    /// with its presentation rather than be read from a separate state when it draws.
+    private struct ArchiveMode: Identifiable {
+        let kind: DockerImageArchiveSheet.Mode
+
+        var id: String {
+            switch kind {
+            case .export(let image): "export-\(image.id)"
+            case .importArchive: "import"
+            }
+        }
+    }
 
     var body: some View {
         content
@@ -25,6 +42,28 @@ struct DockerImagesView: View {
             }
             .sheet(isPresented: $isPresentingPull) {
                 DockerImagePullSheet(vm: vm)
+            }
+            .sheet(item: $detailedImage) { image in
+                DockerImageDetailSheet(image: image, vm: vm)
+            }
+            .sheet(item: $archiveMode) { mode in
+                DockerImageArchiveSheet(mode: mode.kind, vm: vm)
+            }
+            .fileImporter(
+                isPresented: $isImportingFromMac,
+                allowedContentTypes: [.data],
+                allowsMultipleSelection: false
+            ) { result in
+                switch result {
+                case .success(let urls):
+                    guard let url = urls.first else { return }
+                    Task { await sendFromMac(url) }
+                case .failure(let error):
+                    VoiceOver.announce(
+                        .failure(error.localizedDescription),
+                        priority: .high
+                    )
+                }
             }
             .confirmationDialog(
                 "containers.image.prune.confirm.title",
@@ -106,6 +145,8 @@ struct DockerImagesView: View {
                 .accessibilityFocused($focusContent)
                 .contextMenu(forSelectionType: DockerImage.ID.self) { ids in
                     if let image = vm.images.first(where: { ids.contains($0.id) }) {
+                        Button("containers.image.action.detail") { detailedImage = image }
+                        Divider()
                         Button("common.button.delete", role: .destructive) { pendingDelete = image }
                     }
                 }
@@ -129,12 +170,37 @@ struct DockerImagesView: View {
             .disabled(vm.isPulling)
             .help("containers.image.action.pull.hint")
 
+            Button("containers.image.action.detail") {
+                detailedImage = selectedImage
+            }
+            .disabled(selectedImage == nil)
+            .help("containers.image.action.detail.hint")
+
             Button("containers.image.action.upgrade") {
                 guard let image = selectedImage else { return }
                 Task { VoiceOver.announce(await vm.upgrade(image), priority: .high) }
             }
             .disabled(selectedImage?.isUpgradable != true || selectedIsBusy || vm.isPulling)
             .help("containers.image.action.upgrade.hint")
+
+            Menu("containers.image.action.transfer") {
+                Button("containers.image.import.from_nas") {
+                    archiveMode = ArchiveMode(kind: .importArchive)
+                }
+                Button("containers.image.import.from_mac") {
+                    isImportingFromMac = true
+                }
+                Divider()
+                Button("containers.image.action.export") {
+                    guard let image = selectedImage else { return }
+                    archiveMode = ArchiveMode(kind: .export(image))
+                }
+                .disabled(selectedImage == nil)
+            }
+            .menuStyle(.borderlessButton)
+            .fixedSize()
+            .disabled(vm.isTransferring || vm.isPulling)
+            .help("containers.image.action.transfer.hint")
 
             Button("containers.image.prune") {
                 isConfirmingPrune = true
@@ -148,11 +214,11 @@ struct DockerImagesView: View {
             .disabled(selectedImage == nil || selectedIsBusy)
             .help("containers.image.action.delete.hint")
 
-            if vm.isPulling, let pullDescription = vm.pullDescription {
+            if let progress = vm.pullDescription ?? vm.transferDescription {
                 ProgressView()
                     .controlSize(.small)
                     .accessibilityHidden(true)
-                Text(pullDescription)
+                Text(progress)
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)
             }
@@ -176,6 +242,19 @@ struct DockerImagesView: View {
             localized: "containers.image.delete.confirm.title",
             defaultValue: "Delete “\(pendingDelete?.displayName ?? "")”?"
         ))
+    }
+
+    /// Sending a file the sandbox does not otherwise reach: the panel hands over a
+    /// security-scoped URL, and access has to be held for the whole upload.
+    private func sendFromMac(_ url: URL) async {
+        let scoped = url.startAccessingSecurityScopedResource()
+        defer { if scoped { url.stopAccessingSecurityScopedResource() } }
+
+        VoiceOver.announce(
+            String(localized: "containers.image.upload.in_progress"),
+            category: .progress
+        )
+        VoiceOver.announce(await vm.uploadImage(at: url), priority: .high)
     }
 
     private func load(announce: Bool) async {
@@ -220,6 +299,7 @@ struct DockerImagePullSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("containers.image.pull.title")
             .navigationTitle("containers.image.pull.title")
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {

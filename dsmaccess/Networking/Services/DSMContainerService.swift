@@ -433,6 +433,87 @@ final class DSMContainerService {
         }
     }
 
+    /// Writes an image to a folder on the NAS as a `.syno.tar` archive.
+    ///
+    /// Captured contract, and both halves cost a measurement: **`path` is a folder, not a
+    /// file** — a file path answers 117 — and the three parameters are all required. DSM names
+    /// the archive itself, `alpine(latest).syno.tar`, so the caller cannot choose it.
+    ///
+    /// The reply carries a `task_id` that nothing can poll: `FileStation.BackgroundTask` never
+    /// lists it, and Container Manager's own client throws it away. Small images are written
+    /// before the call returns; a large one offers no progress to report.
+    func exportImage(repository: String, tag: String, folderPath: String) async throws {
+        try await transport.perform(
+            api: Self.imageAPI,
+            method: "export",
+            parameters: [
+                "repo": .string(repository),
+                "tag": .string(tag),
+                "path": .string(folderPath),
+            ]
+        )
+    }
+
+    /// Loads an image from an archive already sitting on the NAS. The path is relative to the
+    /// shared folder, as everywhere else in this module.
+    func importImage(path: String) async throws {
+        try await transport.perform(
+            api: Self.imageAPI,
+            method: "import",
+            parameters: ["path": .string(path)]
+        )
+    }
+
+    /// Sends an archive from the Mac. Captured contract: api, method and version travel in the
+    /// query as with every other DSM upload, and **the file field is named `filename`** — using
+    /// `file` earns a 114 whose `errors` names the field DSM wanted.
+    func uploadImage(
+        at fileURL: URL,
+        progress: @escaping DSMTransferProgressHandler
+    ) async throws {
+        let boundary = "Boundary-\(UUID().uuidString)"
+        let route = try await transport.multipartRoute(api: Self.imageAPI, method: "upload")
+        let resolved = try await transport.resolvedAPI(Self.imageAPI)
+        let uploadURL = try transport.makeURL(path: resolved.path, parameters: route.fields)
+        let bodyURL = try await MultipartBodyFile.create(
+            fields: [:],
+            fileURL: fileURL,
+            fileFieldName: "filename",
+            boundary: boundary
+        )
+        defer { try? FileManager.default.removeItem(at: bodyURL) }
+
+        var request = URLRequest(url: uploadURL)
+        request.httpMethod = "POST"
+        request.timeoutInterval = 900
+        request.setValue(
+            "multipart/form-data; boundary=\(boundary)",
+            forHTTPHeaderField: "Content-Type"
+        )
+        let (data, response) = try await transport.upload(
+            for: request,
+            fromFile: bodyURL,
+            progress: progress
+        )
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200..<300).contains(httpResponse.statusCode) else {
+            throw DSMError.invalidResponse
+        }
+        let result = try await DSMTransport.decodeResponse(EmptyData.self, from: data)
+        guard result.success else { throw transport.error(from: result.error) }
+    }
+
+    /// What an image declares about itself. Captured contract: `identity` alone is enough, and
+    /// it is the image identifier from `list`, not its name.
+    func imageDetail(identity: String) async throws -> DockerImageDetail {
+        try await transport.read(
+            api: Self.imageAPI,
+            method: "get",
+            parameters: ["identity": .string(identity)],
+            as: DockerImageDetail.self
+        )
+    }
+
     // MARK: - Registries
 
     func registries() async throws -> DockerRegistryList {

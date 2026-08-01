@@ -513,6 +513,77 @@ struct DSMContainerServiceTests {
         #expect(parameters["offset"] == "0")
     }
 
+    /// Captured contract: `path` is the **folder**, not the file — a file path answers 117 —
+    /// and all three parameters are required.
+    @Test func exportsAnImageIntoAFolderAndNotOntoAFilePath() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"task_id":"@administrators/SYNO_DOCKER"}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.exportImage(repository: "alpine", tag: "latest", folderPath: "/docker")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.Docker.Image")
+        #expect(parameters["method"] == "export")
+        #expect(parameters["repo"] == #""alpine""#)
+        #expect(parameters["tag"] == #""latest""#)
+        #expect(parameters["path"] == #""\/docker""#)
+    }
+
+    @Test func importsAnArchiveThroughItsPathRelativeToTheShare() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.importImage(path: "/docker/alpine(latest).syno.tar")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "import")
+        #expect(parameters["path"] == #""\/docker\/alpine(latest).syno.tar""#)
+    }
+
+    /// DSM names the exported archive itself, so the app works the name out the same way to
+    /// be able to say where the file landed.
+    @Test func buildsTheArchiveNameDSMWillChoose() throws {
+        let payload = Data(
+            #"{"images":[{"repository":"containrrr/watchtower","tags":["latest"],"id":"sha256:a"}]}"#.utf8
+        )
+        let list = try JSONDecoder().decode(DockerImageList.self, from: payload)
+        let image = try #require(list.images.first)
+
+        #expect(image.exportArchiveName(tag: "latest") == "containrrr-watchtower(latest).syno.tar")
+    }
+
+    /// Captured contract: `identity` alone, and the reply carries `image` and `tag` that are
+    /// always empty — the name has to come from the listing. `digest` arrives null, and the
+    /// exposed ports arrive as strings.
+    @Test func decodesImageDetailWithStringPortsAndNullDigest() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"author":"","cmd":[],"digest":null,"docker_version":"","entrypoint":["/watchtower"],"env":[{"key":"PATH","value":"/usr/local/sbin:/usr/bin"}],"id":"sha256:e7dd50d07b86","image":"","ports":[{"port":"8080","protocol":"tcp"}],"size":14682465,"tag":"","virtual_size":14682465,"volumes":["/config"]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub)
+
+        let detail = try await service.imageDetail(identity: "sha256:e7dd50d07b86")
+
+        #expect(detail.digest == nil)
+        #expect(detail.entrypoint == ["/watchtower"])
+        #expect(detail.command.isEmpty)
+        #expect(detail.volumes == ["/config"])
+        #expect(detail.sizeBytes == 14_682_465)
+        let port = try #require(detail.exposedPorts.first)
+        #expect(port.port == "8080")
+        #expect(port.displayName == "8080/tcp")
+        let variable = try #require(detail.environment.first)
+        #expect(variable.key == "PATH")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.Docker.Image")
+        #expect(parameters["method"] == "get")
+        #expect(parameters["identity"] == #""sha256:e7dd50d07b86""#)
+    }
+
     // MARK: - Registries
 
     @Test func decodesRegistryListWithTheActiveRegistryAndItsAccount() async throws {

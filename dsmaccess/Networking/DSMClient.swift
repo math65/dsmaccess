@@ -312,6 +312,13 @@ protocol DSMClientProtocol: AnyObject {
     func updateDockerProject(id: String, content: String) async throws
     func deleteDockerProject(id: String) async throws
     func listDockerImages() async throws -> [DockerImage]
+    func dockerImageDetail(identity: String) async throws -> DockerImageDetail
+    func exportDockerImage(repository: String, tag: String, folderPath: String) async throws
+    func importDockerImage(path: String) async throws
+    func uploadDockerImage(
+        at fileURL: URL,
+        progress: @escaping DSMTransferProgressHandler
+    ) async throws
     func deleteDockerImage(repository: String, tags: [String]) async throws
     func startDockerImagePull(repository: String, tag: String) async throws -> DockerImagePullTask
     func dockerImagePullStatus(taskID: String) async throws -> DockerImagePullStatus
@@ -1288,6 +1295,29 @@ final class DSMClient: DSMClientProtocol {
 
     func listDockerImages() async throws -> [DockerImage] {
         try await containers.images()
+    }
+
+    func dockerImageDetail(identity: String) async throws -> DockerImageDetail {
+        try await containers.imageDetail(identity: identity)
+    }
+
+    func exportDockerImage(repository: String, tag: String, folderPath: String) async throws {
+        try await containers.exportImage(
+            repository: repository,
+            tag: tag,
+            folderPath: folderPath
+        )
+    }
+
+    func importDockerImage(path: String) async throws {
+        try await containers.importImage(path: path)
+    }
+
+    func uploadDockerImage(
+        at fileURL: URL,
+        progress: @escaping DSMTransferProgressHandler
+    ) async throws {
+        try await containers.uploadImage(at: fileURL, progress: progress)
     }
 
     func deleteDockerImage(repository: String, tags: [String]) async throws {
