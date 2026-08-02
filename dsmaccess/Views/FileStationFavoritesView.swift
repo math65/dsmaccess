@@ -17,6 +17,7 @@ struct FileStationFavoritesView: View {
     @State private var pendingRemoval: FileStationFavorite?
     @State private var confirmsBrokenCleanup = false
     @State private var isMutating = false
+    @State private var selection = Set<FileStationFavorite.ID>()
     @State private var operationError: String?
     @AccessibilityFocusState private var focusHeading: Bool
     @AccessibilityFocusState private var focusStatus: Bool
@@ -146,7 +147,7 @@ struct FileStationFavoritesView: View {
             // No sortable columns here: the row order is the favorite order that DSM stores,
             // and it is what the move up/down buttons act on. Sorting by name would leave
             // those buttons acting on an order the user can no longer see.
-            Table(vm.managedFavorites) {
+            Table(vm.managedFavorites, selection: $selection) {
                 TableColumn("common.column.name") { favorite in
                     Text(favorite.name)
                 }
@@ -159,11 +160,13 @@ struct FileStationFavoritesView: View {
                     Text(favorite.statusDescription)
                         .foregroundStyle(favorite.isAvailable ? .readableSecondary : .readableOrange)
                 }
-                TableColumn("common.column.actions") { favorite in
+            }
+            .accessibilityLabel("common.action.file_station_favorites")
+            .contextMenu(forSelectionType: FileStationFavorite.ID.self) { ids in
+                if let favorite = vm.managedFavorites.first(where: { ids.contains($0.id) }) {
                     favoriteActions(favorite)
                 }
             }
-            .accessibilityLabel("common.action.file_station_favorites")
         }
     }
 
@@ -182,41 +185,35 @@ struct FileStationFavoritesView: View {
         .padding()
     }
 
-    /// The actions stay in a column rather than a context menu: two of them are enabled only
-    /// depending on the row's position, which a hidden menu would not convey.
+    /// Move up and move down stay in the menu even when they cannot apply, disabled rather
+    /// than removed: a menu whose entries come and go leaves the user unable to learn it.
+    @ViewBuilder
     private func favoriteActions(_ favorite: FileStationFavorite) -> some View {
-        HStack(spacing: 6) {
-            Button("common.button.open", systemImage: "arrow.forward") {
-                open(favorite)
-                dismiss()
-            }
-            .labelStyle(.iconOnly)
-            .disabled(!favorite.isAvailable || isMutating)
-            .help("favorites.open.label")
-            Button("common.button.rename", systemImage: "pencil") { editingFavorite = favorite }
-                .labelStyle(.iconOnly)
-                .disabled(isMutating)
-                .help("favorites.rename.label")
-            Button("common.button.move_up", systemImage: "arrow.up") {
-                Task { await move(favorite, by: -1) }
-            }
-            .labelStyle(.iconOnly)
-            .disabled(!canMove(favorite, by: -1) || isMutating)
-            .help("favorites.move_up.label")
-            Button("common.button.move_down", systemImage: "arrow.down") {
-                Task { await move(favorite, by: 1) }
-            }
-            .labelStyle(.iconOnly)
-            .disabled(!canMove(favorite, by: 1) || isMutating)
-            .help("favorites.move_down.label")
-            Button("favorites.remove.button", systemImage: "trash", role: .destructive) {
-                pendingRemoval = favorite
-            }
-            .labelStyle(.iconOnly)
-            .disabled(isMutating)
-            .help("favorites.remove.label")
+        Button("common.button.open") {
+            open(favorite)
+            dismiss()
         }
-        .accessibilityElement(children: .contain)
+        .disabled(!favorite.isAvailable || isMutating)
+
+        Button("common.button.rename") { editingFavorite = favorite }
+            .disabled(isMutating)
+
+        Button("common.button.move_up") {
+            Task { await move(favorite, by: -1) }
+        }
+        .disabled(!canMove(favorite, by: -1) || isMutating)
+
+        Button("common.button.move_down") {
+            Task { await move(favorite, by: 1) }
+        }
+        .disabled(!canMove(favorite, by: 1) || isMutating)
+
+        Divider()
+
+        Button("favorites.remove.button", role: .destructive) {
+            pendingRemoval = favorite
+        }
+        .disabled(isMutating)
     }
 
     private var emptyTitle: LocalizedStringKey {
