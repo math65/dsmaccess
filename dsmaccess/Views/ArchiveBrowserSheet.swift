@@ -137,31 +137,31 @@ struct ArchiveBrowserSheet: View {
             )
             .accessibilityFocused($focusStatus)
         } else {
-            List(vm.archiveItems, selection: $selection) { item in
-                HStack(spacing: 10) {
-                    Image(systemName: item.isDirectory ? "folder" : "doc")
-                        .foregroundStyle(item.isDirectory ? Color.accentColor : Color.secondary)
-                        .accessibilityHidden(true)
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text(item.name)
-                        HStack(spacing: 8) {
-                            Text(item.size, format: .byteCount(style: .file))
-                            Text(String(localized: "files.archive.compressed_size.value", defaultValue: "Compressed: \(item.packedSize.formatted(.byteCount(style: .file)))"))
-                            Text(item.modificationTime)
-                        }
-                        .font(.caption)
-                        .foregroundStyle(.readableSecondary)
-                    }
-                    Spacer()
-                    if item.isDirectory {
-                        Button("common.button.open") { open(item) }
-                            .help(String(localized: "files.archive.entry.open.hint", defaultValue: "Open \(item.name) in the archive"))
-                    }
+            // No sortable columns: the sort is the one the controls above ask DSM for, and
+            // sorting by header would silently override the choice the user just made.
+            Table(vm.archiveItems, selection: $selection) {
+                TableColumn("common.column.name") { item in
+                    Text(item.name)
                 }
-                .tag(item.itemID)
-                .accessibilityElement(children: .contain)
+                TableColumn("common.column.kind") { item in
+                    Text(item.kindDescription)
+                }
+                TableColumn("common.column.size") { item in
+                    Text(item.size, format: .byteCount(style: .file))
+                }
+                TableColumn("files.archive.column.compressed_size") { item in
+                    Text(item.packedSize, format: .byteCount(style: .file))
+                }
+                TableColumn("common.column.date_modified") { item in
+                    Text(item.modificationTime)
+                }
             }
             .accessibilityLabel("files.archive.title")
+            .contextMenu(forSelectionType: FileStationArchiveItem.ID.self) { ids in
+                if let item = vm.archiveItems.first(where: { ids.contains($0.itemID) && $0.isDirectory }) {
+                    Button("common.button.open") { open(item) }
+                }
+            }
         }
     }
 

@@ -22,6 +22,8 @@ struct PackagesView: View {
     @State private var searchText = ""
     @State private var filter = PackageFilter.all
     @State private var catalogFilter = CatalogFilter.all
+    @State private var selection = Set<PackageInfo.ID>()
+    @State private var order = [KeyPathComparator(\PackageInfo.sortableName, order: .forward)]
     @State private var refreshTask: Task<Void, Never>?
     @State private var operationTask: Task<Void, Never>?
     @State private var operationError: String?
@@ -365,86 +367,97 @@ struct PackagesView: View {
                 description: Text("packages.search.empty.description")
             )
         } else {
-            List(filteredPackages) { package in
-                row(for: package)
+            Table(
+                filteredPackages.sorted(using: order),
+                selection: $selection,
+                sortOrder: $order
+            ) {
+                TableColumn("common.column.name", value: \.sortableName) { package in
+                    Text(package.displayName)
+                }
+                TableColumn("common.column.identifier", value: \.pkgId) { package in
+                    Text(package.pkgId)
+                }
+                TableColumn("common.column.version", value: \.sortableVersion) { package in
+                    Text(package.version?.isEmpty == false ? package.version! : "—")
+                }
+                // Not sortable: the available update comes from the catalog the view model
+                // holds, not from the package itself, so there is no key path to sort on.
+                TableColumn("packages.column.available_update") { package in
+                    Text(vm.updateVersion(for: package) ?? "—")
+                        .foregroundStyle(
+                            vm.updateVersion(for: package) == nil ? .readableSecondary : .readableOrange
+                        )
+                }
+                TableColumn("common.column.state", value: \.sortableStatus) { package in
+                    Text(statusText(for: package))
+                        .foregroundStyle(package.requiresAttention ? .readableRed : .readableSecondary)
+                }
+                TableColumn("packages.column.uninstall", value: \.sortableUninstall) { package in
+                    Text(package.uninstallDescription)
+                }
             }
             .accessibilityLabel("packages.installed.table.label")
             .accessibilityFocused($focusContent)
+            .contextMenu(forSelectionType: PackageInfo.ID.self) { ids in
+                if let package = vm.packages.first(where: { ids.contains($0.id) }) {
+                    packageActions(for: package)
+                }
+            }
         }
     }
 
-    private func row(for package: PackageInfo) -> some View {
-        HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(package.displayName).fontWeight(.medium)
-                Text(package.pkgId)
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-                if let version = package.version, !version.isEmpty {
-                    Text(String(localized: "packages.version.label", defaultValue: "Version \(version)"))
-                        .font(.caption)
-                        .foregroundStyle(.readableSecondary)
-                }
-                if let newVersion = vm.updateVersion(for: package) {
-                    Text(String(localized: "packages.update.available.label", defaultValue: "Update available: \(newVersion)"))
-                        .font(.caption)
-                        .foregroundStyle(.readableOrange)
-                }
-                Text(package.statusText)
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-                if package.requiresAttention {
-                    Text("common.status.repair_required")
-                        .font(.caption)
-                        .foregroundStyle(.readableRed)
-                } else if package.hasUninstallOptions {
-                    Text("packages.uninstall.assistant_required.title")
-                        .font(.caption)
-                        .foregroundStyle(.readableSecondary)
-                }
-            }
-            Spacer()
-            Button("common.button.details", systemImage: "info.circle") { detailsPackage = package }
-                .labelStyle(.iconOnly)
-                .help("packages.details.button")
-            control(for: package)
+    /// An operation in progress used to show as a spinner beside the row, which said nothing
+    /// on its own. It is written in the state column instead.
+    private func statusText(for package: PackageInfo) -> String {
+        vm.busy.contains(package.id)
+            ? String(
+                localized: "common.status.operation_in_progress",
+                defaultValue: "Operation in progress for \(package.displayName)"
+            )
+            : package.statusText
+    }
+
+    @ViewBuilder
+    private func packageActions(for package: PackageInfo) -> some View {
+        Button("common.button.details") { detailsPackage = package }
+
+        Divider()
+
+        if vm.canRepair(package) {
+            Button("packages.repair.menu") { pendingRepair = package }
+                .disabled(vm.busy.contains(package.id) || operationTask != nil)
+            Divider()
         }
-        .contextMenu {
-            if vm.canRepair(package) {
-                Button("packages.repair.menu") { pendingRepair = package }
-                    .disabled(vm.busy.contains(package.id) || operationTask != nil)
+        if let version = vm.updateVersion(for: package) {
+            Button("packages.update.menu") { pendingUpdate = package }
+                .disabled(
+                    vm.busy.contains(package.id)
+                        || !vm.canApplyUpdates
+                        || operationTask != nil
+                )
+                .help(
+                    String(
+                        localized: "common.action.update_package",
+                        defaultValue: "Update \(package.displayName) to version \(version)"
+                    )
+                )
+            if package.canStartStop || package.canUninstall {
                 Divider()
             }
-            if let version = vm.updateVersion(for: package) {
-                Button("packages.update.menu") { pendingUpdate = package }
-                    .disabled(
-                        vm.busy.contains(package.id)
-                            || !vm.canApplyUpdates
-                            || operationTask != nil
-                    )
-                    .help(
-                        String(
-                            localized: "common.action.update_package",
-                            defaultValue: "Update \(package.displayName) to version \(version)"
-                        )
-                    )
-                if package.canStartStop || package.canUninstall {
-                    Divider()
-                }
+        }
+        if package.canStartStop, vm.capabilities?.canControlPackages == true {
+            Button(package.isRunning ? "common.button.stop" : "common.button.start") {
+                setRunning(package, running: !package.isRunning)
             }
-            if package.canStartStop, vm.capabilities?.canControlPackages == true {
-                Button(package.isRunning ? "common.button.stop" : "common.button.start") {
-                    setRunning(package, running: !package.isRunning)
-                }
+            .disabled(vm.busy.contains(package.id) || operationTask != nil)
+            .help(package.isRunning ? "packages.stop.hint" : "packages.start.hint")
+        }
+        if vm.canSafelyUninstall(package) {
+            if package.canStartStop { Divider() }
+            Button("packages.uninstall.menu", role: .destructive) { pendingUninstall = package }
                 .disabled(vm.busy.contains(package.id) || operationTask != nil)
-                .help(package.isRunning ? "packages.stop.hint" : "packages.start.hint")
-            }
-            if vm.canSafelyUninstall(package) {
-                if package.canStartStop { Divider() }
-                Button("packages.uninstall.menu", role: .destructive) { pendingUninstall = package }
-                    .disabled(vm.busy.contains(package.id) || operationTask != nil)
-                    .help("packages.uninstall.hint")
-            }
+                .help("packages.uninstall.hint")
         }
     }
 
@@ -461,63 +474,6 @@ struct PackagesView: View {
                 || package.displayName.localizedStandardContains(searchText)
                 || package.pkgId.localizedStandardContains(searchText)
             return matchesFilter && matchesSearch
-        }
-    }
-
-    @ViewBuilder
-    private func control(for package: PackageInfo) -> some View {
-        let isBusy = vm.busy.contains(package.id)
-        HStack(spacing: 8) {
-            if isBusy {
-                ProgressView()
-                    .controlSize(.small)
-                    .accessibilityLabel(String(localized: "common.status.operation_in_progress", defaultValue: "Operation in progress for \(package.displayName)"))
-            }
-            if let version = vm.updateVersion(for: package) {
-                Button("common.button.update") { pendingUpdate = package }
-                    .disabled(isBusy || !vm.canApplyUpdates || operationTask != nil)
-                    .accessibilityLabel(
-                        String(
-                            localized: "common.action.update_package",
-                            defaultValue: "Update \(package.displayName) to version \(version)"
-                        )
-                    )
-                    .help(
-                        String(
-                            localized: "common.action.update_package",
-                            defaultValue: "Update \(package.displayName) to version \(version)"
-                        )
-                    )
-            }
-            if vm.canRepair(package) {
-                Button("packages.repair.button") { pendingRepair = package }
-                    .disabled(isBusy || operationTask != nil)
-                    .accessibilityLabel(String(localized: "packages.repair.action", defaultValue: "Repair \(package.displayName)"))
-                    .help(String(localized: "packages.repair.action", defaultValue: "Repair \(package.displayName)"))
-            }
-            if package.canStartStop, vm.capabilities?.canControlPackages == true {
-                if package.isRunning {
-                    Button("common.button.stop") { setRunning(package, running: false) }
-                        .disabled(isBusy || operationTask != nil)
-                        .accessibilityLabel(String(localized: "packages.stop.action", defaultValue: "Stop \(package.displayName)"))
-                        .help(String(localized: "packages.stop.action", defaultValue: "Stop \(package.displayName)"))
-                } else {
-                    Button("common.button.start") { setRunning(package, running: true) }
-                        .disabled(isBusy || operationTask != nil)
-                        .accessibilityLabel(String(localized: "packages.start.action", defaultValue: "Start \(package.displayName)"))
-                        .help(String(localized: "packages.start.action", defaultValue: "Start \(package.displayName)"))
-                }
-            }
-            if vm.canSafelyUninstall(package) {
-                Button(role: .destructive) {
-                    pendingUninstall = package
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .disabled(isBusy || operationTask != nil)
-                .accessibilityLabel(String(localized: "packages.uninstall.action", defaultValue: "Uninstall \(package.displayName)"))
-                .help(String(localized: "packages.uninstall.action", defaultValue: "Uninstall \(package.displayName)"))
-            }
         }
     }
 

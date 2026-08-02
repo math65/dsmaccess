@@ -46,4 +46,14 @@ struct PackageUpdate: Equatable, Identifiable, Sendable {
             downloadURL.absoluteString,
         ].joined(separator: "|")
     }
+
+    var betaDescription: String {
+        isBeta
+            ? String(localized: "common.answer.yes")
+            : String(localized: "common.answer.no")
+    }
+
+    /// Sorted as text like `NASConnection.sortableTwoFactor`: `Bool` is not `Comparable`, and
+    /// the column must be sortable like the others.
+    var sortableBeta: String { isBeta ? "1" : "0" }
 }
