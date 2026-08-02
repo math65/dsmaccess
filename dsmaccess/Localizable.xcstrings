@@ -3363,6 +3363,22 @@
         }
       }
     },
+    "common.column.url": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "URL"
+          }
+        }
+      }
+    },
     "common.column.usage": {
       "localizations": {
         "en": {
