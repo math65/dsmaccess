@@ -11,6 +11,7 @@ import SwiftUI
 struct SurveillanceView: View {
     @State private var viewModel: SurveillanceViewModel
     @State private var selection: Set<String> = []
+    @State private var order = [KeyPathComparator(\SurveillanceCamera.name, order: .forward)]
     @State private var searchText = ""
     @State private var autoRefresh = true
     @State private var showInspector = false
@@ -56,13 +57,45 @@ struct SurveillanceView: View {
             )
             .accessibilityFocused($contentFocused)
         } else {
-            List(filteredCameras, selection: $selection) { camera in
-                cameraRow(camera)
-                    .tag(camera.id)
-                    .contextMenu { cameraActions(camera) }
+            Table(
+                filteredCameras.sorted(using: order),
+                selection: $selection,
+                sortOrder: $order
+            ) {
+                TableColumn("common.column.name", value: \.name) { camera in
+                    Text(camera.name)
+                }
+                TableColumn("common.column.state", value: \.sortableStatus) { camera in
+                    Text(camera.statusDescription)
+                }
+                TableColumn("common.status.enabled.feminine", value: \.sortableEnabled) { camera in
+                    Text(camera.enabled
+                        ? String(localized: "common.answer.yes")
+                        : String(localized: "common.answer.no"))
+                }
+                TableColumn("common.column.address", value: \.sortableAddress) { camera in
+                    Text(camera.addressWithPort ?? "—")
+                }
+                TableColumn("surveillance.camera.vendor.label", value: \.sortableVendor) { camera in
+                    Text(camera.vendor ?? "—")
+                }
+                TableColumn("common.label.model", value: \.sortableModel) { camera in
+                    Text(camera.model ?? "—")
+                }
+                TableColumn("surveillance.camera.resolution.label", value: \.sortableResolution) { camera in
+                    Text(camera.resolution ?? "—")
+                }
+                TableColumn("surveillance.camera.codec", value: \.sortableCodec) { camera in
+                    Text(camera.codecName ?? "—")
+                }
             }
             .accessibilityLabel("surveillance.cameras.title")
             .accessibilityFocused($contentFocused)
+            .contextMenu(forSelectionType: String.self) { ids in
+                if let camera = viewModel.cameras.first(where: { ids.contains($0.id) }) {
+                    cameraActions(camera)
+                }
+            }
         }
     }
 
@@ -121,46 +154,6 @@ struct SurveillanceView: View {
         }
     }
 
-    private func cameraRow(_ camera: SurveillanceCamera) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: camera.isAvailable ? "video.fill" : "video.slash.fill")
-                .foregroundStyle(camera.isAvailable ? Color.green : Color.secondary)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(camera.name).fontWeight(.medium)
-                HStack(spacing: 8) {
-                    Text(statusText(camera.status))
-                    if let address = camera.address { Text(address) }
-                    if let resolution = camera.resolution { Text(resolution) }
-                }
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-            }
-            Spacer()
-            if viewModel.busyIDs.contains(camera.id) {
-                ProgressView()
-                    .controlSize(.small)
-                    .accessibilityLabel(String(localized: "common.status.operation_in_progress", defaultValue: "Operation in progress for \(camera.name)"))
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(cameraAccessibilityLabel(camera))
-        .accessibilityActions {
-            if !viewModel.busyIDs.contains(camera.id) {
-                Button(camera.enabled ? "common.button.disable" : "common.button.enable") {
-                    Task { await set(enabled: !camera.enabled, ids: [camera.id]) }
-                }
-                .help(camera.enabled ? "surveillance.camera.disable.hint" : "surveillance.camera.enable.hint")
-            }
-            Button("surveillance.snapshot.load.action") {
-                selection = [camera.id]
-                showInspector = true
-                Task { await loadSnapshot(camera) }
-            }
-            .help("surveillance.snapshot.load.hint")
-        }
-    }
-
     @ViewBuilder
     private func cameraActions(_ camera: SurveillanceCamera) -> some View {
         Button(camera.enabled ? "common.button.disable" : "common.button.enable") {
@@ -186,9 +179,9 @@ struct SurveillanceView: View {
                 Form {
                     Section("surveillance.camera.column") {
                         LabeledContent("common.column.name", value: camera.name)
-                        LabeledContent("common.column.state", value: statusText(camera.status))
+                        LabeledContent("common.column.state", value: camera.statusDescription)
                         LabeledContent("common.status.enabled.feminine", value: camera.enabled ? String(localized: "common.answer.yes") : String(localized: "common.answer.no"))
-                        if let address = addressText(camera) { LabeledContent("common.column.address", value: address) }
+                        if let address = camera.addressWithPort { LabeledContent("common.column.address", value: address) }
                         if let vendor = camera.vendor { LabeledContent("surveillance.camera.vendor.label", value: vendor) }
                         if let model = camera.model { LabeledContent("common.label.model", value: model) }
                     }
@@ -197,7 +190,7 @@ struct SurveillanceView: View {
                         if let fps = camera.framesPerSecond {
                             LabeledContent("surveillance.camera.frame_rate.label", value: String(localized: "surveillance.camera.frame_rate", defaultValue: "\(fps) frames per second"))
                         }
-                        if let codec = codecText(camera.videoCodec) { LabeledContent("surveillance.camera.codec", value: codec) }
+                        if let codec = camera.codecName { LabeledContent("surveillance.camera.codec", value: codec) }
                     }
                 }
                 .formStyle(.grouped)
@@ -324,54 +317,6 @@ struct SurveillanceView: View {
             VoiceOver.announce(message, priority: .high)
         } else if viewModel.snapshotData != nil {
             VoiceOver.announce(String(localized: "surveillance.snapshot.loaded.announcement", defaultValue: "Snapshot loaded for \(camera.name)"))
-        }
-    }
-
-    private func cameraAccessibilityLabel(_ camera: SurveillanceCamera) -> String {
-        var parts = [camera.name, statusText(camera.status)]
-        if let address = camera.address { parts.append(address) }
-        if let resolution = camera.resolution { parts.append(resolution) }
-        return parts.formatted(.list(type: .and))
-    }
-
-    private func addressText(_ camera: SurveillanceCamera) -> String? {
-        guard let address = camera.address else { return nil }
-        if let port = camera.port { return "\(address):\(port)" }
-        return address
-    }
-
-    private func codecText(_ codec: Int?) -> String? {
-        switch codec {
-        case 1: "MJPEG"
-        case 2: "MPEG-4"
-        case 3: "H.264"
-        case 5: "MXPEG"
-        case 6: "H.265"
-        case 7: "H.264+"
-        default: nil
-        }
-    }
-
-    private func statusText(_ status: Int) -> String {
-        switch status {
-        case 1: String(localized: "surveillance.camera.status.normal")
-        case 2: String(localized: "surveillance.camera.status.deleted")
-        case 3: String(localized: "surveillance.camera.status.disconnected")
-        case 4: String(localized: "common.status.unavailable")
-        case 5: String(localized: "surveillance.camera.status.ready")
-        case 6: String(localized: "common.status.unreachable")
-        case 7: String(localized: "common.status.disabled.feminine")
-        case 8: String(localized: "surveillance.camera.status.unrecognized")
-        case 9: String(localized: "surveillance.camera.configuration")
-        case 10: String(localized: "surveillance.camera.status.server_disconnected")
-        case 11: String(localized: "surveillance.camera.status.migrating")
-        case 13: String(localized: "surveillance.camera.status.storage_removed")
-        case 14: String(localized: "common.status.stopping")
-        case 15: String(localized: "surveillance.camera.connection_history.unavailable")
-        case 16: String(localized: "surveillance.camera.status.unauthorized")
-        case 17: String(localized: "surveillance.camera.status.rtsp_error")
-        case 18: String(localized: "surveillance.camera.status.no_video")
-        default: String(localized: "common.status.unknown")
         }
     }
 }
