@@ -2787,22 +2787,6 @@
         }
       }
     },
-    "common.column.actions": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Actions"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Actions"
-          }
-        }
-      }
-    },
     "common.column.address": {
       "localizations": {
         "en": {
@@ -6915,22 +6899,6 @@
         }
       }
     },
-    "containers.column.cpu": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Processor %@%%"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Processeur %@ %%"
-          }
-        }
-      }
-    },
     "containers.column.image": {
       "localizations": {
         "en": {
@@ -8451,38 +8419,6 @@
         }
       }
     },
-    "containers.row.cpu_spoken": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "processor %@ percent"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "processeur %@ pour cent"
-          }
-        }
-      }
-    },
-    "containers.row.image": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "image %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "image %@"
-          }
-        }
-      }
-    },
     "containers.search.prompt": {
       "localizations": {
         "en": {
@@ -8499,22 +8435,6 @@
         }
       }
     },
-    "containers.status.running": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "running"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "en fonctionnement"
-          }
-        }
-      }
-    },
     "containers.status.started": {
       "localizations": {
         "en": {
@@ -8527,22 +8447,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Démarré"
-          }
-        }
-      }
-    },
-    "containers.status.stopped": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "stopped"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "arrêté"
           }
         }
       }
@@ -8867,54 +8771,6 @@
         }
       }
     },
-    "download.row.download_rate": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "download %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "réception %@"
-          }
-        }
-      }
-    },
-    "download.row.resume.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resume this download"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reprendre ce téléchargement"
-          }
-        }
-      }
-    },
-    "download.row.upload_rate": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "upload %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "envoi %@"
-          }
-        }
-      }
-    },
     "download.search.placeholder": {
       "localizations": {
         "en": {
@@ -9011,22 +8867,6 @@
         }
       }
     },
-    "download_station.action.delete_one.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete this download"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimer ce téléchargement"
-          }
-        }
-      }
-    },
     "download_station.action.pause": {
       "localizations": {
         "en": {
@@ -9055,22 +8895,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mettre les téléchargements sélectionnés en pause"
-          }
-        }
-      }
-    },
-    "download_station.action.pause_one.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pause this download"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mettre ce téléchargement en pause"
           }
         }
       }
@@ -10675,54 +10499,6 @@
         }
       }
     },
-    "favorites.move_down.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Move this favorite down"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descendre ce favori"
-          }
-        }
-      }
-    },
-    "favorites.move_up.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Move this favorite up"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Monter ce favori"
-          }
-        }
-      }
-    },
-    "favorites.open.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open this favorite"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ouvrir ce favori"
-          }
-        }
-      }
-    },
     "favorites.operation.progress": {
       "localizations": {
         "en": {
@@ -10803,22 +10579,6 @@
         }
       }
     },
-    "favorites.remove.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Remove this favorite"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retirer ce favori"
-          }
-        }
-      }
-    },
     "favorites.rename.action": {
       "localizations": {
         "en": {
@@ -10847,22 +10607,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nom du favori"
-          }
-        }
-      }
-    },
-    "favorites.rename.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rename this favorite"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Renommer ce favori"
           }
         }
       }
@@ -11651,22 +11395,6 @@
         }
       }
     },
-    "file_tasks.stop.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop the %@ task"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrêter la tâche %@"
-          }
-        }
-      }
-    },
     "file_tasks.table.label": {
       "localizations": {
         "en": {
@@ -11891,22 +11619,6 @@
         }
       }
     },
-    "files.archive.compressed_size.value": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Compressed: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Compressé : %@"
-          }
-        }
-      }
-    },
     "files.archive.contents_of.title": {
       "localizations": {
         "en": {
@@ -11999,22 +11711,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Choisir l’encodage"
-          }
-        }
-      }
-    },
-    "files.archive.entry.open.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open %@ in the archive"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ouvrir %@ dans l’archive"
           }
         }
       }
@@ -16707,1190 +16403,6 @@
         }
       }
     },
-    "legacy.app.sidebar.toggle.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show or hide the sidebar"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afficher ou masquer la barre latérale"
-          }
-        }
-      }
-    },
-    "legacy.common.pair.summary": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$@, %2$@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$@, %2$@"
-          }
-        }
-      }
-    },
-    "legacy.docker.detail.placeholder": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select a container to view its information."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sélectionnez un conteneur pour lire ses informations."
-          }
-        }
-      }
-    },
-    "legacy.files.paste_into_folder.action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Paste into This Folder"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Coller dans ce dossier"
-          }
-        }
-      }
-    },
-    "legacy.files.share_link.expiry.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose the link expiration date"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choisir la date d’expiration du lien"
-          }
-        }
-      }
-    },
-    "legacy.files.share_link.expiry_one_day": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 day"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "1 jour"
-          }
-        }
-      }
-    },
-    "legacy.files.share_link.expiry_seven_days": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "7 days"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "7 jours"
-          }
-        }
-      }
-    },
-    "legacy.files.share_link.expiry_thirty_days": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "30 days"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "30 jours"
-          }
-        }
-      }
-    },
-    "legacy.files.share_links.count": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld share links"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld liens de partage"
-          }
-        }
-      }
-    },
-    "legacy.files.sort.options.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sort Options"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Options de tri"
-          }
-        }
-      }
-    },
-    "legacy.login.connecting.status": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connecting"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connexion en cours"
-          }
-        }
-      }
-    },
-    "legacy.login.validation.missing_fields.error": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Please enter the address, username and password."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Veuillez renseigner l'adresse, le nom d'utilisateur et le mot de passe."
-          }
-        }
-      }
-    },
-    "legacy.logs.level_filter.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose the log level to show"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choisir le niveau de journal à afficher"
-          }
-        }
-      }
-    },
-    "legacy.logs.level_filter.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filter log by level"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Filtrer le journal par niveau"
-          }
-        }
-      }
-    },
-    "legacy.logs.list.empty": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No log entries are available."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucune entrée de journal n’est disponible."
-          }
-        }
-      }
-    },
-    "legacy.logs.loading.protections": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading logs and protections…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chargement des journaux et protections…"
-          }
-        }
-      }
-    },
-    "legacy.logs.loading.security": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Loading logs and security…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Chargement des journaux et de la sécurité…"
-          }
-        }
-      }
-    },
-    "legacy.logs.refresh.action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh logs and protections"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Actualiser les journaux et protections"
-          }
-        }
-      }
-    },
-    "legacy.logs.search.empty.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Change the search or level filter."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modifiez la recherche ou le filtre de niveau."
-          }
-        }
-      }
-    },
-    "legacy.logs.search.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The NAS searches the whole log, not only the entries shown"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le NAS cherche dans tout le journal, pas seulement dans les entrées affichées"
-          }
-        }
-      }
-    },
-    "legacy.logs.summary.entries_and_blocked": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld log entries, %lld blocked addresses"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%1$lld entrées de journal, %2$lld adresses bloquées"
-          }
-        }
-      }
-    },
-    "legacy.logs.tab": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Logs"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Journaux"
-          }
-        }
-      }
-    },
-    "legacy.monitor.cpu.detail.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Processor details"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Détail du processeur"
-          }
-        }
-      }
-    },
-    "legacy.monitor.cpu.load.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Processor load"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Charge du processeur"
-          }
-        }
-      }
-    },
-    "legacy.monitor.live_resources.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Live resources"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ressources en direct"
-          }
-        }
-      }
-    },
-    "legacy.monitor.memory.detail.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Memory details"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Détail de la mémoire"
-          }
-        }
-      }
-    },
-    "legacy.monitor.network.download.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Network download"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Réception réseau"
-          }
-        }
-      }
-    },
-    "legacy.monitor.network.upload.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Network upload"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Envoi réseau"
-          }
-        }
-      }
-    },
-    "legacy.monitor.refresh.action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refresh resources"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Actualiser les ressources"
-          }
-        }
-      }
-    },
-    "legacy.monitor.service.summary": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %lld processes"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, %lld processus"
-          }
-        }
-      }
-    },
-    "legacy.monitor.services.description": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Processor, memory and process count, per service. A dash marks a figure the NAS does not provide."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Processeur, mémoire et nombre de processus, par service. Un tiret signale une mesure que le NAS ne fournit pas."
-          }
-        }
-      }
-    },
-    "legacy.monitor.view.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Monitor view"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Affichage du moniteur"
-          }
-        }
-      }
-    },
-    "legacy.packages.catalog.browse.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Browse the official catalog available from this NAS"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parcourir le catalogue officiel annoncé par ce NAS"
-          }
-        }
-      }
-    },
-    "legacy.packages.catalog.install_unavailable.description": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Catalog installation is not available in DSM Access on this NAS. Install this package from DSM Package Center."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "L’installation depuis le catalogue n’est pas disponible dans DSM Access sur ce NAS. Installez ce paquet depuis le Centre de paquets DSM."
-          }
-        }
-      }
-    },
-    "legacy.packages.catalog.refreshing": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Refreshing catalog…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Actualisation du catalogue…"
-          }
-        }
-      }
-    },
-    "legacy.packages.detail.unavailable_fields.description": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This NAS does not provide DSM Access with this package’s dependencies, licences, third-party sources or configuration pages."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ce NAS ne fournit pas à DSM Access les dépendances, licences, sources tierces ni pages de configuration de ce paquet."
-          }
-        }
-      }
-    },
-    "legacy.packages.list.empty": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Install packages from DSM to manage them here."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Installez des paquets depuis DSM pour les gérer ici."
-          }
-        }
-      }
-    },
-    "legacy.packages.repair.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Repair required in DSM"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Réparation requise dans DSM"
-          }
-        }
-      }
-    },
-    "legacy.packages.repair.unavailable.description": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DSM reports that this package needs repair. Repair is not available in DSM Access on this NAS; use DSM Package Center."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DSM signale que ce paquet nécessite une réparation. La réparation n’est pas disponible dans DSM Access sur ce NAS ; utilisez le Centre de paquets DSM."
-          }
-        }
-      }
-    },
-    "legacy.packages.settings.trust_preserved.description": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DSM Access preserves these values whenever it saves. To change the trust level, sources or publisher certificates, use DSM Package Center: this NAS does not allow DSM Access to manage them safely."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "DSM Access conserve ces valeurs lors de chaque enregistrement. Pour modifier le niveau de confiance, les sources ou les certificats d’éditeur, utilisez le Centre de paquets DSM : ce NAS ne permet pas à DSM Access de les gérer en toute sécurité."
-          }
-        }
-      }
-    },
-    "legacy.packages.uninstall.options_unavailable.description": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "This package offers uninstall options in DSM (keep or delete data) that aren’t available here: the default settings will be applied."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ce paquet propose des options de désinstallation dans DSM (conserver ou supprimer les données) qui ne sont pas disponibles ici : les réglages par défaut seront appliqués."
-          }
-        }
-      }
-    },
-    "legacy.packages.update.timeout.error": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The package update timed out."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La mise à jour a expiré."
-          }
-        }
-      }
-    },
-    "legacy.security.account_protection.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Account Protection"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Protection des comptes"
-          }
-        }
-      }
-    },
-    "legacy.security.block_list.not_exposed.empty": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "The block list is not exposed by this NAS."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "La liste de blocage n’est pas exposée par ce NAS."
-          }
-        }
-      }
-    },
-    "legacy.security.blocked.expiration_never": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Never"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Jamais"
-          }
-        }
-      }
-    },
-    "legacy.security.blocked.expiration_value": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "expires %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "expiration %@"
-          }
-        }
-      }
-    },
-    "legacy.security.blocked.no_expiration": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blocked with no expiration provided"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blocage sans expiration indiquée"
-          }
-        }
-      }
-    },
-    "legacy.security.blocked.search.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Search blocked addresses"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rechercher une adresse bloquée"
-          }
-        }
-      }
-    },
-    "legacy.security.blocked_addresses.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Blocked addresses"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Adresses bloquées"
-          }
-        }
-      }
-    },
-    "legacy.security.firewall.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Firewall"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pare-feu"
-          }
-        }
-      }
-    },
-    "legacy.security.protection_interface.available": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interface available"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interface disponible"
-          }
-        }
-      }
-    },
-    "legacy.security.protection_interface.not_exposed": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Not exposed"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Non exposée"
-          }
-        }
-      }
-    },
-    "legacy.security.protection_interfaces.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Protection interfaces"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interfaces de protection"
-          }
-        }
-      }
-    },
-    "legacy.security.scan.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Security scan"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Analyse de sécurité"
-          }
-        }
-      }
-    },
-    "legacy.security.tab": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Security"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sécurité"
-          }
-        }
-      }
-    },
-    "legacy.security.unblock.action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unblock…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Débloquer…"
-          }
-        }
-      }
-    },
-    "legacy.security.unblock.cancel": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Keep this address blocked"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Conserver cette adresse bloquée"
-          }
-        }
-      }
-    },
-    "legacy.security.unblock.confirm.description": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Auto Block will allow new connections from %@ again."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les nouvelles connexions provenant de %@ seront à nouveau autorisées par le blocage automatique."
-          }
-        }
-      }
-    },
-    "legacy.security.unblock.confirm_action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unblock %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Débloquer %@"
-          }
-        }
-      }
-    },
-    "legacy.security.unblock.confirm_title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unblock this address?"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Débloquer cette adresse ?"
-          }
-        }
-      }
-    },
-    "legacy.session.current.accessibility_summary": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, current session"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@, %@, session courante"
-          }
-        }
-      }
-    },
-    "legacy.session.current.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Current session"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Session courante"
-          }
-        }
-      }
-    },
-    "legacy.session.manage.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Manage the DSM session"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gérer la session DSM"
-          }
-        }
-      }
-    },
-    "legacy.session.origin.summary": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ from %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ depuis %@"
-          }
-        }
-      }
-    },
-    "legacy.session.origin.summary_opened": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ from %@, opened %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ depuis %@, ouverte le %@"
-          }
-        }
-      }
-    },
-    "legacy.session.tab": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Session"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Session"
-          }
-        }
-      }
-    },
-    "legacy.settings.placeholder.description": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choose a section in the settings sidebar."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Choisissez une section dans la barre latérale des réglages."
-          }
-        }
-      }
-    },
-    "legacy.settings.placeholder.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Select a section"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sélectionnez une section"
-          }
-        }
-      }
-    },
-    "legacy.settings.saved_nas.section": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saved NAS settings"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Réglages des NAS enregistrés"
-          }
-        }
-      }
-    },
-    "legacy.settings.saved_nas.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saved NAS Devices"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "NAS enregistrés"
-          }
-        }
-      }
-    },
-    "legacy.settings.sections.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Settings sections"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sections des réglages"
-          }
-        }
-      }
-    },
-    "legacy.settings.sidebar.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sidebar settings"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Réglages de la barre latérale"
-          }
-        }
-      }
-    },
-    "legacy.settings.voiceover.section": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "VoiceOver announcement settings"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Réglages des annonces VoiceOver"
-          }
-        }
-      }
-    },
-    "legacy.users.password.policy_rejected.error": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "the password does not meet the NAS policy"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "le mot de passe ne respecte pas la stratégie du NAS"
-          }
-        }
-      }
-    },
     "login.address.hint": {
       "localizations": {
         "en": {
@@ -21907,22 +20419,6 @@
         }
       }
     },
-    "packages.catalog.version.value": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Catalog version: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version du catalogue : %@"
-          }
-        }
-      }
-    },
     "packages.column.beta": {
       "localizations": {
         "en": {
@@ -22179,22 +20675,6 @@
         }
       }
     },
-    "packages.details.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show package details"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afficher les détails de ce paquet"
-          }
-        }
-      }
-    },
     "packages.dsm_status.value": {
       "localizations": {
         "en": {
@@ -22239,22 +20719,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aucun paquet installé"
-          }
-        }
-      }
-    },
-    "packages.filter.beta": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Beta"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bêta"
           }
         }
       }
@@ -22335,22 +20799,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Installer %@"
-          }
-        }
-      }
-    },
-    "packages.install.action.with_version": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Install %1$@ version %2$@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Installer %@ version %@"
           }
         }
       }
@@ -22991,22 +21439,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le paquet %@ exige une licence ou un assistant de configuration propre à DSM. Réparez-le depuis le Centre de paquets DSM pour effectuer ces choix explicitement."
-          }
-        }
-      }
-    },
-    "packages.repair.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Repair"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Réparer"
           }
         }
       }
@@ -24083,22 +22515,6 @@
         }
       }
     },
-    "packages.start.action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Start %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Démarrer %@"
-          }
-        }
-      }
-    },
     "packages.start.hint": {
       "localizations": {
         "en": {
@@ -24207,22 +22623,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mise à jour disponible"
-          }
-        }
-      }
-    },
-    "packages.stop.action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stop %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arrêter %@"
           }
         }
       }
@@ -24531,22 +22931,6 @@
         }
       }
     },
-    "packages.update.available.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Update available: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mise à jour disponible : %@"
-          }
-        }
-      }
-    },
     "packages.update.confirm": {
       "localizations": {
         "en": {
@@ -24847,22 +23231,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld paquets mis à jour"
-          }
-        }
-      }
-    },
-    "packages.version.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Version %@"
           }
         }
       }
@@ -25750,22 +24118,6 @@
         }
       }
     },
-    "share.info.on_server": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "on %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "sur %@"
-          }
-        }
-      }
-    },
     "share_link.availability.label": {
       "localizations": {
         "en": {
@@ -26546,134 +24898,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualiser les liens depuis File Station"
-          }
-        }
-      }
-    },
-    "share_links.row.available_on": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Available on %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Disponible le %@"
-          }
-        }
-      }
-    },
-    "share_links.row.copy.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy this sharing link"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copier ce lien de partage"
-          }
-        }
-      }
-    },
-    "share_links.row.delete.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete this sharing link"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimer ce lien de partage"
-          }
-        }
-      }
-    },
-    "share_links.row.details.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Show link details"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Afficher les détails du lien"
-          }
-        }
-      }
-    },
-    "share_links.row.edit.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edit this sharing link"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modifier ce lien de partage"
-          }
-        }
-      }
-    },
-    "share_links.row.expires_on": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expires on %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expire le %@"
-          }
-        }
-      }
-    },
-    "share_links.row.no_restriction": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No restrictions"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aucune restriction"
-          }
-        }
-      }
-    },
-    "share_links.row.password_protected": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Password protected"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Protégé par mot de passe"
           }
         }
       }
@@ -27606,22 +25830,6 @@
         }
       }
     },
-    "shares.row.delete.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete this shared folder"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimer ce dossier partagé"
-          }
-        }
-      }
-    },
     "shares.search.label": {
       "localizations": {
         "en": {
@@ -27666,22 +25874,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copier le chemin SMB"
-          }
-        }
-      }
-    },
-    "shares.smb_path.copy.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copy the SMB path for this shared folder"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Copier le chemin SMB de ce dossier partagé"
           }
         }
       }
@@ -28854,38 +27046,6 @@
         }
       }
     },
-    "surveillance.snapshot.load.action": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Load snapshot"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Charger l’instantané"
-          }
-        }
-      }
-    },
-    "surveillance.snapshot.load.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Load the snapshot for this camera"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Charger l’instantané de cette caméra"
-          }
-        }
-      }
-    },
     "surveillance.snapshot.loaded.announcement": {
       "localizations": {
         "en": {
@@ -29494,22 +27654,6 @@
         }
       }
     },
-    "transfers.download.progress.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Download progress for %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Progression du téléchargement de %@"
-          }
-        }
-      }
-    },
     "transfers.empty": {
       "localizations": {
         "en": {
@@ -29542,22 +27686,6 @@
         }
       }
     },
-    "transfers.error": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Error: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Erreur : %@"
-          }
-        }
-      }
-    },
     "transfers.status.cancelled": {
       "localizations": {
         "en": {
@@ -29586,22 +27714,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Historique des transferts"
-          }
-        }
-      }
-    },
-    "transfers.upload.progress.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upload progress for %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Progression de l’envoi de %@"
           }
         }
       }
@@ -31286,38 +29398,6 @@
         }
       }
     },
-    "usb_copy.list.edit_filter.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edit Filter"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modifier le filtre"
-          }
-        }
-      }
-    },
-    "usb_copy.list.edit_settings.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edit Settings"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modifier les réglages"
-          }
-        }
-      }
-    },
     "usb_copy.list.edit_task.busy.hint": {
       "localizations": {
         "en": {
@@ -31362,22 +29442,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Modifier la tâche USB Copy sélectionnée"
-          }
-        }
-      }
-    },
-    "usb_copy.list.edit_trigger.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Edit Trigger"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modifier le déclenchement"
           }
         }
       }
@@ -33302,38 +31366,6 @@
         }
       }
     },
-    "usb_copy.task.path_pair": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ → %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ → %@"
-          }
-        }
-      }
-    },
-    "usb_copy.task.path_pair.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "from %@ to %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "de %@ vers %@"
-          }
-        }
-      }
-    },
     "usb_copy.task.rotation.delete_oldest": {
       "localizations": {
         "en": {
@@ -34278,22 +32310,6 @@
         }
       }
     },
-    "users.group.delete.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Delete this group"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Supprimer ce groupe"
-          }
-        }
-      }
-    },
     "users.group.deleted.announcement": {
       "localizations": {
         "en": {
@@ -34306,22 +32322,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Groupe supprimé : %@"
-          }
-        }
-      }
-    },
-    "users.group.member_count": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld members"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld membres"
           }
         }
       }
@@ -34450,54 +32450,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Utilisateurs"
-          }
-        }
-      }
-    },
-    "users.status.active": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "active"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "actif"
-          }
-        }
-      }
-    },
-    "users.status.administrator": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "administrator"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "administrateur"
-          }
-        }
-      }
-    },
-    "users.status.disabled": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "disabled"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "désactivé"
           }
         }
       }
@@ -34918,22 +32870,6 @@
         }
       }
     },
-    "virtual_folders.free_space": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Free: %@"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Libre : %@"
-          }
-        }
-      }
-    },
     "virtual_folders.loading": {
       "localizations": {
         "en": {
@@ -34946,22 +32882,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chargement des dossiers virtuels…"
-          }
-        }
-      }
-    },
-    "virtual_folders.open.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open this virtual folder"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ouvrir ce dossier virtuel"
           }
         }
       }
@@ -35266,22 +33186,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Processeurs virtuels"
-          }
-        }
-      }
-    },
-    "vm.detail.vcpu_count": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld virtual processors"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%lld processeurs virtuels"
           }
         }
       }
