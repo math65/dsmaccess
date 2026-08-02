@@ -450,6 +450,7 @@ struct LogsSecurityView: View {
             }
         }
         .formStyle(.grouped)
+        .accessibilityLabel("logs.settings.form.label")
         .labeledContentStyle(.readable)
     }
 

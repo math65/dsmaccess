@@ -26,6 +26,7 @@ struct NASSettingsView: View {
                         onDelete: { session.removeProfile(profile.id) }
                     )
                 }
+                .accessibilityLabel("nas.settings.profiles.label")
             }
 
             HStack {

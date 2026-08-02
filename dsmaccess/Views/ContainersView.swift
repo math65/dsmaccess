@@ -340,6 +340,7 @@ struct ContainersPaneView: View {
                         }
                     }
                     .formStyle(.grouped)
+                    .accessibilityLabel("containers.detail.information.label")
                 } else {
                     logView(container)
                 }

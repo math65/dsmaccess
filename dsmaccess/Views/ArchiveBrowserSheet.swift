@@ -110,6 +110,7 @@ struct ArchiveBrowserSheet: View {
             }
         }
         .formStyle(.grouped)
+        .accessibilityLabel("files.archive.options.label")
         .frame(height: 155)
     }
 

@@ -82,6 +82,7 @@ struct DockerNetworkCreationSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("containers.network.create.fields.label")
             .navigationTitle("containers.network.create.title")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {

@@ -40,6 +40,7 @@ struct SystemInfoView: View {
                     }
                 }
                 .formStyle(.grouped)
+                .accessibilityLabel("system_info.information.label")
                 .accessibilityFocused($focusContent)
             } else {
                 ModuleLoadingView("common.status.loading_information")

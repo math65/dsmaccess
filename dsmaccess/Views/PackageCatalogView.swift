@@ -204,6 +204,7 @@ struct PackageDetailsSheet: View {
                 apiSection
             }
             .formStyle(.grouped)
+            .accessibilityLabel("packages.detail.information.label")
             Divider()
             HStack {
                 Spacer()

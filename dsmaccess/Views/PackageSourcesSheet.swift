@@ -255,6 +255,7 @@ private struct PackageSourceEditorSheet: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .formStyle(.grouped)
+            .accessibilityLabel("packages.sources.add.fields.label")
 
             if let message = validationMessage ?? vm.operationErrorMessage {
                 Label(message, systemImage: "exclamationmark.triangle.fill")

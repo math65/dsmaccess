@@ -84,6 +84,7 @@ struct SharedFolderPickerSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("common.folder_picker.location.label")
             .frame(maxHeight: 180)
 
             Divider()

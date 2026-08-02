@@ -56,6 +56,7 @@ struct UpdateSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .accessibilityLabel("updates.settings.form.label")
         .padding(20)
     }
 

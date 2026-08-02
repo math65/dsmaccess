@@ -59,6 +59,7 @@ struct USBCopyGlobalSettingsSheet: View {
                     }
                 }
                 .formStyle(.grouped)
+                .accessibilityLabel("usb_copy.settings.fields.label")
             } else {
                 ModuleErrorView(
                     message: errorMessage ?? String(localized: "usb_copy.settings.load.error"),

@@ -146,6 +146,7 @@ struct FileCompressionOptionsSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("files.compression.options.label")
 
             Divider()
 
@@ -249,6 +250,7 @@ struct FileExtractionOptionsSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("files.extraction.options.label")
 
             Divider()
 

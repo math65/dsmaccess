@@ -30,6 +30,7 @@ struct NetworkSettingsView: View {
                     identitySection(info)
                     networkSection(info)
                 }
+                .accessibilityLabel("network.settings.form.label")
                 .accessibilityFocused($focusContent)
             } else {
                 EmptyModuleView(

@@ -1443,6 +1443,22 @@
         }
       }
     },
+    "announcements.settings.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Announcement settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages des annonces"
+          }
+        }
+      }
+    },
     "announcements.settings.notify_long_operation": {
       "localizations": {
         "en": {
@@ -4111,6 +4127,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "1 dossier disponible"
+          }
+        }
+      }
+    },
+    "common.folder_picker.location.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chosen location"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Emplacement choisi"
           }
         }
       }
@@ -6979,6 +7011,22 @@
         }
       }
     },
+    "containers.detail.information.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Container information"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations du conteneur"
+          }
+        }
+      }
+    },
     "containers.detail.title": {
       "localizations": {
         "en": {
@@ -7475,6 +7523,22 @@
         }
       }
     },
+    "containers.network.create.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Network settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du réseau"
+          }
+        }
+      }
+    },
     "containers.network.create.gateway": {
       "localizations": {
         "en": {
@@ -7679,6 +7743,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nouveau réseau"
+          }
+        }
+      }
+    },
+    "containers.network.members.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Containers on this network"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conteneurs de ce réseau"
           }
         }
       }
@@ -8147,6 +8227,22 @@
         }
       }
     },
+    "containers.project.create.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du projet"
+          }
+        }
+      }
+    },
     "containers.project.create.in_progress": {
       "localizations": {
         "en": {
@@ -8339,6 +8435,22 @@
         }
       }
     },
+    "containers.project.detail.information.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Project information"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations du projet"
+          }
+        }
+      }
+    },
     "containers.row.cpu_spoken": {
       "localizations": {
         "en": {
@@ -8527,6 +8639,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nom du serveur, adresse IP, passerelle et DNS"
+          }
+        }
+      }
+    },
+    "control_panel.sections.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control Panel sections"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sections du panneau de configuration"
           }
         }
       }
@@ -9343,6 +9471,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualiser les téléchargements"
+          }
+        }
+      }
+    },
+    "dsm_update.details.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update details"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Détails de la mise à jour"
           }
         }
       }
@@ -12131,6 +12275,22 @@
         }
       }
     },
+    "files.archive.options.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Archive reading options"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options de lecture de l’archive"
+          }
+        }
+      }
+    },
     "files.archive.path.root": {
       "localizations": {
         "en": {
@@ -12543,6 +12703,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Impossible de créer une archive ici."
+          }
+        }
+      }
+    },
+    "files.compression.options.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compression options"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options de compression"
           }
         }
       }
@@ -13295,6 +13471,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Extraire %@"
+          }
+        }
+      }
+    },
+    "files.extraction.options.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extraction options"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Options d’extraction"
           }
         }
       }
@@ -15423,6 +15615,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "La date de dernier accès de début doit précéder la date de fin."
+          }
+        }
+      }
+    },
+    "files.search.advanced.criteria.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Search criteria"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Critères de recherche"
           }
         }
       }
@@ -17875,6 +18083,22 @@
         }
       }
     },
+    "login.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection details"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations de connexion"
+          }
+        }
+      }
+    },
     "login.https.hint": {
       "localizations": {
         "en": {
@@ -19235,6 +19459,22 @@
         }
       }
     },
+    "logs.settings.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages des journaux"
+          }
+        }
+      }
+    },
     "logs.settings.loading": {
       "localizations": {
         "en": {
@@ -19439,6 +19679,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ (indisponible)"
+          }
+        }
+      }
+    },
+    "main.modules.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modules"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modules"
           }
         }
       }
@@ -20099,6 +20355,22 @@
         }
       }
     },
+    "monitor.alarm.rule.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rule settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages de la règle"
+          }
+        }
+      }
+    },
     "monitor.auto_refresh.hint": {
       "localizations": {
         "en": {
@@ -20531,6 +20803,22 @@
         }
       }
     },
+    "monitor.settings.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitor settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du moniteur"
+          }
+        }
+      }
+    },
     "monitor.tab.alarm": {
       "localizations": {
         "en": {
@@ -20783,6 +21071,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aucun NAS enregistré"
+          }
+        }
+      }
+    },
+    "nas.settings.profiles.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saved NAS profiles"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Profils NAS enregistrés"
           }
         }
       }
@@ -21071,6 +21375,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualiser la configuration réseau"
+          }
+        }
+      }
+    },
+    "network.settings.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Identity and network"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Identité et réseau"
           }
         }
       }
@@ -21775,6 +22095,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Version bêta"
+          }
+        }
+      }
+    },
+    "packages.detail.information.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Package information"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations du paquet"
           }
         }
       }
@@ -23359,6 +23695,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ajouter une source…"
+          }
+        }
+      }
+    },
+    "packages.sources.add.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New source"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nouvelle source"
           }
         }
       }
@@ -25910,6 +26262,22 @@
         }
       }
     },
+    "share_links.detail.information.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link information"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations du lien"
+          }
+        }
+      }
+    },
     "share_links.detail.item": {
       "localizations": {
         "en": {
@@ -26066,6 +26434,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Modification du lien en cours…"
+          }
+        }
+      }
+    },
+    "share_links.editor.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Link settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du lien"
           }
         }
       }
@@ -26482,6 +26866,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Ce NAS n’expose aucun dossier partagé à autoriser."
+          }
+        }
+      }
+    },
+    "share_permissions.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions and memberships"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisations et appartenances"
           }
         }
       }
@@ -28038,6 +28438,22 @@
         }
       }
     },
+    "surveillance.camera.information.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Camera information"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations de la caméra"
+          }
+        }
+      }
+    },
     "surveillance.camera.loading": {
       "localizations": {
         "en": {
@@ -28610,6 +29026,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Version DSM"
+          }
+        }
+      }
+    },
+    "system_info.information.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server information"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informations du serveur"
           }
         }
       }
@@ -29266,6 +29698,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rechercher maintenant…"
+          }
+        }
+      }
+    },
+    "updates.settings.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Update settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages des mises à jour"
           }
         }
       }
@@ -30502,6 +30950,22 @@
         }
       }
     },
+    "usb_copy.filter.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filter settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du filtre"
+          }
+        }
+      }
+    },
     "usb_copy.filter.file_types.title": {
       "localizations": {
         "en": {
@@ -31606,6 +32070,22 @@
         }
       }
     },
+    "usb_copy.log.filter.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log filters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Filtres du journal"
+          }
+        }
+      }
+    },
     "usb_copy.log.filter.to.label": {
       "localizations": {
         "en": {
@@ -32518,6 +32998,22 @@
         }
       }
     },
+    "usb_copy.settings.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "General settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages généraux"
+          }
+        }
+      }
+    },
     "usb_copy.settings.load.error": {
       "localizations": {
         "en": {
@@ -32742,6 +33238,22 @@
         }
       }
     },
+    "usb_copy.task.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Task settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages de la tâche"
+          }
+        }
+      }
+    },
     "usb_copy.task.mode.export": {
       "localizations": {
         "en": {
@@ -32962,6 +33474,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "État inconnu : %@"
+          }
+        }
+      }
+    },
+    "usb_copy.trigger.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trigger settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du déclencheur"
           }
         }
       }
@@ -33314,6 +33842,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Adresse e-mail (facultative)"
+          }
+        }
+      }
+    },
+    "users.create_user.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du compte"
           }
         }
       }

@@ -50,6 +50,7 @@ struct ControlPanelView: View {
                 .padding(24)
                 .frame(maxWidth: 560, alignment: .leading)
             }
+            .accessibilityLabel("control_panel.sections.label")
             .navigationDestination(for: ControlPanelSection.self) { section in
                 switch section {
                 case .network:

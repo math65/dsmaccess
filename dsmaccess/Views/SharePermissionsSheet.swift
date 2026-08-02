@@ -159,6 +159,7 @@ struct SharePermissionsSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("share_permissions.form.label")
         }
     }
 

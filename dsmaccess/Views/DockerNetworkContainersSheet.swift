@@ -92,6 +92,7 @@ struct DockerNetworkContainersSheet: View {
                     }
                 }
                 .formStyle(.grouped)
+                .accessibilityLabel("containers.network.members.label")
                 .accessibilityFocused($contentFocused)
             }
         }

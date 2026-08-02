@@ -52,6 +52,7 @@ struct MainView: View {
                 }
             }
             .listStyle(.sidebar)
+            .accessibilityLabel("main.modules.label")
             .navigationSplitViewColumnWidth(min: 190, ideal: 220, max: 300)
         } detail: {
             moduleView

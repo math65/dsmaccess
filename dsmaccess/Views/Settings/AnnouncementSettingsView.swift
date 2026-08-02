@@ -60,6 +60,7 @@ struct AnnouncementSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .accessibilityLabel("announcements.settings.form.label")
         .padding(20)
     }
 

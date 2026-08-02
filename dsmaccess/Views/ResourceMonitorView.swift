@@ -180,6 +180,7 @@ struct ResourceMonitorView: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("monitor.settings.form.label")
             .labeledContentStyle(.readable)
             .accessibilityFocused($focusContent)
         }

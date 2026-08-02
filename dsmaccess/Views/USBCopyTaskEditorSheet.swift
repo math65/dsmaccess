@@ -266,6 +266,7 @@ struct USBCopyTaskEditorSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("usb_copy.task.fields.label")
 
             Divider()
             HStack {
