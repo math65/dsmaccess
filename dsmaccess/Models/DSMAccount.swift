@@ -45,6 +45,24 @@ struct DSMUser: nonisolated Decodable, Identifiable, Hashable, Sendable {
         groups = try values.decodeIfPresent([String].self, forKey: .groups) ?? []
         isAdministrator = values.flexBool(.admin) ?? values.flexBool(.isAdmin) ?? groups.contains("administrators")
     }
+
+    /// The readable state lives here rather than in the view because the table sorts on it:
+    /// sorting a boolean would order the rows by a value the column never shows.
+    var statusDescription: String {
+        isDisabled
+            ? String(localized: "common.status.disabled.masculine")
+            : String(localized: "users.column.active")
+    }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableStatus: String { statusDescription }
+    var sortableEmail: String { email ?? "" }
+    var sortableDescription: String { description ?? "" }
+    var sortableGroups: String { groups.formatted(.list(type: .and)) }
+    /// Sorted as text like `NASConnection.sortableTwoFactor`: `Bool` is not `Comparable`, and
+    /// the column must be sortable like the others.
+    var sortableAdministrator: String { isAdministrator ? "1" : "0" }
 }
 
 struct DSMGroup: nonisolated Decodable, Identifiable, Hashable, Sendable {
@@ -79,6 +97,11 @@ struct DSMGroup: nonisolated Decodable, Identifiable, Hashable, Sendable {
         gid = values.flexInt(.gid)
         members = try values.decodeArray(String.self, forFirstPresent: [.users, .members])
     }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableDescription: String { description ?? "" }
+    var sortableMemberCount: Int { members.count }
 }
 
 struct DSMUserList: nonisolated Decodable, Sendable {

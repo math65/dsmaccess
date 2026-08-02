@@ -2,7 +2,9 @@
 //  UsersGroupsView.swift
 //  dsmaccess
 //
-//  Native administration of DSM local accounts and groups.
+//  Native administration of DSM local accounts and groups, each tab a sortable table: an
+//  account's state, its administrator flag and its groups each keep a column of their own
+//  instead of being folded into one line read as a single sentence.
 //
 
 import SwiftUI
@@ -17,6 +19,8 @@ struct UsersGroupsView: View {
     @State private var selectedTab = Tab.users
     @State private var selectedUserID: String?
     @State private var selectedGroupID: String?
+    @State private var userOrder = [KeyPathComparator(\DSMUser.name, order: .forward)]
+    @State private var groupOrder = [KeyPathComparator(\DSMGroup.name, order: .forward)]
     @State private var searchText = ""
     @State private var showCreateUser = false
     @State private var showCreateGroup = false
@@ -137,12 +141,38 @@ struct UsersGroupsView: View {
                     : "common.empty.results.description"
             )
         } else {
-            List(filteredUsers, selection: $selectedUserID) { user in
-                userRow(user)
-                    .tag(user.id)
-                    .contextMenu { userActions(user) }
+            Table(
+                filteredUsers.sorted(using: userOrder),
+                selection: $selectedUserID,
+                sortOrder: $userOrder
+            ) {
+                TableColumn("common.column.name", value: \.name) { user in
+                    Text(user.name)
+                }
+                TableColumn("common.column.state", value: \.sortableStatus) { user in
+                    Text(user.statusDescription)
+                }
+                TableColumn("common.column.administrator", value: \.sortableAdministrator) { user in
+                    Text(user.isAdministrator
+                        ? String(localized: "common.answer.yes")
+                        : String(localized: "common.answer.no"))
+                }
+                TableColumn("common.column.email", value: \.sortableEmail) { user in
+                    Text(user.email ?? "—")
+                }
+                TableColumn("common.column.description", value: \.sortableDescription) { user in
+                    Text(user.description ?? "—")
+                }
+                TableColumn("common.label.groups", value: \.sortableGroups) { user in
+                    Text(user.groups.isEmpty ? "—" : user.sortableGroups)
+                }
             }
             .accessibilityLabel("users.section.users.title")
+            .contextMenu(forSelectionType: String.self) { ids in
+                if let user = viewModel.users.first(where: { ids.contains($0.id) }) {
+                    userActions(user)
+                }
+            }
         }
     }
 
@@ -157,19 +187,30 @@ struct UsersGroupsView: View {
                     : "common.empty.results.description"
             )
         } else {
-            List(filteredGroups, selection: $selectedGroupID) { group in
-                groupRow(group)
-                    .tag(group.id)
-                    .contextMenu {
-                        Button("users.permissions.button") { holderToConfigure = .group(group.name) }
-                            .help("users.group.permissions.hint")
-                        Divider()
-                        Button("users.group.delete.button", role: .destructive) { groupToDelete = group }
-                            .disabled(isProtected(group))
-                            .help("users.group.delete.hint")
-                    }
+            Table(
+                filteredGroups.sorted(using: groupOrder),
+                selection: $selectedGroupID,
+                sortOrder: $groupOrder
+            ) {
+                TableColumn("common.column.name", value: \.name) { group in
+                    Text(group.name)
+                }
+                TableColumn("common.column.description", value: \.sortableDescription) { group in
+                    Text(group.description ?? "—")
+                }
+                TableColumn("common.column.members", value: \.sortableMemberCount) { group in
+                    Text(group.members.count, format: .number)
+                }
             }
             .accessibilityLabel("common.label.groups")
+            .contextMenu(forSelectionType: String.self) { ids in
+                if let group = viewModel.groups.first(where: { ids.contains($0.id) }) {
+                    Button("users.permissions.button") { holderToConfigure = .group(group.name) }
+                    Divider()
+                    Button("users.group.delete.button", role: .destructive) { groupToDelete = group }
+                        .disabled(isProtected(group))
+                }
+            }
         }
     }
 
@@ -231,65 +272,6 @@ struct UsersGroupsView: View {
         }
     }
 
-    private func userRow(_ user: DSMUser) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: user.isAdministrator ? "person.crop.circle.badge.checkmark" : "person.crop.circle")
-                .foregroundStyle(user.isDisabled ? .secondary : .primary)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(user.name).fontWeight(.medium)
-                if let detail = userDetail(user) {
-                    Text(detail).font(.caption).foregroundStyle(.readableSecondary)
-                }
-            }
-            Spacer()
-            Text(user.isDisabled ? "common.status.disabled.masculine" : "users.column.active")
-                .font(.caption)
-                .foregroundStyle(user.isDisabled ? Color.readableSecondary : Color.readableGreen)
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(userAccessibilityLabel(user))
-        .accessibilityActions {
-            Button("users.permissions.button") { holderToConfigure = .user(user.name) }
-                .help("users.user.permissions.hint")
-            if !isProtected(user), !isBusy(user) {
-                Button(user.isDisabled ? "common.button.enable" : "common.button.disable") {
-                    Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
-                }
-                .help(user.isDisabled ? "users.user.enable.hint" : "users.user.disable.hint")
-                Button("users.user.delete.button", role: .destructive) {
-                    userToDelete = user
-                }
-                .help("users.user.delete.hint")
-            }
-        }
-    }
-
-    private func groupRow(_ group: DSMGroup) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: "person.3")
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(group.name).fontWeight(.medium)
-                Text(groupSummary(group))
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(String(localized: "common.format.pair", defaultValue: "\(group.name), \(groupSummary(group))"))
-        .accessibilityActions {
-            Button("users.permissions.button") { holderToConfigure = .group(group.name) }
-                .help("users.group.permissions.hint")
-            if !isProtected(group) {
-                Button("users.group.delete.button", role: .destructive) {
-                    groupToDelete = group
-                }
-                .help("users.group.delete.hint")
-            }
-        }
-    }
-
     @ViewBuilder
     private func userActions(_ user: DSMUser) -> some View {
         Button("users.permissions.button") { holderToConfigure = .user(user.name) }
@@ -343,27 +325,6 @@ struct UsersGroupsView: View {
 
     private func isBusy(_ user: DSMUser) -> Bool {
         viewModel.busyItems.contains("user:\(user.name)")
-    }
-
-    private func userDetail(_ user: DSMUser) -> String? {
-        if let email = user.email, !email.isEmpty { return email }
-        if let description = user.description, !description.isEmpty { return description }
-        if !user.groups.isEmpty { return user.groups.formatted(.list(type: .and)) }
-        return nil
-    }
-
-    private func userAccessibilityLabel(_ user: DSMUser) -> String {
-        var parts = [user.name, user.isDisabled ? String(localized: "users.status.disabled") : String(localized: "users.status.active")]
-        if user.isAdministrator { parts.append(String(localized: "users.status.administrator")) }
-        if let detail = userDetail(user) { parts.append(detail) }
-        return parts.formatted(.list(type: .and))
-    }
-
-    private func groupSummary(_ group: DSMGroup) -> String {
-        var parts: [String] = []
-        if let description = group.description, !description.isEmpty { parts.append(description) }
-        parts.append(String(localized: "users.group.member_count", defaultValue: "\(group.members.count) members"))
-        return parts.joined(separator: ", ")
     }
 
     private func load(restoresInitialFocus: Bool = false) async {
