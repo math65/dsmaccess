@@ -27238,6 +27238,38 @@
         }
       }
     },
+    "storage.disk.uncorrectable_sectors.column": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bad sectors"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Secteurs défectueux"
+          }
+        }
+      }
+    },
+    "storage.disks.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disques"
+          }
+        }
+      }
+    },
     "storage.empty.description": {
       "localizations": {
         "en": {
@@ -27330,6 +27362,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Type RAID"
+          }
+        }
+      }
+    },
+    "storage.pools.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage pools"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groupes de stockage"
           }
         }
       }
@@ -27554,6 +27602,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Actualiser automatiquement les caméras"
+          }
+        }
+      }
+    },
+    "storage.volumes.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Volumes"
           }
         }
       }
