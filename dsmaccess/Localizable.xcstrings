@@ -3011,6 +3011,22 @@
         }
       }
     },
+    "common.column.last_run": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Last run"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dernière exécution"
+          }
+        }
+      }
+    },
     "common.column.level": {
       "localizations": {
         "en": {
@@ -3251,6 +3267,22 @@
         }
       }
     },
+    "common.column.source": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Source"
+          }
+        }
+      }
+    },
     "common.column.state": {
       "localizations": {
         "en": {
@@ -3295,6 +3327,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Stockage"
+          }
+        }
+      }
+    },
+    "common.column.strategy": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strategy"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stratégie"
           }
         }
       }

@@ -10,6 +10,7 @@ import SwiftUI
 struct USBCopyView: View {
     @State private var viewModel: USBCopyViewModel
     @State private var selection: Int?
+    @State private var order = [KeyPathComparator(\USBCopyTask.name, order: .forward)]
     @State private var searchText = ""
     @State private var presentedSheet: USBCopyPresentedSheet?
     @State private var pendingDeletion: USBCopyTask?
@@ -91,14 +92,36 @@ struct USBCopyView: View {
             )
             .accessibilityFocused($contentFocused)
         } else {
-            List(filteredTasks, selection: $selection) { task in
-                USBCopyTaskRow(task: task)
-                    .tag(task.id)
-                    .contextMenu { contextMenu(for: task) }
-                    .accessibilityActions { accessibilityActions(for: task) }
+            Table(filteredTasks.sorted(using: order), selection: $selection, sortOrder: $order) {
+                TableColumn("common.column.name", value: \.name) { task in
+                    Text(task.name)
+                }
+                TableColumn("common.column.kind", value: \.sortableType) { task in
+                    Text(task.typeDescription)
+                }
+                TableColumn("common.column.state", value: \.sortableStatus) { task in
+                    Text(task.statusDescription)
+                }
+                TableColumn("common.column.source", value: \.sourcePath) { task in
+                    Text(task.sourcePath)
+                }
+                TableColumn("common.column.destination", value: \.destinationPath) { task in
+                    Text(task.destinationPath)
+                }
+                TableColumn("common.column.strategy", value: \.sortableStrategy) { task in
+                    Text(task.strategyDescription)
+                }
+                TableColumn("common.column.last_run", value: \.sortableFinishTime) { task in
+                    Text(lastRunText(task))
+                }
             }
             .accessibilityLabel("usb_copy.list.title")
             .accessibilityFocused($contentFocused)
+            .contextMenu(forSelectionType: Int.self) { ids in
+                if let task = viewModel.tasks.first(where: { ids.contains($0.id) }) {
+                    contextMenu(for: task)
+                }
+            }
         }
     }
 
@@ -350,18 +373,12 @@ struct USBCopyView: View {
         }
     }
 
-    @ViewBuilder
-    private func accessibilityActions(for task: USBCopyTask) -> some View {
-        if task.canCancel {
-            Button("usb_copy.list.cancel_copy.button") { Task { await announce(viewModel.cancel(task)) } }
-        } else if task.canRun {
-            Button("usb_copy.list.run.button") { requestRun(task) }
-        }
-        if !task.isActive {
-            Button("usb_copy.list.edit_settings.button") { presentedSheet = .edit(task.id) }
-            Button("usb_copy.list.edit_trigger.button") { presentedSheet = .trigger(task.id) }
-            Button("usb_copy.list.edit_filter.button") { presentedSheet = .filter(task.id) }
-        }
+    /// DSM sends 0 for a task that has never run, which formatted as a date would read as
+    /// January 1970 rather than as an absence.
+    private func lastRunText(_ task: USBCopyTask) -> String {
+        guard let finishTime = task.latestFinishTime, finishTime > 0 else { return "—" }
+        return Date(timeIntervalSince1970: TimeInterval(finishTime))
+            .formatted(date: .abbreviated, time: .shortened)
     }
 
     private func selectedTaskStatus(_ task: USBCopyTask) -> String {
@@ -389,68 +406,6 @@ struct USBCopyView: View {
     }
 }
 
-private struct USBCopyTaskRow: View {
-    let task: USBCopyTask
-
-    var body: some View {
-        HStack {
-            Image(systemName: statusImage)
-                .foregroundStyle(statusStyle)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading) {
-                Text(task.name).bold()
-                Text(task.knownType?.localizedName ?? task.type)
-                    .foregroundStyle(.readableSecondary)
-                Text(String(localized: "usb_copy.task.path_pair", defaultValue: "\(task.sourcePath) → \(task.destinationPath)"))
-                HStack {
-                    Text(task.knownStatus?.localizedName ?? task.status)
-                    Text(task.knownStrategy?.localizedName ?? task.copyStrategy)
-                    if let latestFinishTime = task.latestFinishTime, latestFinishTime > 0 {
-                        Text(Date(timeIntervalSince1970: TimeInterval(latestFinishTime)), format: .dateTime)
-                    }
-                }
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-            }
-        }
-        .padding(.vertical, 3)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(accessibilityLabel)
-    }
-
-    private var accessibilityLabel: String {
-        [
-            task.name,
-            task.knownType?.localizedName ?? task.type,
-            String(localized: "usb_copy.task.path_pair.label", defaultValue: "from \(task.sourcePath) to \(task.destinationPath)"),
-            task.knownStatus?.localizedName ?? task.status,
-            task.knownStrategy?.localizedName ?? task.copyStrategy,
-        ].formatted(.list(type: .and))
-    }
-
-    private var statusImage: String {
-        switch task.knownStatus {
-        case .successful: "checkmark.circle.fill"
-        case .failed, .shareDeleted, .shareUnavailable: "exclamationmark.triangle.fill"
-        case .copying: "arrow.right.circle.fill"
-        case .waiting: "clock.fill"
-        case .disabled: "pause.circle.fill"
-        case .unmounted: "externaldrive.badge.xmark"
-        case .canceling: "stop.circle.fill"
-        case .notAvailable: "questionmark.circle"
-        case .initial, .none: "circle"
-        }
-    }
-
-    private var statusStyle: Color {
-        switch task.knownStatus {
-        case .successful: .readableGreen
-        case .failed, .shareDeleted, .shareUnavailable: .readableRed
-        case .disabled, .unmounted, .notAvailable: .readableSecondary
-        default: .accentColor
-        }
-    }
-}
 
 private enum USBCopyPresentedSheet: Identifiable {
     case create
