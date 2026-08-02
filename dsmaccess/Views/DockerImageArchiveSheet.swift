@@ -49,7 +49,7 @@ struct DockerImageArchiveSheet: View {
                     LabeledContent("containers.image.archive.folder", value: folderPath)
                         .labeledContentStyle(.readable)
                         .accessibilityFocused($focusFolder)
-                    Button("common.folder_picker.choose") { showsFolderPicker = true }
+                    Button("common.folder_picker.title") { showsFolderPicker = true }
                         .disabled(vm.isTransferring)
                 }
 
