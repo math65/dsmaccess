@@ -183,6 +183,19 @@ struct USBCopyTask: nonisolated Decodable, Equatable, Identifiable, Sendable {
     var knownType: USBCopyTaskType? { USBCopyTaskType(rawValue: type) }
     var knownStrategy: USBCopyStrategy? { USBCopyStrategy(rawValue: copyStrategy) }
     var knownStatus: USBCopyTaskStatus? { USBCopyTaskStatus(rawValue: status) }
+
+    /// The table sorts on the wording, falling back to the raw DSM value for a kind, a state
+    /// or a strategy the app does not know yet — which is also what the column displays.
+    var typeDescription: String { knownType?.localizedName ?? type }
+    var statusDescription: String { knownStatus?.localizedName ?? status }
+    var strategyDescription: String { knownStrategy?.localizedName ?? copyStrategy }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableType: String { typeDescription }
+    var sortableStatus: String { statusDescription }
+    var sortableStrategy: String { strategyDescription }
+    var sortableFinishTime: Int { latestFinishTime ?? 0 }
     var isActive: Bool { knownStatus == .waiting || knownStatus == .copying || knownStatus == .canceling }
     var canCancel: Bool { knownStatus == .waiting || knownStatus == .copying }
     var canRun: Bool {

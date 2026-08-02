@@ -152,6 +152,13 @@ extension Disk {
         guard let unc, unc > 0 else { return nil }
         return String(localized: "storage.disk.uncorrectable_sectors", defaultValue: "\(unc) uncorrectable sectors")
     }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all. The numeric ones sort on the measurement and not on its
+    /// formatted text, where "1 TB" would come before "980 GB".
+    var sortableTemperature: Int { temp ?? -1 }
+    var sortableSize: Int64 { sizeTotal.flatMap { Int64($0) } ?? -1 }
+    var sortableUncorrectableSectors: Int { unc ?? 0 }
 }
 
 extension Volume {
@@ -174,6 +181,13 @@ extension Volume {
               (0...total).contains(free) else { return nil }
         return Int((Double(total - free) / Double(total) * 100).rounded())
     }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableUsage: Int { usagePercentValue ?? -1 }
+    var sortableInodes: Int { inodePercent ?? -1 }
+    var sortableSpace: Int64 { size?.used.flatMap { Int64($0) } ?? -1 }
+    var sortableOperation: String { operationText ?? "" }
 }
 
 extension StoragePool {
@@ -190,6 +204,11 @@ extension StoragePool {
     var sizeText: String? {
         size?.total.flatMap { Int64($0) }?.formatted(.byteCount(style: .file))
     }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableDiskCount: Int { disks?.count ?? 0 }
+    var sortableSize: Int64 { size?.total.flatMap { Int64($0) } ?? -1 }
 }
 
 private extension String {

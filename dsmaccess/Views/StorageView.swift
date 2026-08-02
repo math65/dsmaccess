@@ -9,6 +9,9 @@ import SwiftUI
 
 struct StorageView: View {
     @State private var vm: StorageViewModel
+    @State private var poolOrder = [KeyPathComparator(\StoragePool.displayName, order: .forward)]
+    @State private var volumeOrder = [KeyPathComparator(\Volume.displayName, order: .forward)]
+    @State private var diskOrder = [KeyPathComparator(\Disk.displayName, order: .forward)]
     @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
@@ -33,12 +36,16 @@ struct StorageView: View {
                 )
                 .accessibilityFocused($focusContent)
             } else {
-                List {
-                    ForEach(vm.pools) { poolSection($0) }
-                    ForEach(vm.volumes) { volumeSection($0) }
-                    ForEach(vm.disks) { diskSection($0) }
+                // Three tables and not one: a pool, a volume and a disk share no column, and
+                // a single table would have to leave most cells empty on every row.
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        if !vm.pools.isEmpty { poolTable }
+                        if !vm.volumes.isEmpty { volumeTable }
+                        if !vm.disks.isEmpty { diskTable }
+                    }
+                    .padding(12)
                 }
-                .labeledContentStyle(.readable)
                 .accessibilityLabel("storage.title")
                 .accessibilityFocused($focusContent)
             }
@@ -56,54 +63,92 @@ struct StorageView: View {
         .task { await load(restoresInitialFocus: true) }
     }
 
-    private func poolSection(_ pool: StoragePool) -> some View {
-        Section {
-            LabeledContent("common.column.state", value: pool.statusText)
-            LabeledContent("storage.pool.raid_type", value: pool.raidTypeText)
-            LabeledContent("common.label.disks", value: pool.diskCountText)
-            if let size = pool.sizeText {
-                LabeledContent("common.column.capacity", value: size)
+    private var poolTable: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("storage.pools.title")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+            Table(vm.pools.sorted(using: poolOrder), sortOrder: $poolOrder) {
+                TableColumn("common.column.name", value: \.displayName) { pool in
+                    Text(pool.displayName)
+                }
+                TableColumn("common.column.state", value: \.statusText) { pool in
+                    Text(pool.statusText)
+                }
+                TableColumn("storage.pool.raid_type", value: \.raidTypeText) { pool in
+                    Text(pool.raidTypeText)
+                }
+                TableColumn("common.label.disks", value: \.sortableDiskCount) { pool in
+                    Text(pool.diskCountText)
+                }
+                TableColumn("common.column.capacity", value: \.sortableSize) { pool in
+                    Text(pool.sizeText ?? "—")
+                }
             }
-        } header: {
-            Label(pool.displayName, systemImage: "externaldrive.connected.to.line.below")
+            .accessibilityLabel("storage.pools.title")
+            .frame(minHeight: 120)
         }
     }
 
-    private func volumeSection(_ volume: Volume) -> some View {
-        Section {
-            LabeledContent("common.column.state", value: volume.statusText)
-            LabeledContent("storage.volume.file_system", value: volume.filesystemText)
-            if let space = volume.spaceText {
-                LabeledContent("storage.volume.space", value: space)
+    private var volumeTable: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("storage.volumes.title")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+            Table(vm.volumes.sorted(using: volumeOrder), sortOrder: $volumeOrder) {
+                TableColumn("common.column.name", value: \.displayName) { volume in
+                    Text(volume.displayName)
+                }
+                TableColumn("common.column.state", value: \.statusText) { volume in
+                    Text(volume.statusText)
+                }
+                TableColumn("storage.volume.file_system", value: \.filesystemText) { volume in
+                    Text(volume.filesystemText)
+                }
+                TableColumn("storage.volume.space", value: \.sortableSpace) { volume in
+                    Text(volume.spaceText ?? "—")
+                }
+                TableColumn("common.column.usage", value: \.sortableUsage) { volume in
+                    Text(volume.usagePercentValue.map { "\($0) %" } ?? "—")
+                }
+                TableColumn("storage.volume.inodes_used", value: \.sortableInodes) { volume in
+                    Text(volume.inodePercent.map { "\($0) %" } ?? "—")
+                }
+                TableColumn("common.column.operation", value: \.sortableOperation) { volume in
+                    Text(volume.operationText ?? "—")
+                }
             }
-            if let percent = volume.usagePercentValue {
-                LabeledContent("common.column.usage", value: "\(percent) %")
-            }
-            if let operation = volume.operationText {
-                LabeledContent("common.column.operation", value: operation)
-            }
-            if let inodes = volume.inodePercent {
-                LabeledContent("storage.volume.inodes_used", value: "\(inodes) %")
-            }
-        } header: {
-            Label(volume.displayName, systemImage: "internaldrive")
+            .accessibilityLabel("storage.volumes.title")
+            .frame(minHeight: 120)
         }
     }
 
-    private func diskSection(_ disk: Disk) -> some View {
-        Section {
-            LabeledContent("storage.disk.health", value: disk.healthText)
-            if let temperature = disk.temperatureText {
-                LabeledContent("common.column.temperature", value: temperature)
+    private var diskTable: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("storage.disks.title")
+                .font(.headline)
+                .accessibilityAddTraits(.isHeader)
+            Table(vm.disks.sorted(using: diskOrder), sortOrder: $diskOrder) {
+                TableColumn("common.column.name", value: \.displayName) { disk in
+                    Text(disk.displayName)
+                }
+                TableColumn("storage.disk.health", value: \.healthText) { disk in
+                    Text(disk.healthText)
+                }
+                TableColumn("common.column.temperature", value: \.sortableTemperature) { disk in
+                    Text(disk.temperatureText ?? "—")
+                }
+                TableColumn("common.column.capacity", value: \.sortableSize) { disk in
+                    Text(disk.sizeText ?? "—")
+                }
+                // Named rather than left to a warning colour: a disk with no bad sector shows
+                // a dash, and one with any shows how many.
+                TableColumn("storage.disk.uncorrectable_sectors.column", value: \.sortableUncorrectableSectors) { disk in
+                    Text(disk.uncText ?? "—")
+                }
             }
-            if let size = disk.sizeText {
-                LabeledContent("common.column.capacity", value: size)
-            }
-            if let badSectors = disk.uncText {
-                LabeledContent("common.level.warning", value: badSectors)
-            }
-        } header: {
-            Label(disk.displayName, systemImage: "internaldrive")
+            .accessibilityLabel("storage.disks.title")
+            .frame(minHeight: 140)
         }
     }
 

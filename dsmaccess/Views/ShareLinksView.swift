@@ -13,8 +13,7 @@ struct ShareLinksView: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var selection = Set<String>()
-    @State private var sort = FileStationSharingSort.name
-    @State private var ascending = true
+    @State private var order = [KeyPathComparator(\SharingLink.sortableName, order: .forward)]
     @State private var editingLink: SharingLink?
     @State private var detailsLink: SharingLink?
     @State private var pendingDelete = [SharingLink]()
@@ -34,7 +33,7 @@ struct ShareLinksView: View {
             Divider()
             footer
         }
-        .frame(width: 780, height: 570)
+        .frame(width: 940, height: 570)
         .task {
             focusTitle = true
             await loadShareLinks(forceRefresh: false)
@@ -86,17 +85,11 @@ struct ShareLinksView: View {
         .padding()
     }
 
+    // The sort menu, its direction switch and its Apply button are gone: the table sorts on
+    // its own headers, where the values are, instead of from a separate set of controls that
+    // had to be applied before anything moved.
     private var controls: some View {
         HStack(spacing: 16) {
-            Picker("common.label.sort_by", selection: $sort) {
-                ForEach(FileStationSharingSort.allCases, id: \.self) { value in
-                    Text(value.localizedTitle).tag(value)
-                }
-            }
-            .frame(maxWidth: 230)
-            Toggle("common.sort.ascending", isOn: $ascending)
-            Button("common.button.apply") { Task { await loadShareLinks(forceRefresh: false) } }
-                .disabled(vm.isLoadingShareLinks || isMutating)
             Spacer()
             Button("common.button.refresh", systemImage: "arrow.clockwise") {
                 Task { await loadShareLinks(forceRefresh: true) }
@@ -138,9 +131,36 @@ struct ShareLinksView: View {
             )
             .accessibilityFocused($focusStatus)
         } else {
-            List(vm.shareLinks, selection: $selection) { link in
-                row(for: link)
-                    .tag(link.id)
+            Table(vm.shareLinks.sorted(using: order), selection: $selection, sortOrder: $order) {
+                TableColumn("common.column.name", value: \.sortableName) { link in
+                    Text(link.displayName)
+                }
+                TableColumn("common.column.url", value: \.url) { link in
+                    Text(link.url)
+                }
+                TableColumn("common.column.owner", value: \.sortableOwner) { link in
+                    Text(link.owner ?? "—")
+                }
+                TableColumn("common.column.password", value: \.sortablePassword) { link in
+                    Text(link.hasPassword == true
+                        ? String(localized: "common.answer.yes")
+                        : String(localized: "common.answer.no"))
+                }
+                TableColumn("common.column.status", value: \.sortableStatus) { link in
+                    Text(link.status ?? "—")
+                }
+                TableColumn("common.column.available_date", value: \.sortableAvailableDate) { link in
+                    Text(link.availableDate ?? "—")
+                }
+                TableColumn("common.column.expiration_date", value: \.sortableExpirationDate) { link in
+                    Text(link.expirationDate ?? "—")
+                }
+                // The four per-row buttons stay in the table rather than moving to a context
+                // menu: they were already reachable one by one here, and a menu would put them
+                // one step further away.
+                TableColumn("common.column.actions") { link in
+                    rowActions(for: link)
+                }
             }
             .accessibilityLabel("share_links.title")
         }
@@ -164,22 +184,8 @@ struct ShareLinksView: View {
         .padding()
     }
 
-    private func row(for link: SharingLink) -> some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(link.name ?? link.path ?? link.url)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                Text(link.url)
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                Text(linkSummary(link))
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-            }
-            Spacer()
+    private func rowActions(for link: SharingLink) -> some View {
+        HStack(spacing: 6) {
             Button("common.button.details", systemImage: "info.circle") { detailsLink = link }
                 .labelStyle(.iconOnly)
                 .help("share_links.row.details.button")
@@ -195,7 +201,7 @@ struct ShareLinksView: View {
             .labelStyle(.iconOnly)
             .help("share_links.row.delete.button")
         }
-        .accessibilityElement(children: .contain)
+        .buttonStyle(.borderless)
     }
 
     private var selectedLinks: [SharingLink] {
@@ -220,25 +226,14 @@ struct ShareLinksView: View {
         )
     }
 
-    private func linkSummary(_ link: SharingLink) -> String {
-        var parts = [String]()
-        if let status = link.status { parts.append(status) }
-        if link.hasPassword == true { parts.append(String(localized: "share_links.row.password_protected")) }
-        if let available = link.availableDate {
-            parts.append(String(localized: "share_links.row.available_on", defaultValue: "Available on \(available)"))
-        }
-        if let expiration = link.expirationDate {
-            parts.append(String(localized: "share_links.row.expires_on", defaultValue: "Expires on \(expiration)"))
-        }
-        return parts.isEmpty ? String(localized: "share_links.row.no_restriction") : parts.formatted(.list(type: .and))
-    }
-
     private func loadShareLinks(forceRefresh: Bool) async {
         operationError = nil
+        // The NAS is asked for a stable order; the column the user picked is applied here,
+        // on the loaded links, so sorting never costs a round trip.
         await vm.loadShareLinks(
             options: FileStationSharingListOptions(
-                sortBy: sort,
-                sortDirection: ascending ? .ascending : .descending,
+                sortBy: .name,
+                sortDirection: .ascending,
                 forceRefresh: forceRefresh
             )
         )
@@ -288,22 +283,5 @@ struct ShareLinksView: View {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(url, forType: .string)
         VoiceOver.announce(String(localized: "common.status.link_copied"))
-    }
-}
-
-private extension FileStationSharingSort {
-    var localizedTitle: String {
-        switch self {
-        case .id: String(localized: "common.column.identifier")
-        case .name: String(localized: "common.column.name")
-        case .isFolder: String(localized: "common.column.kind")
-        case .path: String(localized: "common.column.path")
-        case .expirationDate: String(localized: "common.column.expiration_date")
-        case .availableDate: String(localized: "common.column.available_date")
-        case .status: String(localized: "common.column.status")
-        case .hasPassword: String(localized: "common.label.password_protection")
-        case .url: "URL"
-        case .owner: String(localized: "common.column.owner")
-        }
     }
 }
