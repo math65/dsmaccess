@@ -3283,6 +3283,22 @@
         }
       }
     },
+    "common.column.storage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage"
+          }
+        }
+      }
+    },
     "common.column.temperature": {
       "localizations": {
         "en": {

@@ -10,6 +10,7 @@ import SwiftUI
 struct VirtualMachinesView: View {
     @State private var viewModel: VirtualMachinesViewModel
     @State private var selection: String?
+    @State private var order = [KeyPathComparator(\VirtualMachine.name, order: .forward)]
     @State private var searchText = ""
     @State private var autoRefresh = true
     @State private var showInspector = false
@@ -72,13 +73,42 @@ struct VirtualMachinesView: View {
             )
             .accessibilityFocused($contentFocused)
         } else {
-            List(filteredMachines, selection: $selection) { machine in
-                machineRow(machine)
-                    .tag(machine.id)
-                    .contextMenu { machineActions(machine) }
+            Table(
+                filteredMachines.sorted(using: order),
+                selection: $selection,
+                sortOrder: $order
+            ) {
+                TableColumn("common.column.name", value: \.name) { machine in
+                    Text(machine.name)
+                }
+                TableColumn("common.column.state", value: \.sortableStatus) { machine in
+                    Text(machine.statusDescription)
+                }
+                TableColumn("vm.detail.vcpu.label", value: \.vCPUCount) { machine in
+                    Text(machine.vCPUCount > 0 ? machine.vCPUCount.formatted() : "—")
+                }
+                TableColumn("common.metric.memory", value: \.sortableMemory) { machine in
+                    Text(memoryText(machine) ?? "—")
+                }
+                TableColumn("common.column.storage", value: \.sortableStorage) { machine in
+                    Text(machine.storageName ?? "—")
+                }
+                TableColumn("vm.detail.autostart.label", value: \.sortableAutoRun) { machine in
+                    Text(machine.autoRun
+                        ? String(localized: "common.answer.yes")
+                        : String(localized: "common.answer.no"))
+                }
+                TableColumn("common.column.description", value: \.sortableDescription) { machine in
+                    Text(machine.description ?? "—")
+                }
             }
             .accessibilityLabel("common.module.virtual_machines")
             .accessibilityFocused($contentFocused)
+            .contextMenu(forSelectionType: String.self) { ids in
+                if let machine = viewModel.machines.first(where: { ids.contains($0.id) }) {
+                    machineActions(machine)
+                }
+            }
         }
     }
 
@@ -141,51 +171,6 @@ struct VirtualMachinesView: View {
         }
     }
 
-    private func machineRow(_ machine: VirtualMachine) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: machine.isRunning ? "desktopcomputer.and.macbook" : "desktopcomputer")
-                .foregroundStyle(machine.isRunning ? Color.green : Color.secondary)
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 3) {
-                Text(machine.name).fontWeight(.medium)
-                HStack(spacing: 8) {
-                    Text(statusText(machine.status))
-                    if machine.vCPUCount > 0 { Text(String(localized: "vm.detail.vcpu_count", defaultValue: "\(machine.vCPUCount) virtual processors")) }
-                    if let memory = memoryText(machine) { Text(memory) }
-                }
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-            }
-            Spacer()
-            if machine.isTransitioning {
-                ProgressView()
-                    .controlSize(.small)
-                    .accessibilityLabel(String(localized: "common.status.operation_in_progress", defaultValue: "Operation in progress for \(machine.name)"))
-            }
-        }
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(machineAccessibilityLabel(machine))
-        .accessibilityActions {
-            if machine.canStart {
-                Button("common.button.start") { Task { await perform(.powerOn, on: machine) } }
-                    .help("vm.start.hint")
-            }
-            if machine.canStop {
-                Button("vm.shutdown.button") { Task { await perform(.shutdown, on: machine) } }
-                    .help("vm.shutdown.row.hint")
-                Button("vm.force_off.button", role: .destructive) {
-                    pendingPowerOff = machine
-                }
-                .help("vm.force_off.row.hint")
-            }
-            Button("common.button.get_info") {
-                selection = machine.id
-                showInspector = true
-            }
-            .help("vm.detail.show.hint")
-        }
-    }
-
     @ViewBuilder
     private func machineActions(_ machine: VirtualMachine) -> some View {
         if machine.canStart {
@@ -213,7 +198,7 @@ struct VirtualMachinesView: View {
             Form {
                 Section("vm.column.machine") {
                     LabeledContent("common.column.name", value: machine.name)
-                    LabeledContent("common.column.state", value: statusText(machine.status))
+                    LabeledContent("common.column.state", value: machine.statusDescription)
                     if let description = machine.description, !description.isEmpty {
                         LabeledContent("vm.detail.description.label", value: description)
                     }
@@ -324,30 +309,5 @@ struct VirtualMachinesView: View {
     private func memoryText(_ machine: VirtualMachine) -> String? {
         guard let memoryMiB = machine.memoryMiB else { return nil }
         return (memoryMiB * 1_048_576).formatted(.byteCount(style: .memory))
-    }
-
-    private func machineAccessibilityLabel(_ machine: VirtualMachine) -> String {
-        var parts = [machine.name, statusText(machine.status)]
-        if machine.vCPUCount > 0 { parts.append(String(localized: "vm.detail.vcpu_count", defaultValue: "\(machine.vCPUCount) virtual processors")) }
-        if let memory = memoryText(machine) { parts.append(memory) }
-        return parts.formatted(.list(type: .and))
-    }
-
-    private func statusText(_ status: String) -> String {
-        switch status {
-        case "running": String(localized: "common.status.running")
-        case "shutdown": String(localized: "vm.status.stopped")
-        case "booting": String(localized: "vm.status.starting")
-        case "shutting_down": String(localized: "common.status.stopping")
-        case "inaccessible": String(localized: "common.status.unreachable")
-        case "moving": String(localized: "common.operation.moving")
-        case "stor_migrating": String(localized: "vm.status.migrating_storage")
-        case "creating": String(localized: "common.label.creation")
-        case "importing": String(localized: "vm.status.importing")
-        case "preparing": String(localized: "vm.status.preparing")
-        case "ha_standby": String(localized: "vm.status.ha_failover")
-        case "crashed": String(localized: "vm.status.crashed")
-        default: String(localized: "common.status.unknown")
-        }
     }
 }

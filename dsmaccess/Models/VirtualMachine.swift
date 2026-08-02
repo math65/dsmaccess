@@ -28,6 +28,37 @@ struct VirtualMachine: nonisolated Decodable, Identifiable, Hashable, Sendable {
         ["booting", "shutting_down", "moving", "stor_migrating", "creating", "importing", "preparing"].contains(status)
     }
 
+    /// The readable state lives here rather than in the view because the table sorts on it:
+    /// sorting the raw DSM value would order the rows by their English identifier while the
+    /// column shows the translation.
+    var statusDescription: String {
+        switch status {
+        case "running": String(localized: "common.status.running")
+        case "shutdown": String(localized: "vm.status.stopped")
+        case "booting": String(localized: "vm.status.starting")
+        case "shutting_down": String(localized: "common.status.stopping")
+        case "inaccessible": String(localized: "common.status.unreachable")
+        case "moving": String(localized: "common.operation.moving")
+        case "stor_migrating": String(localized: "vm.status.migrating_storage")
+        case "creating": String(localized: "common.label.creation")
+        case "importing": String(localized: "vm.status.importing")
+        case "preparing": String(localized: "vm.status.preparing")
+        case "ha_standby": String(localized: "vm.status.ha_failover")
+        case "crashed": String(localized: "vm.status.crashed")
+        default: String(localized: "common.status.unknown")
+        }
+    }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableStatus: String { statusDescription }
+    var sortableMemory: Int64 { memoryMiB ?? -1 }
+    var sortableStorage: String { storageName ?? "" }
+    var sortableDescription: String { description ?? "" }
+    /// Sorted as text like `NASConnection.sortableTwoFactor`: `Bool` is not `Comparable`, and
+    /// the column must be sortable like the others.
+    var sortableAutoRun: String { autoRun ? "1" : "0" }
+
     enum CodingKeys: String, CodingKey {
         case guestID = "guest_id"
         case name = "guest_name"
