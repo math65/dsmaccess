@@ -181,6 +181,39 @@ struct DSMContainerServiceTests {
         #expect(targets == [Target(repository: "hello-world", tags: ["latest"])])
     }
 
+    @Test func containerForceStopSendsSignalAsAnInteger() async throws {
+        // Captured contract: `signal` is the integer 9. "9", "SIGKILL" and "KILL" are all
+        // refused by DSM with error 114, and nothing in the build would catch the quoting.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.killContainer(name: "web")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "signal")
+        #expect(parameters["name"] == #""web""#)
+        #expect(parameters["signal"] == "9")
+    }
+
+    @Test func containerResetPreservesTheProfile() async throws {
+        // Captured contract: Reset is the same `delete` method, told to keep the profile.
+        // Sending false here would delete the container instead of recreating it.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.resetContainer(name: "web")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "delete")
+        #expect(parameters["name"] == #""web""#)
+        #expect(parameters["force"] == "false")
+        #expect(parameters["preserve_profile"] == "true")
+    }
+
     @Test func containerDeleteSendsCapturedParameters() async throws {
         // Captured contract: DSM's Delete action, distinct from its Reset which preserves
         // the profile.

@@ -97,6 +97,35 @@ final class DSMContainerService {
         )
     }
 
+    /// DSM's Force stop. Captured contract: `signal` is the **integer** 9 — `"9"`, `"SIGKILL"`
+    /// and `"KILL"` are all refused with 114. The container ends up as `Exited (137)`, and DSM
+    /// answers 1004 when it was already stopped.
+    func killContainer(name: String) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "signal",
+            parameters: [
+                "name": .string(name),
+                "signal": .integer(9),
+            ]
+        )
+    }
+
+    /// DSM's Reset. Same `delete` method as removing a container, with `preserve_profile` true:
+    /// captured on a real container, it does not remove anything but recreates it from its
+    /// profile, stopped and never started.
+    func resetContainer(name: String) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "delete",
+            parameters: [
+                "name": .string(name),
+                "force": .boolean(false),
+                "preserve_profile": .boolean(true),
+            ]
+        )
+    }
+
     func containerProcesses(name: String) async throws -> [ContainerProcess] {
         let result = try await transport.read(
             api: Self.containerAPI,

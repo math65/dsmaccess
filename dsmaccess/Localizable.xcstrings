@@ -6755,6 +6755,102 @@
         }
       }
     },
+    "containers.action.force_stop": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Force stop"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêt forcé"
+          }
+        }
+      }
+    },
+    "containers.action.force_stop.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kills the container at once, without letting it finish."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tue le conteneur immédiatement, sans le laisser terminer."
+          }
+        }
+      }
+    },
+    "containers.action.force_stop.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Container force stopped: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conteneur arrêté de force : %@"
+          }
+        }
+      }
+    },
+    "containers.action.reset": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser"
+          }
+        }
+      }
+    },
+    "containers.action.reset.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recreates the container from its settings and leaves it stopped."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recrée le conteneur à partir de ses réglages et le laisse arrêté."
+          }
+        }
+      }
+    },
+    "containers.action.reset.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Container reset: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conteneur réinitialisé : %@"
+          }
+        }
+      }
+    },
     "containers.action.restart": {
       "localizations": {
         "en": {
@@ -7055,6 +7151,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aucun conteneur"
+          }
+        }
+      }
+    },
+    "containers.force_stop.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” will be killed at once, without being given time to finish what it is doing. Unsaved work inside the container is lost."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » sera tué immédiatement, sans avoir le temps de terminer ce qu’il fait. Le travail non enregistré dans le conteneur est perdu."
+          }
+        }
+      }
+    },
+    "containers.force_stop.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Force stop “%@”?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter de force « %@ » ?"
           }
         }
       }
@@ -8415,6 +8543,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Informations du projet"
+          }
+        }
+      }
+    },
+    "containers.reset.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” will be recreated from its settings and left stopped. Its writable layer is discarded: anything written inside the container, outside a mounted folder, is lost. This cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » sera recréé à partir de ses réglages et laissé arrêté. Sa couche modifiable est jetée : tout ce qui a été écrit dans le conteneur, hors d’un dossier monté, est perdu. C’est irréversible."
+          }
+        }
+      }
+    },
+    "containers.reset.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reset “%@”?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réinitialiser « %@ » ?"
           }
         }
       }

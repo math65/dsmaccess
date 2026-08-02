@@ -91,6 +91,50 @@ final class ContainersViewModel {
         }
     }
 
+    func forceStop(_ container: ContainerItem) async -> DSMOperationOutcome {
+        await mutate(container) {
+            try await self.session.withClient { try await $0.killContainer(name: container.name) }
+        } success: {
+            String(
+                localized: "containers.action.force_stop.success",
+                defaultValue: "Container force stopped: \(container.name)"
+            )
+        }
+    }
+
+    func reset(_ container: ContainerItem) async -> DSMOperationOutcome {
+        await mutate(container) {
+            try await self.session.withClient { try await $0.resetContainer(name: container.name) }
+        } success: {
+            String(
+                localized: "containers.action.reset.success",
+                defaultValue: "Container reset: \(container.name)"
+            )
+        }
+    }
+
+    private func mutate(
+        _ container: ContainerItem,
+        _ operation: () async throws -> Void,
+        success: () -> String
+    ) async -> DSMOperationOutcome {
+        busyNames.insert(container.name)
+        defer { busyNames.remove(container.name) }
+
+        do {
+            try await operation()
+            await load(silently: true)
+            return .success(success())
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(
+                localized: "common.error.failed_for_item",
+                defaultValue: "Failed for \(container.name): \(reason)"
+            ))
+        }
+    }
+
     func loadProcesses(for container: ContainerItem) async {
         processGeneration += 1
         let generation = processGeneration

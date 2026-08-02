@@ -92,6 +92,8 @@ struct ContainersPaneView: View {
     @State private var detailsContainer: ContainerItem?
     @State private var detailsSection = DetailsSection.information
     @State private var pendingDelete: ContainerItem?
+    @State private var pendingForceStop: ContainerItem?
+    @State private var pendingReset: ContainerItem?
     @AccessibilityFocusState private var contentFocused: Bool
     @AccessibilityFocusState private var detailsSectionFocused: Bool
     /// Whether this tab is the selected one. Its search field and toolbar live at the window
@@ -128,6 +130,48 @@ struct ContainersPaneView: View {
                     Text(String(
                         localized: "containers.delete.confirm.message",
                         defaultValue: "The container “\(container.name)” will be stopped if needed, then removed with its settings. Data in mounted folders stays on the NAS. This cannot be undone."
+                    ))
+                }
+            }
+            .confirmationDialog(
+                forceStopTitle,
+                isPresented: Binding(
+                    get: { pendingForceStop != nil },
+                    set: { if !$0 { pendingForceStop = nil } }
+                )
+            ) {
+                Button("containers.action.force_stop", role: .destructive) {
+                    guard let container = pendingForceStop else { return }
+                    pendingForceStop = nil
+                    Task { VoiceOver.announce(await viewModel.forceStop(container), priority: .high) }
+                }
+                Button("common.button.cancel", role: .cancel) { }
+            } message: {
+                if let container = pendingForceStop {
+                    Text(String(
+                        localized: "containers.force_stop.confirm.message",
+                        defaultValue: "“\(container.name)” will be killed at once, without being given time to finish what it is doing. Unsaved work inside the container is lost."
+                    ))
+                }
+            }
+            .confirmationDialog(
+                resetTitle,
+                isPresented: Binding(
+                    get: { pendingReset != nil },
+                    set: { if !$0 { pendingReset = nil } }
+                )
+            ) {
+                Button("containers.action.reset", role: .destructive) {
+                    guard let container = pendingReset else { return }
+                    pendingReset = nil
+                    Task { VoiceOver.announce(await viewModel.reset(container), priority: .high) }
+                }
+                Button("common.button.cancel", role: .cancel) { }
+            } message: {
+                if let container = pendingReset {
+                    Text(String(
+                        localized: "containers.reset.confirm.message",
+                        defaultValue: "“\(container.name)” will be recreated from its settings and left stopped. Its writable layer is discarded: anything written inside the container, outside a mounted folder, is lost. This cannot be undone."
                     ))
                 }
             }
@@ -273,12 +317,17 @@ struct ContainersPaneView: View {
         if container.isRunning {
             Button("common.button.stop") { Task { await perform(.stop, on: container) } }
                 .help("containers.action.stop.hint")
+            Button("containers.action.force_stop") { pendingForceStop = container }
+                .help("containers.action.force_stop.hint")
             Button("containers.action.restart") { Task { await perform(.restart, on: container) } }
                 .help("containers.action.restart.hint")
         } else {
             Button("common.button.start") { Task { await perform(.start, on: container) } }
                 .help("containers.action.start.hint")
         }
+        Divider()
+        Button("containers.action.reset", role: .destructive) { pendingReset = container }
+            .help("containers.action.reset.hint")
         Button("common.button.delete", role: .destructive) { pendingDelete = container }
             .help("containers.action.delete.hint")
         Divider()
@@ -292,6 +341,20 @@ struct ContainersPaneView: View {
         Text(String(
             localized: "containers.delete.confirm.title",
             defaultValue: "Delete “\(pendingDelete?.name ?? "")”?"
+        ))
+    }
+
+    private var forceStopTitle: Text {
+        Text(String(
+            localized: "containers.force_stop.confirm.title",
+            defaultValue: "Force stop “\(pendingForceStop?.name ?? "")”?"
+        ))
+    }
+
+    private var resetTitle: Text {
+        Text(String(
+            localized: "containers.reset.confirm.title",
+            defaultValue: "Reset “\(pendingReset?.name ?? "")”?"
         ))
     }
 

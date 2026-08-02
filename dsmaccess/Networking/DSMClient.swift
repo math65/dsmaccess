@@ -357,6 +357,8 @@ protocol DSMClientProtocol: AnyObject {
     ) async throws -> DockerRegistrySearchPage
     func dockerImageTags(repository: String) async throws -> [DockerImageTag]
     func deleteContainer(name: String) async throws
+    func killContainer(name: String) async throws
+    func resetContainer(name: String) async throws
     func containerProcesses(name: String) async throws -> [ContainerProcess]
     func pruneDockerImages() async throws
     func startDockerImageUpgrade(repository: String) async throws -> DockerImagePullTask
@@ -1421,6 +1423,14 @@ final class DSMClient: DSMClientProtocol {
 
     func dockerImageTags(repository: String) async throws -> [DockerImageTag] {
         try await containers.imageTags(repository: repository)
+    }
+
+    func killContainer(name: String) async throws {
+        try await containers.killContainer(name: name)
+    }
+
+    func resetContainer(name: String) async throws {
+        try await containers.resetContainer(name: name)
     }
 
     func deleteContainer(name: String) async throws {
