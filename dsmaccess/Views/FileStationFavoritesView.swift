@@ -143,8 +143,25 @@ struct FileStationFavoritesView: View {
             )
             .accessibilityFocused($focusStatus)
         } else {
-            List(vm.managedFavorites) { favorite in
-                favoriteRow(favorite)
+            // No sortable columns here: the row order is the favorite order that DSM stores,
+            // and it is what the move up/down buttons act on. Sorting by name would leave
+            // those buttons acting on an order the user can no longer see.
+            Table(vm.managedFavorites) {
+                TableColumn("common.column.name") { favorite in
+                    Text(favorite.name)
+                }
+                TableColumn("common.column.location") { favorite in
+                    Text(favorite.path)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                TableColumn("common.column.state") { favorite in
+                    Text(favorite.statusDescription)
+                        .foregroundStyle(favorite.isAvailable ? .readableSecondary : .readableOrange)
+                }
+                TableColumn("common.column.actions") { favorite in
+                    favoriteActions(favorite)
+                }
             }
             .accessibilityLabel("common.action.file_station_favorites")
         }
@@ -165,24 +182,10 @@ struct FileStationFavoritesView: View {
         .padding()
     }
 
-    private func favoriteRow(_ favorite: FileStationFavorite) -> some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(favorite.name)
-                Text(favorite.path)
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                Text(
-                    favorite.isAvailable
-                        ? String(localized: "favorites.status.available")
-                        : String(localized: "common.status.unavailable")
-                )
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-            }
-            Spacer()
+    /// The actions stay in a column rather than a context menu: two of them are enabled only
+    /// depending on the row's position, which a hidden menu would not convey.
+    private func favoriteActions(_ favorite: FileStationFavorite) -> some View {
+        HStack(spacing: 6) {
             Button("common.button.open", systemImage: "arrow.forward") {
                 open(favorite)
                 dismiss()

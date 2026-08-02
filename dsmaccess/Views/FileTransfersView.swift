@@ -13,6 +13,7 @@ struct FileTransfersView: View {
 
     @Environment(\.dismiss) private var dismiss
     @AccessibilityFocusState private var focusHeading: Bool
+    @State private var order = [KeyPathComparator(\FileTransferRecord.name, order: .forward)]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -28,8 +29,26 @@ struct FileTransfersView: View {
                     description: Text("transfers.empty.description")
                 )
             } else {
-                List(vm.transfers) { transfer in
-                    TransferRow(transfer: transfer)
+                Table(vm.transfers.sorted(using: order), sortOrder: $order) {
+                    TableColumn("common.column.name", value: \.name) { transfer in
+                        Text(transfer.name)
+                    }
+                    TableColumn("common.column.direction", value: \.sortableDirection) { transfer in
+                        Text(transfer.directionDescription)
+                    }
+                    TableColumn("common.column.state", value: \.sortableStatus) { transfer in
+                        Text(transfer.statusDescription)
+                            .foregroundStyle(transfer.state.isFailure ? .readableRed : .readableSecondary)
+                    }
+                    TableColumn("common.column.progress", value: \.sortableProgress) { transfer in
+                        Text(transfer.progressDescription)
+                    }
+                    TableColumn("transfers.column.transferred", value: \.sortableTransferred) { transfer in
+                        Text(transfer.transferredDescription)
+                    }
+                    TableColumn("common.column.message", value: \.sortableMessage) { transfer in
+                        Text(transfer.state.failureMessage ?? "—")
+                    }
                 }
                 .accessibilityLabel("transfers.table.label")
             }
@@ -62,90 +81,7 @@ struct FileTransfersView: View {
             }
         }
         .padding(20)
-        .frame(minWidth: 580, minHeight: 360)
+        .frame(minWidth: 760, minHeight: 360)
         .task { focusHeading = true }
-    }
-}
-
-private struct TransferRow: View {
-    let transfer: FileTransferRecord
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Label(transfer.name, systemImage: transfer.direction.systemImage)
-                Spacer()
-                Text(transfer.state.label)
-                    .foregroundStyle(transfer.state.isFailure ? .red : .secondary)
-            }
-
-            if let fraction = transfer.progress?.fractionCompleted {
-                ProgressView(value: fraction)
-                    .accessibilityLabel(progressAccessibilityLabel)
-                    .accessibilityValue(fraction.formatted(.percent.precision(.fractionLength(0))))
-            } else if transfer.state == .running {
-                ProgressView()
-                    .accessibilityLabel(progressAccessibilityLabel)
-            }
-
-            if let progress = transfer.progress {
-                Text(progressLabel(progress))
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-            }
-
-            if case .failed(let message) = transfer.state {
-                Text(message)
-                    .font(.caption)
-                    .foregroundStyle(.readableRed)
-                    .accessibilityLabel(String(localized: "transfers.error", defaultValue: "Error: \(message)"))
-            }
-        }
-        .padding(.vertical, 4)
-        .accessibilityElement(children: .contain)
-    }
-
-    private var progressAccessibilityLabel: String {
-        switch transfer.direction {
-        case .upload:
-            String(localized: "transfers.upload.progress.label", defaultValue: "Upload progress for \(transfer.name)")
-        case .download:
-            String(localized: "transfers.download.progress.label", defaultValue: "Download progress for \(transfer.name)")
-        }
-    }
-
-    private func progressLabel(_ progress: DSMTransferProgress) -> String {
-        let completed = progress.completedBytes.formatted(.byteCount(style: .file))
-        guard let total = progress.totalBytes else { return completed }
-        return String(localized: "common.format.value_of_total", defaultValue: "\(completed) of \(total.formatted(.byteCount(style: .file)))")
-    }
-}
-
-private extension FileTransferDirection {
-    var systemImage: String {
-        switch self {
-        case .upload: "arrow.up.circle"
-        case .download: "arrow.down.circle"
-        }
-    }
-}
-
-private extension FileTransferState {
-    var isActive: Bool {
-        self == .queued || self == .running
-    }
-
-    var isFailure: Bool {
-        if case .failed = self { true } else { false }
-    }
-
-    var label: String {
-        switch self {
-        case .queued: String(localized: "common.status.waiting")
-        case .running: String(localized: "common.status.in_progress")
-        case .completed: String(localized: "common.status.done")
-        case .cancelled: String(localized: "transfers.status.cancelled")
-        case .failed: String(localized: "common.status.failed")
-        }
     }
 }

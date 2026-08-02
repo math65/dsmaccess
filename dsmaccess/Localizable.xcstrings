@@ -2755,6 +2755,22 @@
         }
       }
     },
+    "common.column.access": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès"
+          }
+        }
+      }
+    },
     "common.column.actions": {
       "localizations": {
         "en": {
@@ -2915,6 +2931,22 @@
         }
       }
     },
+    "common.column.direction": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direction"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sens"
+          }
+        }
+      }
+    },
     "common.column.email": {
       "localizations": {
         "en": {
@@ -2959,6 +2991,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Date d’expiration"
+          }
+        }
+      }
+    },
+    "common.column.free_space": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free space"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espace libre"
           }
         }
       }
@@ -3071,6 +3119,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Membres"
+          }
+        }
+      }
+    },
+    "common.column.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message"
           }
         }
       }
@@ -28866,6 +28930,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Conserver uniquement les transferts en attente ou en cours"
+          }
+        }
+      }
+    },
+    "transfers.column.transferred": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transferred"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transféré"
           }
         }
       }
