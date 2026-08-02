@@ -46,6 +46,7 @@ struct USBCopyFilterEditorSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("usb_copy.filter.fields.label")
             Divider()
             HStack {
                 if isSaving { ProgressView("common.status.saving").controlSize(.small) }

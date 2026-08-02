@@ -444,6 +444,7 @@ private struct CreateUserSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("users.create_user.fields.label")
 
             Divider()
             if let failureMessage {

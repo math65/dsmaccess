@@ -223,6 +223,7 @@ struct LoginView: View {
             .padding(28)
             .frame(maxWidth: 460)
         }
+        .accessibilityLabel("login.form.label")
         .onChange(of: vm.state) { _, newValue in
             if newValue == .connecting || newValue == .resolvingQuickConnect,
                let progress = vm.progressMessage {

@@ -194,6 +194,7 @@ struct SurveillanceView: View {
                     }
                 }
                 .formStyle(.grouped)
+                .accessibilityLabel("surveillance.camera.information.label")
             }
             .inspectorColumnWidth(min: 320, ideal: 380, max: 520)
             .toolbar {

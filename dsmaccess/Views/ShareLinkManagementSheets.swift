@@ -97,6 +97,7 @@ struct ShareLinkEditorSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("share_links.editor.fields.label")
 
             Divider()
 
@@ -279,6 +280,7 @@ struct ShareLinkDetailsSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("share_links.detail.information.label")
         }
     }
 

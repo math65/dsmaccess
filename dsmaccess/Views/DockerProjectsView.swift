@@ -425,6 +425,7 @@ struct DockerProjectDetailsSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("containers.project.detail.information.label")
             .navigationTitle(String(
                 localized: "containers.project.detail.title",
                 defaultValue: "Project \(project.name)"

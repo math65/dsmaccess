@@ -203,6 +203,7 @@ struct AdvancedFileSearchSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("files.search.advanced.criteria.label")
 
             Divider()
 

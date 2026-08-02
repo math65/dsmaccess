@@ -114,6 +114,7 @@ struct DSMUpdateView: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("dsm_update.details.label")
         }
     }
 

@@ -105,6 +105,7 @@ struct PerformanceAlarmRuleSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("monitor.alarm.rule.fields.label")
             .labeledContentStyle(.readable)
 
             HStack {

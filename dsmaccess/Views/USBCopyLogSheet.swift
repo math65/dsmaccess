@@ -51,6 +51,7 @@ struct USBCopyLogSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("usb_copy.log.filter.label")
             .frame(maxHeight: 230)
 
             Divider()

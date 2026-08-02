@@ -90,6 +90,7 @@ struct DockerProjectCreationSheet: View {
                 }
             }
             .formStyle(.grouped)
+            .accessibilityLabel("containers.project.create.fields.label")
             .navigationTitle("containers.project.create.title")
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
