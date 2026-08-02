@@ -179,4 +179,20 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
 
     /// True if the package offers uninstall options in DSM (not exposed here).
     var hasUninstallOptions: Bool { additional?.isUninstallPages == true }
+
+    /// Uninstalling this package goes through a DSM assistant the app does not reproduce.
+    /// The table says so rather than letting the user discover it at the last step.
+    var uninstallDescription: String {
+        hasUninstallOptions
+            ? String(localized: "packages.uninstall.assistant_required.title")
+            : "—"
+    }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableName: String { displayName }
+    var sortableVersion: String { version ?? "" }
+    var sortableStatus: String { statusText }
+    /// Sorted as text like `NASConnection.sortableTwoFactor`: `Bool` is not `Comparable`.
+    var sortableUninstall: String { hasUninstallOptions ? "1" : "0" }
 }

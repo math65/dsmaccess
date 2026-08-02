@@ -12,6 +12,10 @@ struct FileStationTasksView: View {
 
     @State private var operationError: String?
     @State private var automaticFollowStopped = false
+    @State private var selection = Set<FileStationBackgroundTask.ID>()
+    @State private var order = [
+        KeyPathComparator(\FileStationBackgroundTask.sortableCreationDate, order: .reverse)
+    ]
     @Environment(\.dismiss) private var dismiss
     @AccessibilityFocusState private var focusHeading: Bool
     @AccessibilityFocusState private var focusStatus: Bool
@@ -88,57 +92,43 @@ struct FileStationTasksView: View {
             )
             .accessibilityFocused($focusStatus)
         } else {
-            List(vm.backgroundTasks) { task in
-                taskRow(task)
+            Table(
+                vm.backgroundTasks.sorted(using: order),
+                selection: $selection,
+                sortOrder: $order
+            ) {
+                TableColumn("common.column.operation", value: \.sortableOperation) { task in
+                    Text(task.operationLabel)
+                }
+                TableColumn("common.column.location", value: \.sortableLocation) { task in
+                    Text(task.location ?? "—")
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                TableColumn("common.column.state", value: \.sortableStatus) { task in
+                    Text(task.statusDescription)
+                        .foregroundStyle(.readableSecondary)
+                }
+                TableColumn("common.column.progress", value: \.sortableProgress) { task in
+                    Text(task.progressDescription)
+                }
+                TableColumn("common.column.creation_date", value: \.sortableCreationDate) { task in
+                    if let date = task.creationDate {
+                        Text(date, format: Date.FormatStyle(date: .abbreviated, time: .shortened))
+                    } else {
+                        Text("—")
+                    }
+                }
             }
             .accessibilityLabel("file_tasks.table.label")
-        }
-    }
-
-    private func taskRow(_ task: FileStationBackgroundTask) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            HStack {
-                Text(task.operationLabel)
-                    .font(.headline)
-                Spacer()
-                Text(task.finished ? "common.status.completed.feminine" : "common.status.in_progress")
-                    .foregroundStyle(.readableSecondary)
-            }
-
-            if let path = task.processingPath ?? task.path {
-                Text(path)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-            }
-
-            if let fraction = task.normalizedProgress {
-                ProgressView(value: fraction)
-                    .accessibilityLabel(String(localized: "common.label.progress_for", defaultValue: "\(task.operationLabel) progress"))
-                    .accessibilityValue(fraction.formatted(.percent.precision(.fractionLength(0))))
-            }
-
-            HStack {
-                if let creationTime = task.creationTime {
-                    Text(
-                        Date(timeIntervalSince1970: TimeInterval(creationTime)),
-                        format: Date.FormatStyle(date: .abbreviated, time: .shortened)
-                    )
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-                }
-                Spacer()
-                if !task.finished, FileOperationKind(rawValue: task.api) != nil {
+            .contextMenu(forSelectionType: FileStationBackgroundTask.ID.self) { ids in
+                if let task = vm.backgroundTasks.first(where: { ids.contains($0.id) && $0.canStop }) {
                     Button("common.button.stop", role: .destructive) {
                         Task { await stop(task) }
                     }
-                    .help(String(localized: "file_tasks.stop.label", defaultValue: "Stop the \(task.operationLabel) task"))
                 }
             }
         }
-        .padding(.vertical, 4)
-        .accessibilityElement(children: .contain)
     }
 
     /// The NAS reports nothing on its own: without re-reading, the window keeps progress
@@ -218,16 +208,5 @@ struct FileStationTasksView: View {
             focusStatus = true
         }
         VoiceOver.announce(outcome, priority: .high)
-    }
-}
-
-private extension FileStationBackgroundTask {
-    var normalizedProgress: Double? {
-        if finished { return 1 }
-        return progress.map { min(max($0, 0), 1) }
-    }
-
-    var operationLabel: String {
-        FileOperationKind(rawValue: api)?.label ?? api
     }
 }

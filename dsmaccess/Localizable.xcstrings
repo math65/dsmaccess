@@ -2755,6 +2755,22 @@
         }
       }
     },
+    "common.column.access": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès"
+          }
+        }
+      }
+    },
     "common.column.actions": {
       "localizations": {
         "en": {
@@ -2915,6 +2931,22 @@
         }
       }
     },
+    "common.column.direction": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Direction"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sens"
+          }
+        }
+      }
+    },
     "common.column.email": {
       "localizations": {
         "en": {
@@ -2959,6 +2991,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Date d’expiration"
+          }
+        }
+      }
+    },
+    "common.column.free_space": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Free space"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espace libre"
           }
         }
       }
@@ -3071,6 +3119,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Membres"
+          }
+        }
+      }
+    },
+    "common.column.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Message"
           }
         }
       }
@@ -3199,6 +3263,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Protocole"
+          }
+        }
+      }
+    },
+    "common.column.recycle_bin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recycle bin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corbeille"
           }
         }
       }
@@ -3407,6 +3487,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Utilisateur"
+          }
+        }
+      }
+    },
+    "common.column.version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version"
           }
         }
       }
@@ -11631,6 +11727,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Taille d’origine"
+          }
+        }
+      }
+    },
+    "files.archive.column.compressed_size": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compressed size"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taille compressée"
           }
         }
       }
@@ -21491,6 +21603,70 @@
         }
       }
     },
+    "packages.column.beta": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beta"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bêta"
+          }
+        }
+      }
+    },
+    "packages.column.installed_version": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Installed version"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Version installée"
+          }
+        }
+      }
+    },
+    "packages.column.available_update": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Available update"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mise à jour disponible"
+          }
+        }
+      }
+    },
+    "packages.column.uninstall": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uninstall"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désinstallation"
+          }
+        }
+      }
+    },
     "packages.control.unavailable.error": {
       "localizations": {
         "en": {
@@ -28870,6 +29046,22 @@
         }
       }
     },
+    "transfers.column.transferred": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transferred"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transféré"
+          }
+        }
+      }
+    },
     "transfers.download.progress.label": {
       "localizations": {
         "en": {
@@ -31074,6 +31266,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déclenchement…"
+          }
+        }
+      }
+    },
+    "usb_copy.log.column.event": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Event"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Événement"
+          }
+        }
+      }
+    },
+    "usb_copy.log.column.task": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Task"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tâche"
           }
         }
       }

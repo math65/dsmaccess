@@ -11,6 +11,8 @@ struct SharesView: View {
     @State private var showCreateSheet = false
     @State private var pendingDelete: SharedFolder?
     @State private var searchText = ""
+    @State private var selection = Set<SharedFolder.ID>()
+    @State private var order = [KeyPathComparator(\SharedFolder.sortableName, order: .forward)]
     @AccessibilityFocusState private var focusContent: Bool
 
     private let session: SessionStore
@@ -84,45 +86,41 @@ struct SharesView: View {
         } else if filteredShares.isEmpty {
             ContentUnavailableView.search(text: searchText)
         } else {
-            List(filteredShares) { share in
-                row(for: share)
+            Table(
+                filteredShares.sorted(using: order),
+                selection: $selection,
+                sortOrder: $order
+            ) {
+                TableColumn("common.column.name", value: \.sortableName) { share in
+                    Text(share.displayName)
+                }
+                TableColumn("common.column.volume", value: \.sortableVolume) { share in
+                    Text(share.volumeText ?? "—")
+                }
+                TableColumn("common.column.description", value: \.sortableDescription) { share in
+                    Text(share.desc?.isEmpty == false ? share.desc! : "—")
+                }
+                TableColumn("common.column.recycle_bin", value: \.sortableRecycleBin) { share in
+                    Text(share.recycleBinDescription)
+                }
             }
             .accessibilityLabel("common.module.shared_folders")
             .accessibilityFocused($focusContent)
+            .contextMenu(forSelectionType: SharedFolder.ID.self) { ids in
+                if let share = vm.shares.first(where: { ids.contains($0.id) }) {
+                    shareActions(for: share)
+                }
+            }
         }
     }
 
-    private func row(for share: SharedFolder) -> some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 2) {
-                Text(share.displayName).fontWeight(.medium)
-                if let sub = share.subtitleText {
-                    Text(sub).font(.caption).foregroundStyle(.readableSecondary)
-                }
-            }
-            .accessibilityElement(children: .ignore)
-            .accessibilityLabel(share.accessibilityLabel)
-            // The combined element has no role by default; without this trait,
-            // VoiceOver and the audit see it as an element of unknown nature.
-            .accessibilityAddTraits(.isStaticText)
-            Spacer()
-            Button(role: .destructive) {
-                pendingDelete = share
-            } label: {
-                Image(systemName: "trash")
-            }
-            .accessibilityLabel(String(localized: "common.action.delete_item", defaultValue: "Delete \(share.displayName)"))
-            .help(String(localized: "common.action.delete_item", defaultValue: "Delete \(share.displayName)"))
+    @ViewBuilder
+    private func shareActions(for share: SharedFolder) -> some View {
+        if session.connectionTarget?.directEndpoint != nil {
+            Button("shares.smb_path.copy.button") { copySMBPath(for: share) }
+            Divider()
         }
-        .contextMenu {
-            if session.connectionTarget?.directEndpoint != nil {
-                Button("shares.smb_path.copy.button") { copySMBPath(for: share) }
-                    .help("shares.smb_path.copy.label")
-                Divider()
-            }
-            Button("common.menu.delete", role: .destructive) { pendingDelete = share }
-                .help("shares.row.delete.button")
-        }
+        Button("common.menu.delete", role: .destructive) { pendingDelete = share }
     }
 
     private var filteredShares: [SharedFolder] {

@@ -485,6 +485,17 @@ struct FileStationArchiveItem: nonisolated Decodable, Equatable, Identifiable, S
         path = try container.requiredFlexString(.path)
         isDirectory = try container.requiredFlexBool(.isDirectory)
     }
+
+    /// The kind used to be shown by an icon marked as decorative, so VoiceOver never heard
+    /// whether an entry was a folder or a file.
+    var kindDescription: String {
+        isDirectory
+            ? String(localized: "common.value.folder")
+            : String(localized: "common.value.file")
+    }
+
+    /// Sorted as text like `NASConnection.sortableTwoFactor`: `Bool` is not `Comparable`.
+    var sortableKind: String { isDirectory ? "0" : "1" }
 }
 
 enum FileStationBackgroundTaskSort: String, CaseIterable, Sendable {

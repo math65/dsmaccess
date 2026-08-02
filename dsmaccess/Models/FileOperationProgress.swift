@@ -243,6 +243,47 @@ struct FileStationBackgroundTask: nonisolated Decodable, Identifiable, Sendable 
         total = container.flexInt64(.total)
         progress = container.flexDouble(.progress)
     }
+
+    var normalizedProgress: Double? {
+        if finished { return 1 }
+        return progress.map { min(max($0, 0), 1) }
+    }
+
+    /// The readable texts live here rather than in the view because the table sorts on them:
+    /// sorting the raw DSM value would order the rows by their English identifier while the
+    /// column shows the translation.
+    var operationLabel: String {
+        FileOperationKind(rawValue: api)?.label ?? api
+    }
+
+    var statusDescription: String {
+        finished
+            ? String(localized: "common.status.completed.feminine")
+            : String(localized: "common.status.in_progress")
+    }
+
+    var location: String? { processingPath ?? path }
+
+    var progressDescription: String {
+        guard let normalizedProgress else { return "—" }
+        return normalizedProgress.formatted(.percent.precision(.fractionLength(0)))
+    }
+
+    var creationDate: Date? {
+        creationTime.map { Date(timeIntervalSince1970: TimeInterval($0)) }
+    }
+
+    var canStop: Bool {
+        !finished && FileOperationKind(rawValue: api) != nil
+    }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableOperation: String { operationLabel }
+    var sortableStatus: String { statusDescription }
+    var sortableLocation: String { location ?? "" }
+    var sortableProgress: Double { normalizedProgress ?? -1 }
+    var sortableCreationDate: Date { creationDate ?? .distantPast }
 }
 
 struct FileStationDirectorySize: Equatable, Sendable {

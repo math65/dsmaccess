@@ -15,6 +15,9 @@ struct PackageCatalogView: View {
     let retry: () -> Void
     let requestAction: (CatalogActionRequest) -> Void
 
+    @State private var selection = Set<PackageUpdate.ID>()
+    @State private var order = [KeyPathComparator(\PackageUpdate.packageID, order: .forward)]
+
     var body: some View {
         if vm.isLoading && vm.catalog.isEmpty {
             ModuleLoadingView()
@@ -37,10 +40,41 @@ struct PackageCatalogView: View {
                 description: Text("packages.catalog.empty.description")
             )
         } else {
-            List(visibleCatalog) { item in
-                catalogRow(item)
+            Table(
+                visibleCatalog.sorted(using: order),
+                selection: $selection,
+                sortOrder: $order
+            ) {
+                TableColumn("common.column.identifier", value: \.packageID) { item in
+                    Text(item.packageID)
+                }
+                TableColumn("common.column.version", value: \.version) { item in
+                    Text(item.version)
+                }
+                TableColumn("common.column.size", value: \.fileSize) { item in
+                    Text(item.fileSize.formatted(.byteCount(style: .file)))
+                }
+                TableColumn("packages.column.beta", value: \.sortableBeta) { item in
+                    Text(item.betaDescription)
+                }
+                // Not sortable: what is installed comes from the view model, not from the
+                // catalog entry, so there is no key path to sort on.
+                TableColumn("packages.column.installed_version") { item in
+                    Text(installedVersionText(for: item))
+                }
+                TableColumn("common.column.state") { item in
+                    Text(installationStateText(for: item))
+                        .foregroundStyle(
+                            updateAvailable(for: item) ? .readableOrange : .readableSecondary
+                        )
+                }
             }
             .accessibilityLabel("packages.catalog.source.official")
+            .contextMenu(forSelectionType: PackageUpdate.ID.self) { ids in
+                if let item = visibleCatalog.first(where: { ids.contains($0.id) }) {
+                    catalogActions(for: item)
+                }
+            }
         }
     }
 
@@ -60,23 +94,45 @@ struct PackageCatalogView: View {
         }
     }
 
-    private func catalogRow(_ item: PackageUpdate) -> some View {
+    private func updateAvailable(for item: PackageUpdate) -> Bool {
+        vm.installedPackage(for: item).map { vm.update(for: $0) != nil } == true
+    }
+
+    private func installedVersionText(for item: PackageUpdate) -> String {
+        guard let installed = vm.installedPackage(for: item) else {
+            return String(localized: "packages.status.not_installed")
+        }
+        return installed.version ?? String(localized: "packages.detail.source.unknown")
+    }
+
+    /// One column carries the whole install story: up to date, an update waiting, or the
+    /// reason the app cannot install it here.
+    private func installationStateText(for item: PackageUpdate) -> String {
+        if vm.installedPackage(for: item) != nil {
+            return updateAvailable(for: item)
+                ? String(localized: "packages.status.update_available")
+                : String(localized: "packages.status.up_to_date")
+        }
+        if item.requirements.requiresInteractiveInstaller {
+            return String(localized: "packages.install.requires_dsm.description")
+        }
+        if action(for: item, installedPackage: nil) == nil {
+            return String(localized: "common.error.catalog_install_unavailable")
+        }
+        return String(localized: "packages.status.not_installed")
+    }
+
+    @ViewBuilder
+    private func catalogActions(for item: PackageUpdate) -> some View {
         let installedPackage = vm.installedPackage(for: item)
-        return PackageCatalogRow(
-            item: item,
-            installedPackage: installedPackage,
-            updateAvailable: installedPackage.map { vm.update(for: $0) != nil } == true,
-            action: action(for: item, installedPackage: installedPackage),
-            isDisabled: operationsDisabled || vm.busy.contains(item.packageID),
-            requestAction: {
+        if let action = action(for: item, installedPackage: installedPackage) {
+            Button(action.title) {
                 requestAction(
-                    CatalogActionRequest(
-                        item: item,
-                        installedPackage: installedPackage
-                    )
+                    CatalogActionRequest(item: item, installedPackage: installedPackage)
                 )
             }
-        )
+            .disabled(operationsDisabled || vm.busy.contains(item.packageID))
+        }
     }
 
     private func action(
@@ -87,90 +143,6 @@ struct PackageCatalogView: View {
             return vm.update(for: installedPackage) != nil && vm.canApplyUpdates ? .update : nil
         }
         return vm.canInstall(item) ? .install : nil
-    }
-}
-
-private struct PackageCatalogRow: View {
-    let item: PackageUpdate
-    let installedPackage: PackageInfo?
-    let updateAvailable: Bool
-    let action: CatalogRowAction?
-    let isDisabled: Bool
-    let requestAction: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(item.packageID)
-                    .fontWeight(.medium)
-                if item.isBeta {
-                    Text("packages.filter.beta")
-                        .font(.caption)
-                        .foregroundStyle(.readableSecondary)
-                }
-                Spacer()
-                Text(formattedFileSize)
-                    .foregroundStyle(.readableSecondary)
-                if let action {
-                    Button(action.title, action: requestAction)
-                        .disabled(isDisabled)
-                        .accessibilityLabel(action.accessibilityLabel(for: item))
-                }
-            }
-            Text(String(localized: "packages.catalog.version.value", defaultValue: "Catalog version: \(item.version)"))
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-            installationStatus
-        }
-    }
-
-    @ViewBuilder
-    private var installationStatus: some View {
-        if let installed = installedPackage {
-            Text(String(localized: "common.status.installed_version", defaultValue: "Installed version: \(installedVersion(for: installed))"))
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-            if updateAvailable {
-                Text("packages.status.update_available")
-                    .font(.caption)
-                    .foregroundStyle(.readableOrange)
-            } else {
-                Text("packages.status.up_to_date")
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-            }
-        } else {
-            Text("packages.status.not_installed")
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-            if let unavailableInstallDescription {
-                Text(unavailableInstallDescription)
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-            }
-        }
-    }
-
-    private var unavailableInstallDescription: String? {
-        if item.requirements.requiresInteractiveInstaller {
-            return String(
-                localized: "packages.install.requires_dsm.description"
-            )
-        }
-        if action == nil {
-            return String(
-                localized: "common.error.catalog_install_unavailable"
-            )
-        }
-        return nil
-    }
-
-    private var formattedFileSize: String {
-        item.fileSize.formatted(.byteCount(style: .file))
-    }
-
-    private func installedVersion(for package: PackageInfo) -> String {
-        package.version ?? String(localized: "packages.detail.source.unknown")
     }
 }
 
@@ -187,15 +159,6 @@ private enum CatalogRowAction: Equatable {
         switch self {
         case .install: String(localized: "packages.install.button")
         case .update: String(localized: "common.button.update")
-        }
-    }
-
-    func accessibilityLabel(for item: PackageUpdate) -> String {
-        switch self {
-        case .install:
-            String(localized: "packages.install.action.with_version", defaultValue: "Install \(item.packageID) version \(item.version)")
-        case .update:
-            String(localized: "common.action.update_package", defaultValue: "Update \(item.packageID) to version \(item.version)")
         }
     }
 }

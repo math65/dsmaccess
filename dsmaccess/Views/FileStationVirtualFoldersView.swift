@@ -15,6 +15,7 @@ struct FileStationVirtualFoldersView: View {
     @State private var selectedType = FileStationVirtualFolderType.cifs
     @State private var sort = FileStationListSort.name
     @State private var ascending = true
+    @State private var selection = Set<FileStationItem.ID>()
     @AccessibilityFocusState private var focusHeading: Bool
     @AccessibilityFocusState private var focusStatus: Bool
 
@@ -118,36 +119,35 @@ struct FileStationVirtualFoldersView: View {
             )
             .accessibilityFocused($focusStatus)
         } else {
-            List(vm.virtualFolders) { folder in
-                virtualFolderRow(folder)
-            }
-            .accessibilityLabel("virtual_folders.table.label")
-        }
-    }
-
-    private func virtualFolderRow(_ folder: FileStationItem) -> some View {
-        HStack(spacing: 10) {
-            VStack(alignment: .leading, spacing: 3) {
-                Text(folder.name)
-                Text(folder.path)
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                if let summary = volumeSummary(folder.additional?.volumeStatus) {
-                    Text(summary)
-                        .font(.caption)
-                        .foregroundStyle(.readableSecondary)
+            // No sortable columns: the sort is the one the picker above asks DSM for, and it
+            // covers fields this table does not show (owner, group, POSIX, dates). Sorting by
+            // header would silently override the choice the user just made.
+            Table(vm.virtualFolders, selection: $selection) {
+                TableColumn("common.column.name") { folder in
+                    Text(folder.name)
+                }
+                TableColumn("common.column.location") { folder in
+                    Text(folder.path)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                }
+                TableColumn("common.column.free_space") { folder in
+                    Text(folder.freeSpaceDescription)
+                }
+                TableColumn("common.column.access") { folder in
+                    Text(folder.volumeAccessDescription)
                 }
             }
-            Spacer()
-            Button("common.button.open", systemImage: "arrow.forward") {
-                open(folder)
-                dismiss()
+            .accessibilityLabel("virtual_folders.table.label")
+            .contextMenu(forSelectionType: FileStationItem.ID.self) { ids in
+                if let folder = vm.virtualFolders.first(where: { ids.contains($0.id) }) {
+                    Button("common.button.open") {
+                        open(folder)
+                        dismiss()
+                    }
+                }
             }
-            .help("virtual_folders.open.label")
         }
-        .accessibilityElement(children: .contain)
     }
 
     private func load() async {
@@ -175,19 +175,6 @@ struct FileStationVirtualFoldersView: View {
         }
     }
 
-    private func volumeSummary(_ volume: FileStationItem.VolumeStatus?) -> String? {
-        guard let volume else { return nil }
-        var parts = [String]()
-        if let freeSpace = volume.freeSpace {
-            parts.append(
-                String(localized: "virtual_folders.free_space", defaultValue: "Free: \(freeSpace.formatted(.byteCount(style: .file)))")
-            )
-        }
-        if volume.isReadOnly == true {
-            parts.append(String(localized: "common.permission.read_only"))
-        }
-        return parts.isEmpty ? nil : parts.formatted(.list(type: .and))
-    }
 }
 
 private extension FileStationVirtualFolderType {

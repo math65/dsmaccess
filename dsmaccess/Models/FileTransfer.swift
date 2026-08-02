@@ -27,6 +27,14 @@ typealias DSMTransferProgressHandler = @MainActor @Sendable (DSMTransferProgress
 enum FileTransferDirection: String, Sendable {
     case upload
     case download
+
+    /// The direction used to be carried by an icon alone, which said nothing to VoiceOver.
+    var localizedName: String {
+        switch self {
+        case .upload: String(localized: "common.operation.upload")
+        case .download: String(localized: "common.operation.download")
+        }
+    }
 }
 
 enum FileTransferState: Equatable, Sendable {
@@ -35,6 +43,31 @@ enum FileTransferState: Equatable, Sendable {
     case completed
     case cancelled
     case failed(String)
+
+    var isActive: Bool {
+        self == .queued || self == .running
+    }
+
+    var isFailure: Bool {
+        if case .failed = self { true } else { false }
+    }
+
+    /// The readable state lives here rather than in the view because the table sorts on it:
+    /// sorting the case itself would order the rows by their English identifier while the
+    /// column shows the translation.
+    var localizedName: String {
+        switch self {
+        case .queued: String(localized: "common.status.waiting")
+        case .running: String(localized: "common.status.in_progress")
+        case .completed: String(localized: "common.status.done")
+        case .cancelled: String(localized: "transfers.status.cancelled")
+        case .failed: String(localized: "common.status.failed")
+        }
+    }
+
+    var failureMessage: String? {
+        if case .failed(let message) = self { message } else { nil }
+    }
 }
 
 struct FileTransferRecord: Equatable, Identifiable, Sendable {
@@ -63,4 +96,32 @@ struct FileTransferRecord: Equatable, Identifiable, Sendable {
         self.progress = progress
         self.state = state
     }
+
+    var statusDescription: String { state.localizedName }
+    var directionDescription: String { direction.localizedName }
+
+    /// How much of the transfer is done, as text. A transfer whose total size DSM never
+    /// reported has no percentage to show.
+    var progressDescription: String {
+        guard let fraction = progress?.fractionCompleted else { return "—" }
+        return fraction.formatted(.percent.precision(.fractionLength(0)))
+    }
+
+    var transferredDescription: String {
+        guard let progress else { return "—" }
+        let completed = progress.completedBytes.formatted(.byteCount(style: .file))
+        guard let total = progress.totalBytes else { return completed }
+        return String(
+            localized: "common.format.value_of_total",
+            defaultValue: "\(completed) of \(total.formatted(.byteCount(style: .file)))"
+        )
+    }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableDirection: String { directionDescription }
+    var sortableStatus: String { statusDescription }
+    var sortableProgress: Double { progress?.fractionCompleted ?? -1 }
+    var sortableTransferred: Int64 { progress?.completedBytes ?? -1 }
+    var sortableMessage: String { state.failureMessage ?? "" }
 }

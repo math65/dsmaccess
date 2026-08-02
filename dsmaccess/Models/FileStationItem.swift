@@ -23,6 +23,20 @@ struct FileStationItem: nonisolated Decodable, Equatable, Identifiable, Sendable
 
     var id: String { path }
 
+    /// Volume figures as text, for the virtual folders table. A mount point DSM reports
+    /// nothing about shows a dash rather than an empty cell, which would read as a value.
+    var freeSpaceDescription: String {
+        guard let freeSpace = additional?.volumeStatus?.freeSpace else { return "—" }
+        return freeSpace.formatted(.byteCount(style: .file))
+    }
+
+    var volumeAccessDescription: String {
+        guard let isReadOnly = additional?.volumeStatus?.isReadOnly else { return "—" }
+        return isReadOnly
+            ? String(localized: "common.permission.read_only")
+            : String(localized: "files.info.permission.read_write")
+    }
+
     private enum CodingKeys: String, CodingKey {
         case name, path, isdir, additional, children
     }
@@ -353,6 +367,14 @@ struct FileStationFavorite: nonisolated Decodable, Equatable, Identifiable, Send
 
     var id: String { path }
     var isAvailable: Bool { status != "broken" }
+
+    /// The readable state lives here rather than in the view: the table shows it as a word of
+    /// its own, never as a color or an icon alone.
+    var statusDescription: String {
+        isAvailable
+            ? String(localized: "favorites.status.available")
+            : String(localized: "common.status.unavailable")
+    }
 
     private enum CodingKeys: String, CodingKey {
         case path, name, status, additional
