@@ -89,6 +89,33 @@ struct DownloadTask: nonisolated Decodable, Identifiable, Hashable, Sendable {
 
     var canPause: Bool { ["downloading", "waiting", "finishing", "seeding"].contains(status) }
     var canResume: Bool { ["paused", "error"].contains(status) }
+
+    var destination: String? { additional?.detail?.destination }
+
+    /// The readable state lives here rather than in the view because the table sorts on it:
+    /// sorting the raw DSM value would order the rows by their English identifier while the
+    /// column shows the translation.
+    var statusDescription: String {
+        switch status {
+        case "waiting": String(localized: "common.status.waiting")
+        case "downloading": String(localized: "download_station.status.downloading")
+        case "paused": String(localized: "download_station.status.paused")
+        case "finishing": String(localized: "download_station.status.finishing")
+        case "finished": String(localized: "common.status.done")
+        case "hash_checking": String(localized: "download_station.status.checking")
+        case "seeding": String(localized: "download.section.sharing")
+        case "filehosting_waiting": String(localized: "download.status.waiting_host")
+        case "extracting": String(localized: "common.operation.extraction")
+        case "error": String(localized: "common.level.error")
+        default: String(localized: "common.status.unknown")
+        }
+    }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableStatus: String { statusDescription }
+    var sortableProgress: Double { progress ?? -1 }
+    var sortableDestination: String { destination ?? "" }
 }
 
 struct DownloadTaskList: nonisolated Decodable, Sendable {

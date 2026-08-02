@@ -2,7 +2,9 @@
 //  DownloadStationView.swift
 //  dsmaccess
 //
-//  Native management of Download Station tasks.
+//  Native management of Download Station tasks, as a sortable table: every value keeps its
+//  own column, so a rate or a progress can be read on its own instead of being buried in a
+//  row read as a single sentence.
 //
 
 import SwiftUI
@@ -10,6 +12,7 @@ import SwiftUI
 struct DownloadStationView: View {
     @State private var viewModel: DownloadStationViewModel
     @State private var selection: Set<String> = []
+    @State private var order = [KeyPathComparator(\DownloadTask.title, order: .forward)]
     @State private var searchText = ""
     @State private var showCreateSheet = false
     @State private var showDeleteConfirmation = false
@@ -72,13 +75,38 @@ struct DownloadStationView: View {
             )
             .accessibilityFocused($contentFocused)
         } else {
-            List(filteredTasks, selection: $selection) { task in
-                taskRow(task)
-                    .tag(task.id)
-                    .contextMenu { taskActions(task) }
+            Table(
+                filteredTasks.sorted(using: order),
+                selection: $selection,
+                sortOrder: $order
+            ) {
+                TableColumn("common.column.name", value: \.title) { task in
+                    Text(task.title)
+                }
+                TableColumn("common.column.state", value: \.sortableStatus) { task in
+                    Text(task.statusDescription)
+                }
+                TableColumn("common.column.progress", value: \.sortableProgress) { task in
+                    Text(progressText(task))
+                }
+                TableColumn("common.column.size", value: \.size) { task in
+                    Text(sizeSummary(task))
+                }
+                TableColumn("download_station.column.download_rate", value: \.downloadSpeed) { task in
+                    Text(rateText(task.downloadSpeed))
+                }
+                TableColumn("download_station.column.upload_rate", value: \.uploadSpeed) { task in
+                    Text(rateText(task.uploadSpeed))
+                }
+                TableColumn("common.column.destination", value: \.sortableDestination) { task in
+                    Text(task.destination ?? "—")
+                }
             }
             .accessibilityLabel("download_station.title")
             .accessibilityFocused($contentFocused)
+            .contextMenu(forSelectionType: String.self) { ids in
+                taskActions(for: ids)
+            }
         }
     }
 
@@ -144,74 +172,24 @@ struct DownloadStationView: View {
         }
     }
 
-    private func taskRow(_ task: DownloadTask) -> some View {
-        HStack(spacing: 12) {
-            Image(systemName: icon(for: task.status))
-                .foregroundStyle(color(for: task.status))
-                .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 5) {
-                HStack {
-                    Text(task.title).fontWeight(.medium)
-                    Spacer()
-                    Text(statusText(task.status))
-                        .font(.caption)
-                        .foregroundStyle(.readableSecondary)
-                }
-                if let progress = task.progress {
-                    ProgressView(value: progress)
-                        .accessibilityLabel(String(localized: "common.label.progress_for", defaultValue: "\(task.title) progress"))
-                        .accessibilityValue(progress.formatted(.percent.precision(.fractionLength(0))))
-                }
-                HStack {
-                    Text(sizeSummary(task))
-                    Spacer()
-                    if task.downloadSpeed > 0 {
-                        Label(speed(task.downloadSpeed), systemImage: "arrow.down")
-                    }
-                    if task.uploadSpeed > 0 {
-                        Label(speed(task.uploadSpeed), systemImage: "arrow.up")
-                    }
-                }
-                .font(.caption)
-                .foregroundStyle(.readableSecondary)
-            }
-        }
-        .padding(.vertical, 3)
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel(taskAccessibilityLabel(task))
-        .accessibilityActions {
-            if task.canPause {
-                Button("download_station.action.pause") { Task { await pause(ids: [task.id]) } }
-                    .help("download_station.action.pause_one.hint")
-            }
-            if task.canResume {
-                Button("download.button.resume") { Task { await resume(ids: [task.id]) } }
-                    .help("download.row.resume.hint")
-            }
-            Button("common.menu.delete", role: .destructive) {
-                selection = [task.id]
-                showDeleteConfirmation = true
-            }
-            .help("download_station.action.delete_one.hint")
-        }
-    }
-
     @ViewBuilder
-    private func taskActions(_ task: DownloadTask) -> some View {
-        if task.canPause {
-            Button("download_station.action.pause") { Task { await pause(ids: [task.id]) } }
-                .help("download_station.action.pause_one.hint")
+    private func taskActions(for ids: Set<String>) -> some View {
+        let targets = viewModel.tasks.filter { ids.contains($0.id) }
+        if targets.contains(where: \.canPause) {
+            Button("download_station.action.pause") {
+                Task { await pause(ids: Set(targets.filter(\.canPause).map(\.id))) }
+            }
         }
-        if task.canResume {
-            Button("download.button.resume") { Task { await resume(ids: [task.id]) } }
-                .help("download.row.resume.hint")
+        if targets.contains(where: \.canResume) {
+            Button("download.button.resume") {
+                Task { await resume(ids: Set(targets.filter(\.canResume).map(\.id))) }
+            }
         }
         Divider()
         Button("common.menu.delete", role: .destructive) {
-            selection = [task.id]
+            selection = ids
             showDeleteConfirmation = true
         }
-        .help("download_station.action.delete_one.hint")
     }
 
     private var statusBar: some View {
@@ -237,8 +215,8 @@ struct DownloadStationView: View {
         guard !searchText.isEmpty else { return viewModel.tasks }
         return viewModel.tasks.filter {
             $0.title.localizedStandardContains(searchText)
-                || $0.status.localizedStandardContains(searchText)
-                || ($0.additional?.detail?.destination?.localizedStandardContains(searchText) == true)
+                || $0.statusDescription.localizedStandardContains(searchText)
+                || ($0.destination?.localizedStandardContains(searchText) == true)
         }
     }
 
@@ -312,47 +290,15 @@ struct DownloadStationView: View {
         String(localized: "download_station.rate.per_second", defaultValue: "\(bytesPerSecond.formatted(.byteCount(style: .file))) per second")
     }
 
-    private func taskAccessibilityLabel(_ task: DownloadTask) -> String {
-        var parts = [task.title, statusText(task.status), sizeSummary(task)]
-        if task.downloadSpeed > 0 { parts.append(String(localized: "download.row.download_rate", defaultValue: "download \(speed(task.downloadSpeed))")) }
-        if task.uploadSpeed > 0 { parts.append(String(localized: "download.row.upload_rate", defaultValue: "upload \(speed(task.uploadSpeed))")) }
-        return parts.formatted(.list(type: .and))
+    /// A dash rather than "0 bytes per second": a task that is not transferring has no rate,
+    /// and the columns of the other modules mark an absent value the same way.
+    private func rateText(_ bytesPerSecond: Int64) -> String {
+        bytesPerSecond > 0 ? speed(bytesPerSecond) : "—"
     }
 
-    private func statusText(_ status: String) -> String {
-        switch status {
-        case "waiting": String(localized: "common.status.waiting")
-        case "downloading": String(localized: "download_station.column.name")
-        case "paused": String(localized: "download_station.status.paused")
-        case "finishing": String(localized: "download_station.status.finishing")
-        case "finished": String(localized: "common.status.done")
-        case "hash_checking": String(localized: "download_station.status.checking")
-        case "seeding": String(localized: "download.section.sharing")
-        case "filehosting_waiting": String(localized: "download.status.waiting_host")
-        case "extracting": String(localized: "common.operation.extraction")
-        case "error": String(localized: "common.level.error")
-        default: String(localized: "common.status.unknown")
-        }
-    }
-
-    private func icon(for status: String) -> String {
-        switch status {
-        case "downloading", "finishing": "arrow.down.circle.fill"
-        case "seeding": "arrow.up.circle.fill"
-        case "finished": "checkmark.circle.fill"
-        case "paused": "pause.circle.fill"
-        case "error": "exclamationmark.triangle.fill"
-        default: "clock"
-        }
-    }
-
-    private func color(for status: String) -> Color {
-        switch status {
-        case "finished": .green
-        case "error": .red
-        case "paused": .secondary
-        default: .accentColor
-        }
+    private func progressText(_ task: DownloadTask) -> String {
+        guard let progress = task.progress else { return "—" }
+        return progress.formatted(.percent.precision(.fractionLength(0)))
     }
 }
 

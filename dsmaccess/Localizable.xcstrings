@@ -2851,6 +2851,22 @@
         }
       }
     },
+    "common.column.destination": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Destination"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Destination"
+          }
+        }
+      }
+    },
     "common.column.expiration": {
       "localizations": {
         "en": {
@@ -3039,6 +3055,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Lieu"
+          }
+        }
+      }
+    },
+    "common.column.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progress"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Progression"
           }
         }
       }
@@ -8787,18 +8819,34 @@
         }
       }
     },
-    "download_station.column.name": {
+    "download_station.column.download_rate": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Download"
+            "value": "Download rate"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Téléchargement"
+            "value": "Débit descendant"
+          }
+        }
+      }
+    },
+    "download_station.column.upload_rate": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upload rate"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Débit montant"
           }
         }
       }
@@ -8911,6 +8959,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vérification"
+          }
+        }
+      }
+    },
+    "download_station.status.downloading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargement"
           }
         }
       }
