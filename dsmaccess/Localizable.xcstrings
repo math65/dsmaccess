@@ -2771,6 +2771,22 @@
         }
       }
     },
+    "common.column.administrator": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administrator"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Administrateur"
+          }
+        }
+      }
+    },
     "common.column.available_date": {
       "localizations": {
         "en": {
@@ -2847,6 +2863,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Date de modification"
+          }
+        }
+      }
+    },
+    "common.column.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
+          }
+        }
+      }
+    },
+    "common.column.email": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Email"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "E-mail"
           }
         }
       }
@@ -2959,6 +3007,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Emplacement"
+          }
+        }
+      }
+    },
+    "common.column.members": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Members"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Membres"
           }
         }
       }
