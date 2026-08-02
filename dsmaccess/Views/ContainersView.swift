@@ -95,6 +95,7 @@ struct ContainersPaneView: View {
     @State private var pendingForceStop: ContainerItem?
     @State private var pendingReset: ContainerItem?
     @State private var exportingProfileOf: ContainerItem?
+    @State private var editingSettingsOf: ContainerItem?
     @State private var exportShareNames: [String] = []
     @AccessibilityFocusState private var contentFocused: Bool
     @AccessibilityFocusState private var detailsSectionFocused: Bool
@@ -176,6 +177,9 @@ struct ContainersPaneView: View {
                         defaultValue: "“\(container.name)” will be recreated from its settings and left stopped. Its writable layer is discarded: anything written inside the container, outside a mounted folder, is lost. This cannot be undone."
                     ))
                 }
+            }
+            .sheet(item: $editingSettingsOf) { container in
+                ContainerSettingsSheet(container: container, vm: viewModel)
             }
             .sheet(item: $exportingProfileOf) { container in
                 // DSM names the file itself, so choosing the folder is the whole decision.
@@ -350,6 +354,8 @@ struct ContainersPaneView: View {
         Button("common.button.delete", role: .destructive) { pendingDelete = container }
             .help("containers.action.delete.hint")
         Divider()
+        Button("containers.settings.title") { editingSettingsOf = container }
+            .help("containers.settings.hint")
         Button("containers.action.export_profile") { exportingProfileOf = container }
             .help("containers.action.export_profile.hint")
         Button("containers.detail.title") {

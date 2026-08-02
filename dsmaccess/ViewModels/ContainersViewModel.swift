@@ -113,6 +113,33 @@ final class ContainersViewModel {
         }
     }
 
+    func profile(of container: ContainerItem) async throws -> ContainerProfile {
+        try await session.withClient { try await $0.containerProfile(name: container.name) }
+    }
+
+    /// Saves the edited profile. `editName` is what renames the container, so the announced
+    /// result names the container as it is now called, not as it was.
+    func updateProfile(
+        of container: ContainerItem,
+        editName: String,
+        profile: ContainerProfile
+    ) async -> DSMOperationOutcome {
+        await mutate(container) {
+            try await self.session.withClient {
+                try await $0.updateContainerProfile(
+                    name: container.name,
+                    editName: editName,
+                    profile: profile
+                )
+            }
+        } success: {
+            String(
+                localized: "containers.settings.saved",
+                defaultValue: "Settings saved for \(editName)"
+            )
+        }
+    }
+
     /// What the folder picker needs to offer a destination for the exported profile.
     func shareNames() async throws -> [String] {
         try await session.withClient { try await $0.listShares() }.map(\.name)

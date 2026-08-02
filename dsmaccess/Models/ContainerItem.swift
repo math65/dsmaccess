@@ -241,6 +241,67 @@ enum ContainerAction: String, Sendable {
     case restart
 }
 
+/// A container's creation profile, as `SYNO.Docker.Container get` returns it.
+///
+/// DSM's own Settings screen sends the **whole** profile back to `set`, with only the edited
+/// fields changed. So the profile is kept as received rather than modelled: the app edits the
+/// few fields it understands and hands the rest back untouched, which is what keeps a field it
+/// has never heard of from being dropped on save.
+struct ContainerProfile: Equatable, Sendable {
+    private(set) var fields: [String: DSMJSONValue]
+
+    nonisolated init(fields: [String: DSMJSONValue]) {
+        self.fields = fields
+    }
+
+    /// Bytes, `0` meaning no limit — DSM's own "unlimited".
+    var memoryLimit: Int64 {
+        get {
+            switch fields["memory_limit"] {
+            case .integer(let value): Int64(value)
+            case .number(let value): Int64(value)
+            default: 0
+            }
+        }
+        set { fields["memory_limit"] = .integer(Int(newValue)) }
+    }
+
+    var restartsAutomatically: Bool {
+        get {
+            if case .boolean(let value) = fields["enable_restart_policy"] { value } else { false }
+        }
+        set { fields["enable_restart_policy"] = .boolean(newValue) }
+    }
+
+    /// DSM shows this as Low / Medium / High; the wire value is a plain number.
+    var cpuPriority: Int {
+        get {
+            if case .integer(let value) = fields["cpu_priority"] { value } else { 0 }
+        }
+        set { fields["cpu_priority"] = .integer(newValue) }
+    }
+
+    var name: String {
+        if case .string(let value) = fields["name"] { value } else { "" }
+    }
+}
+
+/// Reply of `SYNO.Docker.Container get`: the live details, and the creation profile.
+struct ContainerProfileResponse: nonisolated Decodable, Sendable {
+    let profile: ContainerProfile
+
+    private enum CodingKeys: String, CodingKey {
+        case profile
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        profile = ContainerProfile(
+            fields: try container.decode([String: DSMJSONValue].self, forKey: .profile)
+        )
+    }
+}
+
 /// One process inside a running container. Captured on DSM 7.4: `pid` arrives as a string,
 /// `cpu` and `memoryPercent` as fractions of a percent, `start` as a short human date.
 struct ContainerProcess: nonisolated Decodable, Identifiable, Hashable, Sendable {

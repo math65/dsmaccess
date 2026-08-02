@@ -127,6 +127,34 @@ final class DSMContainerService {
         )
     }
 
+    /// Reads a container's creation profile, which is what its Settings screen edits.
+    func containerProfile(name: String) async throws -> ContainerProfile {
+        try await transport.read(
+            api: Self.containerAPI,
+            method: "get",
+            parameters: ["name": .string(name)],
+            as: ContainerProfileResponse.self
+        ).profile
+    }
+
+    /// Applies an edited profile. Captured contract: DSM wants the **whole** profile back, and
+    /// `edit_name` is what renames the container — leaving it equal to `name` keeps the name.
+    func updateContainerProfile(
+        name: String,
+        editName: String,
+        profile: ContainerProfile
+    ) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "set",
+            parameters: [
+                "name": .string(name),
+                "edit_name": .string(editName),
+                "profile": try .json(profile.fields),
+            ]
+        )
+    }
+
     /// Writes a container's creation profile next to its folder on the NAS. As with image
     /// export, `path` is a **folder** and DSM names the file itself, `<container>.syno.json`.
     func exportContainerProfile(name: String, folderPath: String) async throws {

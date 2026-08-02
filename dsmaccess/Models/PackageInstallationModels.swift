@@ -7,94 +7,25 @@
 
 import Foundation
 
-enum PackageJSONValue: Codable, Equatable, Sendable {
-    case null
-    case boolean(Bool)
-    case integer(Int)
-    case number(Double)
-    case string(String)
-    case array([PackageJSONValue])
-    case object([String: PackageJSONValue])
-
-    nonisolated init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        if container.decodeNil() {
-            self = .null
-        } else if let value = try? container.decode(Bool.self) {
-            self = .boolean(value)
-        } else if let value = try? container.decode(Int.self) {
-            self = .integer(value)
-        } else if let value = try? container.decode(Double.self) {
-            self = .number(value)
-        } else if let value = try? container.decode(String.self) {
-            self = .string(value)
-        } else if let value = try? container.decode([PackageJSONValue].self) {
-            self = .array(value)
-        } else if let value = try? container.decode([String: PackageJSONValue].self) {
-            self = .object(value)
-        } else {
-            throw DecodingError.dataCorruptedError(
-                in: container,
-                debugDescription: "Unsupported Package Center JSON value."
-            )
-        }
-    }
-
-    nonisolated func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        switch self {
-        case .null:
-            try container.encodeNil()
-        case .boolean(let value):
-            try container.encode(value)
-        case .integer(let value):
-            try container.encode(value)
-        case .number(let value):
-            try container.encode(value)
-        case .string(let value):
-            try container.encode(value)
-        case .array(let value):
-            try container.encode(value)
-        case .object(let value):
-            try container.encode(value)
-        }
-    }
-
-    var hasContent: Bool {
-        switch self {
-        case .null:
-            false
-        case .string(let value):
-            !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        case .array(let value):
-            !value.isEmpty
-        case .object(let value):
-            !value.isEmpty
-        case .boolean, .integer, .number:
-            true
-        }
-    }
-}
-
 struct PackageInstallationRequirements: Equatable, Sendable {
-    var dependencyServers: PackageJSONValue?
-    var dependencyPackages: PackageJSONValue?
-    var conflictingPackages: PackageJSONValue?
-    var breakingPackages: PackageJSONValue?
-    var replacementPackages: PackageJSONValue?
+    var dependencyServers: DSMJSONValue?
+    var dependencyPackages: DSMJSONValue?
+    var conflictingPackages: DSMJSONValue?
+    var breakingPackages: DSMJSONValue?
+    var replacementPackages: DSMJSONValue?
     var installType: String
-    var installOnColdStorage: PackageJSONValue?
+    var installOnColdStorage: DSMJSONValue?
     var hasLicenseAgreement: Bool
     var hasCustomInstallPages: Bool
 
     init(
-        dependencyServers: PackageJSONValue? = nil,
-        dependencyPackages: PackageJSONValue? = nil,
-        conflictingPackages: PackageJSONValue? = nil,
-        breakingPackages: PackageJSONValue? = nil,
-        replacementPackages: PackageJSONValue? = nil,
+        dependencyServers: DSMJSONValue? = nil,
+        dependencyPackages: DSMJSONValue? = nil,
+        conflictingPackages: DSMJSONValue? = nil,
+        breakingPackages: DSMJSONValue? = nil,
+        replacementPackages: DSMJSONValue? = nil,
         installType: String = "",
-        installOnColdStorage: PackageJSONValue? = nil,
+        installOnColdStorage: DSMJSONValue? = nil,
         hasLicenseAgreement: Bool = false,
         hasCustomInstallPages: Bool = false
     ) {
@@ -178,10 +109,10 @@ struct PackageInstallationMetadata: nonisolated Decodable, Sendable {
     let status: String?
     let installType: String
     let installOnColdStorage: Bool
-    let breakingPackages: PackageJSONValue?
-    let replacementPackages: PackageJSONValue?
-    let license: PackageJSONValue?
-    let installPages: PackageJSONValue?
+    let breakingPackages: DSMJSONValue?
+    let replacementPackages: DSMJSONValue?
+    let license: DSMJSONValue?
+    let installPages: DSMJSONValue?
 
     private struct Additional: nonisolated Decodable, Sendable {
         let status: String?
@@ -215,21 +146,21 @@ struct PackageInstallationMetadata: nonisolated Decodable, Sendable {
         installType = container.flexString(.installType) ?? ""
         installOnColdStorage = container.flexBool(.installOnColdStorage) ?? false
         breakingPackages = try container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .breakingPackages
         ) ?? container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .alternateBreakingPackages
         )
         replacementPackages = try container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .replacementPackages
         ) ?? container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .alternateReplacementPackages
         )
-        license = try container.decodeIfPresent(PackageJSONValue.self, forKey: .license)
-        installPages = try container.decodeIfPresent(PackageJSONValue.self, forKey: .installPages)
+        license = try container.decodeIfPresent(DSMJSONValue.self, forKey: .license)
+        installPages = try container.decodeIfPresent(DSMJSONValue.self, forKey: .installPages)
     }
 
     var displayName: String {

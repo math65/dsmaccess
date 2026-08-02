@@ -563,7 +563,7 @@ final class DSMPackageService {
         force: Bool,
         source: InstallationSource
     ) async throws {
-        let check: [String: PackageJSONValue] = [
+        let check: [String: DSMJSONValue] = [
             "api": .string(Self.installationAPI.name),
             "method": .string("check"),
             "version": .integer(2),
@@ -574,7 +574,7 @@ final class DSMPackageService {
             "blCheckDep": .boolean(checkDependencies),
             "replacepkgs": metadata.replacementPackages ?? .null,
         ]
-        var install: [String: PackageJSONValue] = [
+        var install: [String: DSMJSONValue] = [
             "api": .string(Self.installationAPI.name),
             "method": .string(method),
             "version": .integer(1),
@@ -592,7 +592,7 @@ final class DSMPackageService {
         case .task(let taskID):
             install["task_id"] = .string(taskID)
         }
-        let refresh: [String: PackageJSONValue] = [
+        let refresh: [String: DSMJSONValue] = [
             "api": .string(Self.packageAPI.name),
             "method": .string("get"),
             "version": .integer(1),

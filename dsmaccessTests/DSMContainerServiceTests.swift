@@ -181,6 +181,41 @@ struct DSMContainerServiceTests {
         #expect(targets == [Target(repository: "hello-world", tags: ["latest"])])
     }
 
+    @Test func containerProfileSurvivesTheRoundTrip() async throws {
+        // Captured contract: `set` wants the whole profile back. A field the app does not model
+        // must return untouched, or saving a memory limit would quietly drop the port bindings.
+        let payload = """
+        {"success":true,"data":{"profile":{"name":"web","memory_limit":0,\
+        "enable_restart_policy":false,"port_bindings":[{"host_port":8080}],\
+        "some_future_field":"kept"}}}
+        """
+        let stub = DSMRequestStub(results: [
+            .response(Data(payload.utf8)),
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        var profile = try await service.containerProfile(name: "web")
+        profile.memoryLimit = 268_435_456
+        try await service.updateContainerProfile(
+            name: "web",
+            editName: "web",
+            profile: profile
+        )
+
+        let parameters = try query(from: try #require(await stub.requests.last))
+        #expect(parameters["method"] == "set")
+        #expect(parameters["edit_name"] == #""web""#)
+        let sent = try #require(parameters["profile"]?.data(using: .utf8))
+        let fields = try #require(
+            try JSONSerialization.jsonObject(with: sent) as? [String: Any]
+        )
+        #expect(fields["memory_limit"] as? Int == 268_435_456)
+        #expect(fields["some_future_field"] as? String == "kept")
+        #expect(fields["port_bindings"] != nil)
+        #expect(fields["enable_restart_policy"] as? Bool == false)
+    }
+
     @Test func containerForceStopSendsSignalAsAnInteger() async throws {
         // Captured contract: `signal` is the integer 9. "9", "SIGKILL" and "KILL" are all
         // refused by DSM with error 114, and nothing in the build would catch the quoting.
