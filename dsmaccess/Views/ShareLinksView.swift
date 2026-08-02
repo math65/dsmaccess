@@ -155,14 +155,13 @@ struct ShareLinksView: View {
                 TableColumn("common.column.expiration_date", value: \.sortableExpirationDate) { link in
                     Text(link.expirationDate ?? "—")
                 }
-                // The four per-row buttons stay in the table rather than moving to a context
-                // menu: they were already reachable one by one here, and a menu would put them
-                // one step further away.
-                TableColumn("common.column.actions") { link in
+            }
+            .accessibilityLabel("share_links.title")
+            .contextMenu(forSelectionType: SharingLink.ID.self) { ids in
+                if let link = vm.shareLinks.first(where: { ids.contains($0.id) }) {
                     rowActions(for: link)
                 }
             }
-            .accessibilityLabel("share_links.title")
         }
     }
 
@@ -184,24 +183,17 @@ struct ShareLinksView: View {
         .padding()
     }
 
+    @ViewBuilder
     private func rowActions(for link: SharingLink) -> some View {
-        HStack(spacing: 6) {
-            Button("common.button.details", systemImage: "info.circle") { detailsLink = link }
-                .labelStyle(.iconOnly)
-                .help("share_links.row.details.button")
-            Button("common.button.edit", systemImage: "pencil") { editingLink = link }
-                .labelStyle(.iconOnly)
-                .help("share_links.row.edit.button")
-            Button("common.button.copy", systemImage: "doc.on.clipboard") { copyToClipboard(link.url) }
-                .labelStyle(.iconOnly)
-                .help("share_links.row.copy.button")
-            Button("common.button.delete", systemImage: "trash", role: .destructive) {
-                pendingDelete = [link]
-            }
-            .labelStyle(.iconOnly)
-            .help("share_links.row.delete.button")
+        Button("common.button.details") { detailsLink = link }
+        Button("common.button.edit") { editingLink = link }
+        Button("common.button.copy") { copyToClipboard(link.url) }
+
+        Divider()
+
+        Button("common.button.delete", role: .destructive) {
+            pendingDelete = [link]
         }
-        .buttonStyle(.borderless)
     }
 
     private var selectedLinks: [SharingLink] {
