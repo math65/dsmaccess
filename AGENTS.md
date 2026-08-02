@@ -156,6 +156,16 @@ loading, content, empty, validation failure, operation in progress, and error.
   Never combine a table row into a single accessibility element.
 - A table carries its own `accessibilityLabel`, naming what it lists. Without one VoiceOver
   announces an unnamed table, and the audit reports the table as having no description.
+- **Every scrolling container is named**, not only tables: a `Form`, a `List` and a `ScrollView`
+  each carry an `accessibilityLabel`, or VoiceOver announces "scroll area" and nothing else.
+  The label names **what the region holds, never the window title**: a sheet called "Create a
+  project" holds "Project settings", so the title is not read twice. On a `Form` the label goes
+  right after `.formStyle(.grouped)`; on a `List` or a `ScrollView` it goes on the closing
+  modifiers, which is where a quick look for an existing label has to be aimed.
+- Per-row actions belong to the table's `.contextMenu(forSelectionType:)`, never to an "Actions"
+  column: the column widens every row and puts controls between the user and the next line.
+  Actions that cannot apply to the selected row stay listed and disabled, so the menu keeps the
+  same shape from one row to the next.
 - A screen that filters its content puts the search field in the toolbar with `.searchable`,
   where every other module keeps it, rather than inline above the content.
 - For status and metadata text in module views, use the contrast-checked styles from
