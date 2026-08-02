@@ -181,6 +181,52 @@ struct DSMContainerServiceTests {
         #expect(targets == [Target(repository: "hello-world", tags: ["latest"])])
     }
 
+    @Test func containerStatisticsDeriveTheCPUShare() async throws {
+        // Captured contract: `stats` takes no parameter and answers keyed by container id, and
+        // DSM sends no CPU percentage — it comes from the gap between the two samples.
+        let payload = """
+        {"success":true,"data":{"abc123":{\
+        "cpu_stats":{"cpu_usage":{"total_usage":2000},"system_cpu_usage":20000,"online_cpus":2},\
+        "precpu_stats":{"cpu_usage":{"total_usage":1000},"system_cpu_usage":10000},\
+        "memory_stats":{"usage":536870912,"limit":1073741824},\
+        "networks":{"eth0":{"rx_bytes":1024,"tx_bytes":512}}}}}
+        """
+        let stub = DSMRequestStub(results: [.response(Data(payload.utf8))])
+        let service = makeService(stub: stub)
+
+        let statistics = try await service.containerStatistics()
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "stats")
+        #expect(parameters["name"] == nil)
+
+        let entry = try #require(statistics["abc123"])
+        // 1000 of 10000 system ticks on 2 cores: 10 % per core, 20 % overall.
+        #expect(entry.cpuPercent == 20)
+        #expect(entry.memoryPercent == 50)
+        #expect(entry.receivedBytes == 1024)
+        #expect(entry.sentBytes == 512)
+    }
+
+    @Test func containerStatisticsWithoutAPreviousSampleReportNothing() async throws {
+        // A container just started has no earlier sample. Reporting 0 % would read as idle
+        // rather than as unknown.
+        let payload = """
+        {"success":true,"data":{"abc123":{\
+        "cpu_stats":{"cpu_usage":{"total_usage":2000},"system_cpu_usage":20000,"online_cpus":2},\
+        "precpu_stats":{"cpu_usage":{"total_usage":0},"system_cpu_usage":0},\
+        "memory_stats":{"usage":0,"limit":0}}}}
+        """
+        let stub = DSMRequestStub(results: [.response(Data(payload.utf8))])
+        let service = makeService(stub: stub)
+
+        let entry = try #require(try await service.containerStatistics()["abc123"])
+
+        #expect(entry.cpuPercent == nil)
+        #expect(entry.memoryPercent == nil)
+        #expect(entry.receivedBytes == 0)
+    }
+
     @Test func containerProfileSurvivesTheRoundTrip() async throws {
         // Captured contract: `set` wants the whole profile back. A field the app does not model
         // must return untouched, or saving a memory limit would quietly drop the port bindings.

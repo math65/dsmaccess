@@ -80,6 +80,7 @@ struct ContainersView: View {
 struct ContainersPaneView: View {
     private enum DetailsSection: Hashable {
         case information
+        case statistics
         case logs
         case processes
     }
@@ -390,6 +391,7 @@ struct ContainersPaneView: View {
             VStack(spacing: 0) {
                 Picker("containers.detail.title", selection: $detailsSection) {
                     Text("common.label.information").tag(DetailsSection.information)
+                    Text("containers.detail.statistics").tag(DetailsSection.statistics)
                     Text("common.label.log").tag(DetailsSection.logs)
                     Text("containers.detail.processes").tag(DetailsSection.processes)
                 }
@@ -402,6 +404,8 @@ struct ContainersPaneView: View {
 
                 if detailsSection == .processes {
                     processView(container)
+                } else if detailsSection == .statistics {
+                    statisticsView(container)
                 } else if detailsSection == .information {
                     Form {
                         Section("containers.column.name") {
@@ -448,6 +452,69 @@ struct ContainersPaneView: View {
         .frame(minWidth: 520, minHeight: 430)
         .task { await focusDetails(for: container) }
         .onDisappear { detailsSectionFocused = false }
+    }
+
+    @ViewBuilder
+    private func statisticsView(_ container: ContainerItem) -> some View {
+        if viewModel.isLoadingStatistics && viewModel.statisticsContainerName == container.name {
+            ModuleLoadingView("containers.statistics.loading")
+        } else if let message = viewModel.statisticsErrorMessage {
+            ModuleErrorView(message: message) {
+                Task { await viewModel.loadStatistics(for: container) }
+            }
+        } else if let statistics = viewModel.statistics,
+                  viewModel.statisticsContainerName == container.name {
+            Form {
+                Section("common.label.resources") {
+                    // Docker sends counters, not a percentage: a container just started has no
+                    // earlier sample to compare with, and says so instead of showing 0 %.
+                    LabeledContent(
+                        "common.metric.processor",
+                        value: statistics.cpuPercent.map {
+                            "\($0.formatted(.number.precision(.fractionLength(1)))) %"
+                        } ?? String(localized: "containers.statistics.pending")
+                    )
+                    LabeledContent(
+                        "common.metric.memory",
+                        value: statistics.memoryUsage.formatted(.byteCount(style: .memory))
+                    )
+                    if let share = statistics.memoryPercent {
+                        LabeledContent(
+                            "containers.statistics.memory_share",
+                            value: "\(share.formatted(.number.precision(.fractionLength(1)))) %"
+                        )
+                    }
+                    if statistics.memoryLimit > 0 {
+                        LabeledContent(
+                            "containers.statistics.memory_limit",
+                            value: statistics.memoryLimit.formatted(.byteCount(style: .memory))
+                        )
+                    }
+                }
+                Section("containers.statistics.network") {
+                    LabeledContent(
+                        "containers.statistics.received",
+                        value: statistics.receivedBytes.formatted(.byteCount(style: .file))
+                    )
+                    LabeledContent(
+                        "containers.statistics.sent",
+                        value: statistics.sentBytes.formatted(.byteCount(style: .file))
+                    )
+                }
+            }
+            .formStyle(.grouped)
+            .accessibilityLabel(String(
+                localized: "containers.statistics.label",
+                defaultValue: "Statistics of \(container.name)"
+            ))
+            .labeledContentStyle(.readable)
+        } else {
+            EmptyModuleView(
+                title: "containers.statistics.empty.title",
+                systemImage: "chart.bar",
+                description: "containers.statistics.empty.description"
+            )
+        }
     }
 
     @ViewBuilder
@@ -589,6 +656,7 @@ struct ContainersPaneView: View {
         detailsContainer = container
         Task { await viewModel.loadLogs(for: container) }
         Task { await viewModel.loadProcesses(for: container) }
+        Task { await viewModel.loadStatistics(for: container) }
     }
 
     private func focusDetails(for container: ContainerItem) async {

@@ -127,6 +127,17 @@ final class DSMContainerService {
         )
     }
 
+    /// Docker's raw counters for every container at once. Captured contract: `stats` takes no
+    /// parameter — a `name` is ignored — and answers a dictionary keyed by container id.
+    func containerStatistics() async throws -> [String: ContainerStatistics] {
+        try await transport.read(
+            api: Self.containerAPI,
+            method: "stats",
+            parameters: [:],
+            as: [String: ContainerStatistics].self
+        )
+    }
+
     /// Reads a container's creation profile, which is what its Settings screen edits.
     func containerProfile(name: String) async throws -> ContainerProfile {
         try await transport.read(

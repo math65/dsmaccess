@@ -19,6 +19,10 @@ final class ContainersViewModel {
     private(set) var isLoading = false
     private(set) var isLoadingLogs = false
     private(set) var isLoadingProcesses = false
+    private(set) var statistics: ContainerStatistics?
+    private(set) var statisticsContainerName: String?
+    private(set) var isLoadingStatistics = false
+    var statisticsErrorMessage: String?
     private(set) var busyNames: Set<String> = []
     var errorMessage: String?
     var logErrorMessage: String?
@@ -28,6 +32,7 @@ final class ContainersViewModel {
     private var loadGeneration = 0
     private var logGeneration = 0
     private var processGeneration = 0
+    private var statisticsGeneration = 0
 
     init(session: SessionStore) {
         self.session = session
@@ -193,6 +198,34 @@ final class ContainersViewModel {
                 localized: "common.error.failed_for_item",
                 defaultValue: "Failed for \(container.name): \(reason)"
             ))
+        }
+    }
+
+    /// Docker's counters for the container being looked at. The call returns every container at
+    /// once, so the one on screen is picked out by identifier.
+    func loadStatistics(for container: ContainerItem) async {
+        statisticsGeneration += 1
+        let generation = statisticsGeneration
+        isLoadingStatistics = true
+        statisticsErrorMessage = nil
+        statisticsContainerName = container.name
+        defer { if generation == statisticsGeneration { isLoadingStatistics = false } }
+
+        do {
+            let all = try await session.withClient { try await $0.containerStatistics() }
+            guard generation == statisticsGeneration,
+                  statisticsContainerName == container.name else { return }
+            statistics = all[container.id]
+            if statistics == nil {
+                statisticsErrorMessage = String(localized: "containers.statistics.unavailable")
+            }
+        } catch {
+            guard generation == statisticsGeneration,
+                  statisticsContainerName == container.name,
+                  !DSMError.isCancellation(error) else { return }
+            statistics = nil
+            statisticsErrorMessage = (error as? DSMError)?.errorDescription
+                ?? error.localizedDescription
         }
     }
 

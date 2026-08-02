@@ -286,6 +286,103 @@ struct ContainerProfile: Equatable, Sendable {
     }
 }
 
+/// Docker's raw counters for one container, as `SYNO.Docker.Container stats` returns them.
+///
+/// The method takes **no parameter** and answers with every container at once, keyed by
+/// identifier. DSM does not compute a CPU percentage: it has to be derived from the two
+/// samples the payload carries, which is what its own Statistics tab does.
+struct ContainerStatistics: nonisolated Decodable, Equatable, Sendable {
+    let cpuTotal: Int64
+    let previousCPUTotal: Int64
+    let systemCPUTotal: Int64
+    let previousSystemCPUTotal: Int64
+    let onlineCPUs: Int
+    let memoryUsage: Int64
+    let memoryLimit: Int64
+    let receivedBytes: Int64
+    let sentBytes: Int64
+
+    private enum CodingKeys: String, CodingKey {
+        case cpuStats = "cpu_stats"
+        case preCPUStats = "precpu_stats"
+        case memoryStats = "memory_stats"
+        case networks
+    }
+
+    private enum CPUKeys: String, CodingKey {
+        case cpuUsage = "cpu_usage"
+        case systemCPUUsage = "system_cpu_usage"
+        case onlineCPUs = "online_cpus"
+    }
+
+    private enum CPUUsageKeys: String, CodingKey {
+        case totalUsage = "total_usage"
+    }
+
+    private enum MemoryKeys: String, CodingKey {
+        case usage, limit
+    }
+
+    private enum InterfaceKeys: String, CodingKey {
+        case receivedBytes = "rx_bytes"
+        case sentBytes = "tx_bytes"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        let cpu = try container.nestedContainer(keyedBy: CPUKeys.self, forKey: .cpuStats)
+        cpuTotal = try cpu.nestedContainer(keyedBy: CPUUsageKeys.self, forKey: .cpuUsage)
+            .decode(Int64.self, forKey: .totalUsage)
+        systemCPUTotal = cpu.flexInt64(.systemCPUUsage) ?? 0
+        onlineCPUs = cpu.flexInt(.onlineCPUs) ?? 1
+
+        let previous = try container.nestedContainer(keyedBy: CPUKeys.self, forKey: .preCPUStats)
+        previousCPUTotal = (try? previous.nestedContainer(
+            keyedBy: CPUUsageKeys.self, forKey: .cpuUsage
+        ).decode(Int64.self, forKey: .totalUsage)) ?? 0
+        previousSystemCPUTotal = previous.flexInt64(.systemCPUUsage) ?? 0
+
+        let memory = try container.nestedContainer(keyedBy: MemoryKeys.self, forKey: .memoryStats)
+        memoryUsage = memory.flexInt64(.usage) ?? 0
+        memoryLimit = memory.flexInt64(.limit) ?? 0
+
+        // Only the container's own interfaces are listed, and a container attached to no
+        // network has none at all.
+        let interfaces = try container.decodeIfPresent(
+            [String: NetworkInterface].self, forKey: .networks
+        ) ?? [:]
+        receivedBytes = interfaces.values.reduce(0) { $0 + $1.receivedBytes }
+        sentBytes = interfaces.values.reduce(0) { $0 + $1.sentBytes }
+    }
+
+    private struct NetworkInterface: nonisolated Decodable, Sendable {
+        let receivedBytes: Int64
+        let sentBytes: Int64
+
+        nonisolated init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: InterfaceKeys.self)
+            receivedBytes = container.flexInt64(.receivedBytes) ?? 0
+            sentBytes = container.flexInt64(.sentBytes) ?? 0
+        }
+    }
+
+    /// Docker's own formula: the container's share of the CPU time the system spent between
+    /// the two samples, scaled by the number of cores. A first sample with no predecessor, or
+    /// two identical samples, means there is nothing to report yet rather than zero usage.
+    var cpuPercent: Double? {
+        let used = cpuTotal - previousCPUTotal
+        let elapsed = systemCPUTotal - previousSystemCPUTotal
+        guard previousCPUTotal > 0, elapsed > 0, used >= 0 else { return nil }
+        return Double(used) / Double(elapsed) * Double(onlineCPUs) * 100
+    }
+
+    var memoryPercent: Double? {
+        guard memoryLimit > 0 else { return nil }
+        return Double(memoryUsage) / Double(memoryLimit) * 100
+    }
+}
+
 /// Reply of `SYNO.Docker.Container get`: the live details, and the creation profile.
 struct ContainerProfileResponse: nonisolated Decodable, Sendable {
     let profile: ContainerProfile
