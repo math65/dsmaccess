@@ -3267,6 +3267,22 @@
         }
       }
     },
+    "common.column.recycle_bin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recycle bin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corbeille"
+          }
+        }
+      }
+    },
     "common.column.resource": {
       "localizations": {
         "en": {

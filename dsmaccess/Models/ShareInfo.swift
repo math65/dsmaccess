@@ -82,19 +82,20 @@ extension SharedFolder {
         return volumeLabel(for: path)
     }
 
-    /// Secondary line: "Volume 1 · Mac backups" (nil if there is nothing to show).
-    var subtitleText: String? {
-        var parts: [String] = []
-        if let vol = volumeText { parts.append(vol) }
-        if let d = desc, !d.isEmpty { parts.append(d) }
-        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    /// DSM omits the flag rather than sending false on shares it has never been set on, so an
+    /// absent value is reported as such instead of being read as a disabled recycle bin.
+    var recycleBinDescription: String {
+        guard let recyclebin else { return "—" }
+        return recyclebin
+            ? String(localized: "common.answer.yes")
+            : String(localized: "common.answer.no")
     }
 
-    /// Full VoiceOver label: "Backups, on Volume 1, Mac backups".
-    var accessibilityLabel: String {
-        var label = displayName
-        if let vol = volumeText { label += ", " + String(localized: "share.info.on_server", defaultValue: "on \(vol)") }
-        if let d = desc, !d.isEmpty { label += ", \(d)" }
-        return label
-    }
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableName: String { displayName }
+    var sortableVolume: String { volumeText ?? "" }
+    var sortableDescription: String { desc ?? "" }
+    /// Sorted as text like `NASConnection.sortableTwoFactor`: `Bool` is not `Comparable`.
+    var sortableRecycleBin: String { recyclebin == true ? "1" : "0" }
 }
