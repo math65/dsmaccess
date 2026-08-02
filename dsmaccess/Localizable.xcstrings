@@ -2755,6 +2755,22 @@
         }
       }
     },
+    "common.column.actions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Actions"
+          }
+        }
+      }
+    },
     "common.column.address": {
       "localizations": {
         "en": {
@@ -3087,6 +3103,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Propriétaire"
+          }
+        }
+      }
+    },
+    "common.column.password": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Password"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mot de passe"
           }
         }
       }

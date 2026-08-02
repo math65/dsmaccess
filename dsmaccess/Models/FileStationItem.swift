@@ -494,4 +494,19 @@ struct SharingLink: nonisolated Decodable, Equatable, Identifiable, Sendable {
         qrCode = container.flexString(.qrcode)
         creationError = container.flexInt(.creationError)
     }
+
+    /// What names the link on screen: DSM only fills `name` for some links, and a link with
+    /// neither name nor path is still identified by the URL it hands out.
+    var displayName: String { name ?? path ?? url }
+
+    /// Non-optional sort keys: a missing value sorts first rather than preventing its column
+    /// from being sorted at all.
+    var sortableName: String { displayName }
+    var sortableOwner: String { owner ?? "" }
+    var sortableStatus: String { status ?? "" }
+    var sortableAvailableDate: String { availableDate ?? "" }
+    var sortableExpirationDate: String { expirationDate ?? "" }
+    /// Sorted as text like `NASConnection.sortableTwoFactor`: `Bool` is not `Comparable`, and
+    /// the column must be sortable like the others.
+    var sortablePassword: String { hasPassword == true ? "1" : "0" }
 }
