@@ -359,6 +359,7 @@ protocol DSMClientProtocol: AnyObject {
     func deleteContainer(name: String) async throws
     func killContainer(name: String) async throws
     func resetContainer(name: String) async throws
+    func exportContainerProfile(name: String, folderPath: String) async throws
     func containerProcesses(name: String) async throws -> [ContainerProcess]
     func pruneDockerImages() async throws
     func startDockerImageUpgrade(repository: String) async throws -> DockerImagePullTask
@@ -1431,6 +1432,10 @@ final class DSMClient: DSMClientProtocol {
 
     func resetContainer(name: String) async throws {
         try await containers.resetContainer(name: name)
+    }
+
+    func exportContainerProfile(name: String, folderPath: String) async throws {
+        try await containers.exportContainerProfile(name: name, folderPath: folderPath)
     }
 
     func deleteContainer(name: String) async throws {

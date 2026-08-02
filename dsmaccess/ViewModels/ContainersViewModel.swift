@@ -113,6 +113,40 @@ final class ContainersViewModel {
         }
     }
 
+    /// What the folder picker needs to offer a destination for the exported profile.
+    func shareNames() async throws -> [String] {
+        try await session.withClient { try await $0.listShares() }.map(\.name)
+    }
+
+    func folders(in path: String) async throws -> [FileStationItem] {
+        try await session.withClient { client in
+            try await client.list(folderPath: path)
+                .filter(\.isdir)
+                .sorted { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
+        }
+    }
+
+    /// Writes the container's creation profile to a folder of the NAS. DSM names the file
+    /// itself, so the result says where it landed rather than pretending the name was a choice.
+    func exportProfile(
+        of container: ContainerItem,
+        to folderPath: String
+    ) async -> DSMOperationOutcome {
+        await mutate(container) {
+            try await self.session.withClient {
+                try await $0.exportContainerProfile(
+                    name: container.name,
+                    folderPath: folderPath
+                )
+            }
+        } success: {
+            String(
+                localized: "containers.action.export_profile.success",
+                defaultValue: "Settings exported to \(folderPath)/\(container.name).syno.json"
+            )
+        }
+    }
+
     private func mutate(
         _ container: ContainerItem,
         _ operation: () async throws -> Void,

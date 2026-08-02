@@ -12,6 +12,7 @@ final class DSMContainerService {
     private static let containerAPI = DSMAPI("SYNO.Docker.Container", preferredVersion: 1)
     private static let resourceAPI = DSMAPI("SYNO.Docker.Container.Resource", preferredVersion: 1)
     private static let logAPI = DSMAPI("SYNO.Docker.Container.Log", preferredVersion: 1)
+    private static let containerProfileAPI = DSMAPI("SYNO.Docker.Container.Profile", preferredVersion: 1)
     private static let projectAPI = DSMAPI("SYNO.Docker.Project", preferredVersion: 1)
     private static let imageAPI = DSMAPI("SYNO.Docker.Image", preferredVersion: 1)
     private static let networkAPI = DSMAPI("SYNO.Docker.Network", preferredVersion: 1)
@@ -122,6 +123,19 @@ final class DSMContainerService {
                 "name": .string(name),
                 "force": .boolean(false),
                 "preserve_profile": .boolean(true),
+            ]
+        )
+    }
+
+    /// Writes a container's creation profile next to its folder on the NAS. As with image
+    /// export, `path` is a **folder** and DSM names the file itself, `<container>.syno.json`.
+    func exportContainerProfile(name: String, folderPath: String) async throws {
+        try await transport.perform(
+            api: Self.containerProfileAPI,
+            method: "export",
+            parameters: [
+                "name": .string(name),
+                "path": .string(folderPath),
             ]
         )
     }

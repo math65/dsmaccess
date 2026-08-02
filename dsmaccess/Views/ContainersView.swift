@@ -94,6 +94,8 @@ struct ContainersPaneView: View {
     @State private var pendingDelete: ContainerItem?
     @State private var pendingForceStop: ContainerItem?
     @State private var pendingReset: ContainerItem?
+    @State private var exportingProfileOf: ContainerItem?
+    @State private var exportShareNames: [String] = []
     @AccessibilityFocusState private var contentFocused: Bool
     @AccessibilityFocusState private var detailsSectionFocused: Bool
     /// Whether this tab is the selected one. Its search field and toolbar live at the window
@@ -175,6 +177,23 @@ struct ContainersPaneView: View {
                     ))
                 }
             }
+            .sheet(item: $exportingProfileOf) { container in
+                // DSM names the file itself, so choosing the folder is the whole decision.
+                SharedFolderPickerSheet(
+                    initialPath: "/docker",
+                    shareNames: exportShareNames,
+                    loadFolders: viewModel.folders,
+                    createFolder: nil
+                ) { chosen in
+                    Task {
+                        VoiceOver.announce(
+                            await viewModel.exportProfile(of: container, to: chosen),
+                            priority: .high
+                        )
+                    }
+                }
+            }
+            .task { exportShareNames = (try? await viewModel.shareNames()) ?? [] }
             .onChange(of: viewModel.containers) {
                 guard let selection else { return }
                 if !viewModel.containers.contains(where: { $0.id == selection }) {
@@ -331,6 +350,8 @@ struct ContainersPaneView: View {
         Button("common.button.delete", role: .destructive) { pendingDelete = container }
             .help("containers.action.delete.hint")
         Divider()
+        Button("containers.action.export_profile") { exportingProfileOf = container }
+            .help("containers.action.export_profile.hint")
         Button("containers.detail.title") {
             presentDetails(for: container)
         }

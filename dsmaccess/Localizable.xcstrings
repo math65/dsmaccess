@@ -6755,6 +6755,54 @@
         }
       }
     },
+    "containers.action.export_profile": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Export settings…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exporter les réglages…"
+          }
+        }
+      }
+    },
+    "containers.action.export_profile.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Writes the container's creation settings to a folder of the NAS."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrit les réglages de création du conteneur dans un dossier du NAS."
+          }
+        }
+      }
+    },
+    "containers.action.export_profile.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings exported to %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages exportés vers %@"
+          }
+        }
+      }
+    },
     "containers.action.force_stop": {
       "localizations": {
         "en": {
