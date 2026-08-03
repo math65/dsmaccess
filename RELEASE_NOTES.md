@@ -1,3 +1,54 @@
+## v1.1-beta.21 (build 22) — 2026-08-03
+
+### Highlights
+
+- Container Manager is now covered in full: you can create a container, not just
+  watch the ones already there.
+
+### New
+
+- Containers: a New container button asks for an image, a name, the ports to
+  publish, the folders to mount and the environment variables, then creates it.
+  A port left at 0 is chosen for you when the container starts.
+- Containers: Duplicate makes a second container with the same settings. The
+  copy arrives stopped, and its ports are left free so it cannot clash with the
+  original.
+- Containers: a Settings screen renames a container, caps its memory and decides
+  whether it restarts on its own.
+- Containers: a Statistics tab shows the memory in use and the bytes received
+  and sent. A container that has just started says its processor share is not
+  measurable yet rather than showing zero.
+- Containers: Force stop kills a container that will not stop, and Reset builds
+  it again from its settings. Both say what is lost before doing it.
+- Containers: a container's settings can be written to a folder of the NAS.
+
+### Changes
+
+- Nine more lists became sortable tables, with one column per value: File
+  Station favourites, tasks, virtual folders and transfers, installed packages,
+  the package catalogue, shared folders, the USB Copy log and the archive
+  browser. Reading a row column by column no longer means hearing it as one
+  block.
+- Per-row buttons moved into each table's context menu, everywhere. The Actions
+  column is gone: it widened every row and stood between you and the next line.
+- Shared folders show whether the recycle bin is on, which the NAS reported all
+  along without the app saying so.
+- Transfers name the direction in words. Until now it was an icon, so it was
+  said nowhere.
+- The archive browser says whether an entry is a folder or a file.
+- Packages say when an operation is running, and when uninstalling needs the DSM
+  assistant. Both were only hinted at.
+
+### Fixes
+
+- VoiceOver: forms, lists and scroll views across the app now say what they
+  hold. Most of them announced only "scroll area".
+- Two labels showed their internal key instead of their text.
+
+### Download
+
+[dsmaccess-1.1-beta.21.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.21/dsmaccess-1.1-beta.21.zip)
+
 ## v1.1-beta.20 (build 21) — 2026-07-31
 
 ### New

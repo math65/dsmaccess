@@ -1,3 +1,58 @@
+## v1.1-beta.21 (build 22) — 3 août 2026
+
+### En bref
+
+- Container Manager est couvert en entier : vous pouvez créer un conteneur, et
+  plus seulement suivre ceux qui existent déjà.
+
+### Nouveautés
+
+- Conteneurs : un bouton Nouveau conteneur demande une image, un nom, les ports
+  à publier, les dossiers à monter et les variables d'environnement, puis le
+  crée. Un port laissé à 0 est choisi pour vous au démarrage du conteneur.
+- Conteneurs : Dupliquer crée un second conteneur avec les mêmes réglages. La
+  copie arrive à l'arrêt, et ses ports restent libres pour ne pas entrer en
+  conflit avec l'original.
+- Conteneurs : un écran Réglages renomme un conteneur, plafonne sa mémoire et
+  décide s'il redémarre tout seul.
+- Conteneurs : un onglet Statistiques donne la mémoire utilisée et les octets
+  reçus et envoyés. Un conteneur qui vient de démarrer annonce que sa part de
+  processeur n'est pas encore mesurable, plutôt que d'afficher zéro.
+- Conteneurs : l'arrêt forcé tue un conteneur qui refuse de s'arrêter, et
+  Réinitialiser le reconstruit à partir de ses réglages. Les deux disent ce qui
+  est perdu avant d'agir.
+- Conteneurs : les réglages d'un conteneur peuvent être écrits dans un dossier
+  du NAS.
+
+### Changements
+
+- Neuf listes de plus sont devenues des tableaux triables, avec une colonne par
+  valeur : les favoris, les tâches, les dossiers virtuels et les transferts de
+  File Station, les paquets installés, le catalogue de paquets, les dossiers
+  partagés, le journal USB Copy et l'explorateur d'archives. Lire une ligne
+  colonne par colonne ne veut plus dire l'entendre d'un bloc.
+- Les boutons de chaque ligne sont passés dans le menu contextuel du tableau,
+  partout. La colonne Actions disparaît : elle élargissait chaque ligne et
+  s'intercalait entre vous et la ligne suivante.
+- Les dossiers partagés indiquent si la corbeille est active. Le NAS le
+  rapportait depuis toujours sans que l'app le dise.
+- Les transferts nomment le sens en toutes lettres. C'était une icône, donc ce
+  n'était dit nulle part.
+- L'explorateur d'archives indique si une entrée est un dossier ou un fichier.
+- Les paquets signalent qu'une opération est en cours, et qu'une désinstallation
+  demande l'assistant de DSM. Les deux n'étaient que suggérés.
+
+### Corrections
+
+- VoiceOver : les formulaires, les listes et les zones de défilement de toute
+  l'app disent maintenant ce qu'ils contiennent. La plupart n'annonçaient qu'une
+  « zone de défilement ».
+- Deux libellés affichaient leur clé interne au lieu de leur texte.
+
+### Téléchargement
+
+[dsmaccess-1.1-beta.21.zip](https://github.com/math65/dsmaccess/releases/download/v1.1-beta.21/dsmaccess-1.1-beta.21.zip)
+
 ## v1.1-beta.20 (build 21) — 31 juillet 2026
 
 ### Nouveautés
