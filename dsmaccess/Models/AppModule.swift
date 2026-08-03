@@ -130,11 +130,14 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         case .fileServices: AppModuleShortcut(key: "8", modifiers: .command)
         case .packages: AppModuleShortcut(key: "9", modifiers: .command)
         case .controlPanel: AppModuleShortcut(key: "0", modifiers: .command)
-        case .containers: AppModuleShortcut(key: "1", modifiers: [.command, .shift])
-        case .virtualMachines: AppModuleShortcut(key: "2", modifiers: [.command, .shift])
-        case .surveillance: AppModuleShortcut(key: "3", modifiers: [.command, .shift])
-        case .usbCopy: AppModuleShortcut(key: "4", modifiers: [.command, .shift])
-        case .resourceMonitor: AppModuleShortcut(key: "5", modifiers: [.command, .shift])
+        // Option rather than Shift for the second set: macOS reserves Command-Shift-3, 4 and 5
+        // for screen capture, and the system shortcut always wins, which left three modules
+        // unreachable from the keyboard.
+        case .containers: AppModuleShortcut(key: "1", modifiers: [.command, .option])
+        case .virtualMachines: AppModuleShortcut(key: "2", modifiers: [.command, .option])
+        case .surveillance: AppModuleShortcut(key: "3", modifiers: [.command, .option])
+        case .usbCopy: AppModuleShortcut(key: "4", modifiers: [.command, .option])
+        case .resourceMonitor: AppModuleShortcut(key: "5", modifiers: [.command, .option])
         }
     }
 

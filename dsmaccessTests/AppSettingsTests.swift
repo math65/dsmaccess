@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 import Testing
 @testable import dsmaccess
 
@@ -193,5 +194,24 @@ struct AppSettingsTests {
         #expect(Preferences.lastPort == nil)
         #expect(model.connectionMethod == .quickConnect)
         #expect(model.quickConnectID == "My-NAS")
+    }
+
+    /// macOS owns Command-Shift-3, 4 and 5 for screen capture and always wins over the app,
+    /// which left three modules unreachable from the keyboard until they moved to Option.
+    @Test func keepsModuleShortcutsClearOfTheScreenCaptureKeys() {
+        for module in AppModule.allCases {
+            #expect(!module.keyboardShortcut.modifiers.contains(.shift))
+        }
+    }
+
+    @Test func givesEveryModuleItsOwnShortcut() {
+        let shortcuts = AppModule.allCases.map { module in
+            [
+                String(module.keyboardShortcut.key.character),
+                String(module.keyboardShortcut.modifiers.rawValue)
+            ].joined(separator: "-")
+        }
+
+        #expect(Set(shortcuts).count == AppModule.allCases.count)
     }
 }
