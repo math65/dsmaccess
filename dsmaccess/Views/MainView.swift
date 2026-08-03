@@ -134,7 +134,7 @@ struct MainView: View {
     @ViewBuilder
     private var moduleView: some View {
         if !selection.isAvailable(in: session.capabilities) {
-            UnavailableModuleView(module: selection)
+            UnavailableModuleView(module: selection, session: session)
         } else {
             availableModuleView
         }

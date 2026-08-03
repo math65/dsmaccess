@@ -19811,6 +19811,70 @@
         }
       }
     },
+    "module.unavailable.check_again.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechercher à nouveau"
+          }
+        }
+      }
+    },
+    "module.unavailable.check_again.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Read the installed packages again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Relire les paquets installés"
+          }
+        }
+      }
+    },
+    "module.unavailable.check_failed.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not check the installed packages: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de vérifier les paquets installés : %@"
+          }
+        }
+      }
+    },
+    "module.unavailable.checking.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking the installed packages…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vérification des paquets installés…"
+          }
+        }
+      }
+    },
     "module.unavailable.description": {
       "localizations": {
         "en": {
@@ -19859,6 +19923,22 @@
         }
       }
     },
+    "module.unavailable.now_available.status": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is now available"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est maintenant disponible"
+          }
+        }
+      }
+    },
     "module.unavailable.title": {
       "localizations": {
         "en": {
@@ -19871,6 +19951,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "%@ indisponible"
+          }
+        }
+      }
+    },
+    "module.unavailable.unchanged.status": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No change: %@ is still unavailable."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun changement : %@ est toujours indisponible."
           }
         }
       }

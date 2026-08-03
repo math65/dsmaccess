@@ -25,6 +25,10 @@ final class PackagesViewModel {
 
     private let session: SessionStore
     private var loadGeneration = 0
+    /// Installed packages and their running state at the end of the previous load, used to
+    /// notice that the set of APIs DSM publishes has changed. Nil until the first load, so
+    /// the inventory read at sign-in is not immediately read again.
+    private var lastKnownPackageStates: [String: Bool]?
 
     init(session: SessionStore) {
         self.session = session
@@ -80,9 +84,31 @@ final class PackagesViewModel {
                     updates[key] = candidate
                 }
             }
+            await refreshModuleAvailabilityIfPackagesChanged()
         } catch {
             guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = Self.errorDescription(for: error)
+        }
+    }
+
+    /// A package that appears, disappears, starts or stops changes the set of APIs DSM
+    /// publishes, and with it the modules the app can offer. Reading the inventory again here
+    /// is what lets a module appear without signing in again — including after an install
+    /// performed in DSM itself, since a refresh of this screen is enough to notice it.
+    ///
+    /// A failure leaves the previous inventory in place: the package operation itself
+    /// succeeded, and the unavailable-module screen offers an explicit retry.
+    private func refreshModuleAvailabilityIfPackagesChanged() async {
+        let states = Dictionary(
+            packages.map { ($0.pkgId, $0.isRunning) },
+            uniquingKeysWith: { first, _ in first }
+        )
+        defer { lastKnownPackageStates = states }
+        guard let previous = lastKnownPackageStates, previous != states else { return }
+        do {
+            try await session.refreshCapabilities()
+        } catch {
+            // Keeping the inventory read at sign-in is the previous behaviour, not a new failure.
         }
     }
 

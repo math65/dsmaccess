@@ -107,6 +107,13 @@ final class SessionStore {
         }
     }
 
+    /// Re-reads the APIs published by DSM. Capabilities are otherwise only read once, when
+    /// the session opens, so a package installed, removed, started or stopped in the meantime
+    /// stays invisible to the app until the next sign-in.
+    func refreshCapabilities() async throws {
+        capabilities = try await withClient { try await $0.discoverCapabilities() }
+    }
+
     /// Asks the host whether it has finished booting, without going through `withClient`:
     /// during a reboot there is no session left, and the generation guard would reject the
     /// answer. Returns false if the NAS is unreachable — the expected case while it reboots.
