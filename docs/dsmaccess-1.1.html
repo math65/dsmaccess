@@ -80,49 +80,108 @@ strong { font-weight: 600; }
 </head>
 <body>
 <h2 id="v11-build-23--2026-08-03">v1.1 (build 23) — 2026-08-03</h2>
+<p>The first stable release since 1.0, gathering four months of work. If
+you are coming from 1.0, everything below is new to you.</p>
 <h3 id="highlights">Highlights</h3>
 <ul>
-<li>The first stable release since 1.0. It gathers everything published
-in the betas since 19 July, plus external device support added
-today.</li>
 <li>Seven modules that did not exist in 1.0: Resource Monitor, Logs and
 Security, Package Center, Containers, USB Copy, External Devices, and
 permissions in Users and Groups.</li>
-<li>Files works with the Finder: copy in one, paste in the other, in
-both directions.</li>
+<li>Files now works with the Finder: copy on one side, paste on the
+other, in both directions.</li>
+<li>The app updates itself, and tells you what a long operation is doing
+while it runs.</li>
 </ul>
-<h3 id="new">New</h3>
+<h3 id="new-modules">New modules</h3>
 <ul>
-<li>External Devices: a new Control Panel section lists the USB and
-eSATA drives connected to the NAS, with their maker, model, capacity and
+<li>External Devices: a Control Panel section lists the USB and eSATA
+drives connected to the NAS, with their maker, model, capacity and
 state, and the partitions of the selected one with their file system,
-sizes and shared folder.</li>
-<li>External Devices: eject a drive, or format it in EXT4, FAT32 or
-EXFAT. Both live in the table's context menu. Formatting asks twice,
-names the drive and says plainly that nothing can be undone.</li>
-<li>External Devices: an eject button appears in the toolbar as soon as
-something is plugged in, so you never have to go looking for the screen.
-The list refreshes on its own when you come back to the app, which is
-when a drive has just been connected.</li>
-<li>External Devices: the advanced settings are there too — forbidding
-the USB port, letting non-administrators eject, and delayed allocation
-for ext4. Forbidding the USB port asks for confirmation, since it cuts
-off every device and needs a restart.</li>
+sizes and shared folder. Eject a drive, or format it in EXT4, FAT32 or
+EXFAT. An eject button appears in the toolbar as soon as something is
+plugged in.</li>
+<li>Resource Monitor: processor, memory, network and disks, plus the
+open files, the alerts the NAS recorded and the connections in progress.
+You can end a session that should not be there.</li>
+<li>Logs and Security: all four logs the NAS keeps, not just one of
+them, with Security Advisor's findings, the blocked addresses, and
+export to a file.</li>
+<li>Package Center: browse the official Synology catalog, install,
+update and remove packages, install a package file by hand, and manage
+your package sources.</li>
+<li>Containers: the Container Manager is covered in full. Create a
+container, duplicate one, rename it, cap its memory, read its logs and
+statistics, and handle images, networks, projects and registries.</li>
+<li>USB Copy: set up and run your USB copy tasks entirely from the app —
+direction, folders, filters and schedule. Contributed by Ashley
+Cox.</li>
+<li>Users and Groups gains permissions: a panel lists every shared
+folder with the rights of an account or a group, and a second tab does
+the same for applications.</li>
+</ul>
+<h3 id="files">Files</h3>
+<ul>
+<li>Copy files in the Finder and paste them into a folder on the NAS, or
+drag an item out of the list and drop it in the Finder. A folder dropped
+in the Finder arrives as an archive built by the NAS.</li>
+<li>Copy and paste behave as they do in the Finder: Command-C copies,
+Command-V pastes, and Return renames.</li>
+<li>A running copy shows what it is doing, how far along it is, its
+speed and the time left, with a Cancel button that really stops it.
+Sending and downloading show the same banner.</li>
+<li>The result of a long operation stays on screen until you dismiss it,
+and a short sound marks the end of a transfer. You can turn the sound
+off.</li>
+<li>Create and manage share links, with passwords and expiry dates.</li>
+<li>See full details for any file or folder, search with advanced
+criteria, look inside an archive and extract only what you need.</li>
+</ul>
+<h3 id="sign-in-and-accounts">Sign-in and accounts</h3>
+<ul>
+<li>Open a session without typing a password, by approving it on your
+phone with Secure SignIn.</li>
+<li>Sessions are kept between launches: tick "Stay signed in" and the
+app reopens on the session it already had.</li>
+<li>Connect with QuickConnect by entering your QuickConnect ID instead
+of an address. Contributed by Ashley Cox.</li>
+<li>Accounts without administrator rights can sign in, and the app tells
+you when your NAS requires a new password before letting an account
+in.</li>
+<li>Create users and groups, choose what they may reach, and generate a
+password that satisfies your NAS policy.</li>
 </ul>
 <h3 id="changes">Changes</h3>
 <ul>
-<li>The keyboard shortcuts for the last modules moved from Command-Shift
-to Command-Option. macOS keeps Command-Shift-3, 4 and 5 for screen
-capture and always wins, which left Surveillance Station, USB Copy and
-the Resource Monitor out of reach from the keyboard.</li>
+<li>The keyboard shortcuts for the last modules use Command-Option
+rather than Command-Shift. macOS keeps Command-Shift-3, 4 and 5 for
+screen capture and always wins, which left three modules out of reach
+from the keyboard.</li>
+<li>You choose whether to receive beta versions, in Settings &gt;
+Updates. Trying a beta once no longer means staying on the betas.</li>
+<li>The app checks for a new version at every launch, and has its own
+icon, designed by Ashley Cox.</li>
 </ul>
 <h3 id="fixes">Fixes</h3>
 <ul>
-<li>A package installed while the app was running is now noticed. Until
-now the app took stock of the installed packages once, when it
-connected, so a module stayed unavailable until the next sign-in. A
-screen for a module that is not available also offers to look
-again.</li>
+<li>A long copy is no longer abandoned after five minutes, and leaving
+the screen no longer stops it.</li>
+<li>A package installed while the app is running is now noticed, instead
+of staying unavailable until the next sign-in.</li>
+<li>Creating a share link, sending files to the NAS, installing a
+package file, and creating a user on DSM 7.4 all work again.</li>
+<li>Approving your NAS certificate once signs you in, instead of
+blocking there.</li>
+</ul>
+<h3 id="accessibility-and-language">Accessibility and language</h3>
+<ul>
+<li>Lists, forms and scrolling areas across the app say what they hold
+instead of announcing "scroll area".</li>
+<li>Status and detail text was made legible: the system colours failed
+the contrast threshold at the sizes this app uses.</li>
+<li>Transfers name their direction in words rather than with an icon
+alone.</li>
+<li>The app shows up in English on a Mac set to a language it does not
+ship, instead of mixing languages.</li>
 </ul>
 <h3 id="known-limits">Known limits</h3>
 <ul>
@@ -136,7 +195,7 @@ calls, but no eSATA drive was available to try them on.</li>
 <li>Container Manager is now covered in full: you can create a
 container, not just watch the ones already there.</li>
 </ul>
-<h3 id="new-1">New</h3>
+<h3 id="new">New</h3>
 <ul>
 <li>Containers: a New container button asks for an image, a name, the
 ports to publish, the folders to mount and the environment variables,
@@ -186,7 +245,7 @@ they hold. Most of them announced only "scroll area".</li>
 href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.21/dsmaccess-1.1-beta.21.zip">dsmaccess-1.1-beta.21.zip</a></p>
 <h2 id="v11-beta20-build-21--2026-07-31">v1.1-beta.20 (build 21) —
 2026-07-31</h2>
-<h3 id="new-2">New</h3>
+<h3 id="new-1">New</h3>
 <ul>
 <li>Updates: you now choose whether to receive beta versions, in
 Settings &gt; Updates. Until now the channel followed the version
@@ -275,7 +334,7 @@ should look different — but if you come across a label that reads like
 machine code, a sentence in the wrong language, or a word that is simply
 missing, please say so. Those are mistakes on my side, not on yours, and
 they are quick to fix.</p>
-<h3 id="new-3">New</h3>
+<h3 id="new-2">New</h3>
 <ul>
 <li>Logs and Security: all four logs the NAS keeps are now available,
 not just the system one. File transfers are there, with the address, the
@@ -335,7 +394,7 @@ to replay, and no approval to grant on your phone.</li>
 disks and volumes; the services and processes running; and who is
 connected to the NAS.</li>
 </ul>
-<h3 id="new-4">New</h3>
+<h3 id="new-3">New</h3>
 <ul>
 <li>Sign-in: sessions are kept between launches. Only a refusal from the
 NAS sends you back to the sign-in screen, and it says why. The saved
@@ -393,7 +452,7 @@ compression look stuck at one percent.</li>
 interrupted operation. The NAS drops a finished task rather than
 announcing it, and that silence was being read as a failure.</li>
 </ul>
-<h3 id="new-5">New</h3>
+<h3 id="new-4">New</h3>
 <ul>
 <li>Files: pasting or moving now names the folder the items are going
 into, before you confirm. Selecting a folder in the list does not make
@@ -420,7 +479,7 @@ phone.</li>
 <li>Files: a long copy is no longer abandoned after five minutes, and
 leaving the Files screen no longer stops it.</li>
 </ul>
-<h3 id="new-6">New</h3>
+<h3 id="new-5">New</h3>
 <ul>
 <li>Sign-in: an Authentication menu on the connection screen chooses
 between your password and the approval sent to your phone. With the
@@ -459,7 +518,7 @@ href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.14/dsmacce
 <li>Users and groups: the groups an account belongs to can now be
 changed after the account exists, not only while creating it.</li>
 </ul>
-<h3 id="new-7">New</h3>
+<h3 id="new-6">New</h3>
 <ul>
 <li>Users and groups: the permissions panel gains a Groups tab, next to
 shared folders and applications, listing every group on the NAS with the
@@ -478,7 +537,7 @@ folders and to the applications on your NAS, without leaving DSM Access.
 Creating someone an account and letting them actually use it is one task
 again.</li>
 </ul>
-<h3 id="new-8">New</h3>
+<h3 id="new-7">New</h3>
 <ul>
 <li>Users and groups: a Permissions panel lists every shared folder with
 the access granted to the account, the access it inherits from its
@@ -538,7 +597,7 @@ you type anything.</li>
 discards everything you filled in. The message appears in place, and you
 can correct the password without starting over.</li>
 </ul>
-<h3 id="new-9">New</h3>
+<h3 id="new-8">New</h3>
 <ul>
 <li>Sign-in: when your NAS requires a new password before letting an
 account in, DSM Access asks for it and signs you in, instead of stopping
@@ -565,7 +624,7 @@ to download it there.</li>
 copies, Command-V pastes a copy, and Command-Option-V moves. There is no
 longer a Cut command.</li>
 </ul>
-<h3 id="new-10">New</h3>
+<h3 id="new-9">New</h3>
 <ul>
 <li>Files: Command-V sends what you copied in the Finder to the folder
 you are in. Files land in that folder; a folder is recreated on the NAS
@@ -620,7 +679,7 @@ quietly broken every upload.</li>
 <li>DSM Access now has its own app icon, also designed by Ashley
 Cox.</li>
 </ul>
-<h3 id="new-11">New</h3>
+<h3 id="new-10">New</h3>
 <ul>
 <li>USB Copy: see every task with its direction, folders, and current
 state; create import and export tasks with accessible folder choosers
@@ -703,7 +762,7 @@ time with a NAS error (code 101).</li>
 <li>The app now checks for its own updates at launch, and a new settings
 pane can install them automatically, with no dialog to answer.</li>
 </ul>
-<h3 id="new-12">New</h3>
+<h3 id="new-11">New</h3>
 <ul>
 <li>Settings &gt; Updates: checking at launch is now on by default (you
 can turn it off), and a "Download and install automatically" option
@@ -743,7 +802,7 @@ browsing and transfer progress.</li>
 <li>Creating users works again on DSM 7.4, and group members are counted
 correctly.</li>
 </ul>
-<h3 id="new-13">New</h3>
+<h3 id="new-12">New</h3>
 <ul>
 <li>Sign in with QuickConnect: pick "QuickConnect" on the sign-in
 screen, enter your QuickConnect ID and your usual DSM account. The app

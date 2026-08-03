@@ -80,55 +80,124 @@ strong { font-weight: 600; }
 </head>
 <body>
 <h2 id="v11-build-23--3-août-2026">v1.1 (build 23) — 3 août 2026</h2>
+<p>La première version stable depuis la 1.0, qui rassemble quatre mois
+de travail. Si vous venez de la 1.0, tout ce qui suit est nouveau pour
+vous.</p>
 <h3 id="en-bref">En bref</h3>
 <ul>
-<li>La première version stable depuis la 1.0. Elle rassemble tout ce qui
-a été publié en bêta depuis le 19 juillet, et y ajoute la gestion des
-périphériques externes, écrite aujourd'hui.</li>
 <li>Sept modules qui n'existaient pas en 1.0 : Moniteur de ressources,
 Journaux et sécurité, Centre de paquets, Conteneurs, USB Copy,
 Périphériques externes, et les permissions dans Utilisateurs et
 groupes.</li>
 <li>Fichiers dialogue avec le Finder : on copie d'un côté, on colle de
 l'autre, dans les deux sens.</li>
+<li>L'application se met à jour toute seule, et dit ce qu'une opération
+longue est en train de faire pendant qu'elle se déroule.</li>
 </ul>
-<h3 id="nouveautés">Nouveautés</h3>
+<h3 id="nouveaux-modules">Nouveaux modules</h3>
 <ul>
-<li>Périphériques externes : une nouvelle section du Panneau de
-configuration liste les disques USB et eSATA connectés au NAS, avec leur
-fabricant, leur modèle, leur capacité et leur état, et les partitions du
-disque sélectionné avec leur système de fichiers, leurs tailles et leur
-dossier partagé.</li>
-<li>Périphériques externes : éjecter un disque, ou le formater en EXT4,
-FAT32 ou EXFAT. Les deux se trouvent dans le menu contextuel du tableau.
-Le formatage demande deux fois confirmation, nomme le disque et dit
-franchement que rien ne pourra être annulé.</li>
-<li>Périphériques externes : un bouton d'éjection apparaît dans la barre
-d'outils dès qu'un disque est branché, pour ne pas avoir à retrouver
-l'écran. La liste se met à jour toute seule quand vous revenez dans
-l'application, c'est-à-dire au moment où un disque vient d'être
-connecté.</li>
-<li>Périphériques externes : les réglages avancés sont là aussi —
-interdire le port USB, autoriser les utilisateurs non administrateurs à
-éjecter, et l'allocation retardée pour ext4. L'interdiction du port USB
-demande confirmation, puisqu'elle coupe tous les périphériques et exige
-un redémarrage.</li>
+<li>Périphériques externes : une section du Panneau de configuration
+liste les disques USB et eSATA connectés au NAS, avec leur fabricant,
+leur modèle, leur capacité et leur état, et les partitions du disque
+sélectionné avec leur système de fichiers, leurs tailles et leur dossier
+partagé. Vous pouvez éjecter un disque, ou le formater en EXT4, FAT32 ou
+EXFAT. Un bouton d'éjection apparaît dans la barre d'outils dès qu'un
+disque est branché.</li>
+<li>Moniteur de ressources : processeur, mémoire, réseau et disques,
+ainsi que les fichiers ouverts, les alertes enregistrées par le NAS et
+les connexions en cours. Vous pouvez mettre fin à une session qui n'a
+rien à faire là.</li>
+<li>Journaux et sécurité : les quatre journaux tenus par le NAS, et non
+plus un seul, avec les constats de Security Advisor, les adresses
+bloquées et l'export vers un fichier.</li>
+<li>Centre de paquets : parcourir le catalogue officiel Synology,
+installer, mettre à jour et supprimer des paquets, en installer un à la
+main, et gérer vos sources de paquets.</li>
+<li>Conteneurs : Container Manager est couvert en entier. Créer un
+conteneur, en dupliquer un, le renommer, plafonner sa mémoire, lire ses
+journaux et ses statistiques, et gérer les images, les réseaux, les
+projets et les registres.</li>
+<li>USB Copy : préparer et lancer vos tâches de copie USB entièrement
+depuis l'application — sens, dossiers, filtres et planification.
+Contribution d'Ashley Cox.</li>
+<li>Utilisateurs et groupes reçoit les permissions : un panneau liste
+chaque dossier partagé avec les droits d'un compte ou d'un groupe, et un
+second onglet fait de même pour les applications.</li>
+</ul>
+<h3 id="fichiers">Fichiers</h3>
+<ul>
+<li>Copiez des fichiers dans le Finder et collez-les dans un dossier du
+NAS, ou faites glisser un élément de la liste vers le Finder. Un dossier
+déposé dans le Finder arrive sous forme d'archive fabriquée par le
+NAS.</li>
+<li>Le copier-coller se comporte comme dans le Finder : Commande-C
+copie, Commande-V colle, et Retour renomme.</li>
+<li>Une copie en cours indique ce qu'elle fait, où elle en est, sa
+vitesse et le temps restant, avec un bouton Annuler qui l'arrête
+vraiment. Les envois et les téléchargements affichent le même
+bandeau.</li>
+<li>Le résultat d'une opération longue reste à l'écran jusqu'à ce que
+vous le fermiez, et un son bref marque la fin d'un transfert. Ce son
+peut être coupé.</li>
+<li>Créez et gérez des liens de partage, avec mot de passe et date
+d'expiration.</li>
+<li>Consultez les informations détaillées d'un fichier ou d'un dossier,
+cherchez avec des critères avancés, ouvrez une archive et n'en extrayez
+que ce qui vous intéresse.</li>
+</ul>
+<h3 id="connexion-et-comptes">Connexion et comptes</h3>
+<ul>
+<li>Ouvrez une session sans taper de mot de passe, en l'approuvant sur
+votre téléphone avec Secure SignIn.</li>
+<li>Les sessions sont conservées d'un lancement à l'autre : cochez «
+Rester connecté » et l'application rouvre la session qu'elle avait
+déjà.</li>
+<li>Connectez-vous par QuickConnect en saisissant votre identifiant
+QuickConnect plutôt qu'une adresse. Contribution d'Ashley Cox.</li>
+<li>Les comptes sans droits d'administrateur peuvent se connecter, et
+l'application vous prévient quand votre NAS exige un nouveau mot de
+passe avant de laisser entrer un compte.</li>
+<li>Créez des utilisateurs et des groupes, choisissez ce qu'ils peuvent
+atteindre, et générez un mot de passe conforme à la politique de votre
+NAS.</li>
 </ul>
 <h3 id="changements">Changements</h3>
 <ul>
-<li>Les raccourcis clavier des derniers modules passent de
-Commande-Majuscule à Commande-Option. macOS réserve
+<li>Les raccourcis clavier des derniers modules utilisent
+Commande-Option plutôt que Commande-Majuscule. macOS réserve
 Commande-Majuscule-3, 4 et 5 pour les captures d'écran et l'emporte
-toujours, ce qui rendait Surveillance Station, USB Copy et le Moniteur
-de ressources inaccessibles au clavier.</li>
+toujours, ce qui rendait trois modules inaccessibles au clavier.</li>
+<li>Vous choisissez de recevoir ou non les versions bêta, dans Réglages
+&gt; Mises à jour. Essayer une bêta une fois ne condamne plus à y
+rester.</li>
+<li>L'application cherche une nouvelle version à chaque lancement, et
+possède sa propre icône, dessinée par Ashley Cox.</li>
 </ul>
 <h3 id="corrections">Corrections</h3>
 <ul>
+<li>Une copie longue n'est plus abandonnée au bout de cinq minutes, et
+quitter l'écran ne l'interrompt plus.</li>
 <li>Un paquet installé pendant que l'application tourne est désormais
-détecté. Jusqu'ici l'application faisait l'inventaire des paquets une
-seule fois, à la connexion, et un module restait donc indisponible
-jusqu'à la prochaine ouverture de session. L'écran d'un module
-indisponible propose aussi de chercher à nouveau.</li>
+détecté, au lieu de rester indisponible jusqu'à la prochaine ouverture
+de session.</li>
+<li>La création d'un lien de partage, l'envoi de fichiers vers le NAS,
+l'installation d'un fichier de paquet et la création d'un utilisateur
+sur DSM 7.4 fonctionnent à nouveau.</li>
+<li>Approuver le certificat de votre NAS vous connecte, au lieu de
+bloquer là.</li>
+</ul>
+<h3 id="accessibilité-et-langue">Accessibilité et langue</h3>
+<ul>
+<li>Les listes, les formulaires et les zones de défilement de
+l'application disent ce qu'ils contiennent, au lieu d'annoncer « zone de
+défilement ».</li>
+<li>Les textes d'état et de détail ont été rendus lisibles : les
+couleurs système passaient sous le seuil de contraste aux tailles
+utilisées ici.</li>
+<li>Les transferts nomment leur sens par des mots, et non plus par une
+icône seule.</li>
+<li>L'application s'affiche en anglais sur un Mac réglé dans une langue
+qu'elle ne propose pas, au lieu de mélanger les langues.</li>
 </ul>
 <h3 id="limites-connues">Limites connues</h3>
 <ul>
@@ -143,7 +212,7 @@ août 2026</h2>
 <li>Container Manager est couvert en entier : vous pouvez créer un
 conteneur, et plus seulement suivre ceux qui existent déjà.</li>
 </ul>
-<h3 id="nouveautés-1">Nouveautés</h3>
+<h3 id="nouveautés">Nouveautés</h3>
 <ul>
 <li>Conteneurs : un bouton Nouveau conteneur demande une image, un nom,
 les ports à publier, les dossiers à monter et les variables
@@ -198,7 +267,7 @@ texte.</li>
 href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.21/dsmaccess-1.1-beta.21.zip">dsmaccess-1.1-beta.21.zip</a></p>
 <h2 id="v11-beta20-build-21--31-juillet-2026">v1.1-beta.20 (build 21) —
 31 juillet 2026</h2>
-<h3 id="nouveautés-2">Nouveautés</h3>
+<h3 id="nouveautés-1">Nouveautés</h3>
 <ul>
 <li>Mises à jour : vous choisissez désormais de recevoir ou non les
 versions bêta, dans Réglages &gt; Mises à jour. Jusqu'ici le canal
@@ -295,7 +364,7 @@ devrait avoir bougé à l'écran — mais si vous tombez sur un libellé qui
 ressemble à du code, sur une phrase restée en anglais ou sur un mot
 manquant, dites-le-moi. L'erreur est de mon côté, pas du vôtre, et elle
 se corrige vite.</p>
-<h3 id="nouveautés-3">Nouveautés</h3>
+<h3 id="nouveautés-2">Nouveautés</h3>
 <ul>
 <li>Journaux et sécurité : les quatre journaux tenus par le NAS sont
 désormais accessibles, et plus seulement celui du système. Les
@@ -361,7 +430,7 @@ téléphone.</li>
 réseau, disques et volumes, les services et processus en cours, et qui
 est connecté au NAS.</li>
 </ul>
-<h3 id="nouveautés-4">Nouveautés</h3>
+<h3 id="nouveautés-3">Nouveautés</h3>
 <ul>
 <li>Connexion : la session est conservée d'un lancement à l'autre. Seul
 un refus du NAS vous ramène à l'écran de connexion, et il vous dit
@@ -423,7 +492,7 @@ restait bloquée à un pour cent.</li>
 opération interrompue. Le NAS retire une tâche achevée au lieu de
 l'annoncer, et ce silence était pris pour un échec.</li>
 </ul>
-<h3 id="nouveautés-5">Nouveautés</h3>
+<h3 id="nouveautés-4">Nouveautés</h3>
 <ul>
 <li>Fichiers : coller ou déplacer nomme désormais le dossier dans lequel
 les éléments vont atterrir, avant que vous validiez. Sélectionner un
@@ -448,7 +517,7 @@ Secure SignIn sur votre téléphone.</li>
 <li>Fichiers : une copie longue n'est plus abandonnée au bout de cinq
 minutes, et quitter l'écran Fichiers ne l'interrompt plus.</li>
 </ul>
-<h3 id="nouveautés-6">Nouveautés</h3>
+<h3 id="nouveautés-5">Nouveautés</h3>
 <ul>
 <li>Connexion : un menu Authentification, sur l'écran de connexion,
 choisit entre votre mot de passe et l'approbation envoyée sur votre
@@ -492,7 +561,7 @@ href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.14/dsmacce
 peuvent désormais être modifiés après coup, et plus seulement à la
 création.</li>
 </ul>
-<h3 id="nouveautés-7">Nouveautés</h3>
+<h3 id="nouveautés-6">Nouveautés</h3>
 <ul>
 <li>Utilisateurs et groupes : l'écran des permissions gagne un onglet
 Groupes, à côté des dossiers partagés et des applications. Il présente
@@ -511,7 +580,7 @@ l'accès à vos dossiers partagés et aux applications de votre NAS, sans
 quitter DSM Access. Créer un compte à quelqu'un et lui permettre de s'en
 servir redeviennent une seule et même tâche.</li>
 </ul>
-<h3 id="nouveautés-8">Nouveautés</h3>
+<h3 id="nouveautés-7">Nouveautés</h3>
 <ul>
 <li>Utilisateurs et groupes : un écran Permissions présente chaque
 dossier partagé avec l'accès accordé au compte, celui dont il hérite de
@@ -574,7 +643,7 @@ saisissiez quoi que ce soit.</li>
 fenêtre en effaçant tout ce que vous aviez saisi. Le message s'affiche
 sur place et vous corrigez le mot de passe sans tout recommencer.</li>
 </ul>
-<h3 id="nouveautés-9">Nouveautés</h3>
+<h3 id="nouveautés-8">Nouveautés</h3>
 <ul>
 <li>Connexion : lorsque votre NAS exige un nouveau mot de passe avant
 d'autoriser un compte, DSM Access vous le demande et vous connecte dans
@@ -602,7 +671,7 @@ dans le Finder pour l'y télécharger.</li>
 Commande-C copie, Commande-V colle une copie, Commande-Option-V déplace.
 La commande Couper n'existe plus.</li>
 </ul>
-<h3 id="nouveautés-10">Nouveautés</h3>
+<h3 id="nouveautés-9">Nouveautés</h3>
 <ul>
 <li>Fichiers : Commande-V envoie ce que vous avez copié dans le Finder
 vers le dossier où vous êtes. Les fichiers y sont déposés ; un dossier
@@ -659,7 +728,7 @@ mise à jour de DSM avait discrètement cassé tous les envois.</li>
 <li>DSM Access a désormais sa propre icône, dessinée elle aussi par
 Ashley Cox.</li>
 </ul>
-<h3 id="nouveautés-11">Nouveautés</h3>
+<h3 id="nouveautés-10">Nouveautés</h3>
 <ul>
 <li>USB Copy : chaque tâche s'affiche avec son sens de copie, ses
 dossiers et son état ; créez des tâches d'import ou d'export avec de
@@ -746,7 +815,7 @@ elle échouait systématiquement avec une erreur du NAS (code 101).</li>
 panneau de réglages permet de les installer automatiquement, sans
 dialogue.</li>
 </ul>
-<h3 id="nouveautés-12">Nouveautés</h3>
+<h3 id="nouveautés-11">Nouveautés</h3>
 <ul>
 <li>Réglages &gt; Mises à jour : la vérification au lancement est
 désormais active d'office (désactivable), et une option « Télécharger et
@@ -788,7 +857,7 @@ d'archives et progression des transferts.</li>
 <li>La création d'utilisateurs fonctionne à nouveau sous DSM 7.4, et le
 nombre de membres des groupes est correct.</li>
 </ul>
-<h3 id="nouveautés-13">Nouveautés</h3>
+<h3 id="nouveautés-12">Nouveautés</h3>
 <ul>
 <li>Connexion par QuickConnect : choisissez « QuickConnect » sur l'écran
 de connexion, saisissez votre identifiant QuickConnect et votre compte

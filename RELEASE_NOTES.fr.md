@@ -1,50 +1,108 @@
 ## v1.1 (build 23) — 3 août 2026
 
+La première version stable depuis la 1.0, qui rassemble quatre mois de travail.
+Si vous venez de la 1.0, tout ce qui suit est nouveau pour vous.
+
 ### En bref
 
-- La première version stable depuis la 1.0. Elle rassemble tout ce qui a été
-  publié en bêta depuis le 19 juillet, et y ajoute la gestion des périphériques
-  externes, écrite aujourd'hui.
 - Sept modules qui n'existaient pas en 1.0 : Moniteur de ressources, Journaux et
   sécurité, Centre de paquets, Conteneurs, USB Copy, Périphériques externes, et
   les permissions dans Utilisateurs et groupes.
 - Fichiers dialogue avec le Finder : on copie d'un côté, on colle de l'autre,
   dans les deux sens.
+- L'application se met à jour toute seule, et dit ce qu'une opération longue est
+  en train de faire pendant qu'elle se déroule.
 
-### Nouveautés
+### Nouveaux modules
 
-- Périphériques externes : une nouvelle section du Panneau de configuration
-  liste les disques USB et eSATA connectés au NAS, avec leur fabricant, leur
-  modèle, leur capacité et leur état, et les partitions du disque sélectionné
-  avec leur système de fichiers, leurs tailles et leur dossier partagé.
-- Périphériques externes : éjecter un disque, ou le formater en EXT4, FAT32 ou
-  EXFAT. Les deux se trouvent dans le menu contextuel du tableau. Le formatage
-  demande deux fois confirmation, nomme le disque et dit franchement que rien ne
-  pourra être annulé.
-- Périphériques externes : un bouton d'éjection apparaît dans la barre d'outils
-  dès qu'un disque est branché, pour ne pas avoir à retrouver l'écran. La liste
-  se met à jour toute seule quand vous revenez dans l'application, c'est-à-dire
-  au moment où un disque vient d'être connecté.
-- Périphériques externes : les réglages avancés sont là aussi — interdire le
-  port USB, autoriser les utilisateurs non administrateurs à éjecter, et
-  l'allocation retardée pour ext4. L'interdiction du port USB demande
-  confirmation, puisqu'elle coupe tous les périphériques et exige un
-  redémarrage.
+- Périphériques externes : une section du Panneau de configuration liste les
+  disques USB et eSATA connectés au NAS, avec leur fabricant, leur modèle, leur
+  capacité et leur état, et les partitions du disque sélectionné avec leur
+  système de fichiers, leurs tailles et leur dossier partagé. Vous pouvez
+  éjecter un disque, ou le formater en EXT4, FAT32 ou EXFAT. Un bouton
+  d'éjection apparaît dans la barre d'outils dès qu'un disque est branché.
+- Moniteur de ressources : processeur, mémoire, réseau et disques, ainsi que les
+  fichiers ouverts, les alertes enregistrées par le NAS et les connexions en
+  cours. Vous pouvez mettre fin à une session qui n'a rien à faire là.
+- Journaux et sécurité : les quatre journaux tenus par le NAS, et non plus un
+  seul, avec les constats de Security Advisor, les adresses bloquées et
+  l'export vers un fichier.
+- Centre de paquets : parcourir le catalogue officiel Synology, installer,
+  mettre à jour et supprimer des paquets, en installer un à la main, et gérer
+  vos sources de paquets.
+- Conteneurs : Container Manager est couvert en entier. Créer un conteneur, en
+  dupliquer un, le renommer, plafonner sa mémoire, lire ses journaux et ses
+  statistiques, et gérer les images, les réseaux, les projets et les registres.
+- USB Copy : préparer et lancer vos tâches de copie USB entièrement depuis
+  l'application — sens, dossiers, filtres et planification. Contribution
+  d'Ashley Cox.
+- Utilisateurs et groupes reçoit les permissions : un panneau liste chaque
+  dossier partagé avec les droits d'un compte ou d'un groupe, et un second
+  onglet fait de même pour les applications.
+
+### Fichiers
+
+- Copiez des fichiers dans le Finder et collez-les dans un dossier du NAS, ou
+  faites glisser un élément de la liste vers le Finder. Un dossier déposé dans
+  le Finder arrive sous forme d'archive fabriquée par le NAS.
+- Le copier-coller se comporte comme dans le Finder : Commande-C copie,
+  Commande-V colle, et Retour renomme.
+- Une copie en cours indique ce qu'elle fait, où elle en est, sa vitesse et le
+  temps restant, avec un bouton Annuler qui l'arrête vraiment. Les envois et les
+  téléchargements affichent le même bandeau.
+- Le résultat d'une opération longue reste à l'écran jusqu'à ce que vous le
+  fermiez, et un son bref marque la fin d'un transfert. Ce son peut être coupé.
+- Créez et gérez des liens de partage, avec mot de passe et date d'expiration.
+- Consultez les informations détaillées d'un fichier ou d'un dossier, cherchez
+  avec des critères avancés, ouvrez une archive et n'en extrayez que ce qui vous
+  intéresse.
+
+### Connexion et comptes
+
+- Ouvrez une session sans taper de mot de passe, en l'approuvant sur votre
+  téléphone avec Secure SignIn.
+- Les sessions sont conservées d'un lancement à l'autre : cochez « Rester
+  connecté » et l'application rouvre la session qu'elle avait déjà.
+- Connectez-vous par QuickConnect en saisissant votre identifiant QuickConnect
+  plutôt qu'une adresse. Contribution d'Ashley Cox.
+- Les comptes sans droits d'administrateur peuvent se connecter, et
+  l'application vous prévient quand votre NAS exige un nouveau mot de passe
+  avant de laisser entrer un compte.
+- Créez des utilisateurs et des groupes, choisissez ce qu'ils peuvent atteindre,
+  et générez un mot de passe conforme à la politique de votre NAS.
 
 ### Changements
 
-- Les raccourcis clavier des derniers modules passent de Commande-Majuscule à
-  Commande-Option. macOS réserve Commande-Majuscule-3, 4 et 5 pour les captures
-  d'écran et l'emporte toujours, ce qui rendait Surveillance Station, USB Copy
-  et le Moniteur de ressources inaccessibles au clavier.
+- Les raccourcis clavier des derniers modules utilisent Commande-Option plutôt
+  que Commande-Majuscule. macOS réserve Commande-Majuscule-3, 4 et 5 pour les
+  captures d'écran et l'emporte toujours, ce qui rendait trois modules
+  inaccessibles au clavier.
+- Vous choisissez de recevoir ou non les versions bêta, dans Réglages > Mises à
+  jour. Essayer une bêta une fois ne condamne plus à y rester.
+- L'application cherche une nouvelle version à chaque lancement, et possède sa
+  propre icône, dessinée par Ashley Cox.
 
 ### Corrections
 
-- Un paquet installé pendant que l'application tourne est désormais détecté.
-  Jusqu'ici l'application faisait l'inventaire des paquets une seule fois, à la
-  connexion, et un module restait donc indisponible jusqu'à la prochaine
-  ouverture de session. L'écran d'un module indisponible propose aussi de
-  chercher à nouveau.
+- Une copie longue n'est plus abandonnée au bout de cinq minutes, et quitter
+  l'écran ne l'interrompt plus.
+- Un paquet installé pendant que l'application tourne est désormais détecté, au
+  lieu de rester indisponible jusqu'à la prochaine ouverture de session.
+- La création d'un lien de partage, l'envoi de fichiers vers le NAS,
+  l'installation d'un fichier de paquet et la création d'un utilisateur sur
+  DSM 7.4 fonctionnent à nouveau.
+- Approuver le certificat de votre NAS vous connecte, au lieu de bloquer là.
+
+### Accessibilité et langue
+
+- Les listes, les formulaires et les zones de défilement de l'application disent
+  ce qu'ils contiennent, au lieu d'annoncer « zone de défilement ».
+- Les textes d'état et de détail ont été rendus lisibles : les couleurs système
+  passaient sous le seuil de contraste aux tailles utilisées ici.
+- Les transferts nomment leur sens par des mots, et non plus par une icône
+  seule.
+- L'application s'affiche en anglais sur un Mac réglé dans une langue qu'elle ne
+  propose pas, au lieu de mélanger les langues.
 
 ### Limites connues
 

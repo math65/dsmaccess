@@ -1,46 +1,100 @@
 ## v1.1 (build 23) — 2026-08-03
 
+The first stable release since 1.0, gathering four months of work. If you are
+coming from 1.0, everything below is new to you.
+
 ### Highlights
 
-- The first stable release since 1.0. It gathers everything published in the
-  betas since 19 July, plus external device support added today.
 - Seven modules that did not exist in 1.0: Resource Monitor, Logs and Security,
   Package Center, Containers, USB Copy, External Devices, and permissions in
   Users and Groups.
-- Files works with the Finder: copy in one, paste in the other, in both
-  directions.
+- Files now works with the Finder: copy on one side, paste on the other, in
+  both directions.
+- The app updates itself, and tells you what a long operation is doing while it
+  runs.
 
-### New
+### New modules
 
-- External Devices: a new Control Panel section lists the USB and eSATA drives
+- External Devices: a Control Panel section lists the USB and eSATA drives
   connected to the NAS, with their maker, model, capacity and state, and the
   partitions of the selected one with their file system, sizes and shared
-  folder.
-- External Devices: eject a drive, or format it in EXT4, FAT32 or EXFAT. Both
-  live in the table's context menu. Formatting asks twice, names the drive and
-  says plainly that nothing can be undone.
-- External Devices: an eject button appears in the toolbar as soon as something
-  is plugged in, so you never have to go looking for the screen. The list
-  refreshes on its own when you come back to the app, which is when a drive has
-  just been connected.
-- External Devices: the advanced settings are there too — forbidding the USB
-  port, letting non-administrators eject, and delayed allocation for ext4.
-  Forbidding the USB port asks for confirmation, since it cuts off every device
-  and needs a restart.
+  folder. Eject a drive, or format it in EXT4, FAT32 or EXFAT. An eject button
+  appears in the toolbar as soon as something is plugged in.
+- Resource Monitor: processor, memory, network and disks, plus the open files,
+  the alerts the NAS recorded and the connections in progress. You can end a
+  session that should not be there.
+- Logs and Security: all four logs the NAS keeps, not just one of them, with
+  Security Advisor's findings, the blocked addresses, and export to a file.
+- Package Center: browse the official Synology catalog, install, update and
+  remove packages, install a package file by hand, and manage your package
+  sources.
+- Containers: the Container Manager is covered in full. Create a container,
+  duplicate one, rename it, cap its memory, read its logs and statistics, and
+  handle images, networks, projects and registries.
+- USB Copy: set up and run your USB copy tasks entirely from the app —
+  direction, folders, filters and schedule. Contributed by Ashley Cox.
+- Users and Groups gains permissions: a panel lists every shared folder with
+  the rights of an account or a group, and a second tab does the same for
+  applications.
+
+### Files
+
+- Copy files in the Finder and paste them into a folder on the NAS, or drag an
+  item out of the list and drop it in the Finder. A folder dropped in the
+  Finder arrives as an archive built by the NAS.
+- Copy and paste behave as they do in the Finder: Command-C copies, Command-V
+  pastes, and Return renames.
+- A running copy shows what it is doing, how far along it is, its speed and the
+  time left, with a Cancel button that really stops it. Sending and downloading
+  show the same banner.
+- The result of a long operation stays on screen until you dismiss it, and a
+  short sound marks the end of a transfer. You can turn the sound off.
+- Create and manage share links, with passwords and expiry dates.
+- See full details for any file or folder, search with advanced criteria, look
+  inside an archive and extract only what you need.
+
+### Sign-in and accounts
+
+- Open a session without typing a password, by approving it on your phone with
+  Secure SignIn.
+- Sessions are kept between launches: tick "Stay signed in" and the app reopens
+  on the session it already had.
+- Connect with QuickConnect by entering your QuickConnect ID instead of an
+  address. Contributed by Ashley Cox.
+- Accounts without administrator rights can sign in, and the app tells you when
+  your NAS requires a new password before letting an account in.
+- Create users and groups, choose what they may reach, and generate a password
+  that satisfies your NAS policy.
 
 ### Changes
 
-- The keyboard shortcuts for the last modules moved from Command-Shift to
-  Command-Option. macOS keeps Command-Shift-3, 4 and 5 for screen capture and
-  always wins, which left Surveillance Station, USB Copy and the Resource
-  Monitor out of reach from the keyboard.
+- The keyboard shortcuts for the last modules use Command-Option rather than
+  Command-Shift. macOS keeps Command-Shift-3, 4 and 5 for screen capture and
+  always wins, which left three modules out of reach from the keyboard.
+- You choose whether to receive beta versions, in Settings > Updates. Trying a
+  beta once no longer means staying on the betas.
+- The app checks for a new version at every launch, and has its own icon,
+  designed by Ashley Cox.
 
 ### Fixes
 
-- A package installed while the app was running is now noticed. Until now the
-  app took stock of the installed packages once, when it connected, so a module
-  stayed unavailable until the next sign-in. A screen for a module that is not
-  available also offers to look again.
+- A long copy is no longer abandoned after five minutes, and leaving the screen
+  no longer stops it.
+- A package installed while the app is running is now noticed, instead of
+  staying unavailable until the next sign-in.
+- Creating a share link, sending files to the NAS, installing a package file,
+  and creating a user on DSM 7.4 all work again.
+- Approving your NAS certificate once signs you in, instead of blocking there.
+
+### Accessibility and language
+
+- Lists, forms and scrolling areas across the app say what they hold instead of
+  announcing "scroll area".
+- Status and detail text was made legible: the system colours failed the
+  contrast threshold at the sizes this app uses.
+- Transfers name their direction in words rather than with an icon alone.
+- The app shows up in English on a Mac set to a language it does not ship,
+  instead of mixing languages.
 
 ### Known limits
 
