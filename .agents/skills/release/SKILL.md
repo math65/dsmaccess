@@ -48,10 +48,12 @@ Le corps de la release GitHub est **en anglais**. Structure :
 
 ### <Fixes / New / Changes>
 - Une puce par changement, préfixée par la zone (Files, Storage, VoiceOver…).
-
-### Download
-[dsmaccess-X.Y.zip](https://github.com/math65/dsmaccess/releases/download/vX.Y/dsmaccess-X.Y.zip)
 ```
+
+**Pas de section « Download ».** Le lien vers le zip ne sert nulle part : sur la page
+de release GitHub l'asset est déjà listé juste en dessous, et dans le dialogue de mise
+à jour de Sparkle l'application se met à jour toute seule — proposer un téléchargement
+manuel n'y a aucun sens. Les versions jusqu'à la 1.1 en portaient une, par habitude.
 
 **Ton — écrire pour l'utilisateur VoiceOver, pas pour le changelog :**
 - Mener par **l'effet visible**, pas le mécanisme. « Le renommage de dossier
@@ -59,7 +61,6 @@ Le corps de la release GitHub est **en anglais**. Structure :
 - Zéro jargon interne (noms de classes/fonctions, chemins de fichiers, termes API).
 - Une idée par puce. Test à voix haute : si ça sonne comme un titre de commit,
   reformuler comme on le dirait à un ami non technique.
-- Toujours inclure l'**URL directe de l'asset**, pas seulement la page de release.
 
 ### A3. Notes françaises + rendu HTML — DIFFÉRÉ (à brancher quand ça devient visible)
 
