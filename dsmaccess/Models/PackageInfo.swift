@@ -27,15 +27,15 @@ struct ServerPackage: nonisolated Decodable, Sendable {
     let beta: Bool?
     let source: String?
     let type: Int?
-    let dependencyServers: PackageJSONValue?
-    let dependencyPackages: PackageJSONValue?
-    let conflictingPackages: PackageJSONValue?
-    let breakingPackages: PackageJSONValue?
-    let replacementPackages: PackageJSONValue?
+    let dependencyServers: DSMJSONValue?
+    let dependencyPackages: DSMJSONValue?
+    let conflictingPackages: DSMJSONValue?
+    let breakingPackages: DSMJSONValue?
+    let replacementPackages: DSMJSONValue?
     let installType: String?
-    let installOnColdStorage: PackageJSONValue?
-    let license: PackageJSONValue?
-    let installPages: PackageJSONValue?
+    let installOnColdStorage: DSMJSONValue?
+    let license: DSMJSONValue?
+    let installPages: DSMJSONValue?
 
     private enum CodingKeys: String, CodingKey {
         case id, version, link, md5, size, beta, source, type
@@ -61,32 +61,32 @@ struct ServerPackage: nonisolated Decodable, Sendable {
         source = container.flexString(.source)
         type = container.flexInt(.type)
         dependencyServers = try container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .dependencyServers
         )
         dependencyPackages = try container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .dependencyPackages
         )
         conflictingPackages = try container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .conflictingPackages
         )
         breakingPackages = try container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .breakingPackages
         )
         replacementPackages = try container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .replacementPackages
         )
         installType = container.flexString(.installType)
         installOnColdStorage = try container.decodeIfPresent(
-            PackageJSONValue.self,
+            DSMJSONValue.self,
             forKey: .installOnColdStorage
         )
-        license = try container.decodeIfPresent(PackageJSONValue.self, forKey: .license)
-        installPages = try container.decodeIfPresent(PackageJSONValue.self, forKey: .installPages)
+        license = try container.decodeIfPresent(DSMJSONValue.self, forKey: .license)
+        installPages = try container.decodeIfPresent(DSMJSONValue.self, forKey: .installPages)
     }
 }
 

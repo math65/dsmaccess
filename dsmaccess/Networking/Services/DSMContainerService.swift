@@ -12,6 +12,7 @@ final class DSMContainerService {
     private static let containerAPI = DSMAPI("SYNO.Docker.Container", preferredVersion: 1)
     private static let resourceAPI = DSMAPI("SYNO.Docker.Container.Resource", preferredVersion: 1)
     private static let logAPI = DSMAPI("SYNO.Docker.Container.Log", preferredVersion: 1)
+    private static let containerProfileAPI = DSMAPI("SYNO.Docker.Container.Profile", preferredVersion: 1)
     private static let projectAPI = DSMAPI("SYNO.Docker.Project", preferredVersion: 1)
     private static let imageAPI = DSMAPI("SYNO.Docker.Image", preferredVersion: 1)
     private static let networkAPI = DSMAPI("SYNO.Docker.Network", preferredVersion: 1)
@@ -93,6 +94,104 @@ final class DSMContainerService {
                 "name": .string(name),
                 "force": .boolean(false),
                 "preserve_profile": .boolean(false),
+            ]
+        )
+    }
+
+    /// DSM's Force stop. Captured contract: `signal` is the **integer** 9 — `"9"`, `"SIGKILL"`
+    /// and `"KILL"` are all refused with 114. The container ends up as `Exited (137)`, and DSM
+    /// answers 1004 when it was already stopped.
+    func killContainer(name: String) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "signal",
+            parameters: [
+                "name": .string(name),
+                "signal": .integer(9),
+            ]
+        )
+    }
+
+    /// DSM's Reset. Same `delete` method as removing a container, with `preserve_profile` true:
+    /// captured on a real container, it does not remove anything but recreates it from its
+    /// profile, stopped and never started.
+    func resetContainer(name: String) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "delete",
+            parameters: [
+                "name": .string(name),
+                "force": .boolean(false),
+                "preserve_profile": .boolean(true),
+            ]
+        )
+    }
+
+    /// Creates a container. Captured contract: `is_run_instantly` and `profile` are both
+    /// required — omitting the flag answers 114 even with a valid profile — and the other
+    /// fields DSM's client declares (`services`, dependent containers) are optional.
+    ///
+    /// Unlike `set`, `create` honours the ports, the volumes and the environment carried in
+    /// the profile.
+    func createContainer(profile: ContainerProfile, startsImmediately: Bool) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "create",
+            parameters: [
+                "is_run_instantly": .boolean(startsImmediately),
+                "profile": try .json(profile.fields),
+            ]
+        )
+    }
+
+    /// Docker's raw counters for every container at once. Captured contract: `stats` takes no
+    /// parameter — a `name` is ignored — and answers a dictionary keyed by container id.
+    func containerStatistics() async throws -> [String: ContainerStatistics] {
+        try await transport.read(
+            api: Self.containerAPI,
+            method: "stats",
+            parameters: [:],
+            as: [String: ContainerStatistics].self
+        )
+    }
+
+    /// Reads a container's creation profile, which is what its Settings screen edits.
+    func containerProfile(name: String) async throws -> ContainerProfile {
+        try await transport.read(
+            api: Self.containerAPI,
+            method: "get",
+            parameters: ["name": .string(name)],
+            as: ContainerProfileResponse.self
+        ).profile
+    }
+
+    /// Applies an edited profile. Captured contract: DSM wants the **whole** profile back, and
+    /// `edit_name` is what renames the container — leaving it equal to `name` keeps the name.
+    func updateContainerProfile(
+        name: String,
+        editName: String,
+        profile: ContainerProfile
+    ) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "set",
+            parameters: [
+                "name": .string(name),
+                "edit_name": .string(editName),
+                "profile": try .json(profile.fields),
+            ]
+        )
+    }
+
+    /// Writes a container's creation profile next to its folder on the NAS. As with image
+    /// export, `path` is a **folder** and DSM names the file itself, `<container>.syno.json`.
+    func exportContainerProfile(name: String, folderPath: String) async throws {
+        try await transport.perform(
+            api: Self.containerProfileAPI,
+            method: "export",
+            parameters: [
+                "name": .string(name),
+                "path": .string(folderPath),
             ]
         )
     }

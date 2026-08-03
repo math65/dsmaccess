@@ -357,6 +357,17 @@ protocol DSMClientProtocol: AnyObject {
     ) async throws -> DockerRegistrySearchPage
     func dockerImageTags(repository: String) async throws -> [DockerImageTag]
     func deleteContainer(name: String) async throws
+    func killContainer(name: String) async throws
+    func resetContainer(name: String) async throws
+    func exportContainerProfile(name: String, folderPath: String) async throws
+    func containerProfile(name: String) async throws -> ContainerProfile
+    func updateContainerProfile(
+        name: String,
+        editName: String,
+        profile: ContainerProfile
+    ) async throws
+    func containerStatistics() async throws -> [String: ContainerStatistics]
+    func createContainer(profile: ContainerProfile, startsImmediately: Bool) async throws
     func containerProcesses(name: String) async throws -> [ContainerProcess]
     func pruneDockerImages() async throws
     func startDockerImageUpgrade(repository: String) async throws -> DockerImagePullTask
@@ -1421,6 +1432,42 @@ final class DSMClient: DSMClientProtocol {
 
     func dockerImageTags(repository: String) async throws -> [DockerImageTag] {
         try await containers.imageTags(repository: repository)
+    }
+
+    func killContainer(name: String) async throws {
+        try await containers.killContainer(name: name)
+    }
+
+    func resetContainer(name: String) async throws {
+        try await containers.resetContainer(name: name)
+    }
+
+    func exportContainerProfile(name: String, folderPath: String) async throws {
+        try await containers.exportContainerProfile(name: name, folderPath: folderPath)
+    }
+
+    func containerProfile(name: String) async throws -> ContainerProfile {
+        try await containers.containerProfile(name: name)
+    }
+
+    func containerStatistics() async throws -> [String: ContainerStatistics] {
+        try await containers.containerStatistics()
+    }
+
+    func createContainer(profile: ContainerProfile, startsImmediately: Bool) async throws {
+        try await containers.createContainer(profile: profile, startsImmediately: startsImmediately)
+    }
+
+    func updateContainerProfile(
+        name: String,
+        editName: String,
+        profile: ContainerProfile
+    ) async throws {
+        try await containers.updateContainerProfile(
+            name: name,
+            editName: editName,
+            profile: profile
+        )
     }
 
     func deleteContainer(name: String) async throws {

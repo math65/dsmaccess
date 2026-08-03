@@ -241,6 +241,182 @@ enum ContainerAction: String, Sendable {
     case restart
 }
 
+/// A container's creation profile, as `SYNO.Docker.Container get` returns it.
+///
+/// DSM's own Settings screen sends the **whole** profile back to `set`, with only the edited
+/// fields changed. So the profile is kept as received rather than modelled: the app edits the
+/// few fields it understands and hands the rest back untouched, which is what keeps a field it
+/// has never heard of from being dropped on save.
+struct ContainerProfile: Equatable, Sendable {
+    private(set) var fields: [String: DSMJSONValue]
+
+    nonisolated init(fields: [String: DSMJSONValue]) {
+        self.fields = fields
+    }
+
+    /// Bytes, `0` meaning no limit — DSM's own "unlimited".
+    var memoryLimit: Int64 {
+        get {
+            switch fields["memory_limit"] {
+            case .integer(let value): Int64(value)
+            case .number(let value): Int64(value)
+            default: 0
+            }
+        }
+        set { fields["memory_limit"] = .integer(Int(newValue)) }
+    }
+
+    var restartsAutomatically: Bool {
+        get {
+            if case .boolean(let value) = fields["enable_restart_policy"] { value } else { false }
+        }
+        set { fields["enable_restart_policy"] = .boolean(newValue) }
+    }
+
+    /// DSM shows this as Low / Medium / High; the wire value is a plain number.
+    var cpuPriority: Int {
+        get {
+            if case .integer(let value) = fields["cpu_priority"] { value } else { 0 }
+        }
+        set { fields["cpu_priority"] = .integer(newValue) }
+    }
+
+    var name: String {
+        if case .string(let value) = fields["name"] { value } else { "" }
+    }
+
+    /// Turns a profile read from one container into one that can create another.
+    ///
+    /// The identifier must go — it belongs to the container the profile came from. Published
+    /// host ports are released to `0`, which DSM keeps as is and Docker resolves at startup:
+    /// two containers cannot claim the same host port, and DSM's own Duplicate says the local
+    /// port is remapped automatically.
+    mutating func prepareForDuplication(named newName: String) {
+        fields["name"] = .string(newName)
+        fields.removeValue(forKey: "id")
+        if case .array(let bindings) = fields["port_bindings"] {
+            fields["port_bindings"] = .array(bindings.map { binding in
+                guard case .object(var port) = binding else { return binding }
+                port["host_port"] = .integer(0)
+                return .object(port)
+            })
+        }
+    }
+}
+
+/// Docker's raw counters for one container, as `SYNO.Docker.Container stats` returns them.
+///
+/// The method takes **no parameter** and answers with every container at once, keyed by
+/// identifier. DSM does not compute a CPU percentage: it has to be derived from the two
+/// samples the payload carries, which is what its own Statistics tab does.
+struct ContainerStatistics: nonisolated Decodable, Equatable, Sendable {
+    let cpuTotal: Int64
+    let previousCPUTotal: Int64
+    let systemCPUTotal: Int64
+    let previousSystemCPUTotal: Int64
+    let onlineCPUs: Int
+    let memoryUsage: Int64
+    let memoryLimit: Int64
+    let receivedBytes: Int64
+    let sentBytes: Int64
+
+    private enum CodingKeys: String, CodingKey {
+        case cpuStats = "cpu_stats"
+        case preCPUStats = "precpu_stats"
+        case memoryStats = "memory_stats"
+        case networks
+    }
+
+    private enum CPUKeys: String, CodingKey {
+        case cpuUsage = "cpu_usage"
+        case systemCPUUsage = "system_cpu_usage"
+        case onlineCPUs = "online_cpus"
+    }
+
+    private enum CPUUsageKeys: String, CodingKey {
+        case totalUsage = "total_usage"
+    }
+
+    private enum MemoryKeys: String, CodingKey {
+        case usage, limit
+    }
+
+    private enum InterfaceKeys: String, CodingKey {
+        case receivedBytes = "rx_bytes"
+        case sentBytes = "tx_bytes"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        let cpu = try container.nestedContainer(keyedBy: CPUKeys.self, forKey: .cpuStats)
+        cpuTotal = try cpu.nestedContainer(keyedBy: CPUUsageKeys.self, forKey: .cpuUsage)
+            .decode(Int64.self, forKey: .totalUsage)
+        systemCPUTotal = cpu.flexInt64(.systemCPUUsage) ?? 0
+        onlineCPUs = cpu.flexInt(.onlineCPUs) ?? 1
+
+        let previous = try container.nestedContainer(keyedBy: CPUKeys.self, forKey: .preCPUStats)
+        previousCPUTotal = (try? previous.nestedContainer(
+            keyedBy: CPUUsageKeys.self, forKey: .cpuUsage
+        ).decode(Int64.self, forKey: .totalUsage)) ?? 0
+        previousSystemCPUTotal = previous.flexInt64(.systemCPUUsage) ?? 0
+
+        let memory = try container.nestedContainer(keyedBy: MemoryKeys.self, forKey: .memoryStats)
+        memoryUsage = memory.flexInt64(.usage) ?? 0
+        memoryLimit = memory.flexInt64(.limit) ?? 0
+
+        // Only the container's own interfaces are listed, and a container attached to no
+        // network has none at all.
+        let interfaces = try container.decodeIfPresent(
+            [String: NetworkInterface].self, forKey: .networks
+        ) ?? [:]
+        receivedBytes = interfaces.values.reduce(0) { $0 + $1.receivedBytes }
+        sentBytes = interfaces.values.reduce(0) { $0 + $1.sentBytes }
+    }
+
+    private struct NetworkInterface: nonisolated Decodable, Sendable {
+        let receivedBytes: Int64
+        let sentBytes: Int64
+
+        nonisolated init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: InterfaceKeys.self)
+            receivedBytes = container.flexInt64(.receivedBytes) ?? 0
+            sentBytes = container.flexInt64(.sentBytes) ?? 0
+        }
+    }
+
+    /// Docker's own formula: the container's share of the CPU time the system spent between
+    /// the two samples, scaled by the number of cores. A first sample with no predecessor, or
+    /// two identical samples, means there is nothing to report yet rather than zero usage.
+    var cpuPercent: Double? {
+        let used = cpuTotal - previousCPUTotal
+        let elapsed = systemCPUTotal - previousSystemCPUTotal
+        guard previousCPUTotal > 0, elapsed > 0, used >= 0 else { return nil }
+        return Double(used) / Double(elapsed) * Double(onlineCPUs) * 100
+    }
+
+    var memoryPercent: Double? {
+        guard memoryLimit > 0 else { return nil }
+        return Double(memoryUsage) / Double(memoryLimit) * 100
+    }
+}
+
+/// Reply of `SYNO.Docker.Container get`: the live details, and the creation profile.
+struct ContainerProfileResponse: nonisolated Decodable, Sendable {
+    let profile: ContainerProfile
+
+    private enum CodingKeys: String, CodingKey {
+        case profile
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        profile = ContainerProfile(
+            fields: try container.decode([String: DSMJSONValue].self, forKey: .profile)
+        )
+    }
+}
+
 /// One process inside a running container. Captured on DSM 7.4: `pid` arrives as a string,
 /// `cpu` and `memoryPercent` as fractions of a percent, `start` as a short human date.
 struct ContainerProcess: nonisolated Decodable, Identifiable, Hashable, Sendable {

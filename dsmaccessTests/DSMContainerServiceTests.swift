@@ -181,6 +181,177 @@ struct DSMContainerServiceTests {
         #expect(targets == [Target(repository: "hello-world", tags: ["latest"])])
     }
 
+    @Test func containerCreationSendsTheRunFlagAndTheProfile() async throws {
+        // Captured contract: omitting `is_run_instantly` answers 114 even with a valid profile.
+        // Unlike `set`, creation honours the ports, volumes and variables in the profile.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        var draft = ContainerDraft()
+        draft.name = "web"
+        draft.image = "alpine:latest"
+        draft.ports = [ContainerPortBinding(containerPort: 8080, hostPort: 0)]
+        draft.volumes = [ContainerVolumeBinding(hostPath: "/docker", mountPoint: "/mnt")]
+        draft.environment = [ContainerEnvironmentVariable(key: "TZ", value: "Europe/Paris")]
+
+        try await service.createContainer(profile: draft.profile(), startsImmediately: false)
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "create")
+        #expect(parameters["is_run_instantly"] == "false")
+        let sent = try #require(parameters["profile"]?.data(using: .utf8))
+        let fields = try #require(try JSONSerialization.jsonObject(with: sent) as? [String: Any])
+        #expect(fields["name"] as? String == "web")
+        #expect((fields["port_bindings"] as? [[String: Any]])?.count == 1)
+        #expect((fields["volume_bindings"] as? [[String: Any]])?.count == 1)
+        #expect((fields["env_variables"] as? [[String: Any]])?.count == 1)
+    }
+
+    @Test func duplicationReleasesThePortsAndDropsTheIdentifier() async throws {
+        // Two containers cannot claim the same host port, and the identifier belongs to the
+        // container the profile was read from. A host port of 0 is kept as is: Docker picks one.
+        var profile = ContainerProfile(fields: [
+            "name": .string("web"),
+            "id": .string("abc123"),
+            "port_bindings": .array([
+                .object([
+                    "container_port": .integer(8080),
+                    "host_port": .integer(34567),
+                    "type": .string("tcp"),
+                ])
+            ]),
+        ])
+
+        profile.prepareForDuplication(named: "web-copy")
+
+        #expect(profile.name == "web-copy")
+        #expect(profile.fields["id"] == nil)
+        guard case .array(let bindings) = profile.fields["port_bindings"],
+              case .object(let first) = bindings.first
+        else {
+            Issue.record("Les liaisons de ports devraient survivre à la duplication.")
+            return
+        }
+        #expect(first["host_port"] == .integer(0))
+        #expect(first["container_port"] == .integer(8080))
+    }
+
+    @Test func containerStatisticsDeriveTheCPUShare() async throws {
+        // Captured contract: `stats` takes no parameter and answers keyed by container id, and
+        // DSM sends no CPU percentage — it comes from the gap between the two samples.
+        let payload = """
+        {"success":true,"data":{"abc123":{\
+        "cpu_stats":{"cpu_usage":{"total_usage":2000},"system_cpu_usage":20000,"online_cpus":2},\
+        "precpu_stats":{"cpu_usage":{"total_usage":1000},"system_cpu_usage":10000},\
+        "memory_stats":{"usage":536870912,"limit":1073741824},\
+        "networks":{"eth0":{"rx_bytes":1024,"tx_bytes":512}}}}}
+        """
+        let stub = DSMRequestStub(results: [.response(Data(payload.utf8))])
+        let service = makeService(stub: stub)
+
+        let statistics = try await service.containerStatistics()
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "stats")
+        #expect(parameters["name"] == nil)
+
+        let entry = try #require(statistics["abc123"])
+        // 1000 of 10000 system ticks on 2 cores: 10 % per core, 20 % overall.
+        #expect(entry.cpuPercent == 20)
+        #expect(entry.memoryPercent == 50)
+        #expect(entry.receivedBytes == 1024)
+        #expect(entry.sentBytes == 512)
+    }
+
+    @Test func containerStatisticsWithoutAPreviousSampleReportNothing() async throws {
+        // A container just started has no earlier sample. Reporting 0 % would read as idle
+        // rather than as unknown.
+        let payload = """
+        {"success":true,"data":{"abc123":{\
+        "cpu_stats":{"cpu_usage":{"total_usage":2000},"system_cpu_usage":20000,"online_cpus":2},\
+        "precpu_stats":{"cpu_usage":{"total_usage":0},"system_cpu_usage":0},\
+        "memory_stats":{"usage":0,"limit":0}}}}
+        """
+        let stub = DSMRequestStub(results: [.response(Data(payload.utf8))])
+        let service = makeService(stub: stub)
+
+        let entry = try #require(try await service.containerStatistics()["abc123"])
+
+        #expect(entry.cpuPercent == nil)
+        #expect(entry.memoryPercent == nil)
+        #expect(entry.receivedBytes == 0)
+    }
+
+    @Test func containerProfileSurvivesTheRoundTrip() async throws {
+        // Captured contract: `set` wants the whole profile back. A field the app does not model
+        // must return untouched, or saving a memory limit would quietly drop the port bindings.
+        let payload = """
+        {"success":true,"data":{"profile":{"name":"web","memory_limit":0,\
+        "enable_restart_policy":false,"port_bindings":[{"host_port":8080}],\
+        "some_future_field":"kept"}}}
+        """
+        let stub = DSMRequestStub(results: [
+            .response(Data(payload.utf8)),
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        var profile = try await service.containerProfile(name: "web")
+        profile.memoryLimit = 268_435_456
+        try await service.updateContainerProfile(
+            name: "web",
+            editName: "web",
+            profile: profile
+        )
+
+        let parameters = try query(from: try #require(await stub.requests.last))
+        #expect(parameters["method"] == "set")
+        #expect(parameters["edit_name"] == #""web""#)
+        let sent = try #require(parameters["profile"]?.data(using: .utf8))
+        let fields = try #require(
+            try JSONSerialization.jsonObject(with: sent) as? [String: Any]
+        )
+        #expect(fields["memory_limit"] as? Int == 268_435_456)
+        #expect(fields["some_future_field"] as? String == "kept")
+        #expect(fields["port_bindings"] != nil)
+        #expect(fields["enable_restart_policy"] as? Bool == false)
+    }
+
+    @Test func containerForceStopSendsSignalAsAnInteger() async throws {
+        // Captured contract: `signal` is the integer 9. "9", "SIGKILL" and "KILL" are all
+        // refused by DSM with error 114, and nothing in the build would catch the quoting.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.killContainer(name: "web")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "signal")
+        #expect(parameters["name"] == #""web""#)
+        #expect(parameters["signal"] == "9")
+    }
+
+    @Test func containerResetPreservesTheProfile() async throws {
+        // Captured contract: Reset is the same `delete` method, told to keep the profile.
+        // Sending false here would delete the container instead of recreating it.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        try await service.resetContainer(name: "web")
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "delete")
+        #expect(parameters["name"] == #""web""#)
+        #expect(parameters["force"] == "false")
+        #expect(parameters["preserve_profile"] == "true")
+    }
+
     @Test func containerDeleteSendsCapturedParameters() async throws {
         // Captured contract: DSM's Delete action, distinct from its Reset which preserves
         // the profile.

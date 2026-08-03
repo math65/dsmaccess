@@ -80,6 +80,7 @@ struct ContainersView: View {
 struct ContainersPaneView: View {
     private enum DetailsSection: Hashable {
         case information
+        case statistics
         case logs
         case processes
     }
@@ -92,6 +93,14 @@ struct ContainersPaneView: View {
     @State private var detailsContainer: ContainerItem?
     @State private var detailsSection = DetailsSection.information
     @State private var pendingDelete: ContainerItem?
+    @State private var pendingForceStop: ContainerItem?
+    @State private var pendingReset: ContainerItem?
+    @State private var exportingProfileOf: ContainerItem?
+    @State private var editingSettingsOf: ContainerItem?
+    @State private var duplicating: ContainerItem?
+    @State private var duplicateName = ""
+    @State private var showsCreation = false
+    @State private var exportShareNames: [String] = []
     @AccessibilityFocusState private var contentFocused: Bool
     @AccessibilityFocusState private var detailsSectionFocused: Bool
     /// Whether this tab is the selected one. Its search field and toolbar live at the window
@@ -131,6 +140,104 @@ struct ContainersPaneView: View {
                     ))
                 }
             }
+            .confirmationDialog(
+                forceStopTitle,
+                isPresented: Binding(
+                    get: { pendingForceStop != nil },
+                    set: { if !$0 { pendingForceStop = nil } }
+                )
+            ) {
+                Button("containers.action.force_stop", role: .destructive) {
+                    guard let container = pendingForceStop else { return }
+                    pendingForceStop = nil
+                    Task { VoiceOver.announce(await viewModel.forceStop(container), priority: .high) }
+                }
+                Button("common.button.cancel", role: .cancel) { }
+            } message: {
+                if let container = pendingForceStop {
+                    Text(String(
+                        localized: "containers.force_stop.confirm.message",
+                        defaultValue: "“\(container.name)” will be killed at once, without being given time to finish what it is doing. Unsaved work inside the container is lost."
+                    ))
+                }
+            }
+            .confirmationDialog(
+                resetTitle,
+                isPresented: Binding(
+                    get: { pendingReset != nil },
+                    set: { if !$0 { pendingReset = nil } }
+                )
+            ) {
+                Button("containers.action.reset", role: .destructive) {
+                    guard let container = pendingReset else { return }
+                    pendingReset = nil
+                    Task { VoiceOver.announce(await viewModel.reset(container), priority: .high) }
+                }
+                Button("common.button.cancel", role: .cancel) { }
+            } message: {
+                if let container = pendingReset {
+                    Text(String(
+                        localized: "containers.reset.confirm.message",
+                        defaultValue: "“\(container.name)” will be recreated from its settings and left stopped. Its writable layer is discarded: anything written inside the container, outside a mounted folder, is lost. This cannot be undone."
+                    ))
+                }
+            }
+            .sheet(item: $editingSettingsOf) { container in
+                ContainerSettingsSheet(container: container, vm: viewModel)
+            }
+            .sheet(isPresented: $showsCreation) {
+                ContainerCreationSheet(vm: viewModel)
+            }
+            .alert(
+                duplicateTitle,
+                isPresented: Binding(
+                    get: { duplicating != nil },
+                    set: { if !$0 { duplicating = nil } }
+                )
+            ) {
+                TextField("containers.column.name", text: $duplicateName)
+                Button("containers.duplicate.action") {
+                    guard let container = duplicating else { return }
+                    let name = duplicateName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    duplicating = nil
+                    guard !name.isEmpty else { return }
+                    Task {
+                        VoiceOver.announce(
+                            await viewModel.duplicate(container, as: name),
+                            priority: .high
+                        )
+                    }
+                }
+                Button("common.button.cancel", role: .cancel) { duplicating = nil }
+            } message: {
+                Text("containers.duplicate.message")
+            }
+            .onChange(of: duplicating) { _, container in
+                // A suggested name saves typing, and makes plain that the copy is a new
+                // container rather than a second name for the same one.
+                guard let container else { return }
+                duplicateName = String(
+                    localized: "containers.duplicate.suggested_name",
+                    defaultValue: "\(container.name)-copy"
+                )
+            }
+            .sheet(item: $exportingProfileOf) { container in
+                // DSM names the file itself, so choosing the folder is the whole decision.
+                SharedFolderPickerSheet(
+                    initialPath: "/docker",
+                    shareNames: exportShareNames,
+                    loadFolders: viewModel.folders,
+                    createFolder: nil
+                ) { chosen in
+                    Task {
+                        VoiceOver.announce(
+                            await viewModel.exportProfile(of: container, to: chosen),
+                            priority: .high
+                        )
+                    }
+                }
+            }
+            .task { exportShareNames = (try? await viewModel.shareNames()) ?? [] }
             .onChange(of: viewModel.containers) {
                 guard let selection else { return }
                 if !viewModel.containers.contains(where: { $0.id == selection }) {
@@ -254,12 +361,28 @@ struct ContainersPaneView: View {
 
         ToolbarItem {
             Button {
+                showsCreation = true
+            } label: {
+                Label("containers.create.title", systemImage: "plus")
+            }
+            .help("containers.create.hint")
+        }
+
+        ToolbarItem {
+            Button {
                 Task { await load() }
             } label: {
                 Label("common.button.refresh", systemImage: "arrow.clockwise")
             }
             .help("containers.toolbar.refresh")
         }
+    }
+
+    private var duplicateTitle: Text {
+        Text(String(
+            localized: "containers.duplicate.title",
+            defaultValue: "Duplicate “\(duplicating?.name ?? "")”?"
+        ))
     }
 
     /// A stopped container reports no usage; the dash says so rather than showing 0 %.
@@ -273,15 +396,26 @@ struct ContainersPaneView: View {
         if container.isRunning {
             Button("common.button.stop") { Task { await perform(.stop, on: container) } }
                 .help("containers.action.stop.hint")
+            Button("containers.action.force_stop") { pendingForceStop = container }
+                .help("containers.action.force_stop.hint")
             Button("containers.action.restart") { Task { await perform(.restart, on: container) } }
                 .help("containers.action.restart.hint")
         } else {
             Button("common.button.start") { Task { await perform(.start, on: container) } }
                 .help("containers.action.start.hint")
         }
+        Divider()
+        Button("containers.action.reset", role: .destructive) { pendingReset = container }
+            .help("containers.action.reset.hint")
         Button("common.button.delete", role: .destructive) { pendingDelete = container }
             .help("containers.action.delete.hint")
         Divider()
+        Button("containers.duplicate.action") { duplicating = container }
+            .help("containers.duplicate.hint")
+        Button("containers.settings.title") { editingSettingsOf = container }
+            .help("containers.settings.hint")
+        Button("containers.action.export_profile") { exportingProfileOf = container }
+            .help("containers.action.export_profile.hint")
         Button("containers.detail.title") {
             presentDetails(for: container)
         }
@@ -295,11 +429,26 @@ struct ContainersPaneView: View {
         ))
     }
 
+    private var forceStopTitle: Text {
+        Text(String(
+            localized: "containers.force_stop.confirm.title",
+            defaultValue: "Force stop “\(pendingForceStop?.name ?? "")”?"
+        ))
+    }
+
+    private var resetTitle: Text {
+        Text(String(
+            localized: "containers.reset.confirm.title",
+            defaultValue: "Reset “\(pendingReset?.name ?? "")”?"
+        ))
+    }
+
     private func detailsSheet(_ container: ContainerItem) -> some View {
         NavigationStack {
             VStack(spacing: 0) {
                 Picker("containers.detail.title", selection: $detailsSection) {
                     Text("common.label.information").tag(DetailsSection.information)
+                    Text("containers.detail.statistics").tag(DetailsSection.statistics)
                     Text("common.label.log").tag(DetailsSection.logs)
                     Text("containers.detail.processes").tag(DetailsSection.processes)
                 }
@@ -312,6 +461,8 @@ struct ContainersPaneView: View {
 
                 if detailsSection == .processes {
                     processView(container)
+                } else if detailsSection == .statistics {
+                    statisticsView(container)
                 } else if detailsSection == .information {
                     Form {
                         Section("containers.column.name") {
@@ -358,6 +509,69 @@ struct ContainersPaneView: View {
         .frame(minWidth: 520, minHeight: 430)
         .task { await focusDetails(for: container) }
         .onDisappear { detailsSectionFocused = false }
+    }
+
+    @ViewBuilder
+    private func statisticsView(_ container: ContainerItem) -> some View {
+        if viewModel.isLoadingStatistics && viewModel.statisticsContainerName == container.name {
+            ModuleLoadingView("containers.statistics.loading")
+        } else if let message = viewModel.statisticsErrorMessage {
+            ModuleErrorView(message: message) {
+                Task { await viewModel.loadStatistics(for: container) }
+            }
+        } else if let statistics = viewModel.statistics,
+                  viewModel.statisticsContainerName == container.name {
+            Form {
+                Section("common.label.resources") {
+                    // Docker sends counters, not a percentage: a container just started has no
+                    // earlier sample to compare with, and says so instead of showing 0 %.
+                    LabeledContent(
+                        "common.metric.processor",
+                        value: statistics.cpuPercent.map {
+                            "\($0.formatted(.number.precision(.fractionLength(1)))) %"
+                        } ?? String(localized: "containers.statistics.pending")
+                    )
+                    LabeledContent(
+                        "common.metric.memory",
+                        value: statistics.memoryUsage.formatted(.byteCount(style: .memory))
+                    )
+                    if let share = statistics.memoryPercent {
+                        LabeledContent(
+                            "containers.statistics.memory_share",
+                            value: "\(share.formatted(.number.precision(.fractionLength(1)))) %"
+                        )
+                    }
+                    if statistics.memoryLimit > 0 {
+                        LabeledContent(
+                            "containers.statistics.memory_limit",
+                            value: statistics.memoryLimit.formatted(.byteCount(style: .memory))
+                        )
+                    }
+                }
+                Section("containers.statistics.network") {
+                    LabeledContent(
+                        "containers.statistics.received",
+                        value: statistics.receivedBytes.formatted(.byteCount(style: .file))
+                    )
+                    LabeledContent(
+                        "containers.statistics.sent",
+                        value: statistics.sentBytes.formatted(.byteCount(style: .file))
+                    )
+                }
+            }
+            .formStyle(.grouped)
+            .accessibilityLabel(String(
+                localized: "containers.statistics.label",
+                defaultValue: "Statistics of \(container.name)"
+            ))
+            .labeledContentStyle(.readable)
+        } else {
+            EmptyModuleView(
+                title: "containers.statistics.empty.title",
+                systemImage: "chart.bar",
+                description: "containers.statistics.empty.description"
+            )
+        }
     }
 
     @ViewBuilder
@@ -499,6 +713,7 @@ struct ContainersPaneView: View {
         detailsContainer = container
         Task { await viewModel.loadLogs(for: container) }
         Task { await viewModel.loadProcesses(for: container) }
+        Task { await viewModel.loadStatistics(for: container) }
     }
 
     private func focusDetails(for container: ContainerItem) async {
