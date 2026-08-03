@@ -3,6 +3,18 @@
     <channel>
         <title>dsmaccess</title>
         <item>
+            <title>1.1-beta.21</title>
+            <pubDate>Mon, 03 Aug 2026 03:10:35 +0200</pubDate>
+            <link>https://github.com/math65/dsmaccess/releases/tag/v1.1-beta.21</link>
+            <sparkle:channel>beta</sparkle:channel>
+            <sparkle:version>22</sparkle:version>
+            <sparkle:shortVersionString>1.1-beta.21</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:releaseNotesLink>https://math65.github.io/dsmaccess/dsmaccess-1.1-beta.21.html</sparkle:releaseNotesLink>
+            <sparkle:releaseNotesLink xml:lang="fr">https://math65.github.io/dsmaccess/dsmaccess-1.1-beta.21.fr.html</sparkle:releaseNotesLink>
+            <enclosure url="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.21/dsmaccess-1.1-beta.21.zip" length="9996053" type="application/octet-stream" sparkle:edSignature="3+3qMlHhOdUvFC8mXmCfBB/lZ/JH2UwTBX93aEpndBJMJ9hqB/svnq6GyU/UsF3XU9ETyBqW7QbUb3bbCwWJCg=="/>
+        </item>
+        <item>
             <title>1.1-beta.20</title>
             <pubDate>Fri, 31 Jul 2026 12:32:15 +0200</pubDate>
             <link>https://github.com/math65/dsmaccess/releases/tag/v1.1-beta.20</link>
@@ -25,18 +37,6 @@
             <sparkle:releaseNotesLink>https://math65.github.io/dsmaccess/dsmaccess-1.1-beta.19.html</sparkle:releaseNotesLink>
             <sparkle:releaseNotesLink xml:lang="fr">https://math65.github.io/dsmaccess/dsmaccess-1.1-beta.19.fr.html</sparkle:releaseNotesLink>
             <enclosure url="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.19/dsmaccess-1.1-beta.19.zip" length="8810089" type="application/octet-stream" sparkle:edSignature="T8NDR/6nVSj8dU9r/KRrMu15l7LEIhhFcQoZ6aa5HNGUd84rHgAQ9F0RsxdmhE6Z7tAPobOdT4yLTQAN6i8cCg=="/>
-        </item>
-        <item>
-            <title>1.1-beta.18</title>
-            <pubDate>Fri, 31 Jul 2026 10:29:42 +0200</pubDate>
-            <link>https://github.com/math65/dsmaccess/releases/tag/v1.1-beta.18</link>
-            <sparkle:channel>beta</sparkle:channel>
-            <sparkle:version>19</sparkle:version>
-            <sparkle:shortVersionString>1.1-beta.18</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:releaseNotesLink>https://math65.github.io/dsmaccess/dsmaccess-1.1-beta.18.html</sparkle:releaseNotesLink>
-            <sparkle:releaseNotesLink xml:lang="fr">https://math65.github.io/dsmaccess/dsmaccess-1.1-beta.18.fr.html</sparkle:releaseNotesLink>
-            <enclosure url="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.18/dsmaccess-1.1-beta.18.zip" length="8810170" type="application/octet-stream" sparkle:edSignature="67LhDdRdYB7E7yUvFUyVZuOKnJ+n/NgQ4mHrPySndSnvrSrRJ5cf8Al3mYW3SfIISAvll5oSNa4KyM4JfZuhBA=="/>
         </item>
         <item>
             <title>1.0</title>
