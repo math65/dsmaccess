@@ -1,7 +1,7 @@
 ## v1.1 (build 23) — 3 août 2026
 
-La première version stable depuis la 1.0, qui rassemble quatre mois de travail.
-Si vous venez de la 1.0, tout ce qui suit est nouveau pour vous.
+La première version stable depuis la 1.0, parue le 10 juillet. Si vous venez de
+la 1.0, tout ce qui suit est nouveau pour vous.
 
 ### En bref
 
