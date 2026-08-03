@@ -22,6 +22,7 @@ final class ContainersViewModel {
     private(set) var statistics: ContainerStatistics?
     private(set) var statisticsContainerName: String?
     private(set) var isLoadingStatistics = false
+    private(set) var isCreating = false
     var statisticsErrorMessage: String?
     private(set) var busyNames: Set<String> = []
     var errorMessage: String?
@@ -118,6 +119,62 @@ final class ContainersViewModel {
         }
     }
 
+    func create(_ draft: ContainerDraft) async -> DSMOperationOutcome {
+        isCreating = true
+        defer { isCreating = false }
+
+        do {
+            try await session.withClient {
+                try await $0.createContainer(
+                    profile: draft.profile(),
+                    startsImmediately: draft.startsImmediately
+                )
+            }
+            await load(silently: true)
+            return .success(String(
+                localized: "containers.create.success",
+                defaultValue: "Container created: \(draft.trimmedName)"
+            ))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(
+                localized: "containers.create.failed",
+                defaultValue: "Creating \(draft.trimmedName) failed: \(reason)"
+            ))
+        }
+    }
+
+    /// DSM's Duplicate. There is no API for it: the profile is read, renamed, and created
+    /// again. Its published ports are released to Docker — DSM's own wording is that the local
+    /// port is remapped automatically — because two containers cannot share a host port.
+    func duplicate(_ container: ContainerItem, as newName: String) async -> DSMOperationOutcome {
+        isCreating = true
+        defer { isCreating = false }
+
+        do {
+            var profile = try await session.withClient {
+                try await $0.containerProfile(name: container.name)
+            }
+            profile.prepareForDuplication(named: newName)
+            try await session.withClient {
+                try await $0.createContainer(profile: profile, startsImmediately: false)
+            }
+            await load(silently: true)
+            return .success(String(
+                localized: "containers.duplicate.success",
+                defaultValue: "Container duplicated as \(newName), stopped"
+            ))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = (error as? DSMError)?.errorDescription ?? error.localizedDescription
+            return .failure(String(
+                localized: "containers.duplicate.failed",
+                defaultValue: "Duplicating \(container.name) failed: \(reason)"
+            ))
+        }
+    }
+
     func profile(of container: ContainerItem) async throws -> ContainerProfile {
         try await session.withClient { try await $0.containerProfile(name: container.name) }
     }
@@ -143,6 +200,11 @@ final class ContainersViewModel {
                 defaultValue: "Settings saved for \(editName)"
             )
         }
+    }
+
+    /// The images already on the NAS, which is what a new container can be built from.
+    func availableImages() async throws -> [DockerImage] {
+        try await session.withClient { try await $0.listDockerImages() }
     }
 
     /// What the folder picker needs to offer a destination for the exported profile.

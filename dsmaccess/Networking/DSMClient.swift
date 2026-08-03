@@ -367,6 +367,7 @@ protocol DSMClientProtocol: AnyObject {
         profile: ContainerProfile
     ) async throws
     func containerStatistics() async throws -> [String: ContainerStatistics]
+    func createContainer(profile: ContainerProfile, startsImmediately: Bool) async throws
     func containerProcesses(name: String) async throws -> [ContainerProcess]
     func pruneDockerImages() async throws
     func startDockerImageUpgrade(repository: String) async throws -> DockerImagePullTask
@@ -1451,6 +1452,10 @@ final class DSMClient: DSMClientProtocol {
 
     func containerStatistics() async throws -> [String: ContainerStatistics] {
         try await containers.containerStatistics()
+    }
+
+    func createContainer(profile: ContainerProfile, startsImmediately: Bool) async throws {
+        try await containers.createContainer(profile: profile, startsImmediately: startsImmediately)
     }
 
     func updateContainerProfile(

@@ -284,6 +284,24 @@ struct ContainerProfile: Equatable, Sendable {
     var name: String {
         if case .string(let value) = fields["name"] { value } else { "" }
     }
+
+    /// Turns a profile read from one container into one that can create another.
+    ///
+    /// The identifier must go — it belongs to the container the profile came from. Published
+    /// host ports are released to `0`, which DSM keeps as is and Docker resolves at startup:
+    /// two containers cannot claim the same host port, and DSM's own Duplicate says the local
+    /// port is remapped automatically.
+    mutating func prepareForDuplication(named newName: String) {
+        fields["name"] = .string(newName)
+        fields.removeValue(forKey: "id")
+        if case .array(let bindings) = fields["port_bindings"] {
+            fields["port_bindings"] = .array(bindings.map { binding in
+                guard case .object(var port) = binding else { return binding }
+                port["host_port"] = .integer(0)
+                return .object(port)
+            })
+        }
+    }
 }
 
 /// Docker's raw counters for one container, as `SYNO.Docker.Container stats` returns them.

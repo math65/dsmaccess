@@ -127,6 +127,23 @@ final class DSMContainerService {
         )
     }
 
+    /// Creates a container. Captured contract: `is_run_instantly` and `profile` are both
+    /// required — omitting the flag answers 114 even with a valid profile — and the other
+    /// fields DSM's client declares (`services`, dependent containers) are optional.
+    ///
+    /// Unlike `set`, `create` honours the ports, the volumes and the environment carried in
+    /// the profile.
+    func createContainer(profile: ContainerProfile, startsImmediately: Bool) async throws {
+        try await transport.perform(
+            api: Self.containerAPI,
+            method: "create",
+            parameters: [
+                "is_run_instantly": .boolean(startsImmediately),
+                "profile": try .json(profile.fields),
+            ]
+        )
+    }
+
     /// Docker's raw counters for every container at once. Captured contract: `stats` takes no
     /// parameter — a `name` is ignored — and answers a dictionary keyed by container id.
     func containerStatistics() async throws -> [String: ContainerStatistics] {

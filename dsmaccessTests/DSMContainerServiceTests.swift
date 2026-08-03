@@ -181,6 +181,63 @@ struct DSMContainerServiceTests {
         #expect(targets == [Target(repository: "hello-world", tags: ["latest"])])
     }
 
+    @Test func containerCreationSendsTheRunFlagAndTheProfile() async throws {
+        // Captured contract: omitting `is_run_instantly` answers 114 even with a valid profile.
+        // Unlike `set`, creation honours the ports, volumes and variables in the profile.
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        var draft = ContainerDraft()
+        draft.name = "web"
+        draft.image = "alpine:latest"
+        draft.ports = [ContainerPortBinding(containerPort: 8080, hostPort: 0)]
+        draft.volumes = [ContainerVolumeBinding(hostPath: "/docker", mountPoint: "/mnt")]
+        draft.environment = [ContainerEnvironmentVariable(key: "TZ", value: "Europe/Paris")]
+
+        try await service.createContainer(profile: draft.profile(), startsImmediately: false)
+
+        let parameters = try query(from: try #require(await stub.requests.first))
+        #expect(parameters["method"] == "create")
+        #expect(parameters["is_run_instantly"] == "false")
+        let sent = try #require(parameters["profile"]?.data(using: .utf8))
+        let fields = try #require(try JSONSerialization.jsonObject(with: sent) as? [String: Any])
+        #expect(fields["name"] as? String == "web")
+        #expect((fields["port_bindings"] as? [[String: Any]])?.count == 1)
+        #expect((fields["volume_bindings"] as? [[String: Any]])?.count == 1)
+        #expect((fields["env_variables"] as? [[String: Any]])?.count == 1)
+    }
+
+    @Test func duplicationReleasesThePortsAndDropsTheIdentifier() async throws {
+        // Two containers cannot claim the same host port, and the identifier belongs to the
+        // container the profile was read from. A host port of 0 is kept as is: Docker picks one.
+        var profile = ContainerProfile(fields: [
+            "name": .string("web"),
+            "id": .string("abc123"),
+            "port_bindings": .array([
+                .object([
+                    "container_port": .integer(8080),
+                    "host_port": .integer(34567),
+                    "type": .string("tcp"),
+                ])
+            ]),
+        ])
+
+        profile.prepareForDuplication(named: "web-copy")
+
+        #expect(profile.name == "web-copy")
+        #expect(profile.fields["id"] == nil)
+        guard case .array(let bindings) = profile.fields["port_bindings"],
+              case .object(let first) = bindings.first
+        else {
+            Issue.record("Les liaisons de ports devraient survivre à la duplication.")
+            return
+        }
+        #expect(first["host_port"] == .integer(0))
+        #expect(first["container_port"] == .integer(8080))
+    }
+
     @Test func containerStatisticsDeriveTheCPUShare() async throws {
         // Captured contract: `stats` takes no parameter and answers keyed by container id, and
         // DSM sends no CPU percentage — it comes from the gap between the two samples.

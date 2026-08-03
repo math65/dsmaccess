@@ -97,6 +97,9 @@ struct ContainersPaneView: View {
     @State private var pendingReset: ContainerItem?
     @State private var exportingProfileOf: ContainerItem?
     @State private var editingSettingsOf: ContainerItem?
+    @State private var duplicating: ContainerItem?
+    @State private var duplicateName = ""
+    @State private var showsCreation = false
     @State private var exportShareNames: [String] = []
     @AccessibilityFocusState private var contentFocused: Bool
     @AccessibilityFocusState private var detailsSectionFocused: Bool
@@ -181,6 +184,42 @@ struct ContainersPaneView: View {
             }
             .sheet(item: $editingSettingsOf) { container in
                 ContainerSettingsSheet(container: container, vm: viewModel)
+            }
+            .sheet(isPresented: $showsCreation) {
+                ContainerCreationSheet(vm: viewModel)
+            }
+            .alert(
+                duplicateTitle,
+                isPresented: Binding(
+                    get: { duplicating != nil },
+                    set: { if !$0 { duplicating = nil } }
+                )
+            ) {
+                TextField("containers.column.name", text: $duplicateName)
+                Button("containers.duplicate.action") {
+                    guard let container = duplicating else { return }
+                    let name = duplicateName.trimmingCharacters(in: .whitespacesAndNewlines)
+                    duplicating = nil
+                    guard !name.isEmpty else { return }
+                    Task {
+                        VoiceOver.announce(
+                            await viewModel.duplicate(container, as: name),
+                            priority: .high
+                        )
+                    }
+                }
+                Button("common.button.cancel", role: .cancel) { duplicating = nil }
+            } message: {
+                Text("containers.duplicate.message")
+            }
+            .onChange(of: duplicating) { _, container in
+                // A suggested name saves typing, and makes plain that the copy is a new
+                // container rather than a second name for the same one.
+                guard let container else { return }
+                duplicateName = String(
+                    localized: "containers.duplicate.suggested_name",
+                    defaultValue: "\(container.name)-copy"
+                )
             }
             .sheet(item: $exportingProfileOf) { container in
                 // DSM names the file itself, so choosing the folder is the whole decision.
@@ -322,12 +361,28 @@ struct ContainersPaneView: View {
 
         ToolbarItem {
             Button {
+                showsCreation = true
+            } label: {
+                Label("containers.create.title", systemImage: "plus")
+            }
+            .help("containers.create.hint")
+        }
+
+        ToolbarItem {
+            Button {
                 Task { await load() }
             } label: {
                 Label("common.button.refresh", systemImage: "arrow.clockwise")
             }
             .help("containers.toolbar.refresh")
         }
+    }
+
+    private var duplicateTitle: Text {
+        Text(String(
+            localized: "containers.duplicate.title",
+            defaultValue: "Duplicate “\(duplicating?.name ?? "")”?"
+        ))
     }
 
     /// A stopped container reports no usage; the dash says so rather than showing 0 %.
@@ -355,6 +410,8 @@ struct ContainersPaneView: View {
         Button("common.button.delete", role: .destructive) { pendingDelete = container }
             .help("containers.action.delete.hint")
         Divider()
+        Button("containers.duplicate.action") { duplicating = container }
+            .help("containers.duplicate.hint")
         Button("containers.settings.title") { editingSettingsOf = container }
             .help("containers.settings.hint")
         Button("containers.action.export_profile") { exportingProfileOf = container }
