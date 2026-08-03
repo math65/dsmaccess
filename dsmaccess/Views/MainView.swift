@@ -172,6 +172,8 @@ struct MainView: View {
             DownloadStationView(session: session)
         case .usbCopy:
             USBCopyView(session: session)
+        case .hyperBackup:
+            HyperBackupView(session: session)
         case .usersGroups:
             UsersGroupsView(session: session)
         case .fileServices:

@@ -289,6 +289,14 @@ protocol DSMClientProtocol: AnyObject {
     func enableUSBCopyTask(id: Int) async throws
     func disableUSBCopyTask(id: Int) async throws
     func deleteUSBCopyTask(id: Int) async throws
+    func listHyperBackupTasks() async throws -> [HyperBackupTask]
+    func hyperBackupTaskState(id: Int) async throws -> HyperBackupTaskState
+    func hyperBackupTarget(taskID: Int) async throws -> HyperBackupTarget
+    func hyperBackupVersions(taskID: Int) async throws -> [HyperBackupVersion]
+    func hyperBackupLogs(taskID: Int, offset: Int, limit: Int) async throws -> HyperBackupLogPage
+    func hyperBackupStatistics(taskID: Int) async throws -> HyperBackupStatistics
+    func startHyperBackupTask(id: Int) async throws
+    func cancelHyperBackupTask(id: Int, state: String) async throws
     func listVirtualMachines() async throws -> [VirtualMachine]
     func performVirtualMachineAction(
         _ action: VirtualMachinePowerAction,
@@ -428,6 +436,7 @@ final class DSMClient: DSMClientProtocol {
     let upgrade: DSMUpgradeService
     let downloadStation: DSMDownloadStationService
     let usbCopy: DSMUSBCopyService
+    let hyperBackup: DSMHyperBackupService
     let virtualMachines: DSMVirtualMachineService
     let containers: DSMContainerService
     let surveillance: DSMSurveillanceService
@@ -450,6 +459,7 @@ final class DSMClient: DSMClientProtocol {
         upgrade = DSMUpgradeService(transport: transport)
         downloadStation = DSMDownloadStationService(transport: transport)
         usbCopy = DSMUSBCopyService(transport: transport)
+        hyperBackup = DSMHyperBackupService(transport: transport)
         virtualMachines = DSMVirtualMachineService(transport: transport)
         containers = DSMContainerService(transport: transport)
         surveillance = DSMSurveillanceService(transport: transport)
@@ -1254,6 +1264,38 @@ final class DSMClient: DSMClientProtocol {
 
     func deleteUSBCopyTask(id: Int) async throws {
         try await usbCopy.delete(taskID: id)
+    }
+
+    func listHyperBackupTasks() async throws -> [HyperBackupTask] {
+        try await hyperBackup.tasks()
+    }
+
+    func hyperBackupTaskState(id: Int) async throws -> HyperBackupTaskState {
+        try await hyperBackup.state(taskID: id)
+    }
+
+    func hyperBackupTarget(taskID: Int) async throws -> HyperBackupTarget {
+        try await hyperBackup.target(taskID: taskID)
+    }
+
+    func hyperBackupVersions(taskID: Int) async throws -> [HyperBackupVersion] {
+        try await hyperBackup.versions(taskID: taskID)
+    }
+
+    func hyperBackupLogs(taskID: Int, offset: Int, limit: Int) async throws -> HyperBackupLogPage {
+        try await hyperBackup.logs(taskID: taskID, offset: offset, limit: limit)
+    }
+
+    func hyperBackupStatistics(taskID: Int) async throws -> HyperBackupStatistics {
+        try await hyperBackup.statistics(taskID: taskID)
+    }
+
+    func startHyperBackupTask(id: Int) async throws {
+        try await hyperBackup.backUp(taskID: id)
+    }
+
+    func cancelHyperBackupTask(id: Int, state: String) async throws {
+        try await hyperBackup.cancel(taskID: id, state: state)
     }
 
     func listVirtualMachines() async throws -> [VirtualMachine] {

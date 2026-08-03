@@ -39,6 +39,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
     case shares
     case downloads
     case usbCopy
+    case hyperBackup
     case usersGroups
     case fileServices
     case packages
@@ -54,7 +55,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         case .systemInfo, .resourceMonitor, .storage, .logsSecurity: .overview
         case .files, .shares, .downloads: .files
         case .usersGroups, .fileServices, .packages, .controlPanel: .administration
-        case .containers, .virtualMachines, .surveillance, .usbCopy: .applications
+        case .containers, .virtualMachines, .surveillance, .usbCopy, .hyperBackup: .applications
         }
     }
 
@@ -68,6 +69,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         case .shares: "common.module.shared_folders"
         case .downloads: "modules.download_station.title"
         case .usbCopy: "modules.usb_copy.title"
+        case .hyperBackup: "modules.hyper_backup.title"
         case .usersGroups: "modules.users_groups.title"
         case .fileServices: "common.module.file_services"
         case .packages: "common.module.package_center"
@@ -88,6 +90,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         case .shares: String(localized: "common.module.shared_folders")
         case .downloads: String(localized: "modules.download_station.title")
         case .usbCopy: String(localized: "modules.usb_copy.title")
+        case .hyperBackup: String(localized: "modules.hyper_backup.title")
         case .usersGroups: String(localized: "modules.users_groups.title")
         case .fileServices: String(localized: "common.module.file_services")
         case .packages: String(localized: "common.module.package_center")
@@ -108,6 +111,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         case .shares: "externaldrive.badge.person.crop"
         case .downloads: "arrow.down.circle"
         case .usbCopy: "externaldrive.badge.arrowtriangle.2.circlepath"
+        case .hyperBackup: "arrow.triangle.2.circlepath"
         case .usersGroups: "person.2"
         case .fileServices: "network"
         case .packages: "shippingbox"
@@ -138,6 +142,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         case .surveillance: AppModuleShortcut(key: "3", modifiers: [.command, .option])
         case .usbCopy: AppModuleShortcut(key: "4", modifiers: [.command, .option])
         case .resourceMonitor: AppModuleShortcut(key: "5", modifiers: [.command, .option])
+        case .hyperBackup: AppModuleShortcut(key: "6", modifiers: [.command, .option])
         }
     }
 
@@ -167,6 +172,8 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
             capabilities.supports("SYNO.DownloadStation.Task")
         case .usbCopy:
             capabilities.supports("SYNO.USBCopy")
+        case .hyperBackup:
+            capabilities.supports("SYNO.Backup.Task")
         case .usersGroups:
             capabilities.supports("SYNO.Core.User") && capabilities.supports("SYNO.Core.Group")
         case .containers:
@@ -183,6 +190,7 @@ enum AppModule: String, CaseIterable, Identifiable, Codable, Sendable {
         switch self {
         case .downloads: "modules.download_station.unavailable"
         case .usbCopy: "modules.usb_copy.unavailable"
+        case .hyperBackup: "modules.hyper_backup.unavailable"
         case .containers: "modules.container_manager.unavailable"
         case .virtualMachines: "modules.virtual_machine_manager.unavailable"
         case .surveillance: "modules.surveillance_station.unavailable"
