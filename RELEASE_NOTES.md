@@ -47,10 +47,6 @@
 - Ejecting and formatting have been tested on USB. eSATA uses the same calls,
   but no eSATA drive was available to try them on.
 
-### Download
-
-[dsmaccess-1.1.zip](https://github.com/math65/dsmaccess/releases/download/v1.1/dsmaccess-1.1.zip)
-
 ## v1.1-beta.21 (build 22) — 2026-08-03
 
 ### Highlights

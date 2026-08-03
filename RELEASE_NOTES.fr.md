@@ -51,10 +51,6 @@
 - L'éjection et le formatage ont été éprouvés en USB. L'eSATA passe par les
   mêmes appels, mais aucun disque eSATA n'était disponible pour les essayer.
 
-### Téléchargement
-
-[dsmaccess-1.1.zip](https://github.com/math65/dsmaccess/releases/download/v1.1/dsmaccess-1.1.zip)
-
 ## v1.1-beta.21 (build 22) — 3 août 2026
 
 ### En bref
