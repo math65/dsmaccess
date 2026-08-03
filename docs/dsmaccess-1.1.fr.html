@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dsmaccess-1.1.fr</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #6e6e73;
+  --code-bg: #f5f5f7;
+  --link: #0066cc;
+  --link-hover: #0040a0;
+  --rule: #e5e5ea;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #ececec;
+    --muted: #a0a0a0;
+    --code-bg: #2d2d2d;
+    --link: #4eaaff;
+    --link-hover: #82c4ff;
+    --rule: #3a3a3a;
+  }
+}
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+  padding: 1rem 1.25rem 1.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.4em 0 0.5em;
+}
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.15rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 1.02rem; }
+h4 { font-size: 0.95rem; color: var(--muted); }
+p { margin: 0.6em 0; }
+ul, ol { padding-left: 1.4em; margin: 0.6em 0; }
+li { margin: 0.25em 0; }
+li > p { margin: 0.3em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover, a:focus { color: var(--link-hover); text-decoration: underline; }
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; border-radius: 0; }
+blockquote {
+  border-left: 3px solid var(--rule);
+  margin: 0.8em 0;
+  padding: 0.1em 0 0.1em 1em;
+  color: var(--muted);
+}
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<h2 id="v11-build-23--3-août-2026">v1.1 (build 23) — 3 août 2026</h2>
+<h3 id="en-bref">En bref</h3>
+<ul>
+<li>La première version stable depuis la 1.0. Elle rassemble tout ce qui
+a été publié en bêta depuis le 19 juillet, et y ajoute la gestion des
+périphériques externes, écrite aujourd'hui.</li>
+<li>Sept modules qui n'existaient pas en 1.0 : Moniteur de ressources,
+Journaux et sécurité, Centre de paquets, Conteneurs, USB Copy,
+Périphériques externes, et les permissions dans Utilisateurs et
+groupes.</li>
+<li>Fichiers dialogue avec le Finder : on copie d'un côté, on colle de
+l'autre, dans les deux sens.</li>
+</ul>
+<h3 id="nouveautés">Nouveautés</h3>
+<ul>
+<li>Périphériques externes : une nouvelle section du Panneau de
+configuration liste les disques USB et eSATA connectés au NAS, avec leur
+fabricant, leur modèle, leur capacité et leur état, et les partitions du
+disque sélectionné avec leur système de fichiers, leurs tailles et leur
+dossier partagé.</li>
+<li>Périphériques externes : éjecter un disque, ou le formater en EXT4,
+FAT32 ou EXFAT. Les deux se trouvent dans le menu contextuel du tableau.
+Le formatage demande deux fois confirmation, nomme le disque et dit
+franchement que rien ne pourra être annulé.</li>
+<li>Périphériques externes : un bouton d'éjection apparaît dans la barre
+d'outils dès qu'un disque est branché, pour ne pas avoir à retrouver
+l'écran. La liste se met à jour toute seule quand vous revenez dans
+l'application, c'est-à-dire au moment où un disque vient d'être
+connecté.</li>
+<li>Périphériques externes : les réglages avancés sont là aussi —
+interdire le port USB, autoriser les utilisateurs non administrateurs à
+éjecter, et l'allocation retardée pour ext4. L'interdiction du port USB
+demande confirmation, puisqu'elle coupe tous les périphériques et exige
+un redémarrage.</li>
+</ul>
+<h3 id="changements">Changements</h3>
+<ul>
+<li>Les raccourcis clavier des derniers modules passent de
+Commande-Majuscule à Commande-Option. macOS réserve
+Commande-Majuscule-3, 4 et 5 pour les captures d'écran et l'emporte
+toujours, ce qui rendait Surveillance Station, USB Copy et le Moniteur
+de ressources inaccessibles au clavier.</li>
+</ul>
+<h3 id="corrections">Corrections</h3>
+<ul>
+<li>Un paquet installé pendant que l'application tourne est désormais
+détecté. Jusqu'ici l'application faisait l'inventaire des paquets une
+seule fois, à la connexion, et un module restait donc indisponible
+jusqu'à la prochaine ouverture de session. L'écran d'un module
+indisponible propose aussi de chercher à nouveau.</li>
+</ul>
+<h3 id="limites-connues">Limites connues</h3>
+<ul>
+<li>L'éjection et le formatage ont été éprouvés en USB. L'eSATA passe
+par les mêmes appels, mais aucun disque eSATA n'était disponible pour
+les essayer.</li>
+</ul>
+<h3 id="téléchargement">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1/dsmaccess-1.1.zip">dsmaccess-1.1.zip</a></p>
+<h2 id="v11-beta21-build-22--3-août-2026">v1.1-beta.21 (build 22) — 3
+août 2026</h2>
+<h3 id="en-bref-1">En bref</h3>
+<ul>
+<li>Container Manager est couvert en entier : vous pouvez créer un
+conteneur, et plus seulement suivre ceux qui existent déjà.</li>
+</ul>
+<h3 id="nouveautés-1">Nouveautés</h3>
+<ul>
+<li>Conteneurs : un bouton Nouveau conteneur demande une image, un nom,
+les ports à publier, les dossiers à monter et les variables
+d'environnement, puis le crée. Un port laissé à 0 est choisi pour vous
+au démarrage du conteneur.</li>
+<li>Conteneurs : Dupliquer crée un second conteneur avec les mêmes
+réglages. La copie arrive à l'arrêt, et ses ports restent libres pour ne
+pas entrer en conflit avec l'original.</li>
+<li>Conteneurs : un écran Réglages renomme un conteneur, plafonne sa
+mémoire et décide s'il redémarre tout seul.</li>
+<li>Conteneurs : un onglet Statistiques donne la mémoire utilisée et les
+octets reçus et envoyés. Un conteneur qui vient de démarrer annonce que
+sa part de processeur n'est pas encore mesurable, plutôt que d'afficher
+zéro.</li>
+<li>Conteneurs : l'arrêt forcé tue un conteneur qui refuse de s'arrêter,
+et Réinitialiser le reconstruit à partir de ses réglages. Les deux
+disent ce qui est perdu avant d'agir.</li>
+<li>Conteneurs : les réglages d'un conteneur peuvent être écrits dans un
+dossier du NAS.</li>
+</ul>
+<h3 id="changements-1">Changements</h3>
+<ul>
+<li>Neuf listes de plus sont devenues des tableaux triables, avec une
+colonne par valeur : les favoris, les tâches, les dossiers virtuels et
+les transferts de File Station, les paquets installés, le catalogue de
+paquets, les dossiers partagés, le journal USB Copy et l'explorateur
+d'archives. Lire une ligne colonne par colonne ne veut plus dire
+l'entendre d'un bloc.</li>
+<li>Les boutons de chaque ligne sont passés dans le menu contextuel du
+tableau, partout. La colonne Actions disparaît : elle élargissait chaque
+ligne et s'intercalait entre vous et la ligne suivante.</li>
+<li>Les dossiers partagés indiquent si la corbeille est active. Le NAS
+le rapportait depuis toujours sans que l'app le dise.</li>
+<li>Les transferts nomment le sens en toutes lettres. C'était une icône,
+donc ce n'était dit nulle part.</li>
+<li>L'explorateur d'archives indique si une entrée est un dossier ou un
+fichier.</li>
+<li>Les paquets signalent qu'une opération est en cours, et qu'une
+désinstallation demande l'assistant de DSM. Les deux n'étaient que
+suggérés.</li>
+</ul>
+<h3 id="corrections-1">Corrections</h3>
+<ul>
+<li>VoiceOver : les formulaires, les listes et les zones de défilement
+de toute l'app disent maintenant ce qu'ils contiennent. La plupart
+n'annonçaient qu'une « zone de défilement ».</li>
+<li>Deux libellés affichaient leur clé interne au lieu de leur
+texte.</li>
+</ul>
+<h3 id="téléchargement-1">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.21/dsmaccess-1.1-beta.21.zip">dsmaccess-1.1-beta.21.zip</a></p>
+<h2 id="v11-beta20-build-21--31-juillet-2026">v1.1-beta.20 (build 21) —
+31 juillet 2026</h2>
+<h3 id="nouveautés-2">Nouveautés</h3>
+<ul>
+<li>Mises à jour : vous choisissez désormais de recevoir ou non les
+versions bêta, dans Réglages &gt; Mises à jour. Jusqu'ici le canal
+découlait de la version installée : avoir essayé une bêta une fois,
+c'était y rester. Le désactiver ne revient pas sur la bêta déjà
+installée : l'app y reste jusqu'à ce qu'une version stable la
+dépasse.</li>
+<li>Fichiers : un envoi ou un téléchargement affiche le même bandeau
+qu'une copie — ce qui est en cours, la part effectuée, la vitesse, le
+temps restant, et un bouton d'annulation qui l'arrête vraiment.
+Jusqu'ici un envoi volumineux n'affichait qu'un indicateur dans un coin,
+et le détail restait dans une fenêtre qu'il fallait songer à
+ouvrir.</li>
+<li>Utilisateurs et groupes : la création d'un groupe propose « Créer et
+définir les permissions… », comme celle d'un utilisateur le faisait
+déjà. Un groupe neuf n'avait accès à rien, et rien à l'écran n'indiquait
+où lui en donner.</li>
+</ul>
+<h3 id="corrections-2">Corrections</h3>
+<ul>
+<li>Fichiers : glisser un dossier vers le Finder produit une archive zip
+fabriquée par le NAS, et le télécharger fait de même. C'est maintenant
+annoncé, avec le nom de l'archive, au lieu d'un .zip qui apparaît sans
+prévenir.</li>
+<li>Fichiers : pendant que le NAS compresse un dossier, rien ne circule
+encore. Cette attente porte désormais un nom, au lieu d'une barre de
+progression figée à zéro sans explication.</li>
+<li>Utilisateurs et groupes : créer un groupe dont le nom est déjà pris
+laisse la fenêtre ouverte et le dit, au lieu de se fermer en emportant
+la saisie.</li>
+</ul>
+<h3 id="téléchargement-2">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.20/dsmaccess-1.1-beta.20.zip">dsmaccess-1.1-beta.20.zip</a></p>
+<h2 id="v11-beta19-build-20--31-juillet-2026">v1.1-beta.19 (build 20) —
+31 juillet 2026</h2>
+<h3 id="corrections-3">Corrections</h3>
+<ul>
+<li>Fichiers : envoyer un fichier vers le NAS, ou en rapatrier un, joue
+enfin le son à la fin. Il ne se déclenchait que pour les opérations qui
+restent sur le NAS — copier, déplacer, supprimer — ce qui laissait de
+côté justement les transferts assez longs pour qu'on aille faire autre
+chose. La notification manquait aussi sur ceux-là.</li>
+<li>Fichiers : coller ou envoyer n'ouvre plus un formulaire au
+préalable. L'app compare les noms avec la destination et ne pose la
+question que si quelque chose serait remplacé, en le nommant : «
+budget.xlsx existe déjà dans ce dossier ». Le formulaire d'envoi et ses
+trois sélecteurs de date ont disparu ; DSM ne les demande pas non
+plus.</li>
+<li>Cinq messages parlés étaient en français pour tout le monde :
+modification d'un lien de partage, recherche avancée, détails d'un
+paquet, création d'une archive, et un dernier. Ils avaient échappé au
+travail de traduction.</li>
+</ul>
+<h3 id="téléchargement-3">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.19/dsmaccess-1.1-beta.19.zip">dsmaccess-1.1-beta.19.zip</a></p>
+<h2 id="v11-beta18-build-19--30-juillet-2026">v1.1-beta.18 (build 19) —
+30 juillet 2026</h2>
+<h3 id="corrections-4">Corrections</h3>
+<ul>
+<li>Fichiers : le collage dans un dossier vide fonctionne. Le raccourci
+clavier n'y faisait rien, alors que c'est le seul endroit où coller est
+la seule chose qui reste à faire. Le dossier est toujours annoncé comme
+vide à l'arrivée.</li>
+<li>Utilisateurs et groupes : la création d'un compte n'annonce plus un
+échec d'ajout aux groupes qui n'a pas eu lieu. Le NAS place lui-même
+tout compte dans le groupe « users » et refuse qu'on y touche : l'app ne
+le propose donc plus, et l'écran indique à la place que tout compte lui
+appartient.</li>
+<li>Utilisateurs et groupes : quand le NAS refuse réellement un groupe,
+l'app le nomme et conserve ceux qu'il a acceptés. Jusqu'ici, le premier
+refus abandonnait en silence tous les groupes listés après lui.</li>
+</ul>
+<h3 id="téléchargement-4">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.18/dsmaccess-1.1-beta.18.zip">dsmaccess-1.1-beta.18.zip</a></p>
+<h2 id="v11-beta17-build-18--30-juillet-2026">v1.1-beta.17 (build 18) —
+30 juillet 2026</h2>
+<h3 id="en-bref-2">En bref</h3>
+<ul>
+<li>Journaux et sécurité a été refait. L'app ne lisait qu'un journal sur
+quatre — sept mille entrées là où le NAS en garde plus de cent mille —
+et deux de ses colonnes étaient vides depuis toujours.</li>
+<li>Le Moniteur de ressources est complet : les fichiers ouverts, les
+alertes que le NAS a enregistrées, et les seuils qui les
+déclenchent.</li>
+</ul>
+<h3 id="signalez-moi-les-formulations-qui-clochent">Signalez-moi les
+formulations qui clochent</h3>
+<p>Tout le texte de l'app a changé de système cette semaine, pour
+qu'elle puisse un jour être traduite dans d'autres langues. Rien ne
+devrait avoir bougé à l'écran — mais si vous tombez sur un libellé qui
+ressemble à du code, sur une phrase restée en anglais ou sur un mot
+manquant, dites-le-moi. L'erreur est de mon côté, pas du vôtre, et elle
+se corrige vite.</p>
+<h3 id="nouveautés-3">Nouveautés</h3>
+<ul>
+<li>Journaux et sécurité : les quatre journaux tenus par le NAS sont
+désormais accessibles, et plus seulement celui du système. Les
+transferts de fichiers y sont, avec l'adresse, l'opération et la taille
+; les connexions ont le leur.</li>
+<li>Journaux et sécurité : un journal peut être exporté dans un fichier,
+en tableur ou en page web. C'est le NAS qui écrit le fichier, vous
+obtenez donc exactement ce qu'il contient.</li>
+<li>Journaux et sécurité : ce que le Conseiller de sécurité a relevé sur
+les connexions a maintenant son onglet — tentatives échouées,
+provenances inhabituelles, comptes à surveiller.</li>
+<li>Journaux et sécurité : deux écrans de réglages. L'un décide des
+transferts que le NAS consigne ; l'autre, du nombre de connexions
+manquées avant qu'une adresse soit bloquée, et pour combien de
+temps.</li>
+<li>Journaux et sécurité : le champ de recherche est dans la barre
+d'outils, comme partout ailleurs, et les entrées plus anciennes se
+chargent au fil du défilement au lieu de s'arrêter à la première
+page.</li>
+<li>Moniteur de ressources : un onglet Fichiers ouverts, qui liste ce
+que le NAS tient ouvert en ce moment, et pour qui.</li>
+<li>Moniteur de ressources : un onglet Historique, avec les alertes que
+le NAS a enregistrées quand ses propres seuils ont été franchis.</li>
+<li>Moniteur de ressources : un onglet Alarme des performances. Vous y
+ajoutez, modifiez et supprimez les seuils que le NAS surveille — sur le
+système, sur un service ou sur un volume.</li>
+<li>Moniteur de ressources : une session connectée peut être coupée
+depuis l'onglet Connexions.</li>
+<li>Fichiers : une copie ou un déplacement joue un court son en se
+terminant, et un autre s'il échoue. Le son se fait entendre quand l'app
+est au premier plan ; sinon, c'est la notification qui porte le
+résultat, comme avant, et jamais les deux. Les Réglages permettent de le
+couper.</li>
+</ul>
+<h3 id="corrections-5">Corrections</h3>
+<ul>
+<li>Journaux et sécurité : la liste de blocage revenait avec une erreur
+103, et cela pour tout le monde. L'app interrogeait le NAS de la
+mauvaise façon. C'est réparé.</li>
+<li>Journaux et sécurité : les colonnes Heure et Utilisateur étaient
+vides dans tous les journaux. L'app lisait des champs que le NAS
+n'envoie pas.</li>
+<li>Moniteur de ressources : la part de processeur d'un service
+s'affichait cent fois trop petite.</li>
+<li>Moniteur de ressources : un processus peut légitimement dépasser 100
+% — cela signifie qu'il occupe plus d'un cœur. L'écran le dit
+maintenant, au lieu de vous laisser deviner.</li>
+<li>Cinq libellés du Moniteur de ressources s'affichaient en
+anglais.</li>
+</ul>
+<h3 id="téléchargement-5">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.17/dsmaccess-1.1-beta.17.zip">dsmaccess-1.1-beta.17.zip</a></p>
+<h2 id="v11-beta16-build-17--29-juillet-2026">v1.1-beta.16 (build 17) —
+29 juillet 2026</h2>
+<h3 id="en-bref-3">En bref</h3>
+<ul>
+<li>Connexion : l'app rouvre sur la session qu'elle avait déjà. Cochez «
+Rester connecté » une fois, et le lancement suivant entre directement —
+sans mot de passe à rejouer, et sans approbation à donner sur votre
+téléphone.</li>
+<li>Un Moniteur de ressources à part entière : processeur, mémoire,
+réseau, disques et volumes, les services et processus en cours, et qui
+est connecté au NAS.</li>
+</ul>
+<h3 id="nouveautés-4">Nouveautés</h3>
+<ul>
+<li>Connexion : la session est conservée d'un lancement à l'autre. Seul
+un refus du NAS vous ramène à l'écran de connexion, et il vous dit
+pourquoi. La session enregistrée dort dans le Trousseau à côté de votre
+mot de passe, et disparaît à la déconnexion.</li>
+<li>Connexion : le menu nomme désormais Secure SignIn au lieu de le
+décrire comme « sans mot de passe », et retient la méthode que vous avez
+choisie.</li>
+<li>Moniteur de ressources : une nouvelle entrée dans la barre latérale,
+sur Commande Majuscule 5, avec trois onglets. Performances ajoute chaque
+disque et chaque volume, avec leur activité, ainsi que les charges
+moyennes. Tâches liste les services et les processus les plus actifs.
+Connexions montre qui est connecté, depuis où et depuis quand.</li>
+<li>Moniteur de ressources : les tâches et les connexions sont des
+tableaux triables — cliquez un en-tête de colonne pour ordonner
+dessus.</li>
+<li>Fichiers : une copie en cours affiche sa vitesse et le temps
+restant, ou « moins d'une minute » quand la fin approche. Ni l'une ni
+l'autre n'est annoncée à voix haute : elles restent dans le bandeau, à
+lire quand vous le voulez.</li>
+<li>Fichiers : quand une opération longue se termine alors que l'app est
+en arrière-plan, une notification vous en porte le résultat. macOS
+demande votre autorisation la première fois, et un réglage permet de la
+couper.</li>
+</ul>
+<h3 id="corrections-6">Corrections</h3>
+<ul>
+<li>La mémoire se contredisait d'une ligne à l'autre : 17 %
+d'utilisation, puis 3,54 Go sur 3,68 Go juste en dessous. DSM met le
+cache disque à part, et ce NAS en gardait 2,89 Go.</li>
+<li>Le menu du NAS, dans la barre d'outils, annonçait le nom de son
+icône — « externaldrive.connected.to.line.below » — au lieu de ce qu'il
+fait.</li>
+</ul>
+<h2 id="v11-beta15-build-16--29-juillet-2026">v1.1-beta.15 (build 16) —
+29 juillet 2026</h2>
+<h3 id="en-bref-4">En bref</h3>
+<ul>
+<li>Fichiers : la création d'un lien de partage fonctionne à nouveau.
+Depuis la beta.6, elle échouait à chaque fois sur « la réponse du NAS
+n'a pas pu être lue », alors que le NAS avait bel et bien créé le lien.
+Si vous avez essayé pendant cette période, ces liens vous attendent dans
+la liste des liens de partage, à utiliser ou à supprimer.</li>
+</ul>
+<h3 id="corrections-7">Corrections</h3>
+<ul>
+<li>Fichiers : un lien de partage est créé et vous est rendu comme
+avant. L'app exigeait une information que DSM n'envoie qu'en cas
+d'échec, et jetait la réponse entière quand elle était, à juste titre,
+absente.</li>
+<li>Fichiers : sur certains modèles de NAS, l'écran Fichiers lui-même
+pouvait refuser de s'ouvrir, pour la même raison. Il ne dépend plus de
+détails que votre NAS n'est pas tenu de fournir.</li>
+<li>Fichiers : la fenêtre des tâches suit à nouveau une tâche en cours.
+Elle affichait la progression qu'elle avait à son ouverture et n'en
+bougeait plus, ce qui donnait l'impression qu'une longue compression
+restait bloquée à un pour cent.</li>
+<li>Fichiers : une compression terminée n'est plus présentée comme une
+opération interrompue. Le NAS retire une tâche achevée au lieu de
+l'annoncer, et ce silence était pris pour un échec.</li>
+</ul>
+<h3 id="nouveautés-5">Nouveautés</h3>
+<ul>
+<li>Fichiers : coller ou déplacer nomme désormais le dossier dans lequel
+les éléments vont atterrir, avant que vous validiez. Sélectionner un
+dossier dans la liste n'en fait pas la destination : il faut l'avoir
+ouvert, comme dans le Finder.</li>
+<li>Fichiers : à la création d'une archive, vous pouvez choisir
+l'encodage des noms qu'elle contient, pour une archive destinée à être
+ouverte sur un autre système.</li>
+<li>Quand l'app ne parvient pas à comprendre une réponse de votre NAS,
+elle le dit et propose de la signaler. Signaler ouvre le formulaire de
+contact, déjà rempli, en y joignant l'appel qui a échoué et le nom des
+champs que votre NAS a envoyés — jamais leur contenu, donc aucun nom de
+fichier, chemin ou compte ne quitte votre machine.</li>
+</ul>
+<h2 id="v11-beta14-build-15--28-juillet-2026">v1.1-beta.14 (build 15) —
+28 juillet 2026</h2>
+<h3 id="en-bref-5">En bref</h3>
+<ul>
+<li>Connexion : vous pouvez désormais ouvrir une session sans saisir le
+moindre mot de passe, en approuvant la demande dans l'app Synology
+Secure SignIn sur votre téléphone.</li>
+<li>Fichiers : une copie longue n'est plus abandonnée au bout de cinq
+minutes, et quitter l'écran Fichiers ne l'interrompt plus.</li>
+</ul>
+<h3 id="nouveautés-6">Nouveautés</h3>
+<ul>
+<li>Connexion : un menu Authentification, sur l'écran de connexion,
+choisit entre votre mot de passe et l'approbation envoyée sur votre
+téléphone. Avec la seconde, le champ du mot de passe s'efface et un
+écran d'attente vous indique quoi faire, en annonçant le chiffre à
+confirmer quand votre NAS en demande un. La session ainsi ouverte devra
+être approuvée de nouveau à la prochaine ouverture de l'app, ce que
+l'écran précise.</li>
+<li>Mise à jour DSM : un nouvel écran présente la mise à jour proposée
+par votre NAS et l'installe, en annonçant la progression au fil de
+l'opération.</li>
+</ul>
+<h3 id="corrections-8">Corrections</h3>
+<ul>
+<li>Fichiers : copier, déplacer, supprimer, compresser ou extraire était
+abandonné au bout de cinq minutes exactement, et présenté comme un
+échec, alors que le NAS poursuivait sans rien dire. Une copie de
+plusieurs heures est désormais suivie jusqu'au bout.</li>
+<li>Fichiers : passer à un autre écran pendant une copie l'arrêtait pour
+de bon sur le NAS. Elle continue maintenant, et revenir dans Fichiers en
+reprend le suivi, même après avoir quitté et rouvert l'app. Seul le
+bouton Annuler interrompt une tâche.</li>
+<li>Fichiers : le résultat d'une opération longue reste affiché jusqu'à
+ce que vous le masquiez. Une annonce vocale émise pendant que l'app est
+en arrière-plan n'est jamais entendue, et ne laissait aucune trace de ce
+qui s'était passé.</li>
+<li>Fichiers : un dossier contenant un fichier dont le nom n'était pas
+enregistré en Unicode ne s'ouvrait pas du tout — un seul nom sur trois
+mille rendait le dossier entier inaccessible. Il s'ouvre désormais, ce
+nom-là affichant un caractère de remplacement, comme le fait DSM
+lui-même.</li>
+</ul>
+<h3 id="téléchargement-6">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.14/dsmaccess-1.1-beta.14.zip">dsmaccess-1.1-beta.14.zip</a></p>
+<h2 id="v11-beta13-build-14--28-juillet-2026">v1.1-beta.13 (build 14) —
+28 juillet 2026</h2>
+<h3 id="en-bref-6">En bref</h3>
+<ul>
+<li>Utilisateurs et groupes : les groupes auxquels un compte appartient
+peuvent désormais être modifiés après coup, et plus seulement à la
+création.</li>
+</ul>
+<h3 id="nouveautés-7">Nouveautés</h3>
+<ul>
+<li>Utilisateurs et groupes : l'écran des permissions gagne un onglet
+Groupes, à côté des dossiers partagés et des applications. Il présente
+tous les groupes du NAS, cochés pour ceux auxquels le compte appartient,
+et s'enregistre avec le reste.</li>
+</ul>
+<h3 id="téléchargement-7">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.13/dsmaccess-1.1-beta.13.zip">dsmaccess-1.1-beta.13.zip</a></p>
+<h2 id="v11-beta12-build-13--28-juillet-2026">v1.1-beta.12 (build 13) —
+28 juillet 2026</h2>
+<h3 id="en-bref-7">En bref</h3>
+<ul>
+<li>Utilisateurs et groupes : vous pouvez désormais donner à un compte
+l'accès à vos dossiers partagés et aux applications de votre NAS, sans
+quitter DSM Access. Créer un compte à quelqu'un et lui permettre de s'en
+servir redeviennent une seule et même tâche.</li>
+</ul>
+<h3 id="nouveautés-8">Nouveautés</h3>
+<ul>
+<li>Utilisateurs et groupes : un écran Permissions présente chaque
+dossier partagé avec l'accès accordé au compte, celui dont il hérite de
+ses groupes, et les quatre choix proposés par DSM. Il se lit comme un
+tableau, une ligne par dossier, et se parcourt aux flèches.</li>
+<li>Utilisateurs et groupes : un second onglet fait de même pour les
+applications. C'est là que se décide si quelqu'un peut ouvrir DSM, File
+Station, Synology Photos ou se connecter en SMB. Rien n'est envoyé au
+NAS avant l'enregistrement, et seul ce que vous avez modifié part.</li>
+<li>Utilisateurs et groupes : le même écran fonctionne sur un groupe.
+Donnez les droits une fois au groupe, ajoutez-y des personnes, et
+chacune en hérite sans que vous ayez à recommencer. C'est la façon
+commode d'organiser les accès d'une famille.</li>
+<li>Utilisateurs et groupes : la fenêtre de création propose d'ouvrir
+les permissions du compte qu'elle vient de créer, pour ne plus avoir à
+le retrouver dans la liste avant de lui donner le moindre accès.</li>
+</ul>
+<h3 id="corrections-9">Corrections</h3>
+<ul>
+<li>Utilisateurs et groupes : les groupes choisis à la création d'un
+compte étaient perdus en silence. Le compte était bien créé, mais
+n'appartenait à aucun d'eux. Il arrive maintenant dans les groupes que
+vous avez cochés.</li>
+</ul>
+<h3 id="accessibilité">Accessibilité</h3>
+<ul>
+<li>Utilisateurs et groupes : une application déjà restreinte à des
+adresses précises reste en lecture, avec une explication, plutôt que
+d'être réécrite sans prévenir en « depuis n'importe où ».</li>
+<li>Utilisateurs et groupes : lorsqu'un groupe se voit refuser un
+dossier, l'écran le signale sur la ligne concernée, car ce refus
+l'emporte sur ce que le compte a reçu par ailleurs.</li>
+<li>Utilisateurs et groupes : l'écran n'affiche qu'un bouton Fermer tant
+que rien n'a été modifié, au lieu d'un Annuler qui laisse croire qu'on
+revient sur quelque chose et d'un Enregistrer estompé sans
+explication.</li>
+</ul>
+<h3 id="téléchargement-8">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.12/dsmaccess-1.1-beta.12.zip">dsmaccess-1.1-beta.12.zip</a></p>
+<h2 id="v11-beta11-build-12--27-juillet-2026">v1.1-beta.11 (build 12) —
+27 juillet 2026</h2>
+<h3 id="en-bref-8">En bref</h3>
+<ul>
+<li>Connexion : les comptes sans droits d'administration peuvent à
+nouveau se connecter. Toute personne à qui vous avez créé un compte sur
+votre NAS peut utiliser DSM Access, et pas seulement vous.</li>
+</ul>
+<h3 id="corrections-10">Corrections</h3>
+<ul>
+<li>Connexion : un compte qui n'est pas administrateur était refusé avec
+« Permission refusée pour ce compte », alors que ce même compte entrait
+sans difficulté dans DSM depuis un navigateur.</li>
+<li>Utilisateurs et groupes : la création d'un utilisateur échouait sur
+un simple code d'erreur lorsque le mot de passe ne respectait pas les
+règles imposées par votre NAS. Le message dit maintenant ce qui s'est
+passé, et le formulaire énonce ces règles avant même que vous ne
+saisissiez quoi que ce soit.</li>
+<li>Utilisateurs et groupes : une création qui échoue ne referme plus la
+fenêtre en effaçant tout ce que vous aviez saisi. Le message s'affiche
+sur place et vous corrigez le mot de passe sans tout recommencer.</li>
+</ul>
+<h3 id="nouveautés-9">Nouveautés</h3>
+<ul>
+<li>Connexion : lorsque votre NAS exige un nouveau mot de passe avant
+d'autoriser un compte, DSM Access vous le demande et vous connecte dans
+la foulée, au lieu de s'arrêter sur une erreur contre laquelle vous ne
+pouviez rien.</li>
+<li>Utilisateurs et groupes : un bouton génère un mot de passe conforme
+aux règles de votre NAS. Il s'affiche en clair pour que vous puissiez le
+relire, et un second bouton le copie, afin de le transmettre à la
+personne concernée. Les caractères qui se ressemblent à l'oreille et à
+la lecture en sont écartés : il supporte d'être dicté ou recopié.</li>
+</ul>
+<h3 id="téléchargement-9">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.11/dsmaccess-1.1-beta.11.zip">dsmaccess-1.1-beta.11.zip</a></p>
+<h2 id="v11-beta10-build-11--25-juillet-2026">v1.1-beta.10 (build 11) —
+25 juillet 2026</h2>
+<h3 id="en-bref-9">En bref</h3>
+<ul>
+<li>Fichiers : copiez des fichiers dans le Finder, puis collez-les dans
+un dossier du NAS avec Commande-V. Les dossiers entiers suivent, avec
+tout ce qu'ils contiennent.</li>
+<li>Fichiers : faites glisser un élément hors de la liste et déposez-le
+dans le Finder pour l'y télécharger.</li>
+<li>Copier-coller se comporte maintenant comme dans le Finder :
+Commande-C copie, Commande-V colle une copie, Commande-Option-V déplace.
+La commande Couper n'existe plus.</li>
+</ul>
+<h3 id="nouveautés-10">Nouveautés</h3>
+<ul>
+<li>Fichiers : Commande-V envoie ce que vous avez copié dans le Finder
+vers le dossier où vous êtes. Les fichiers y sont déposés ; un dossier
+est recréé sur le NAS avec toute son arborescence, sous-dossiers vides
+compris. Les fichiers .DS_Store du Finder sont écartés, et si un élément
+de votre Mac ne peut pas être lu, le transfert se déclare incomplet au
+lieu de laisser croire que tout est passé.</li>
+<li>Fichiers : un élément peut être glissé hors de la liste et déposé
+dans le Finder. Rien n'est téléchargé avant le dépôt, et un dossier
+arrive sous forme d'archive ZIP, exactement comme avec Télécharger.
+Télécharger reste la voie clavier et ne change pas.</li>
+<li>Fichiers : l'envoi vers le NAS accepte désormais les dossiers autant
+que les fichiers, et les options affichées avant un transfert indiquent
+combien de fichiers et combien de dossiers partent.</li>
+</ul>
+<h3 id="modifications">Modifications</h3>
+<ul>
+<li>Fichiers : Couper disparaît. Commande-C copie, Commande-V colle une
+copie et Commande-Option-V déplace ce que vous avez copié — le choix se
+fait au moment de coller, comme dans le Finder. Le menu Fichiers propose
+maintenant Déplacer ici à côté de Coller, et la confirmation annonce ce
+qu'un déplacement va faire. Déplacer des fichiers venus de votre Mac est
+refusé, avec l'explication : cela supprimerait vos originaux.</li>
+<li>Mises à jour : l'app cherche une nouvelle version à chaque
+lancement. La planification de Sparkle ne vérifie au mieux qu'une fois
+par jour, ce qui laissait un testeur une version en retard dès que deux
+builds sortaient le même jour. Rien ne s'affiche s'il n'y a pas de mise
+à jour, et le réglage du panneau des mises à jour décide toujours si la
+vérification a lieu.</li>
+<li>Mises à jour : la vérification automatique est maintenant le réglage
+par défaut déclaré par l'app, au lieu d'une préférence écrite à votre
+place au premier lancement — une préférence que vous n'avez jamais
+choisie, et qui faisait taire la question que Sparkle pose lui-même. Le
+panneau des mises à jour reste le seul endroit où changer cela.</li>
+</ul>
+<h3 id="configuration-requise">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-10">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.10/dsmaccess-1.1-beta.10.zip">dsmaccess-1.1-beta.10.zip</a></p>
+<h2 id="v11-beta9-build-10--23-juillet-2026">v1.1-beta.9 (build 10) — 23
+juillet 2026</h2>
+<h3 id="en-bref-10">En bref</h3>
+<ul>
+<li>Nouveau module USB Copy : configurez et lancez vos copies USB
+entièrement depuis l'app — les sélecteurs de l'interface web de DSM sont
+inutilisables au lecteur d'écran, il fallait jusqu'ici une aide voyante.
+Une contribution d'Ashley Cox.</li>
+<li>Fichiers : l'envoi de fichiers vers le NAS fonctionne à nouveau. Une
+mise à jour de DSM avait discrètement cassé tous les envois.</li>
+<li>DSM Access a désormais sa propre icône, dessinée elle aussi par
+Ashley Cox.</li>
+</ul>
+<h3 id="nouveautés-11">Nouveautés</h3>
+<ul>
+<li>USB Copy : chaque tâche s'affiche avec son sens de copie, ses
+dossiers et son état ; créez des tâches d'import ou d'export avec de
+vrais sélecteurs de dossiers accessibles pour la source et la
+destination ; choisissez le mode de copie, la rotation des versions, les
+filtres de fichiers et la planification ; exécutez, annulez, activez,
+désactivez ou supprimez une tâche ; consultez le journal du paquet et
+réglez ses paramètres généraux. Les opérations risquées expliquent leur
+conséquence et demandent confirmation — une tâche miroir prévient
+qu'elle supprime à destination, et la suppression d'une tâche la nomme.
+Le module n'apparaît que si le paquet USB Copy est installé sur le
+NAS.</li>
+</ul>
+<h3 id="corrections-11">Corrections</h3>
+<ul>
+<li>Fichiers : l'envoi d'un fichier se soldait par une erreur depuis le
+passage du NAS à la dernière mise à jour de DSM 7.4, qui a changé la
+façon dont DSM attend les envois. L'app suit désormais la même
+convention que le File Station de DSM et les envois fonctionnent à
+nouveau — y compris le choix entre remplacer ou ignorer un fichier
+existant.</li>
+</ul>
+<h3 id="configuration-requise-1">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-11">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.9/dsmaccess-1.1-beta.9.zip">dsmaccess-1.1-beta.9.zip</a></p>
+<h2 id="v11-beta8-build-9--23-juillet-2026">v1.1-beta.8 (build 9) — 23
+juillet 2026</h2>
+<h3 id="en-bref-11">En bref</h3>
+<ul>
+<li>L'app s'affiche désormais en anglais quand la langue du Mac n'est ni
+le français ni l'anglais — sans rien configurer.</li>
+<li>Centre de paquets : le sélecteur entre paquets installés et
+catalogue officiel fait maintenant partie de l'écran lui-même, là où
+VoiceOver le trouve naturellement.</li>
+</ul>
+<h3 id="corrections-12">Corrections</h3>
+<ul>
+<li>Centre de paquets : le sélecteur Installés / Catalogue officiel se
+trouvait dans la barre d'outils de la fenêtre, une zone que VoiceOver
+traite à part sans jamais signaler qu'un choix s'y trouve. Le sélecteur
+est désormais en tête de l'écran, dans l'ordre de lecture, annoncé comme
+un vrai choix à deux options.</li>
+<li>Centre de paquets : avec un compte sans droits d'administration,
+l'onglet Catalogue affichait un message trompeur « Aucun paquet
+correspondant ». Il explique maintenant que DSM réserve le catalogue aux
+comptes administrateurs.</li>
+<li>Langue : sur un Mac réglé dans une langue que l'app ne propose pas
+(le hongrois, par exemple), l'app s'affichait en français. Elle
+s'affiche désormais en anglais, et le choix d'une langue pour l'app dans
+Réglages Système fonctionne comme prévu.</li>
+<li>VoiceOver : les listes principales se présentent désormais — «
+Fichiers et dossiers », « Dossiers partagés », « Utilisateurs », «
+Groupes », « Services de fichiers », « Paquets installés », « Pools,
+volumes et disques » — au lieu d'annoncer un tableau anonyme. Les lignes
+des Dossiers partagés annoncent aussi correctement leur nature.</li>
+<li>VoiceOver : le sélecteur du Centre de paquets n'annonce plus son nom
+deux fois.</li>
+<li>Lisibilité : les textes d'état et de détail dans toute l'app — état
+des paquets, versions, santé des disques, détails des journaux, résumés
+en bas d'écran — sont nettement plus foncés et respectent le contraste
+recommandé pour les petits textes, en mode clair comme en mode sombre.
+Un vrai plus en cas de basse vision.</li>
+</ul>
+<h3 id="configuration-requise-2">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-12">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.8/dsmaccess-1.1-beta.8.zip">dsmaccess-1.1-beta.8.zip</a></p>
+<h2 id="v11-beta7-build-8--22-juillet-2026">v1.1-beta.7 (build 8) — 22
+juillet 2026</h2>
+<h3 id="en-bref-12">En bref</h3>
+<ul>
+<li>L'installation d'un fichier de paquet (.spk) fonctionne désormais :
+elle échouait systématiquement avec une erreur du NAS (code 101).</li>
+<li>L'app vérifie elle-même les mises à jour au lancement, et un nouveau
+panneau de réglages permet de les installer automatiquement, sans
+dialogue.</li>
+</ul>
+<h3 id="nouveautés-12">Nouveautés</h3>
+<ul>
+<li>Réglages &gt; Mises à jour : la vérification au lancement est
+désormais active d'office (désactivable), et une option « Télécharger et
+installer automatiquement » installe la nouvelle version à la fermeture
+de l'app — plus besoin de répondre à un dialogue à chaque mise à jour.
+Le panneau affiche aussi la version installée et un bouton de
+vérification immédiate.</li>
+</ul>
+<h3 id="corrections-13">Corrections</h3>
+<ul>
+<li>Paquets : installer ou mettre à jour un paquet depuis un fichier
+.spk téléchargé par vos soins aboutit maintenant, au lieu d'échouer
+aussitôt avec une erreur du NAS (code 101). L'app dialogue désormais
+avec le Centre de paquets exactement comme DSM lui-même, vérifié sous
+DSM 7.4.</li>
+</ul>
+<h3 id="configuration-requise-3">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-13">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.7/dsmaccess-1.1-beta.7.zip">dsmaccess-1.1-beta.7.zip</a></p>
+<h2 id="v11-beta6-build-7--21-juillet-2026">v1.1-beta.6 (build 7) — 21
+juillet 2026</h2>
+<h3 id="en-bref-13">En bref</h3>
+<ul>
+<li>Connectez-vous avec QuickConnect : saisissez votre identifiant
+QuickConnect au lieu d'une adresse et d'un port, et l'app trouve
+elle-même le meilleur chemin vers votre NAS.</li>
+<li>Le Centre de paquets devient un module complet : parcourez le
+catalogue officiel Synology et installez, mettez à jour, réparez ou
+désinstallez vos paquets sans quitter l'app — et l'installation
+fonctionne désormais de façon fiable sous DSM 7.4.</li>
+<li>Fichiers gagne les fonctions qui manquaient encore : informations
+détaillées, recherche avancée, favoris, liens de partage, exploration
+d'archives et progression des transferts.</li>
+<li>La création d'utilisateurs fonctionne à nouveau sous DSM 7.4, et le
+nombre de membres des groupes est correct.</li>
+</ul>
+<h3 id="nouveautés-13">Nouveautés</h3>
+<ul>
+<li>Connexion par QuickConnect : choisissez « QuickConnect » sur l'écran
+de connexion, saisissez votre identifiant QuickConnect et votre compte
+DSM habituel. L'app privilégie une route directe et vérifiée vers votre
+NAS, et ne passe par le relais Synology qu'en dernier recours — toujours
+en HTTPS. À savoir : QuickConnect n'a pas d'interface publique
+officielle, Synology peut donc faire évoluer ce service sans
+préavis.</li>
+<li>Paquets : parcourez le catalogue officiel, installez un paquet en
+une action, ou installez un fichier de paquet (.spk) téléchargé par vos
+soins. Mises à jour, réparations et désinstallations se font depuis la
+même liste, avec une confirmation claire avant chaque opération.</li>
+<li>Paquets : gérez les sources de paquets et les réglages du Centre de
+paquets depuis l'app.</li>
+<li>Fichiers : consultez les informations complètes d'un fichier ou d'un
+dossier, cherchez selon des critères avancés (nom, type, taille, dates,
+propriétaire) et gérez vos favoris.</li>
+<li>Fichiers : créez et gérez des liens de partage, mot de passe et date
+d'expiration compris.</li>
+<li>Fichiers : explorez le contenu d'une archive et n'extrayez que ce
+dont vous avez besoin.</li>
+<li>Fichiers : les envois et téléchargements affichent leur progression,
+et les copies ou déplacements vous demandent votre avis avant d'écraser
+quoi que ce soit.</li>
+<li>Un formulaire de contact dans le menu Aide vous permet d'écrire au
+développeur directement depuis l'app ; des annonces ponctuelles peuvent
+s'afficher au lancement.</li>
+</ul>
+<h3 id="corrections-14">Corrections</h3>
+<ul>
+<li>Comptes : la création d'un utilisateur sous DSM 7.4 n'échoue plus
+avec une erreur de permission, le nombre de membres des groupes est
+exact, et en cas de problème l'app vous le dit clairement au lieu
+d'échouer en silence.</li>
+<li>Paquets : installer ou mettre à jour un paquet sous DSM 7.4 ne se
+solde plus par une erreur du NAS.</li>
+<li>VoiceOver : à l'ouverture de Fichiers, plus d'annonce « Dossier vide
+» pendant le chargement — vous entendez directement le vrai nombre
+d'éléments.</li>
+<li>VoiceOver : si votre session expire et que l'app se reconnecte
+automatiquement, un avis vous explique désormais que l'opération en
+cours a été interrompue, au lieu de vous ramener à la vue d'ensemble
+sans un mot.</li>
+</ul>
+<h3 id="remerciements">Remerciements</h3>
+<ul>
+<li>Merci à Ashley Cox pour le travail sur QuickConnect, File Station et
+le Centre de paquets, au cœur de cette version.</li>
+</ul>
+<h3 id="configuration-requise-4">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-14">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.6/dsmaccess-1.1-beta.6.zip">dsmaccess-1.1-beta.6.zip</a></p>
+<h2 id="v11-beta5-build-6--19-juillet-2026">v1.1-beta.5 (build 6) — 19
+juillet 2026</h2>
+<h3 id="en-bref-14">En bref</h3>
+<ul>
+<li>Corrige un problème de connexion apparu dans la beta.4 :
+l'approbation du certificat de votre NAS fonctionne à nouveau, au lieu
+de voir la demande de confiance revenir sans arrêt.</li>
+</ul>
+<h3 id="corrections-15">Corrections</h3>
+<ul>
+<li>Lorsque macOS ne reconnaît pas le certificat de votre NAS,
+l'approuver une fois vous connecte désormais du premier coup, et le
+choix est retenu pour ce serveur. Dans la beta.4, l'approbation n'était
+pas prise en compte : la demande de confiance revenait en boucle et vous
+restiez bloqué sur l'écran de connexion.</li>
+</ul>
+<h3 id="remerciements-1">Remerciements</h3>
+<ul>
+<li>Merci à Ashley Cox, qui a identifié et corrigé ce problème.</li>
+</ul>
+<h3 id="configuration-requise-5">Configuration requise</h3>
+<ul>
+<li>macOS 14 (Sonoma) ou version ultérieure.</li>
+<li>Un NAS Synology sous DSM 7 sur votre réseau local.</li>
+</ul>
+<h3 id="téléchargement-15">Téléchargement</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.5/dsmaccess-1.1-beta.5.zip">dsmaccess-1.1-beta.5.zip</a></p>
+</body>
+</html>
