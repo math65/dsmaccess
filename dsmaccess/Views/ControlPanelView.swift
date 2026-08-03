@@ -9,6 +9,10 @@ import SwiftUI
 
 struct ControlPanelView: View {
     let session: SessionStore
+    let externalDevices: ExternalDevicesViewModel
+    /// Section the toolbar menu asked for, so "External device settings" lands on the screen
+    /// itself rather than on the Control Panel index.
+    @Binding var requestedSection: ControlPanelSection?
     @State private var path: [ControlPanelSection] = []
     @AccessibilityFocusState private var focusTitle: Bool
     @AccessibilityFocusState private var focusedSection: ControlPanelSection?
@@ -55,6 +59,8 @@ struct ControlPanelView: View {
                 switch section {
                 case .network:
                     NetworkSettingsView(session: session)
+                case .externalDevices:
+                    ExternalDevicesView(model: externalDevices)
                 case .dsmUpdate:
                     DSMUpdateView(session: session)
                 }
@@ -70,6 +76,12 @@ struct ControlPanelView: View {
         .onChange(of: path) { oldPath, newPath in
             guard !oldPath.isEmpty, newPath.isEmpty, let section = oldPath.last else { return }
             focusedSection = section
+        }
+        .task(id: requestedSection) {
+            guard let section = requestedSection else { return }
+            requestedSection = nil
+            guard path.last != section else { return }
+            open(section)
         }
     }
 

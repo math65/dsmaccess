@@ -9843,6 +9843,22 @@
         }
       }
     },
+    "control_panel.external_devices.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manage USB and eSATA storage connected to the NAS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gérer le stockage USB et eSATA connecté au NAS"
+          }
+        }
+      }
+    },
     "control_panel.network.description": {
       "localizations": {
         "en": {
@@ -11663,6 +11679,982 @@
           "stringUnit": {
             "state": "translated",
             "value": "Le compte %1$@ a été créé, mais le NAS a refusé ces groupes : %2$@."
+          }
+        }
+      }
+    },
+    "external_devices.action.eject": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eject"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjecter"
+          }
+        }
+      }
+    },
+    "external_devices.action.format": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formater…"
+          }
+        }
+      }
+    },
+    "external_devices.column.capacity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capacity"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Capacité"
+          }
+        }
+      }
+    },
+    "external_devices.column.connection": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connection"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connexion"
+          }
+        }
+      }
+    },
+    "external_devices.column.filesystem": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File system"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Système de fichiers"
+          }
+        }
+      }
+    },
+    "external_devices.column.maker": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maker"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fabricant"
+          }
+        }
+      }
+    },
+    "external_devices.column.model": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Model"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modèle"
+          }
+        }
+      }
+    },
+    "external_devices.column.name": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Name"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nom"
+          }
+        }
+      }
+    },
+    "external_devices.column.shared_folder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shared folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier partagé"
+          }
+        }
+      }
+    },
+    "external_devices.column.status": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Status"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "État"
+          }
+        }
+      }
+    },
+    "external_devices.column.used": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Used"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisé"
+          }
+        }
+      }
+    },
+    "external_devices.connection.esata": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eSATA"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "eSATA"
+          }
+        }
+      }
+    },
+    "external_devices.connection.usb": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USB"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "USB"
+          }
+        }
+      }
+    },
+    "external_devices.eject.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not eject %1$@: %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’éjecter %1$@ : %2$@"
+          }
+        }
+      }
+    },
+    "external_devices.eject.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ejected. You can unplug it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ éjecté. Vous pouvez le débrancher."
+          }
+        }
+      }
+    },
+    "external_devices.empty.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect a USB drive or an eSATA drive to the NAS to see it here."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Branchez un disque USB ou eSATA sur le NAS pour le voir apparaître ici."
+          }
+        }
+      }
+    },
+    "external_devices.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No external device"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun périphérique externe"
+          }
+        }
+      }
+    },
+    "external_devices.filesystem.cross_platform.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FAT32 and EXFAT are read by macOS and Windows as well as by the NAS. FAT32 cannot hold a file larger than 4 GB."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "FAT32 et EXFAT sont lus par macOS et Windows autant que par le NAS. FAT32 ne peut pas contenir de fichier de plus de 4 Go."
+          }
+        }
+      }
+    },
+    "external_devices.filesystem.ext4.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXT4 is the Linux file system. A drive formatted this way is read by the NAS, but not by macOS or Windows."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EXT4 est le système de fichiers de Linux. Un disque formaté ainsi est lu par le NAS, mais pas par macOS ni Windows."
+          }
+        }
+      }
+    },
+    "external_devices.format.confirm.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erase and Format"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer et formater"
+          }
+        }
+      }
+    },
+    "external_devices.format.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ will be erased and formatted in %2$@. This cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ sera effacé puis formaté en %2$@. Cette opération est irréversible."
+          }
+        }
+      }
+    },
+    "external_devices.format.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erase %@?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Effacer %@ ?"
+          }
+        }
+      }
+    },
+    "external_devices.format.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not format %1$@: %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible de formater %1$@ : %2$@"
+          }
+        }
+      }
+    },
+    "external_devices.format.filesystem.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File system"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Système de fichiers"
+          }
+        }
+      }
+    },
+    "external_devices.format.finished": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formatting finished"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formatage terminé"
+          }
+        }
+      }
+    },
+    "external_devices.format.sheet.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formater %@"
+          }
+        }
+      }
+    },
+    "external_devices.format.started": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formatting %1$@ in %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formatage de %1$@ en %2$@"
+          }
+        }
+      }
+    },
+    "external_devices.format.warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Everything on %@ will be erased, including all of its partitions. This cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tout le contenu de %@ sera effacé, y compris toutes ses partitions. Cette opération est irréversible."
+          }
+        }
+      }
+    },
+    "external_devices.loading.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading external devices…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement des périphériques externes…"
+          }
+        }
+      }
+    },
+    "external_devices.menu.eject_device": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eject %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjecter %@"
+          }
+        }
+      }
+    },
+    "external_devices.menu.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Eject a connected device or open its settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Éjecter un périphérique connecté ou ouvrir ses réglages"
+          }
+        }
+      }
+    },
+    "external_devices.menu.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External devices"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Périphériques externes"
+          }
+        }
+      }
+    },
+    "external_devices.menu.settings": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External device settings…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages des périphériques externes…"
+          }
+        }
+      }
+    },
+    "external_devices.outcome.dismiss.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dismiss"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer"
+          }
+        }
+      }
+    },
+    "external_devices.outcome.dismiss.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide this message"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer ce message"
+          }
+        }
+      }
+    },
+    "external_devices.partitions.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This device has no readable partition."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce périphérique n’a aucune partition lisible."
+          }
+        }
+      }
+    },
+    "external_devices.partitions.table.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partitions of the selected device"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partitions du périphérique sélectionné"
+          }
+        }
+      }
+    },
+    "external_devices.partitions.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partitions of %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partitions de %@"
+          }
+        }
+      }
+    },
+    "external_devices.settings.delayed_allocation.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delayed allocation can improve write performance, but it can also lose data during a power cut or if devices are unplugged without being ejected."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’allocation retardée peut améliorer les performances en écriture, mais elle peut aussi provoquer une perte de données en cas de coupure de courant ou si les périphériques sont débranchés sans être éjectés."
+          }
+        }
+      }
+    },
+    "external_devices.settings.delayed_allocation.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improve write speed on ext4 drives"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Améliorer la vitesse d’écriture des disques ext4"
+          }
+        }
+      }
+    },
+    "external_devices.settings.delayed_allocation.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable delayed allocation for ext4"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer l’allocation retardée pour ext4"
+          }
+        }
+      }
+    },
+    "external_devices.settings.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Could not save the settings: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Impossible d’enregistrer les réglages : %@"
+          }
+        }
+      }
+    },
+    "external_devices.settings.forbid_usb.confirm.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forbid the USB Port"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interdire le port USB"
+          }
+        }
+      }
+    },
+    "external_devices.settings.forbid_usb.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every USB device will be blocked, including those already connected. The NAS must be restarted for this to take effect."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tous les périphériques USB seront bloqués, y compris ceux déjà connectés. Le NAS doit redémarrer pour que ce réglage prenne effet."
+          }
+        }
+      }
+    },
+    "external_devices.settings.forbid_usb.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forbid the USB port?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interdire le port USB ?"
+          }
+        }
+      }
+    },
+    "external_devices.settings.forbid_usb.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forbidding the USB port blocks every kind of USB device. The NAS must be restarted for this to take effect."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’interdiction du port USB bloque tous les types de périphériques USB. Le NAS doit redémarrer pour que ce réglage prenne effet."
+          }
+        }
+      }
+    },
+    "external_devices.settings.forbid_usb.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Block every USB device on the NAS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bloquer tous les périphériques USB du NAS"
+          }
+        }
+      }
+    },
+    "external_devices.settings.forbid_usb.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forbid the use of the USB port"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interdire l’utilisation du port USB"
+          }
+        }
+      }
+    },
+    "external_devices.settings.non_admin_eject.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let any account eject a USB device"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permettre à tout compte d’éjecter un périphérique USB"
+          }
+        }
+      }
+    },
+    "external_devices.settings.non_admin_eject.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow non-administrator users to eject USB devices"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser les utilisateurs non administrateurs à éjecter les périphériques USB"
+          }
+        }
+      }
+    },
+    "external_devices.settings.reboot_required": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The NAS must be restarted for these settings to take effect."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS doit redémarrer pour que ces réglages prennent effet."
+          }
+        }
+      }
+    },
+    "external_devices.settings.region.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages avancés"
+          }
+        }
+      }
+    },
+    "external_devices.settings.saved": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings saved"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages enregistrés"
+          }
+        }
+      }
+    },
+    "external_devices.settings.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External device settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages des périphériques externes"
+          }
+        }
+      }
+    },
+    "external_devices.status.dsm_value": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DSM status: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "État DSM : %@"
+          }
+        }
+      }
+    },
+    "external_devices.status.formatting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formatting"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Formatage en cours"
+          }
+        }
+      }
+    },
+    "external_devices.status.normal": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ready"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prêt"
+          }
+        }
+      }
+    },
+    "external_devices.summary.count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld external devices"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld périphériques externes"
+          }
+        }
+      }
+    },
+    "external_devices.summary.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No external device connected"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun périphérique externe connecté"
+          }
+        }
+      }
+    },
+    "external_devices.table.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connected external devices"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Périphériques externes connectés"
+          }
+        }
+      }
+    },
+    "external_devices.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "External Devices"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Périphériques externes"
           }
         }
       }

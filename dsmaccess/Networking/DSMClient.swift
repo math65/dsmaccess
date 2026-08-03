@@ -402,6 +402,14 @@ protocol DSMClientProtocol: AnyObject {
     func blockedAddresses(limit: Int) async throws -> BlockedAddressPage
     func unblockAddresses(_ addresses: [String]) async throws
     func networkInfo() async throws -> NetworkInfo
+    func externalStorageDevices() async throws -> [ExternalStorageDevice]
+    func ejectExternalStorage(_ device: ExternalStorageDevice) async throws
+    func formatExternalStorage(
+        _ device: ExternalStorageDevice,
+        as fileSystem: ExternalStorageFileSystem
+    ) async throws
+    func externalStorageSettings() async throws -> ExternalStorageSettings
+    func updateExternalStorageSettings(_ settings: ExternalStorageSettings) async throws
     func logout() async throws
 }
 
@@ -425,6 +433,7 @@ final class DSMClient: DSMClientProtocol {
     let surveillance: DSMSurveillanceService
     let logsSecurity: DSMLogSecurityService
     let network: DSMNetworkService
+    let externalDevices: DSMExternalDeviceService
 
     init(endpoint: DSMEndpoint) {
         let transport = DSMTransport(endpoint: endpoint)
@@ -446,6 +455,7 @@ final class DSMClient: DSMClientProtocol {
         surveillance = DSMSurveillanceService(transport: transport)
         logsSecurity = DSMLogSecurityService(transport: transport)
         network = DSMNetworkService(transport: transport)
+        externalDevices = DSMExternalDeviceService(transport: transport)
     }
 
     var capabilities: DSMCapabilities { transport.capabilities }
@@ -1571,6 +1581,29 @@ final class DSMClient: DSMClientProtocol {
 
     func networkInfo() async throws -> NetworkInfo {
         try await network.information()
+    }
+
+    func externalStorageDevices() async throws -> [ExternalStorageDevice] {
+        try await externalDevices.devices()
+    }
+
+    func ejectExternalStorage(_ device: ExternalStorageDevice) async throws {
+        try await externalDevices.eject(device)
+    }
+
+    func formatExternalStorage(
+        _ device: ExternalStorageDevice,
+        as fileSystem: ExternalStorageFileSystem
+    ) async throws {
+        try await externalDevices.format(device, as: fileSystem)
+    }
+
+    func externalStorageSettings() async throws -> ExternalStorageSettings {
+        try await externalDevices.settings()
+    }
+
+    func updateExternalStorageSettings(_ settings: ExternalStorageSettings) async throws {
+        try await externalDevices.updateSettings(settings)
     }
 
     func logout() async throws {

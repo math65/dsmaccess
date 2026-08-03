@@ -11,9 +11,14 @@ struct MainView: View {
     let session: SessionStore
 
     @Environment(AppSettings.self) private var settings
+    @Environment(\.scenePhase) private var scenePhase
     @State private var selection = AppModule.systemInfo
     @State private var isRenamingNAS = false
     @State private var proposedNASName = ""
+    /// External storage is owned here rather than in its screen: the toolbar menu has to know
+    /// about a plugged-in device without the Control Panel ever having been opened.
+    @State private var externalDevices: ExternalDevicesViewModel
+    @State private var requestedControlPanelSection: ControlPanelSection?
     @AccessibilityFocusState private var sidebarFocusedModule: AppModule?
     @AccessibilityFocusState private var focusReconnectionNotice: Bool
 
@@ -24,6 +29,7 @@ struct MainView: View {
                 $0.isAvailable(in: session.capabilities)
             } ?? .systemInfo
         )
+        _externalDevices = State(initialValue: ExternalDevicesViewModel(session: session))
     }
 
     var body: some View {
@@ -75,6 +81,13 @@ struct MainView: View {
         .task {
             normalizeSelection()
             VoiceOver.announce(String(localized: "common.status.connected"), category: .navigation)
+            await externalDevices.load()
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Coming back to the app is when a drive has just been plugged in. The reload is
+            // silent: VoiceOver must not comment on a refresh nobody asked for.
+            guard phase == .active else { return }
+            Task { await externalDevices.load() }
         }
         .onChange(of: visibleModules) { _, _ in
             normalizeSelection()
@@ -172,7 +185,11 @@ struct MainView: View {
         case .surveillance:
             SurveillanceView(session: session)
         case .controlPanel:
-            ControlPanelView(session: session)
+            ControlPanelView(
+                session: session,
+                externalDevices: externalDevices,
+                requestedSection: $requestedControlPanelSection
+            )
         }
     }
 
@@ -196,11 +213,46 @@ struct MainView: View {
 
     @ToolbarContentBuilder
     private var commonToolbar: some ToolbarContent {
+        if externalDevices.hasDevices {
+            ToolbarItem(placement: .primaryAction) {
+                externalDevicesMenu
+            }
+        }
         if session.profiles.count > 1 {
             ToolbarItem(placement: .primaryAction) {
                 nasSelectionMenu
             }
         }
+    }
+
+    /// Mirrors DSM's own eject tray: it only exists while something is plugged in, and it puts
+    /// ejecting one keystroke away from wherever the user happens to be.
+    private var externalDevicesMenu: some View {
+        Menu {
+            ForEach(externalDevices.devices) { device in
+                Button {
+                    Task { await externalDevices.eject(device) }
+                } label: {
+                    Text(
+                        String(
+                            localized: "external_devices.menu.eject_device",
+                            defaultValue: "Eject \(device.displayName)"
+                        )
+                    )
+                }
+                .disabled(externalDevices.isBusy(device))
+            }
+            Divider()
+            Button("external_devices.menu.settings") {
+                selection = .controlPanel
+                requestedControlPanelSection = .externalDevices
+            }
+            .disabled(!AppModule.controlPanel.isAvailable(in: session.capabilities))
+        } label: {
+            Label("external_devices.menu.label", systemImage: "eject")
+        }
+        .help("external_devices.menu.hint")
+        .accessibilityLabel("external_devices.menu.label")
     }
 
     private var nasSelectionMenu: some View {
