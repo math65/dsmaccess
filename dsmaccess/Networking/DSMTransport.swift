@@ -295,6 +295,39 @@ final class DSMTransport {
         return (try makeURL(path: resolved.path, parameters: [:]), fields)
     }
 
+    /// Opens a WebSocket outside the `/webapi` tree: Container Manager's terminal service is
+    /// served straight from `/docker/ws`. DSM's own client authenticates it with the session
+    /// cookie its browser already holds, so the task carries the SID the same way — and the
+    /// SID still leaves nothing else in the app to hold.
+    ///
+    /// The `Origin` header is not decoration: measured on DSM 7.4, the service refuses the
+    /// handshake outright without it, and refuses it too when the address it names is not one
+    /// the NAS knows as its own — a QuickConnect name is refused where the declared domain is
+    /// accepted, same session, same request.
+    func webSocketTask(path: String, host: String? = nil) throws -> URLSessionWebSocketTask {
+        guard let sessionID else {
+            throw DSMError.sessionExpired
+        }
+        // Lowercased, as a browser writes it: DSM compares the origin it is given to the
+        // addresses it knows without folding the case, so `MATH65…` is not `math65…` to it.
+        let host = (host ?? endpoint.host).lowercased()
+        var components = URLComponents()
+        components.scheme = endpoint.useHTTPS ? "wss" : "ws"
+        components.host = host
+        components.port = endpoint.port
+        components.path = path
+        guard let url = components.url else {
+            throw DSMError.invalidEndpoint
+        }
+        var request = URLRequest(url: url)
+        request.setValue("id=\(sessionID)", forHTTPHeaderField: "Cookie")
+        request.setValue(
+            "\(endpoint.scheme)://\(host):\(endpoint.port)",
+            forHTTPHeaderField: "Origin"
+        )
+        return session.webSocketTask(with: request)
+    }
+
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         do {
             return try await requestData(request)

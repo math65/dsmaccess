@@ -369,6 +369,13 @@ protocol DSMClientProtocol: AnyObject {
     func containerStatistics() async throws -> [String: ContainerStatistics]
     func createContainer(profile: ContainerProfile, startsImmediately: Bool) async throws
     func containerProcesses(name: String) async throws -> [ContainerProcess]
+    func containerTerminalSocket(
+        container: String,
+        role: ContainerTerminalRole,
+        usingFallbackAddress: Bool
+    ) throws -> ContainerTerminalSocket
+    /// Address to fall back on when the terminal's handshake is refused, if there is one.
+    var terminalFallbackAddress: String? { get }
     func pruneDockerImages() async throws
     func startDockerImageUpgrade(repository: String) async throws -> DockerImagePullTask
     func dockerImageUpgradeStatus(taskID: String) async throws -> DockerImagePullStatus
@@ -1487,6 +1494,20 @@ final class DSMClient: DSMClientProtocol {
     func containerProcesses(name: String) async throws -> [ContainerProcess] {
         try await containers.containerProcesses(name: name)
     }
+
+    func containerTerminalSocket(
+        container: String,
+        role: ContainerTerminalRole,
+        usingFallbackAddress: Bool
+    ) throws -> ContainerTerminalSocket {
+        try containers.terminalSocket(
+            container: container,
+            role: role,
+            usingFallbackAddress: usingFallbackAddress
+        )
+    }
+
+    var terminalFallbackAddress: String? { containers.terminalFallbackAddress }
 
     func pruneDockerImages() async throws {
         try await containers.pruneImages()
