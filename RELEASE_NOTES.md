@@ -1,3 +1,52 @@
+## v1.1 (build 23) — 2026-08-03
+
+### Highlights
+
+- The first stable release since 1.0. It gathers everything published in the
+  betas since 19 July, plus external device support added today.
+- Seven modules that did not exist in 1.0: Resource Monitor, Logs and Security,
+  Package Center, Containers, USB Copy, External Devices, and permissions in
+  Users and Groups.
+- Files works with the Finder: copy in one, paste in the other, in both
+  directions.
+
+### New
+
+- External Devices: a new Control Panel section lists the USB and eSATA drives
+  connected to the NAS, with their maker, model, capacity and state, and the
+  partitions of the selected one with their file system, sizes and shared
+  folder.
+- External Devices: eject a drive, or format it in EXT4, FAT32 or EXFAT. Both
+  live in the table's context menu. Formatting asks twice, names the drive and
+  says plainly that nothing can be undone.
+- External Devices: an eject button appears in the toolbar as soon as something
+  is plugged in, so you never have to go looking for the screen. The list
+  refreshes on its own when you come back to the app, which is when a drive has
+  just been connected.
+- External Devices: the advanced settings are there too — forbidding the USB
+  port, letting non-administrators eject, and delayed allocation for ext4.
+  Forbidding the USB port asks for confirmation, since it cuts off every device
+  and needs a restart.
+
+### Changes
+
+- The keyboard shortcuts for the last modules moved from Command-Shift to
+  Command-Option. macOS keeps Command-Shift-3, 4 and 5 for screen capture and
+  always wins, which left Surveillance Station, USB Copy and the Resource
+  Monitor out of reach from the keyboard.
+
+### Fixes
+
+- A package installed while the app was running is now noticed. Until now the
+  app took stock of the installed packages once, when it connected, so a module
+  stayed unavailable until the next sign-in. A screen for a module that is not
+  available also offers to look again.
+
+### Known limits
+
+- Ejecting and formatting have been tested on USB. eSATA uses the same calls,
+  but no eSATA drive was available to try them on.
+
 ## v1.1-beta.21 (build 22) — 2026-08-03
 
 ### Highlights

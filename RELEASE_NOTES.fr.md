@@ -1,3 +1,56 @@
+## v1.1 (build 23) — 3 août 2026
+
+### En bref
+
+- La première version stable depuis la 1.0. Elle rassemble tout ce qui a été
+  publié en bêta depuis le 19 juillet, et y ajoute la gestion des périphériques
+  externes, écrite aujourd'hui.
+- Sept modules qui n'existaient pas en 1.0 : Moniteur de ressources, Journaux et
+  sécurité, Centre de paquets, Conteneurs, USB Copy, Périphériques externes, et
+  les permissions dans Utilisateurs et groupes.
+- Fichiers dialogue avec le Finder : on copie d'un côté, on colle de l'autre,
+  dans les deux sens.
+
+### Nouveautés
+
+- Périphériques externes : une nouvelle section du Panneau de configuration
+  liste les disques USB et eSATA connectés au NAS, avec leur fabricant, leur
+  modèle, leur capacité et leur état, et les partitions du disque sélectionné
+  avec leur système de fichiers, leurs tailles et leur dossier partagé.
+- Périphériques externes : éjecter un disque, ou le formater en EXT4, FAT32 ou
+  EXFAT. Les deux se trouvent dans le menu contextuel du tableau. Le formatage
+  demande deux fois confirmation, nomme le disque et dit franchement que rien ne
+  pourra être annulé.
+- Périphériques externes : un bouton d'éjection apparaît dans la barre d'outils
+  dès qu'un disque est branché, pour ne pas avoir à retrouver l'écran. La liste
+  se met à jour toute seule quand vous revenez dans l'application, c'est-à-dire
+  au moment où un disque vient d'être connecté.
+- Périphériques externes : les réglages avancés sont là aussi — interdire le
+  port USB, autoriser les utilisateurs non administrateurs à éjecter, et
+  l'allocation retardée pour ext4. L'interdiction du port USB demande
+  confirmation, puisqu'elle coupe tous les périphériques et exige un
+  redémarrage.
+
+### Changements
+
+- Les raccourcis clavier des derniers modules passent de Commande-Majuscule à
+  Commande-Option. macOS réserve Commande-Majuscule-3, 4 et 5 pour les captures
+  d'écran et l'emporte toujours, ce qui rendait Surveillance Station, USB Copy
+  et le Moniteur de ressources inaccessibles au clavier.
+
+### Corrections
+
+- Un paquet installé pendant que l'application tourne est désormais détecté.
+  Jusqu'ici l'application faisait l'inventaire des paquets une seule fois, à la
+  connexion, et un module restait donc indisponible jusqu'à la prochaine
+  ouverture de session. L'écran d'un module indisponible propose aussi de
+  chercher à nouveau.
+
+### Limites connues
+
+- L'éjection et le formatage ont été éprouvés en USB. L'eSATA passe par les
+  mêmes appels, mais aucun disque eSATA n'était disponible pour les essayer.
+
 ## v1.1-beta.21 (build 22) — 3 août 2026
 
 ### En bref
