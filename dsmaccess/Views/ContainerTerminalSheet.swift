@@ -96,12 +96,23 @@ struct ContainerTerminalSheet: View {
 
     private var sessionBar: some View {
         HStack(spacing: 8) {
-            TextField("containers.terminal.command", text: $vm.command)
-                .frame(maxWidth: 220)
-                .focused($keyboardFocus, equals: .command)
-                .accessibilityFocused($commandFocused)
-                .disabled(vm.isRunning)
-                .help("containers.terminal.command.hint")
+            // The shell can only be chosen before the session runs. Showing the field greyed
+            // out for the rest of the time leaves a control that answers nothing in the
+            // keyboard order; the shell in use is worth stating, not editing.
+            if isChoosingShell {
+                TextField("containers.terminal.command", text: $vm.command)
+                    .frame(maxWidth: 220)
+                    .focused($keyboardFocus, equals: .command)
+                    .accessibilityFocused($commandFocused)
+                    .help("containers.terminal.command.hint")
+            } else {
+                Text(String(
+                    localized: "containers.terminal.shell_in_use",
+                    defaultValue: "Shell: \(vm.command)"
+                ))
+                .font(.callout)
+                .foregroundStyle(.readableSecondary)
+            }
 
             if vm.isRunning {
                 Button("containers.terminal.end_session", role: .destructive) {
@@ -172,6 +183,14 @@ struct ContainerTerminalSheet: View {
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
+    }
+
+    /// The shell is only up for choice while no session holds it.
+    private var isChoosingShell: Bool {
+        switch vm.phase {
+        case .idle, .ended: true
+        case .opening, .running: false
+        }
     }
 
     /// A status is a couple of words, so a failure shows as one here and is spelled out under

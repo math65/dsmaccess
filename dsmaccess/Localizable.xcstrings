@@ -9827,6 +9827,54 @@
         }
       }
     },
+    "containers.terminal.block.interrupt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control-C"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contrôle-C"
+          }
+        }
+      }
+    },
+    "containers.terminal.block.received": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal :"
+          }
+        }
+      }
+    },
+    "containers.terminal.block.sent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous : %@"
+          }
+        }
+      }
+    },
     "containers.terminal.close.hint": {
       "localizations": {
         "en": {
@@ -10255,6 +10303,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "La commande n’a pas pu être envoyée : %@"
+          }
+        }
+      }
+    },
+    "containers.terminal.shell_in_use": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shell: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interpréteur : %@"
           }
         }
       }

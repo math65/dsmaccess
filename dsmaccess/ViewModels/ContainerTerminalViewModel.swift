@@ -46,6 +46,11 @@ final class ContainerTerminalViewModel {
     /// answer will not change while this screen is open.
     private var usesFallbackAddress = false
 
+    /// Width the shell is told about, measured: at this many columns `ls` prints one entry per
+    /// line, where 20 still gives two columns and 80 gives nine.
+    private static let columns = 12
+    private static let rows = 24
+
     /// Beyond this, the output is summarised rather than spoken: a listing of several hundred
     /// lines would otherwise leave VoiceOver reading for minutes, with no way to stop it.
     private static let spokenLineLimit = 20
@@ -89,7 +94,9 @@ final class ContainerTerminalViewModel {
         let events = socket.start()
         monitorTask = Task { [weak self] in
             for await event in events {
-                guard let self else { return }
+                // A socket left behind by a retry can still have events queued, and acting on
+                // them would open a second session over the one that just succeeded.
+                guard let self, monitor === socket else { return }
                 await handle(monitor: event)
             }
         }
@@ -101,6 +108,7 @@ final class ContainerTerminalViewModel {
         let line = input
         guard canSend, let terminal else { return }
         input = ""
+        openBlock(for: line)
         do {
             try await terminal.write(line + "\r")
         } catch {
@@ -116,7 +124,42 @@ final class ContainerTerminalViewModel {
     /// Sends a control character, so a running command can be interrupted as in a terminal.
     func interrupt() async {
         guard canSend, let terminal else { return }
+        openBlock(for: String(localized: "containers.terminal.block.interrupt"))
         try? await terminal.write("\u{03}")
+    }
+
+    /// Opens the block of one exchange: what was sent, then the label the answer follows.
+    private func openBlock(for line: String) {
+        buffer.startNewBlock()
+        buffer.appendOwnLine(String(
+            localized: "containers.terminal.block.sent",
+            defaultValue: "You: \(line)"
+        ))
+        buffer.appendOwnLine(String(localized: "containers.terminal.block.received"))
+        output = buffer.text
+    }
+
+    /// Settles the shell into something readable, both measured on DSM 7.4:
+    ///
+    /// - the terminal is declared narrow, so the commands that lay their output out in columns
+    ///   — `ls` above all — print one entry per line instead. Programs with fixed columns
+    ///   (`df`, `ps`) are unaffected: they print the same bytes at any width.
+    /// - the shell is asked to stop echoing what it is sent, since the screen already shows
+    ///   that line as the user's own. Sent while the terminal is still wide, so the shell does
+    ///   not wrap the echo of this very command.
+    ///
+    /// Whatever this exchange printed is then dropped: it is housekeeping, not the session.
+    private func prepareSession() async {
+        guard let terminal else { return }
+        try? await terminal.resize(rows: Self.rows, columns: 80)
+        try? await terminal.write("stty -echo\r")
+        try? await Task.sleep(for: .milliseconds(400))
+        try? await terminal.resize(rows: Self.rows, columns: Self.columns)
+        try? await Task.sleep(for: .milliseconds(200))
+        guard !Task.isCancelled else { return }
+        buffer.removeAll()
+        output = ""
+        pendingLines = []
     }
 
     /// Ends the session and closes both sockets. Deleting the session leaves nothing running
@@ -237,6 +280,7 @@ final class ContainerTerminalViewModel {
     }
 
     private func attachTerminal(to id: String) async {
+        guard terminal == nil else { return }
         let socket: ContainerTerminalSocket
         do {
             socket = try await session.withClient { [usesFallbackAddress] in
@@ -256,7 +300,7 @@ final class ContainerTerminalViewModel {
         let events = socket.start()
         terminalTask = Task { [weak self] in
             for await event in events {
-                guard let self else { return }
+                guard let self, terminal === socket else { return }
                 await handle(terminal: event, ttyID: id)
             }
         }
@@ -298,7 +342,7 @@ final class ContainerTerminalViewModel {
             openingTimeout?.cancel()
             openingTimeout = nil
             phase = .running
-            try? await terminal?.resize(rows: 24, columns: 80)
+            await prepareSession()
             VoiceOver.announce(
                 String(
                     localized: "containers.terminal.opened",

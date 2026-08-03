@@ -149,6 +149,33 @@ struct TerminalOutputBufferTests {
         #expect(buffer.text == "c\nd\ne")
     }
 
+    @Test func writesItsOwnLineBelowWhatTheShellLeftUnfinished() {
+        var buffer = TerminalOutputBuffer()
+        buffer.append("/ # ")
+
+        buffer.appendOwnLine("Vous : ls")
+
+        #expect(buffer.text == "/ # \nVous : ls")
+    }
+
+    @Test func opensOneBlankLineBetweenBlocksAndNeverTwo() {
+        var buffer = TerminalOutputBuffer()
+        buffer.append("done\n")
+
+        buffer.startNewBlock()
+        buffer.startNewBlock()
+
+        #expect(buffer.text == "done\n")
+    }
+
+    @Test func opensNoBlankLineOnAnEmptyBuffer() {
+        var buffer = TerminalOutputBuffer()
+
+        buffer.startNewBlock()
+
+        #expect(buffer.isEmpty)
+    }
+
     @Test func reportsOnlyTheLinesAChunkCompleted() {
         var buffer = TerminalOutputBuffer()
 

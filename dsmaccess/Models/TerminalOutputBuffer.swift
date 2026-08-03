@@ -74,6 +74,24 @@ nonisolated struct TerminalOutputBuffer {
         awaitingCarriageReturn = false
     }
 
+    /// Writes a line of the app's own — the label of a block — closing whatever the shell had
+    /// left unfinished, which is its prompt.
+    mutating func appendOwnLine(_ line: String) {
+        if !currentLine.isEmpty {
+            lines.append(currentLine)
+            currentLine = ""
+        }
+        lines.append(line)
+        trimToMaximum()
+    }
+
+    /// Opens a blank line between two blocks, and never two in a row.
+    mutating func startNewBlock() {
+        guard !lines.isEmpty || !currentLine.isEmpty else { return }
+        if currentLine.isEmpty, lines.last == "" { return }
+        appendOwnLine("")
+    }
+
     private mutating func appendInText(
         _ scalar: Unicode.Scalar,
         completing completed: inout [String]
@@ -91,18 +109,23 @@ nonisolated struct TerminalOutputBuffer {
         case "\r":
             awaitingCarriageReturn = true
         case "\n":
-            completed.append(currentLine)
-            lines.append(currentLine)
+            let line = currentLine
             currentLine = ""
-            if lines.count > maximumLines {
-                lines.removeFirst(lines.count - maximumLines)
-            }
+            completed.append(line)
+            lines.append(line)
+            trimToMaximum()
         case "\u{08}":
             if !currentLine.isEmpty { currentLine.removeLast() }
         case "\u{07}", "\0":
             break
         default:
             currentLine.unicodeScalars.append(scalar)
+        }
+    }
+
+    private mutating func trimToMaximum() {
+        if lines.count > maximumLines {
+            lines.removeFirst(lines.count - maximumLines)
         }
     }
 
