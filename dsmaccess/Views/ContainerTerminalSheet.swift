@@ -56,19 +56,22 @@ struct ContainerTerminalSheet: View {
             }
         }
         .frame(minWidth: 640, minHeight: 460)
-        .task {
-            await vm.open()
-            if vm.isRunning {
+        .task { await vm.open() }
+        .onChange(of: vm.phase) { _, phase in
+            // Opening a session takes several exchanges with the NAS, so the move has to follow
+            // the phase rather than the call that starts it. And once the session is over the
+            // input field is disabled, which takes it out of the keyboard order: leaving
+            // VoiceOver on it would leave it on nothing.
+            switch phase {
+            case .running:
                 keyboardFocus = .input
                 inputFocused = true
+            case .ended:
+                keyboardFocus = .command
+                commandFocused = true
+            case .idle, .opening:
+                break
             }
-        }
-        .onChange(of: vm.phase) { _, phase in
-            // The input field is disabled once the session is over, which takes it out of the
-            // keyboard order: leaving VoiceOver on it would leave it on nothing.
-            guard case .ended = phase else { return }
-            keyboardFocus = .command
-            commandFocused = true
         }
         .onDisappear {
             Task { await vm.close() }
@@ -121,13 +124,7 @@ struct ContainerTerminalSheet: View {
                 .help("containers.terminal.end_session.hint")
             } else {
                 Button("containers.terminal.open_session") {
-                    Task {
-                        await vm.open()
-                        if vm.isRunning {
-                            keyboardFocus = .input
-                            inputFocused = true
-                        }
-                    }
+                    Task { await vm.open() }
                 }
                 .disabled(vm.phase == .opening || vm.command.isEmpty)
                 .help("containers.terminal.open_session.hint")

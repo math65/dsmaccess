@@ -88,6 +88,19 @@ struct QuickConnectTerminalAddressTests {
 }
 
 @MainActor
+struct TerminalPreparationTests {
+    /// The preparation ends on the marker the shell prints. The shell also echoes the command
+    /// that asks for it — echoing is what the command turns off — so a command containing the
+    /// marker in plain sight would end the preparation before the shell had answered anything.
+    @Test func writesACommandWhoseOwnEchoCannotEndThePreparation() {
+        let command = ContainerTerminalViewModel.readyCommand
+
+        #expect(!command.contains(ContainerTerminalViewModel.readyMarker))
+        #expect(command.contains("stty -echo"))
+    }
+}
+
+@MainActor
 struct TerminalOutputBufferTests {
     @Test func stripsTheColourAndCursorSequencesOfARealShell() {
         var buffer = TerminalOutputBuffer()

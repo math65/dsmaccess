@@ -45,11 +45,31 @@ final class ContainerTerminalViewModel {
     /// Set once the address of the connection has had its handshake refused, and kept: the
     /// answer will not change while this screen is open.
     private var usesFallbackAddress = false
+    /// True while the session is being settled, which the screen must not show: what the shell
+    /// prints then is the app talking to itself.
+    private var isPreparing = false
+    private var preparationOutput = ""
+    private var preparationGuard: Task<Void, Never>?
 
     /// Width the shell is told about, measured: at this many columns `ls` prints one entry per
     /// line, where 20 still gives two columns and 80 gives nine.
     private static let columns = 12
+    /// Width the preparation runs at, so the shell does not fold the echo of its own settings.
+    private static let wideColumns = 80
     private static let rows = 24
+
+    /// What settles the session: the shell stops echoing the line it is given — measured on
+    /// DSM 7.4, and the screen already shows that line as the user's own — and then prints a
+    /// marker, which is how the app knows the setting has taken rather than guessing a delay.
+    ///
+    /// The marker is assembled by `printf` rather than typed, so the echo of this very command
+    /// cannot contain it: the preparation would otherwise end before the shell had answered.
+    static let readyCommand = "stty -echo; printf '%s-ready\\n' dsmaccess"
+    static let readyMarker = "dsmaccess-ready"
+
+    /// Past this, the shell is taken for one that answers none of the above — an image without
+    /// `printf`, or a shell of its own — and the session opens on whatever it did print.
+    private static let preparationTimeout = Duration.seconds(3)
 
     /// Beyond this, the output is summarised rather than spoken: a listing of several hundred
     /// lines would otherwise leave VoiceOver reading for minutes, with no way to stop it.
@@ -139,27 +159,48 @@ final class ContainerTerminalViewModel {
         output = buffer.text
     }
 
-    /// Settles the shell into something readable, both measured on DSM 7.4:
+    /// Settles the shell into something readable, then hands the screen over.
     ///
-    /// - the terminal is declared narrow, so the commands that lay their output out in columns
-    ///   — `ls` above all — print one entry per line instead. Programs with fixed columns
-    ///   (`df`, `ps`) are unaffected: they print the same bytes at any width.
-    /// - the shell is asked to stop echoing what it is sent, since the screen already shows
-    ///   that line as the user's own. Sent while the terminal is still wide, so the shell does
-    ///   not wrap the echo of this very command.
-    ///
-    /// Whatever this exchange printed is then dropped: it is housekeeping, not the session.
+    /// The session stays on “opening” throughout: what the shell prints here is the app talking
+    /// to itself, and a command sent over it would have its answer swallowed with the rest.
     private func prepareSession() async {
         guard let terminal else { return }
-        try? await terminal.resize(rows: Self.rows, columns: 80)
-        try? await terminal.write("stty -echo\r")
-        try? await Task.sleep(for: .milliseconds(400))
-        try? await terminal.resize(rows: Self.rows, columns: Self.columns)
-        try? await Task.sleep(for: .milliseconds(200))
-        guard !Task.isCancelled else { return }
+        isPreparing = true
+        preparationOutput = ""
+        try? await terminal.resize(rows: Self.rows, columns: Self.wideColumns)
+        try? await terminal.write(Self.readyCommand + "\r")
+        preparationGuard = Task { [weak self] in
+            try? await Task.sleep(for: Self.preparationTimeout)
+            guard !Task.isCancelled, let self, isPreparing else { return }
+            await finishPreparation()
+        }
+    }
+
+    /// Narrows the terminal, drops the housekeeping exchange, and opens the session for good.
+    ///
+    /// The narrow width is what makes the commands that lay their output out in columns — `ls`
+    /// above all — print one entry per line instead. Programs with fixed columns (`df`, `ps`)
+    /// are unaffected: they print the same bytes at any width.
+    private func finishPreparation() async {
+        guard isPreparing else { return }
+        isPreparing = false
+        preparationGuard?.cancel()
+        preparationGuard = nil
+        preparationOutput = ""
+
+        try? await terminal?.resize(rows: Self.rows, columns: Self.columns)
         buffer.removeAll()
         output = ""
         pendingLines = []
+        phase = .running
+        VoiceOver.announce(
+            String(
+                localized: "containers.terminal.opened",
+                defaultValue: "Session open in \(containerName), running \(command)"
+            ),
+            category: .result,
+            priority: .high
+        )
     }
 
     /// Ends the session and closes both sockets. Deleting the session leaves nothing running
@@ -170,16 +211,29 @@ final class ContainerTerminalViewModel {
         openingTimeout?.cancel()
         openingTimeout = nil
 
-        if let ttyID, attached, let monitor {
-            try? await monitor.deleteSession(id: ttyID)
-        }
+        await deleteOpenedSession()
         closeSockets()
         if case .running = phase {
             phase = .ended(String(localized: "containers.terminal.ended.closed", defaultValue: "Session closed"))
         }
     }
 
+    /// Removes the session this screen opened, whatever became of it.
+    ///
+    /// Measured on DSM 7.4: a session the NAS never attached cannot be removed at all, and it
+    /// keeps its place — about three of them and the container refuses every new attachment,
+    /// with no way back but deleting the container. So the request goes out even where the
+    /// attachment failed, where it costs one message and may still be honoured.
+    private func deleteOpenedSession() async {
+        guard let ttyID, let monitor else { return }
+        self.ttyID = nil
+        try? await monitor.deleteSession(id: ttyID)
+    }
+
     private func closeSockets() {
+        preparationGuard?.cancel()
+        preparationGuard = nil
+        isPreparing = false
         terminalTask?.cancel()
         monitorTask?.cancel()
         terminal?.close()
@@ -205,6 +259,10 @@ final class ContainerTerminalViewModel {
         ttyID = nil
         attached = false
         pendingLines = []
+        preparationGuard?.cancel()
+        preparationGuard = nil
+        isPreparing = false
+        preparationOutput = ""
     }
 
     private func handle(monitor event: ContainerTerminalEvent) async {
@@ -240,12 +298,14 @@ final class ContainerTerminalViewModel {
     /// QuickConnect name, so that one is worth a single try before giving up.
     private func retryElsewhereOrFail(with message: String) async {
         guard !usesFallbackAddress,
-              let fallback = try? await session.withClient({ $0.terminalFallbackAddress }),
-              fallback != nil else {
+              (try? await session.withClient { $0.terminalFallbackAddress }) != nil else {
             fail(with: message)
             return
         }
         usesFallbackAddress = true
+        // Starting over opens a session of its own, so the one this attempt may already have
+        // opened has to go with it rather than stay behind unattached.
+        await deleteOpenedSession()
         closeSockets()
         phase = .idle
         await open()
@@ -341,16 +401,7 @@ final class ContainerTerminalViewModel {
             attached = true
             openingTimeout?.cancel()
             openingTimeout = nil
-            phase = .running
             await prepareSession()
-            VoiceOver.announce(
-                String(
-                    localized: "containers.terminal.opened",
-                    defaultValue: "Session open in \(containerName), running \(command)"
-                ),
-                category: .result,
-                priority: .high
-            )
         case ContainerTerminalCode.attachedElsewhere, ContainerTerminalCode.clientAttach:
             fail(with: String(localized: "containers.terminal.attach_taken"))
         default:
@@ -359,6 +410,12 @@ final class ContainerTerminalViewModel {
     }
 
     private func append(_ text: String) {
+        guard !isPreparing else {
+            preparationOutput += text
+            guard preparationOutput.contains(Self.readyMarker) else { return }
+            Task { await finishPreparation() }
+            return
+        }
         let completed = buffer.append(text)
         output = buffer.text
         pendingLines.append(contentsOf: completed)
