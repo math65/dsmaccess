@@ -1,3 +1,28 @@
+## v1.2 (build 24) — 2026-08-04
+
+### Highlights
+
+- Containers gains a terminal. You can open a shell inside a running container
+  and work in it, with the answers laid out to be read line by line instead of
+  the screen-shaped terminal DSM shows, which no screen reader can follow.
+
+### Containers
+
+- Terminal: select a container, open Terminal from its menu, and a session
+  starts inside it. What you send and what the shell answers are laid out as an
+  exchange, one block each, so they read apart. The output sits in a read-only
+  field you can move through line by line and copy from, and the shell is asked
+  to print its listings one entry per line rather than in aligned columns.
+- The session runs `/bin/sh` unless you name another shell before it starts. A
+  Stop button sends the interruption a terminal would, for a command that runs
+  on and on.
+- Closing the window ends the session, and leaves nothing running inside the
+  container.
+- Container Manager only accepts a terminal through an address the NAS knows as
+  its own. Where yours is refused, the app says so and names the address rather
+  than reporting a server error, and it tries your QuickConnect name once
+  before giving up.
+
 ## v1.1 (build 23) — 2026-08-03
 
 The first stable release since 1.0, which came out on 10 July. If you are
