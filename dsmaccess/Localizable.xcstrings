@@ -28518,6 +28518,22 @@
         }
       }
     },
+    "shares.column.encryption": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrement"
+          }
+        }
+      }
+    },
     "shares.create.button": {
       "localizations": {
         "en": {
@@ -28626,6 +28642,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "un dossier partagé porte déjà ce nom"
+          }
+        }
+      }
+    },
+    "shares.create.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New shared folder settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du nouveau dossier partagé"
           }
         }
       }
@@ -28822,6 +28854,118 @@
         }
       }
     },
+    "shares.edit.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings for %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages de %@"
+          }
+        }
+      }
+    },
+    "shares.edit.success.encrypting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings saved. The NAS is encrypting %@; its contents stay unavailable until that finishes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages enregistrés. Le NAS chiffre %@ ; son contenu reste indisponible jusqu'à la fin de l'opération."
+          }
+        }
+      }
+    },
+    "shares.edit.success.decrypting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings saved. The NAS is removing the encryption of %@; its contents stay unavailable until that finishes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages enregistrés. Le NAS retire le chiffrement de %@ ; son contenu reste indisponible jusqu'à la fin de l'opération."
+          }
+        }
+      }
+    },
+    "shares.edit.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings saved for %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages enregistrés pour %@"
+          }
+        }
+      }
+    },
+    "shares.edit.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shared folder settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du dossier partagé"
+          }
+        }
+      }
+    },
+    "shares.edit.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to save the settings: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de l'enregistrement des réglages : %@"
+          }
+        }
+      }
+    },
+    "shares.edit.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier…"
+          }
+        }
+      }
+    },
     "shares.empty.description": {
       "localizations": {
         "en": {
@@ -28834,6 +28978,262 @@
           "stringUnit": {
             "state": "translated",
             "value": "Créez un dossier partagé pour le rendre disponible sur le réseau."
+          }
+        }
+      }
+    },
+    "shares.encryption.state.mounted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffré"
+          }
+        }
+      }
+    },
+    "shares.encryption.state.locked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted, locked"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffré, verrouillé"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write this key down and keep it somewhere safe: without it, nobody can recover the contents of the folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notez cette clé et conservez-la en lieu sûr : sans elle, personne ne peut récupérer le contenu du dossier."
+          }
+        }
+      }
+    },
+    "shares.encryption.key.too_short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key must be at least 8 characters long."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé doit compter au moins 8 caractères."
+          }
+        }
+      }
+    },
+    "shares.encryption.key.required": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The current key is needed to remove the encryption."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé actuelle est nécessaire pour retirer le chiffrement."
+          }
+        }
+      }
+    },
+    "shares.encryption.key.mismatch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The two keys do not match."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les deux clés ne correspondent pas."
+          }
+        }
+      }
+    },
+    "shares.encryption.key.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption key"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clé de chiffrement"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least 8 characters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au moins 8 caractères"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.current.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current key"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clé actuelle"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.current.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key this folder was encrypted with"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé avec laquelle ce dossier a été chiffré"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.confirm.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm the key"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmer la clé"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.confirm.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type the same key again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez à nouveau la même clé"
+          }
+        }
+      }
+    },
+    "shares.encryption.error.wrong_key": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key does not match this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé ne correspond pas à ce dossier."
+          }
+        }
+      }
+    },
+    "shares.encryption.enable.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypt this shared folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrer ce dossier partagé"
+          }
+        }
+      }
+    },
+    "shares.encryption.enable.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The contents become readable only once the folder is unlocked with its key."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le contenu n'est lisible qu'une fois le dossier déverrouillé avec sa clé."
+          }
+        }
+      }
+    },
+    "shares.encryption.change.warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The NAS rewrites the whole folder to apply this change. The folder stays unavailable until that finishes, and the more it holds the longer it takes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS réécrit tout le dossier pour appliquer ce changement. Le dossier reste indisponible jusqu'à la fin, et l'opération est d'autant plus longue qu'il contient de données."
           }
         }
       }
@@ -28854,6 +29254,54 @@
         }
       }
     },
+    "shares.lock.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is locked; its contents stay unavailable until it is unlocked."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est verrouillé ; son contenu reste indisponible tant qu'il n'est pas déverrouillé."
+          }
+        }
+      }
+    },
+    "shares.lock.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to lock the folder: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec du verrouillage du dossier : %@"
+          }
+        }
+      }
+    },
+    "shares.lock.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouiller"
+          }
+        }
+      }
+    },
     "shares.name.column": {
       "localizations": {
         "en": {
@@ -28866,6 +29314,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nom du dossier partagé"
+          }
+        }
+      }
+    },
+    "shares.option.recycle_bin.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the recycle bin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer la corbeille"
+          }
+        }
+      }
+    },
+    "shares.option.recycle_bin.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted files are kept in the recycle bin of the folder instead of being erased."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fichiers supprimés sont conservés dans la corbeille du dossier au lieu d'être effacés."
+          }
+        }
+      }
+    },
+    "shares.option.recycle_bin.admin_only.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restrict access to administrators"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restreindre l'accès aux administrateurs"
+          }
+        }
+      }
+    },
+    "shares.option.recycle_bin.admin_only.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only administrators can open the recycle bin of this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seuls les administrateurs peuvent ouvrir la corbeille de ce dossier."
+          }
+        }
+      }
+    },
+    "shares.option.hide_unreadable.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide the items users have no permission on"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer les éléments sans autorisation"
+          }
+        }
+      }
+    },
+    "shares.option.hide_unreadable.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sub-folders and files stay invisible to the users who cannot read them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sous-dossiers et les fichiers restent invisibles pour les utilisateurs qui ne peuvent pas les lire."
+          }
+        }
+      }
+    },
+    "shares.option.hidden.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide this folder in My Network Places"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer ce dossier dans « Mes emplacements réseau »"
+          }
+        }
+      }
+    },
+    "shares.option.hidden.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder no longer appears when browsing the NAS on the network."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le dossier n'apparaît plus lors de l'exploration du NAS sur le réseau."
           }
         }
       }
@@ -28902,6 +29478,70 @@
         }
       }
     },
+    "shares.section.visibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visibility"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visibilité"
+          }
+        }
+      }
+    },
+    "shares.section.recycle_bin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recycle bin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corbeille"
+          }
+        }
+      }
+    },
+    "shares.section.identity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
+          }
+        }
+      }
+    },
+    "shares.section.encryption": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrement"
+          }
+        }
+      }
+    },
     "shares.smb_path.copied": {
       "localizations": {
         "en": {
@@ -28930,6 +29570,118 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copier le chemin SMB"
+          }
+        }
+      }
+    },
+    "shares.unlock.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock the shared folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller le dossier partagé"
+          }
+        }
+      }
+    },
+    "shares.unlock.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is unlocked."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est déverrouillé."
+          }
+        }
+      }
+    },
+    "shares.unlock.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” is locked. Its key is needed to make its contents available again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » est verrouillé. Sa clé est nécessaire pour rendre son contenu de nouveau disponible."
+          }
+        }
+      }
+    },
+    "shares.unlock.menu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller…"
+          }
+        }
+      }
+    },
+    "shares.unlock.key.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key this folder was encrypted with"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé avec laquelle ce dossier a été chiffré"
+          }
+        }
+      }
+    },
+    "shares.unlock.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to unlock the folder: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec du déverrouillage du dossier : %@"
+          }
+        }
+      }
+    },
+    "shares.unlock.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller"
           }
         }
       }

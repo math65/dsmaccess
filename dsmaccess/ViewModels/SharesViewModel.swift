@@ -58,20 +58,65 @@ final class SharesViewModel {
     }
 
     /// Creates a shared folder. Returns the message to announce.
-    func create(name: String, volumePath: String, description: String) async -> DSMOperationOutcome {
+    func create(_ creation: SharedFolderCreation) async -> DSMOperationOutcome {
+        let name = creation.name
         do {
-            try await session.withClient {
-                try await $0.createSharedFolder(
-                    name: name,
-                    volumePath: volumePath,
-                    description: description
-                )
-            }
+            try await session.withClient { try await $0.createSharedFolder(creation) }
             await load()
             return .success(String(localized: "shares.create.success", defaultValue: "Shared folder created: \(name)"))
         } catch {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(String(localized: "shares.create.error", defaultValue: "Failed to create the folder: \(reason(for: error))"))
+        }
+    }
+
+    /// Applies edited settings. Returns the message to announce.
+    ///
+    /// Switching encryption on or off is a background conversion on the NAS: the call returns
+    /// as soon as DSM accepts it, and the folder reaches its new state later, which is why that
+    /// case gets its own message instead of a plain "saved".
+    func update(_ changes: SharedFolderChanges) async -> DSMOperationOutcome {
+        let name = changes.name
+        do {
+            try await session.withClient { try await $0.updateSharedFolder(changes) }
+            await load()
+            switch changes.encryption {
+            case .encrypt:
+                return .success(String(localized: "shares.edit.success.encrypting", defaultValue: "Settings saved. The NAS is encrypting \(name); its contents stay unavailable until that finishes."))
+            case .decrypt:
+                return .success(String(localized: "shares.edit.success.decrypting", defaultValue: "Settings saved. The NAS is removing the encryption of \(name); its contents stay unavailable until that finishes."))
+            case nil:
+                return .success(String(localized: "shares.edit.success", defaultValue: "Settings saved for \(name)"))
+            }
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(String(localized: "shares.edit.error", defaultValue: "Failed to save the settings: \(reason(for: error))"))
+        }
+    }
+
+    /// Locks an encrypted folder. Returns the message to announce.
+    func lock(_ folder: SharedFolder) async -> DSMOperationOutcome {
+        let name = folder.name
+        do {
+            try await session.withClient { try await $0.lockSharedFolder(name: name) }
+            await load()
+            return .success(String(localized: "shares.lock.success", defaultValue: "\(name) is locked; its contents are unavailable until it is unlocked."))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(String(localized: "shares.lock.error", defaultValue: "Failed to lock the folder: \(reason(for: error))"))
+        }
+    }
+
+    /// Unlocks an encrypted folder with its key. Returns the message to announce.
+    func unlock(_ folder: SharedFolder, key: String) async -> DSMOperationOutcome {
+        let name = folder.name
+        do {
+            try await session.withClient { try await $0.unlockSharedFolder(name: name, key: key) }
+            await load()
+            return .success(String(localized: "shares.unlock.success", defaultValue: "\(name) is unlocked."))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(String(localized: "shares.unlock.error", defaultValue: "Failed to unlock the folder: \(reason(for: error))"))
         }
     }
 
@@ -99,6 +144,7 @@ final class SharesViewModel {
         if case let DSMError.apiError(code) = error {
             switch code {
             case 3301: return String(localized: "shares.create.error.name_taken")
+            case 3308: return String(localized: "shares.encryption.error.wrong_key")
             case 3309: return String(localized: "shares.create.error.limit_reached")
             default: break
             }

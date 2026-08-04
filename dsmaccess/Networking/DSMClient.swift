@@ -203,12 +203,11 @@ protocol DSMClientProtocol: AnyObject {
     func setPerformanceAlarmRules(_ states: [(id: String, enabled: Bool)]) async throws
     func deletePerformanceAlarmRules(ids: [String]) async throws
     func listSharedFolders() async throws -> [SharedFolder]
-    func createSharedFolder(
-        name: String,
-        volumePath: String,
-        description: String
-    ) async throws
+    func createSharedFolder(_ creation: SharedFolderCreation) async throws
+    func updateSharedFolder(_ changes: SharedFolderChanges) async throws
     func deleteSharedFolder(name: String) async throws
+    func lockSharedFolder(name: String) async throws
+    func unlockSharedFolder(name: String, key: String) async throws
     func fileServiceEnabled(_ service: FileService) async throws -> Bool?
     func setFileService(_ service: FileService, enabled: Bool) async throws
     func packageCenterCapabilities() async throws -> PackageCenterCapabilities
@@ -975,16 +974,24 @@ final class DSMClient: DSMClientProtocol {
         try await shares.folders()
     }
 
-    func createSharedFolder(
-        name: String,
-        volumePath: String,
-        description: String
-    ) async throws {
-        try await shares.create(name: name, volumePath: volumePath, description: description)
+    func createSharedFolder(_ creation: SharedFolderCreation) async throws {
+        try await shares.create(creation)
+    }
+
+    func updateSharedFolder(_ changes: SharedFolderChanges) async throws {
+        try await shares.update(changes)
     }
 
     func deleteSharedFolder(name: String) async throws {
         try await shares.delete(name: name)
+    }
+
+    func lockSharedFolder(name: String) async throws {
+        try await shares.lock(name: name)
+    }
+
+    func unlockSharedFolder(name: String, key: String) async throws {
+        try await shares.unlock(name: name, key: key)
     }
 
     func fileServiceEnabled(_ service: FileService) async throws -> Bool? {

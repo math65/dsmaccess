@@ -301,6 +301,135 @@ struct AdministrationModelsTests {
         #expect(folder.id == folder.id)
     }
 
+    /// DSM names the recycle-bin fields `enable_recycle_bin` and `recycle_bin_admin_only`, and
+    /// omits them entirely on a folder that never had a recycle bin. Reading the wrong key left
+    /// the column empty on every folder, whatever the NAS answered.
+    @Test func decodesSharedFolderSettingsAsDSMNamesThem() throws {
+        let configured = try JSONDecoder().decode(
+            SharedFolder.self,
+            from: Data(
+                #"""
+                {
+                  "name": "documents",
+                  "vol_path": "/volume1",
+                  "enable_recycle_bin": true,
+                  "recycle_bin_admin_only": true,
+                  "hidden": true,
+                  "hide_unreadable": true,
+                  "encryption": 2
+                }
+                """#.utf8
+            )
+        )
+        let bare = try JSONDecoder().decode(
+            SharedFolder.self,
+            from: Data(#"{"name":"scratch","vol_path":"/volume1","encryption":0}"#.utf8)
+        )
+        let locked = try JSONDecoder().decode(
+            SharedFolder.self,
+            from: Data(#"{"name":"vault","vol_path":"/volume1","encryption":1}"#.utf8)
+        )
+
+        #expect(configured.recycleBinEnabled == true)
+        #expect(configured.recycleBinAdminOnly == true)
+        #expect(configured.hidden == true)
+        #expect(configured.hidesUnreadableItems == true)
+        #expect(configured.encryptionState == .mounted)
+        #expect(configured.recycleBinDescription == String(localized: "common.answer.yes"))
+
+        #expect(bare.recycleBinEnabled == nil)
+        #expect(bare.encryptionState == .none)
+        // An absent flag is what DSM sends for a folder whose recycle bin was never switched
+        // on, so it has to read as "no" rather than as an unknown value.
+        #expect(bare.recycleBinDescription == String(localized: "common.answer.no"))
+
+        #expect(locked.encryptionState == .locked)
+        #expect(locked.encryptionState.isEncrypted)
+        #expect(locked.sortableEncryption == 1)
+    }
+
+    /// `create` answers 502 and drops the request when `encryption` carries the boolean false,
+    /// so a folder without a key must not mention encryption at all.
+    @Test func encodesShareCreationWithoutEncryptionUnlessKeyed() throws {
+        let plain = SharedFolderCreation(
+            name: "documents",
+            volumePath: "/volume1",
+            description: "Team files",
+            recycleBinEnabled: true,
+            recycleBinAdminOnly: false,
+            hidden: true,
+            hidesUnreadableItems: true
+        )
+        let encrypted = SharedFolderCreation(
+            name: "vault",
+            volumePath: "/volume1",
+            encryptionKey: "correct horse"
+        )
+
+        let plainFields = try encodedFields(plain)
+        let encryptedFields = try encodedFields(encrypted)
+
+        #expect(plainFields["enable_recycle_bin"] as? Bool == true)
+        #expect(plainFields["recycle_bin_admin_only"] as? Bool == false)
+        #expect(plainFields["hidden"] as? Bool == true)
+        #expect(plainFields["hide_unreadable"] as? Bool == true)
+        #expect(plainFields["desc"] as? String == "Team files")
+        #expect(plainFields["encryption"] == nil)
+        #expect(plainFields["enc_passwd"] == nil)
+
+        #expect(encryptedFields["encryption"] as? Bool == true)
+        #expect(encryptedFields["enc_passwd"] as? String == "correct horse")
+    }
+
+    /// `set` answers 403 without both `name` and `vol_path`, and applies only the fields it is
+    /// given — sending the untouched ones would restate settings the user never opened.
+    @Test func encodesShareChangesAsASparseUpdate() throws {
+        var recycleBinOnly = SharedFolderChanges(name: "documents", volumePath: "/volume1")
+        recycleBinOnly.recycleBinEnabled = false
+
+        var encrypting = SharedFolderChanges(name: "vault", volumePath: "/volume1")
+        encrypting.encryption = .encrypt(key: "correct horse")
+
+        var decrypting = SharedFolderChanges(name: "vault", volumePath: "/volume1")
+        decrypting.encryption = .decrypt(key: "correct horse")
+
+        let sparse = try encodedFields(recycleBinOnly)
+        let encryptingFields = try encodedFields(encrypting)
+        let decryptingFields = try encodedFields(decrypting)
+
+        #expect(sparse["name"] as? String == "documents")
+        #expect(sparse["vol_path"] as? String == "/volume1")
+        #expect(sparse["enable_recycle_bin"] as? Bool == false)
+        #expect(sparse["desc"] == nil)
+        #expect(sparse["hidden"] == nil)
+        #expect(sparse["encryption"] == nil)
+
+        #expect(encryptingFields["encryption"] as? Bool == true)
+        #expect(encryptingFields["enc_passwd"] as? String == "correct horse")
+        #expect(decryptingFields["encryption"] as? Bool == false)
+        #expect(decryptingFields["enc_passwd"] as? String == "correct horse")
+
+        #expect(SharedFolderChanges(name: "documents", volumePath: "/volume1").isEmpty)
+        #expect(!recycleBinOnly.isEmpty)
+        #expect(!encrypting.isEmpty)
+    }
+
+    /// The NAS encrypts a folder with whatever key it is handed, including an empty one, and
+    /// then never unlocks it again. These rules are the only thing standing in the way.
+    @Test func rejectsEncryptionKeysTheNASWouldHaveAccepted() throws {
+        #expect(ShareEncryptionKey.problem(key: "", confirmation: "") != nil)
+        #expect(ShareEncryptionKey.problem(key: "abc", confirmation: "abc") != nil)
+        #expect(ShareEncryptionKey.problem(key: "correct horse", confirmation: "correct hors") != nil)
+        #expect(ShareEncryptionKey.problem(key: "correct horse", confirmation: "correct horse") == nil)
+    }
+
+    private func encodedFields(_ value: some Encodable) throws -> [String: Any] {
+        let data = try JSONEncoder().encode(value)
+        return try #require(
+            JSONSerialization.jsonObject(with: data) as? [String: Any]
+        )
+    }
+
     @Test func rejectsInvalidStorageMetrics() throws {
         #expect(usagePercent(usedBytes: "50", totalBytes: "100") == 50)
         #expect(usagePercent(usedBytes: "101", totalBytes: "100") == nil)
