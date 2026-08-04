@@ -26454,6 +26454,38 @@
     "pdf, docx, jpg": {
       "shouldTranslate": false
     },
+    "permissions.accounts.users": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Users"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisateurs"
+          }
+        }
+      }
+    },
+    "permissions.accounts.groups": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groups"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groupes"
+          }
+        }
+      }
+    },
     "permissions.application.column.name": {
       "localizations": {
         "en": {
@@ -27974,6 +28006,150 @@
         }
       }
     },
+    "share_permissions.accounts.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access to %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès à %@"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.save.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions saved: %1$d accounts changed on %2$@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisations enregistrées : %1$d comptes modifiés sur %2$@."
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading the accounts…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement des comptes…"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.kind.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.kind.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose between users and groups"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir entre les utilisateurs et les groupes"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.empty.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The NAS lists no account of this kind."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS ne liste aucun compte de ce type."
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun compte"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.count.users": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d users"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d utilisateurs"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.count.groups": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d groups"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d groupes"
+          }
+        }
+      }
+    },
     "share_permissions.applications.description": {
       "localizations": {
         "en": {
@@ -28358,6 +28534,38 @@
         }
       }
     },
+    "share_permissions.table.accounts.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accounts and their rights on this shared folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comptes et leurs droits sur ce dossier partagé"
+          }
+        }
+      }
+    },
+    "share_permissions.table.account.column": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compte"
+          }
+        }
+      }
+    },
     "share_permissions.table.effective_right": {
       "localizations": {
         "en": {
@@ -28530,6 +28738,134 @@
           "stringUnit": {
             "state": "translated",
             "value": "Chiffrement"
+          }
+        }
+      }
+    },
+    "shares.conversion.tracking.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The progress of %@ can no longer be followed. Refresh the list to see its state."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La progression de %@ ne peut plus être suivie. Actualisez la liste pour connaître son état."
+          }
+        }
+      }
+    },
+    "shares.conversion.stop.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stops the rewriting under way"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrête la réécriture en cours"
+          }
+        }
+      }
+    },
+    "shares.conversion.stop.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter"
+          }
+        }
+      }
+    },
+    "shares.conversion.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: %2$d%%"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ : %2$d %%"
+          }
+        }
+      }
+    },
+    "shares.conversion.finished": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is ready; the NAS has finished rewriting it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est prêt, le NAS a terminé de le réécrire."
+          }
+        }
+      }
+    },
+    "shares.conversion.cancelled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The conversion of %@ was stopped."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La conversion de %@ a été arrêtée."
+          }
+        }
+      }
+    },
+    "shares.conversion.cancel.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to stop the conversion: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de l'arrêt de la conversion : %@"
+          }
+        }
+      }
+    },
+    "shares.conversion.banner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ is being rewritten by the NAS: %2$d%%. It stays unavailable until this finishes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS réécrit %1$@ : %2$d %%. Le dossier reste indisponible jusqu'à la fin de l'opération."
           }
         }
       }
@@ -29318,6 +29654,230 @@
         }
       }
     },
+    "shares.option.quota.value.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Size in GB"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taille en Go"
+          }
+        }
+      }
+    },
+    "shares.option.quota.value.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole number of gigabytes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre entier de gigaoctets"
+          }
+        }
+      }
+    },
+    "shares.option.quota.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limit the size of the folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limiter la taille du dossier"
+          }
+        }
+      }
+    },
+    "shares.option.quota.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beyond this size, the NAS refuses to write into the folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au-delà de cette taille, le NAS refuse d'écrire dans le dossier."
+          }
+        }
+      }
+    },
+    "shares.option.disable_modify.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prevent modifying existing files"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêcher la modification des fichiers existants"
+          }
+        }
+      }
+    },
+    "shares.option.disable_modify.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files can still be added, but the ones already there cannot be changed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des fichiers peuvent encore être ajoutés, mais ceux déjà présents ne peuvent plus être modifiés."
+          }
+        }
+      }
+    },
+    "shares.option.disable_list.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prevent browsing the folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêcher la navigation dans le dossier"
+          }
+        }
+      }
+    },
+    "shares.option.disable_list.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Users can no longer list what the folder holds through File Station, FTP or WebDAV."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les utilisateurs ne peuvent plus lister le contenu du dossier via File Station, FTP ou WebDAV."
+          }
+        }
+      }
+    },
+    "shares.option.disable_download.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prevent downloading files"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêcher le téléchargement des fichiers"
+          }
+        }
+      }
+    },
+    "shares.option.disable_download.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files can be opened on the NAS but not copied out of it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fichiers peuvent être ouverts sur le NAS mais pas copiés hors de celui-ci."
+          }
+        }
+      }
+    },
+    "shares.option.compression.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable file compression"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer la compression de fichier"
+          }
+        }
+      }
+    },
+    "shares.option.compression.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applies to the files added from now on; the existing ones stay as they are."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S'applique aux fichiers ajoutés à partir de maintenant ; les fichiers existants restent inchangés."
+          }
+        }
+      }
+    },
+    "shares.option.checksum.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable data checksum"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer la somme de contrôle des données"
+          }
+        }
+      }
+    },
+    "shares.option.checksum.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lets the NAS detect and repair damaged files. It can only be chosen when the folder is created."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet au NAS de détecter et de réparer les fichiers abîmés. Ce choix ne peut être fait qu'à la création du dossier."
+          }
+        }
+      }
+    },
     "shares.option.recycle_bin.label": {
       "localizations": {
         "en": {
@@ -29446,6 +30006,118 @@
         }
       }
     },
+    "shares.recycle_bin.empty.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The recycle bin of %@ is empty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La corbeille de %@ est vide."
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.menu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the recycle bin…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vider la corbeille…"
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to empty the recycle bin: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec du vidage de la corbeille : %@"
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the recycle bin of “%@”?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vider la corbeille de « %@ » ?"
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The files it holds will be deleted for good. This action cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fichiers qu'elle contient seront définitivement supprimés. Cette action est irréversible."
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the recycle bin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vider la corbeille"
+          }
+        }
+      }
+    },
+    "shares.permissions.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès…"
+          }
+        }
+      }
+    },
     "shares.refresh.button": {
       "localizations": {
         "en": {
@@ -29474,6 +30146,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Rechercher des dossiers partagés"
+          }
+        }
+      }
+    },
+    "shares.section.storage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage"
+          }
+        }
+      }
+    },
+    "shares.section.restrictions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access restrictions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restrictions d'accès"
           }
         }
       }

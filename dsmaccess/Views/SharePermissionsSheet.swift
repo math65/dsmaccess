@@ -121,7 +121,7 @@ struct SharePermissionsSheet: View {
         VStack(alignment: .leading, spacing: 8) {
             SharePermissionTableView(
                 permissions: viewModel.permissions,
-                holder: viewModel.holder,
+                subject: .folders(inheritsFromGroups: viewModel.holder.inheritsFromGroups),
                 isEnabled: !viewModel.isSaving
             ) { share, level in
                 viewModel.setLevel(level, for: share)

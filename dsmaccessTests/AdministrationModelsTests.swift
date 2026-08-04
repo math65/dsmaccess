@@ -414,6 +414,116 @@ struct AdministrationModelsTests {
         #expect(!encrypting.isEmpty)
     }
 
+    /// Several settings are written under one name and read back under another: the quota goes
+    /// out as `share_quota` and comes back as `quota_value`, and the three restrictions travel
+    /// inside `advanceperm` but are answered as plain fields.
+    @Test func handlesTheAsymmetryBetweenReadingAndWritingShareSettings() throws {
+        let folder = try JSONDecoder().decode(
+            SharedFolder.self,
+            from: Data(
+                #"""
+                {
+                  "name": "documents",
+                  "vol_path": "/volume1",
+                  "quota_value": 5120,
+                  "enable_share_compress": true,
+                  "enable_share_cow": true,
+                  "disable_list": true,
+                  "disable_modify": false,
+                  "disable_download": true
+                }
+                """#.utf8
+            )
+        )
+
+        var changes = SharedFolderChanges(name: "documents", volumePath: "/volume1")
+        changes.quotaMegabytes = 2048
+        changes.compressionEnabled = false
+        changes.advancedPermissions = .init(
+            disablesListing: false,
+            disablesModification: true,
+            disablesDownload: false
+        )
+        let written = try encodedFields(changes)
+
+        #expect(folder.quotaMegabytes == 5120)
+        #expect(folder.compressionEnabled == true)
+        #expect(folder.checksumEnabled == true)
+        #expect(folder.disablesListing == true)
+        #expect(folder.disablesModification == false)
+        #expect(folder.disablesDownload == true)
+
+        #expect(written["share_quota"] as? Int == 2048)
+        #expect(written["quota_value"] == nil)
+        #expect(written["enable_share_compress"] as? Bool == false)
+        let advanced = try #require(written["advanceperm"] as? [String: Any])
+        #expect(advanced["disable_list"] as? Bool == false)
+        #expect(advanced["disable_modify"] as? Bool == true)
+        #expect(advanced["disable_download"] as? Bool == false)
+        #expect(written["disable_list"] == nil)
+    }
+
+    /// While DSM is still checking the folder it reports no percentage at all, and the answer
+    /// also repeats the request — encryption key included — which is why only two values are
+    /// decoded out of it.
+    @Test func readsConversionProgressWhileItIsStillChecking() throws {
+        let checking = try JSONDecoder().decode(
+            ShareConversionStatus.self,
+            from: Data(#"{"finish":false,"data":{"status":"checking"}}"#.utf8)
+        )
+        let running = try JSONDecoder().decode(
+            ShareConversionStatus.self,
+            from: Data(#"{"finish":false,"data":{"percent":42,"status":"processing"}}"#.utf8)
+        )
+        let done = try JSONDecoder().decode(
+            ShareConversionStatus.self,
+            from: Data(#"{"finish":true,"data":{"percent":100,"status":"success"}}"#.utf8)
+        )
+        let started = try JSONDecoder().decode(
+            ShareUpdateResult.self,
+            from: Data(#"{"name":"documents","task_id":"@administrators/sharemove1"}"#.utf8)
+        )
+        let plain = try JSONDecoder().decode(
+            ShareUpdateResult.self,
+            from: Data(#"{"name":"documents"}"#.utf8)
+        )
+
+        #expect(!checking.finished)
+        #expect(checking.percent == 0)
+        #expect(running.percent == 42)
+        #expect(done.finished)
+        #expect(started.taskID == "@administrators/sharemove1")
+        // No task means nothing to follow: only encryption changes start one.
+        #expect(plain.taskID == nil)
+    }
+
+    /// Read from a folder, DSM answers the same rows under `items` rather than `shares`.
+    @Test func decodesTheAccountsReachingASharedFolder() throws {
+        let list = try JSONDecoder().decode(
+            DSMShareAccountPermissionList.self,
+            from: Data(
+                #"""
+                {
+                  "total": 2,
+                  "items": [
+                    {"name": "alex", "is_readonly": true, "is_writable": false, "is_deny": false, "inherit": "rw"},
+                    {"name": "sam", "is_readonly": false, "is_writable": false, "is_deny": true, "inherit": "-"}
+                  ]
+                }
+                """#.utf8
+            )
+        )
+
+        #expect(list.total == 2)
+        #expect(list.items.count == 2)
+        #expect(list.items[0].granted == .readOnly)
+        #expect(list.items[0].inherited == .readWrite)
+        // NA > RW > RO: the group right wins over the account's own read-only.
+        #expect(list.items[0].effective == .readWrite)
+        #expect(list.items[1].granted == .noAccess)
+        #expect(list.items[1].inherited == nil)
+    }
+
     /// The NAS encrypts a folder with whatever key it is handed, including an empty one, and
     /// then never unlocks it again. These rules are the only thing standing in the way.
     @Test func rejectsEncryptionKeysTheNASWouldHaveAccepted() throws {

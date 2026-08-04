@@ -204,10 +204,22 @@ protocol DSMClientProtocol: AnyObject {
     func deletePerformanceAlarmRules(ids: [String]) async throws
     func listSharedFolders() async throws -> [SharedFolder]
     func createSharedFolder(_ creation: SharedFolderCreation) async throws
-    func updateSharedFolder(_ changes: SharedFolderChanges) async throws
+    func updateSharedFolder(_ changes: SharedFolderChanges) async throws -> String?
     func deleteSharedFolder(name: String) async throws
     func lockSharedFolder(name: String) async throws
     func unlockSharedFolder(name: String, key: String) async throws
+    func sharedFolderConversionStatus(taskID: String) async throws -> ShareConversionStatus
+    func cancelSharedFolderConversion(taskID: String) async throws
+    func emptySharedFolderRecycleBin(name: String) async throws
+    func shareAccountPermissions(
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws -> [DSMSharePermission]
+    func setShareAccountPermissions(
+        _ permissions: [DSMSharePermission],
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws
     func fileServiceEnabled(_ service: FileService) async throws -> Bool?
     func setFileService(_ service: FileService, enabled: Bool) async throws
     func packageCenterCapabilities() async throws -> PackageCenterCapabilities
@@ -978,8 +990,35 @@ final class DSMClient: DSMClientProtocol {
         try await shares.create(creation)
     }
 
-    func updateSharedFolder(_ changes: SharedFolderChanges) async throws {
+    func updateSharedFolder(_ changes: SharedFolderChanges) async throws -> String? {
         try await shares.update(changes)
+    }
+
+    func sharedFolderConversionStatus(taskID: String) async throws -> ShareConversionStatus {
+        try await shares.conversionStatus(taskID: taskID)
+    }
+
+    func cancelSharedFolderConversion(taskID: String) async throws {
+        try await shares.cancelConversion(taskID: taskID)
+    }
+
+    func emptySharedFolderRecycleBin(name: String) async throws {
+        try await shares.emptyRecycleBin(name: name)
+    }
+
+    func shareAccountPermissions(
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws -> [DSMSharePermission] {
+        try await permissions.accountPermissions(onShare: share, of: kind)
+    }
+
+    func setShareAccountPermissions(
+        _ permissions: [DSMSharePermission],
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws {
+        try await self.permissions.setAccountPermissions(permissions, onShare: share, of: kind)
     }
 
     func deleteSharedFolder(name: String) async throws {

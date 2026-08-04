@@ -11,6 +11,7 @@ import Foundation
 final class DSMShareService {
     private static let shareAPI = DSMAPI("SYNO.Core.Share")
     private static let cryptoAPI = DSMAPI("SYNO.Core.Share.Crypto")
+    private static let recycleBinAPI = DSMAPI("SYNO.Core.RecycleBin")
 
     /// Names of the `additional` groups, not of the fields they add: asking for
     /// `enable_recycle_bin` returns nothing at all, while `recyclebin` is what makes DSM send
@@ -22,6 +23,12 @@ final class DSMShareService {
         "encryption",
         "hidden",
         "advance_setting",
+        "enable_share_compress",
+        "enable_share_cow",
+        // The advanced permissions have no group of their own: each field is asked for by name.
+        "disable_list",
+        "disable_modify",
+        "disable_download",
     ]
 
     private let transport: DSMTransport
@@ -51,17 +58,49 @@ final class DSMShareService {
         )
     }
 
-    /// Applies the supplied settings. Turning encryption on or off answers with a task
-    /// identifier and keeps working in the background, so the folder reaches its new state
-    /// some time after this call returns.
-    func update(_ changes: SharedFolderChanges) async throws {
-        try await transport.perform(
+    /// Applies the supplied settings and hands back the identifier of the background task when
+    /// DSM started one, which it does when encryption is turned on or off: the folder only
+    /// reaches its new state once that task finishes.
+    func update(_ changes: SharedFolderChanges) async throws -> String? {
+        let result = try await transport.value(
             api: Self.shareAPI,
             method: "set",
             parameters: [
                 "name": .string(changes.name),
                 "shareinfo": try DSMParameter.json(changes),
-            ]
+            ],
+            as: ShareUpdateResult.self
+        )
+        return result.taskID
+    }
+
+    /// Progress of the conversion started by `update`.
+    func conversionStatus(taskID: String) async throws -> ShareConversionStatus {
+        try await transport.read(
+            api: Self.shareAPI,
+            method: "move_status",
+            parameters: ["task_id": .string(taskID)],
+            as: ShareConversionStatus.self
+        )
+    }
+
+    /// Stops a conversion in progress. DSM expects the `bg_taskid` parameter even though the
+    /// web client always sends it empty.
+    func cancelConversion(taskID: String) async throws {
+        try await transport.perform(
+            api: Self.shareAPI,
+            method: "stop_move",
+            parameters: ["task_id": .string(taskID)]
+        )
+    }
+
+    /// Empties the recycle bin of one folder. The API is `SYNO.Core.RecycleBin`, and it takes
+    /// the folder name under the parameter `id`.
+    func emptyRecycleBin(name: String) async throws {
+        try await transport.perform(
+            api: Self.recycleBinAPI,
+            method: "start",
+            parameters: ["id": .string(name)]
         )
     }
 

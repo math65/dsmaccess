@@ -12,6 +12,8 @@ struct SharesView: View {
     @State private var pendingEdit: SharedFolder?
     @State private var pendingUnlock: SharedFolder?
     @State private var pendingDelete: SharedFolder?
+    @State private var pendingPermissions: SharedFolder?
+    @State private var pendingRecycleBin: SharedFolder?
     @State private var searchText = ""
     @State private var selection = Set<SharedFolder.ID>()
     @State private var order = [KeyPathComparator(\SharedFolder.sortableName, order: .forward)]
@@ -82,10 +84,68 @@ struct SharesView: View {
                 }
             }
         }
+        .sheet(item: $pendingPermissions) { folder in
+            ShareAccountPermissionsSheet(shareName: folder.name, session: session) { outcome in
+                VoiceOver.announce(outcome, priority: .high)
+            }
+        }
+        .confirmationDialog(
+            Text(String(localized: "shares.recycle_bin.empty.confirm.title", defaultValue: "Empty the recycle bin of “\(pendingRecycleBin?.displayName ?? "")”?")),
+            isPresented: Binding(
+                get: { pendingRecycleBin != nil },
+                set: { if !$0 { pendingRecycleBin = nil } }
+            ),
+            presenting: pendingRecycleBin
+        ) { folder in
+            Button("shares.recycle_bin.empty.button", role: .destructive) {
+                Task {
+                    let outcome = await vm.emptyRecycleBin(folder)
+                    VoiceOver.announce(outcome, priority: .high)
+                }
+            }
+            Button("common.button.cancel", role: .cancel) { }
+        } message: { _ in
+            Text("shares.recycle_bin.empty.confirm.message")
+        }
     }
 
     @ViewBuilder
     private var content: some View {
+        VStack(spacing: 0) {
+            if let conversion = vm.conversion {
+                conversionBanner(conversion)
+                Divider()
+            }
+            table
+        }
+    }
+
+    /// A conversion leaves its folder unreachable for as long as it runs, so it is stated on
+    /// screen rather than only announced once.
+    @ViewBuilder
+    private func conversionBanner(_ conversion: SharesViewModel.ShareConversion) -> some View {
+        HStack(spacing: 12) {
+            ProgressView(value: Double(conversion.percent), total: 100)
+                .frame(width: 120)
+                .accessibilityHidden(true)
+            Text(String(localized: "shares.conversion.banner", defaultValue: "\(conversion.folderName) is being rewritten by the NAS: \(conversion.percent)%. It stays unavailable until this finishes."))
+                .fixedSize(horizontal: false, vertical: true)
+            Spacer()
+            Button("shares.conversion.stop.button") {
+                Task {
+                    if let outcome = await vm.cancelConversion() {
+                        VoiceOver.announce(outcome, priority: .high)
+                    }
+                }
+            }
+            .help("shares.conversion.stop.hint")
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+    }
+
+    @ViewBuilder
+    private var table: some View {
         if vm.isLoading && vm.shares.isEmpty {
             ModuleLoadingView()
                 .accessibilityFocused($focusContent)
@@ -152,6 +212,14 @@ struct SharesView: View {
             }
             .disabled(share?.encryptionState != .mounted)
         }
+
+        Divider()
+
+        Button("shares.permissions.button") { pendingPermissions = share }
+            .disabled(share == nil)
+
+        Button("shares.recycle_bin.empty.menu") { pendingRecycleBin = share }
+            .disabled(share?.recycleBinEnabled != true)
 
         Divider()
 
@@ -235,6 +303,58 @@ private struct ShareSettingsSections: View {
     }
 }
 
+/// Storage settings. DSM stores the quota in megabytes; it is offered in gigabytes here, as on
+/// DSM's own screen, where a quota is never expressed in megabytes either.
+private struct ShareStorageSection: View {
+    @Binding var compressionEnabled: Bool
+    @Binding var limitsSize: Bool
+    @Binding var quotaGigabytes: Int
+    /// Only shown when creating: DSM never lets the checksum be changed afterwards.
+    var checksumEnabled: Binding<Bool>?
+
+    static let megabytesPerGigabyte = 1024
+
+    var body: some View {
+        Section("shares.section.storage") {
+            if let checksumEnabled {
+                Toggle("shares.option.checksum.label", isOn: checksumEnabled)
+                    .accessibilityHint("shares.option.checksum.hint")
+            }
+            Toggle("shares.option.compression.label", isOn: $compressionEnabled)
+                .accessibilityHint("shares.option.compression.hint")
+            Toggle("shares.option.quota.label", isOn: $limitsSize)
+                .accessibilityHint("shares.option.quota.hint")
+            if limitsSize {
+                TextField(
+                    "shares.option.quota.value.label",
+                    value: $quotaGigabytes,
+                    format: .number
+                )
+                .help("shares.option.quota.value.hint")
+            }
+        }
+    }
+}
+
+/// The restrictions DSM groups under "Advanced permissions". They apply on top of the access
+/// rights, and only to File Station, FTP and WebDAV.
+private struct ShareRestrictionsSection: View {
+    @Binding var disablesListing: Bool
+    @Binding var disablesModification: Bool
+    @Binding var disablesDownload: Bool
+
+    var body: some View {
+        Section("shares.section.restrictions") {
+            Toggle("shares.option.disable_list.label", isOn: $disablesListing)
+                .accessibilityHint("shares.option.disable_list.hint")
+            Toggle("shares.option.disable_modify.label", isOn: $disablesModification)
+                .accessibilityHint("shares.option.disable_modify.hint")
+            Toggle("shares.option.disable_download.label", isOn: $disablesDownload)
+                .accessibilityHint("shares.option.disable_download.hint")
+        }
+    }
+}
+
 /// The two key fields and the warning that goes with them. The rules they are checked against
 /// live in `ShareEncryptionKey`.
 private struct EncryptionKeyFields: View {
@@ -270,6 +390,10 @@ private struct CreateShareSheet: View {
     @State private var recycleBinAdminOnly = true
     @State private var hidden = false
     @State private var hidesUnreadableItems = false
+    @State private var checksumEnabled = false
+    @State private var compressionEnabled = false
+    @State private var limitsSize = false
+    @State private var quotaGigabytes = 10
     @State private var encrypts = false
     @State private var key = ""
     @State private var keyConfirmation = ""
@@ -325,6 +449,13 @@ private struct CreateShareSheet: View {
                     hidesUnreadableItems: $hidesUnreadableItems
                 )
 
+                ShareStorageSection(
+                    compressionEnabled: $compressionEnabled,
+                    limitsSize: $limitsSize,
+                    quotaGigabytes: $quotaGigabytes,
+                    checksumEnabled: $checksumEnabled
+                )
+
                 Section("shares.section.encryption") {
                     Toggle("shares.encryption.enable.label", isOn: $encrypts)
                         .accessibilityHint("shares.encryption.enable.hint")
@@ -378,6 +509,11 @@ private struct CreateShareSheet: View {
                 recycleBinAdminOnly: recycleBinAdminOnly,
                 hidden: hidden,
                 hidesUnreadableItems: hidesUnreadableItems,
+                checksumEnabled: checksumEnabled,
+                compressionEnabled: compressionEnabled,
+                quotaMegabytes: limitsSize
+                    ? quotaGigabytes * ShareStorageSection.megabytesPerGigabyte
+                    : nil,
                 encryptionKey: encrypts ? key : nil
             )
         )
@@ -396,6 +532,12 @@ private struct EditShareSheet: View {
     @State private var recycleBinAdminOnly: Bool
     @State private var hidden: Bool
     @State private var hidesUnreadableItems: Bool
+    @State private var compressionEnabled: Bool
+    @State private var limitsSize: Bool
+    @State private var quotaGigabytes: Int
+    @State private var disablesListing: Bool
+    @State private var disablesModification: Bool
+    @State private var disablesDownload: Bool
     @State private var encrypts: Bool
     @State private var key = ""
     @State private var keyConfirmation = ""
@@ -410,6 +552,15 @@ private struct EditShareSheet: View {
         _recycleBinAdminOnly = State(initialValue: folder.recycleBinAdminOnly == true)
         _hidden = State(initialValue: folder.hidden == true)
         _hidesUnreadableItems = State(initialValue: folder.hidesUnreadableItems == true)
+        _compressionEnabled = State(initialValue: folder.compressionEnabled == true)
+        let quota = folder.quotaMegabytes ?? 0
+        _limitsSize = State(initialValue: quota > 0)
+        _quotaGigabytes = State(
+            initialValue: quota > 0 ? quota / ShareStorageSection.megabytesPerGigabyte : 10
+        )
+        _disablesListing = State(initialValue: folder.disablesListing == true)
+        _disablesModification = State(initialValue: folder.disablesModification == true)
+        _disablesDownload = State(initialValue: folder.disablesDownload == true)
         _encrypts = State(initialValue: folder.encryptionState.isEncrypted)
     }
 
@@ -455,8 +606,37 @@ private struct EditShareSheet: View {
         if hidesUnreadableItems != (folder.hidesUnreadableItems == true) {
             changes.hidesUnreadableItems = hidesUnreadableItems
         }
+        if compressionEnabled != (folder.compressionEnabled == true) {
+            changes.compressionEnabled = compressionEnabled
+        }
+        if quotaMegabytes != (folder.quotaMegabytes ?? 0) {
+            changes.quotaMegabytes = quotaMegabytes
+        }
+        if restrictions != loadedRestrictions {
+            changes.advancedPermissions = restrictions
+        }
         changes.encryption = encryptionChange
         return changes
+    }
+
+    private var quotaMegabytes: Int {
+        limitsSize ? quotaGigabytes * ShareStorageSection.megabytesPerGigabyte : 0
+    }
+
+    private var restrictions: SharedFolderChanges.AdvancedPermissions {
+        .init(
+            disablesListing: disablesListing,
+            disablesModification: disablesModification,
+            disablesDownload: disablesDownload
+        )
+    }
+
+    private var loadedRestrictions: SharedFolderChanges.AdvancedPermissions {
+        .init(
+            disablesListing: folder.disablesListing == true,
+            disablesModification: folder.disablesModification == true,
+            disablesDownload: folder.disablesDownload == true
+        )
     }
 
     private var canSave: Bool {
@@ -481,6 +661,18 @@ private struct EditShareSheet: View {
                     recycleBinAdminOnly: $recycleBinAdminOnly,
                     hidden: $hidden,
                     hidesUnreadableItems: $hidesUnreadableItems
+                )
+
+                ShareStorageSection(
+                    compressionEnabled: $compressionEnabled,
+                    limitsSize: $limitsSize,
+                    quotaGigabytes: $quotaGigabytes
+                )
+
+                ShareRestrictionsSection(
+                    disablesListing: $disablesListing,
+                    disablesModification: $disablesModification,
+                    disablesDownload: $disablesDownload
                 )
 
                 Section("shares.section.encryption") {

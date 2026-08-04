@@ -18,11 +18,22 @@ final class SharesViewModel {
     private(set) var isLoading = false
     var errorMessage: String?
 
+    /// Conversion currently rewriting a folder, so the screen can say what the NAS is doing
+    /// instead of leaving the folder unavailable without explanation.
+    private(set) var conversion: ShareConversion?
+
     private let session: SessionStore
     private var loadGeneration = 0
+    private var conversionTask: Task<Void, Never>?
 
     init(session: SessionStore) {
         self.session = session
+    }
+
+    struct ShareConversion: Equatable, Sendable {
+        let folderName: String
+        let taskID: String
+        var percent: Int
     }
 
     func load() async {
@@ -78,8 +89,11 @@ final class SharesViewModel {
     func update(_ changes: SharedFolderChanges) async -> DSMOperationOutcome {
         let name = changes.name
         do {
-            try await session.withClient { try await $0.updateSharedFolder(changes) }
+            let taskID = try await session.withClient { try await $0.updateSharedFolder(changes) }
             await load()
+            if let taskID {
+                startTrackingConversion(taskID: taskID, folderName: name)
+            }
             switch changes.encryption {
             case .encrypt:
                 return .success(String(localized: "shares.edit.success.encrypting", defaultValue: "Settings saved. The NAS is encrypting \(name); its contents stay unavailable until that finishes."))
@@ -92,6 +106,90 @@ final class SharesViewModel {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             return .failure(String(localized: "shares.edit.error", defaultValue: "Failed to save the settings: \(reason(for: error))"))
         }
+    }
+
+    /// Empties the recycle bin of a folder. Returns the message to announce.
+    func emptyRecycleBin(_ folder: SharedFolder) async -> DSMOperationOutcome {
+        let name = folder.name
+        do {
+            try await session.withClient { try await $0.emptySharedFolderRecycleBin(name: name) }
+            return .success(String(localized: "shares.recycle_bin.empty.success", defaultValue: "The recycle bin of \(name) is empty."))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(String(localized: "shares.recycle_bin.empty.error", defaultValue: "Failed to empty the recycle bin: \(reason(for: error))"))
+        }
+    }
+
+    /// Stops a conversion in progress. DSM leaves the folder in the state it had reached.
+    func cancelConversion() async -> DSMOperationOutcome? {
+        guard let conversion else { return nil }
+        do {
+            try await session.withClient {
+                try await $0.cancelSharedFolderConversion(taskID: conversion.taskID)
+            }
+            stopTrackingConversion()
+            await load()
+            return .success(String(localized: "shares.conversion.cancelled", defaultValue: "The conversion of \(conversion.folderName) was stopped."))
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            return .failure(String(localized: "shares.conversion.cancel.error", defaultValue: "Failed to stop the conversion: \(reason(for: error))"))
+        }
+    }
+
+    /// Follows the background conversion until DSM reports it finished, announcing its progress
+    /// as it goes: the folder is unavailable for the whole time, and nothing else would say so.
+    private func startTrackingConversion(taskID: String, folderName: String) {
+        conversionTask?.cancel()
+        conversion = ShareConversion(folderName: folderName, taskID: taskID, percent: 0)
+        conversionTask = Task { [weak self] in
+            var lastAnnounced = 0
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(2))
+                guard !Task.isCancelled, let self else { return }
+                let status: ShareConversionStatus
+                do {
+                    status = try await session.withClient {
+                        try await $0.sharedFolderConversionStatus(taskID: taskID)
+                    }
+                } catch {
+                    guard !DSMError.isCancellation(error) else { return }
+                    conversion = nil
+                    VoiceOver.announce(
+                        String(localized: "shares.conversion.tracking.error", defaultValue: "The progress of \(folderName) can no longer be followed. Refresh the list to see its state."),
+                        category: .error,
+                        priority: .high
+                    )
+                    return
+                }
+                guard !Task.isCancelled else { return }
+                conversion?.percent = status.percent
+                if status.finished {
+                    conversion = nil
+                    await load()
+                    VoiceOver.announce(
+                        String(localized: "shares.conversion.finished", defaultValue: "\(folderName) is ready; the NAS has finished rewriting it."),
+                        priority: .high
+                    )
+                    return
+                }
+                // Announced by quarters: spoken at every poll, this would talk over everything
+                // else for as long as the conversion lasts.
+                if status.percent >= lastAnnounced + 25 {
+                    lastAnnounced = status.percent - status.percent % 25
+                    VoiceOver.announce(
+                        String(localized: "shares.conversion.progress", defaultValue: "\(folderName): \(status.percent)%"),
+                        category: .progress,
+                        priority: .low
+                    )
+                }
+            }
+        }
+    }
+
+    private func stopTrackingConversion() {
+        conversionTask?.cancel()
+        conversionTask = nil
+        conversion = nil
     }
 
     /// Locks an encrypted folder. Returns the message to announce.

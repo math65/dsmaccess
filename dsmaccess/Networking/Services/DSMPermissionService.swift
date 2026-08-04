@@ -53,6 +53,55 @@ final class DSMPermissionService {
     }
 }
 
+// MARK: - Seen from a shared folder
+
+extension DSMPermissionService {
+    /// The accounts of one type and their rights on a shared folder — the same grid as
+    /// `sharePermissions(for:)`, read the other way round. DSM answers it through `action=enum`
+    /// rather than through the `list_by_…` methods, and here `name` identifies the folder while
+    /// each returned `name` is an account.
+    func accountPermissions(
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws -> [DSMSharePermission] {
+        let result = try await transport.read(
+            api: Self.sharePermissionAPI,
+            method: "list",
+            parameters: [
+                "action": .string("enum"),
+                "name": .string(share),
+                "user_group_type": .string(kind.apiType),
+                // Without it DSM leaves out the right an account holds through its groups.
+                "with_inherit": .boolean(true),
+                "is_unite_permission": .boolean(false),
+                "offset": .integer(0),
+                "limit": .integer(-1),
+            ],
+            as: DSMShareAccountPermissionList.self
+        )
+        return result.items.filter { !$0.name.isEmpty }
+    }
+
+    /// Writes the rights of the supplied accounts on one folder. As with the other direction,
+    /// DSM treats the list as a patch and leaves the accounts left out untouched.
+    func setAccountPermissions(
+        _ permissions: [DSMSharePermission],
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws {
+        guard !permissions.isEmpty else { return }
+        try await transport.perform(
+            api: Self.sharePermissionAPI,
+            method: "set",
+            parameters: [
+                "name": .string(share),
+                "user_group_type": .string(kind.apiType),
+                "permissions": try DSMParameter.json(permissions.map(SharePermissionChange.init)),
+            ]
+        )
+    }
+}
+
 extension DSMPermissionService {
     /// The catalog depends on the installed packages: an application absent from the NAS has
     /// no row, and rules referring to an unknown identifier are ignored.
