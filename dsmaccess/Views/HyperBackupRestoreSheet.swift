@@ -11,7 +11,7 @@ import SwiftUI
 struct HyperBackupRestoreSheet: View {
     @State private var viewModel: HyperBackupRestoreViewModel
     @State private var selection: Set<String> = []
-    @State private var order = [KeyPathComparator(\HyperBackupEntry.sortableKind, order: .forward)]
+    @State private var tableFocusRequestID = 0
     @State private var pendingRestore: HyperBackupPendingRestore?
     @State private var pendingInPlaceRestore: HyperBackupPendingRestore?
     @AccessibilityFocusState private var focusContent: Bool
@@ -86,86 +86,39 @@ struct HyperBackupRestoreSheet: View {
         } else if let errorMessage = viewModel.errorMessage, viewModel.entries.isEmpty {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
                 .accessibilityFocused($focusContent)
-        } else if viewModel.entries.isEmpty {
-            EmptyModuleView(
-                title: "hyper_backup.restore.empty.title",
-                systemImage: "folder",
-                description: "hyper_backup.restore.empty.description"
-            )
-            .accessibilityFocused($focusContent)
         } else {
-            Table(
-                viewModel.entries.sorted(using: order),
+            HyperBackupEntryTableView(
+                entries: viewModel.sortedEntries,
                 selection: $selection,
-                sortOrder: $order
-            ) {
-                TableColumn("common.column.name", value: \.name) { entry in
-                    Text(entry.name)
-                }
-                TableColumn("hyper_backup.restore.column.kind", value: \.sortableKind) { entry in
-                    Text(entry.kindDescription)
-                }
-                TableColumn("common.column.size", value: \.sortableSize) { entry in
-                    Text(entry.sizeDescription)
-                }
-                TableColumn("hyper_backup.restore.column.modified", value: \.sortableModification) { entry in
-                    Text(entry.modificationDescription)
-                }
-                TableColumn("hyper_backup.restore.column.condition", value: \.sortableCondition) { entry in
-                    Text(entry.conditionDescription)
+                focusRequestID: tableFocusRequestID,
+                isRestoring: viewModel.isRestoring,
+                isDownloading: viewModel.isDownloading,
+                isAtRoot: viewModel.isAtRoot,
+                onOpen: { entry in Task { await open(entry) } },
+                onRestoreCopy: { entries in Task { await prepareRestore(of: entries) } },
+                onRestoreInPlace: { pendingInPlaceRestore = HyperBackupPendingRestore(entries: $0) },
+                onDownload: { entry in Task { await download(entry) } },
+                onGoUp: { Task { await goUp() } },
+                onGoToRoot: { Task { await goToRoot() } }
+            )
+            // The empty state covers the table instead of replacing it: replacing it would
+            // take the table's keyboard handling down with it, and ⌘↑ no longer led back
+            // out of an empty backup folder.
+            .overlay {
+                if viewModel.entries.isEmpty {
+                    EmptyModuleView(
+                        title: "hyper_backup.restore.empty.title",
+                        systemImage: "folder",
+                        description: "hyper_backup.restore.empty.description"
+                    )
+                    .background(.background)
+                    .accessibilityFocused($focusContent)
+                    // The message is there to be read, not clicked: swallowing mouse events
+                    // would keep the table underneath from ever taking keyboard focus.
+                    .allowsHitTesting(false)
                 }
             }
-            .accessibilityLabel("hyper_backup.restore.table.label")
-            .accessibilityFocused($focusContent)
-            .contextMenu(forSelectionType: String.self) { ids in
-                contextMenu(for: ids)
-            } primaryAction: { ids in
-                if let entry = singleFolder(in: ids) {
-                    Task { await open(entry) }
-                }
-            }
         }
-    }
-
-    /// The same entries in the same order whatever the selection holds, so the menu never
-    /// changes shape from one row to the next.
-    @ViewBuilder
-    private func contextMenu(for ids: Set<String>) -> some View {
-        Button("hyper_backup.restore.open.button") {
-            if let entry = singleFolder(in: ids) {
-                Task { await open(entry) }
-            }
-        }
-        .disabled(singleFolder(in: ids) == nil)
-
-        Button("hyper_backup.restore.copy_to.button") {
-            Task { await prepareRestore(of: entries(for: ids)) }
-        }
-        .disabled(ids.isEmpty || viewModel.isRestoring)
-
-        Button("hyper_backup.restore.in_place.button") {
-            pendingInPlaceRestore = HyperBackupPendingRestore(entries: entries(for: ids))
-        }
-        .disabled(ids.isEmpty || viewModel.isRestoring)
-
-        Button("hyper_backup.restore.download.button") {
-            if let file = singleFile(in: ids) {
-                Task { await download(file) }
-            }
-        }
-        .disabled(singleFile(in: ids) == nil || viewModel.isDownloading)
-
-        Divider()
-
-        Button("hyper_backup.restore.go_up.button") {
-            Task { await goUp() }
-        }
-        .disabled(viewModel.isAtRoot)
-
-        Button("hyper_backup.restore.go_to_root.button") {
-            Task { await goToRoot() }
-        }
-        .disabled(viewModel.isAtRoot)
     }
 
     @ToolbarContentBuilder
@@ -212,6 +165,32 @@ struct HyperBackupRestoreSheet: View {
             }
             .disabled(singleFile(in: selection) == nil || viewModel.isDownloading)
             .help("hyper_backup.restore.download.hint")
+        }
+
+        ToolbarItem {
+            Menu("hyper_backup.restore.sort.menu.label", systemImage: "arrow.up.arrow.down") {
+                ForEach(HyperBackupRestoreViewModel.SortMode.allCases) { mode in
+                    Button {
+                        viewModel.sortMode = mode
+                    } label: {
+                        if viewModel.sortMode == mode {
+                            Label(mode.title, systemImage: "checkmark")
+                        } else {
+                            Text(mode.title)
+                        }
+                    }
+                    .help(String(localized: "hyper_backup.restore.sort.by", defaultValue: "Sort by \(mode.title)"))
+                }
+                Divider()
+                Button(
+                    viewModel.sortAscending ? "hyper_backup.restore.sort.descending.label" : "common.sort.ascending",
+                    systemImage: viewModel.sortAscending ? "arrow.down" : "arrow.up"
+                ) {
+                    viewModel.sortAscending.toggle()
+                }
+                .help(viewModel.sortAscending ? "hyper_backup.restore.sort.switch_descending.hint" : "hyper_backup.restore.sort.switch_ascending.hint")
+            }
+            .help("hyper_backup.restore.sort.menu.hint")
         }
 
         ToolbarItem(placement: .confirmationAction) {
@@ -261,10 +240,12 @@ struct HyperBackupRestoreSheet: View {
     }
 
     /// DSM downloads one file at a time and leaves the command disabled on a folder, because
-    /// `source_path` carries a single path here rather than a list.
+    /// `source_path` carries a single path here rather than a list — and on a damaged file,
+    /// which its own explorer refuses to hand over either.
     private func singleFile(in ids: Set<String>) -> HyperBackupEntry? {
         let matches = entries(for: ids)
-        guard matches.count == 1, let entry = matches.first, !entry.isFolder else { return nil }
+        guard matches.count == 1, let entry = matches.first,
+              !entry.isFolder, !entry.isDamaged else { return nil }
         return entry
     }
 
@@ -277,7 +258,7 @@ struct HyperBackupRestoreSheet: View {
         await viewModel.load()
         guard !Task.isCancelled else { return }
         if restoresInitialFocus {
-            await VoiceOver.restoreFocusIfCapturedByToolbar { focusContent = true }
+            await VoiceOver.restoreFocusIfCapturedByToolbar { restoreInitialContentFocus() }
         }
         VoiceOver.announce(
             viewModel.summary,
@@ -285,18 +266,28 @@ struct HyperBackupRestoreSheet: View {
         )
     }
 
+    private func restoreInitialContentFocus() {
+        if viewModel.errorMessage != nil {
+            focusContent = true
+        } else if let first = viewModel.sortedEntries.first {
+            selection = [first.id]
+            tableFocusRequestID += 1
+        } else {
+            focusContent = true
+            tableFocusRequestID += 1
+        }
+    }
+
     private func open(_ entry: HyperBackupEntry) async {
         selection = []
         await viewModel.open(entry)
-        focusContent = true
-        VoiceOver.announce(viewModel.summary, category: .result)
+        settleAfterNavigation()
     }
 
     private func goUp() async {
         selection = []
         await viewModel.goUp()
-        focusContent = true
-        VoiceOver.announce(viewModel.summary, category: .result)
+        settleAfterNavigation()
     }
 
     /// Climbing one folder at a time is tedious deep in a backup, so the whole way back is
@@ -304,8 +295,29 @@ struct HyperBackupRestoreSheet: View {
     private func goToRoot() async {
         selection = []
         await viewModel.goToRoot()
-        focusContent = true
-        VoiceOver.announce(viewModel.summary, category: .result)
+        settleAfterNavigation()
+    }
+
+    /// Selection and keyboard focus land on the first row of the folder just entered, the
+    /// way the File Station browser settles after navigating.
+    private func settleAfterNavigation() {
+        if viewModel.errorMessage != nil {
+            selection.removeAll()
+            focusContent = true
+        } else if let first = viewModel.sortedEntries.first {
+            selection = [first.id]
+            tableFocusRequestID += 1
+        } else {
+            selection.removeAll()
+            focusContent = true
+            // Keyboard focus goes to the table even with nothing in it, so ⌘↑ still leads
+            // back out; the VoiceOver cursor stays on the message above it.
+            tableFocusRequestID += 1
+        }
+        VoiceOver.announce(
+            viewModel.summary,
+            category: viewModel.errorMessage == nil ? .navigation : .error
+        )
     }
 
     /// Names what the confirmation is about to overwrite. A long selection cannot be listed

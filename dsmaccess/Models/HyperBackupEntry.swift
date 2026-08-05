@@ -51,34 +51,45 @@ struct HyperBackupEntry: nonisolated Decodable, Equatable, Identifiable, Sendabl
             : String(localized: "hyper_backup.restore.kind.file")
     }
 
-    /// A folder carries the size of its own record, which says nothing useful about what it
-    /// contains, so only files show a size.
-    var sizeDescription: String {
-        guard !isFolder, let size else { return String(localized: "common.value.not_available") }
-        return Int64(size).formatted(.byteCount(style: .file))
-    }
-
     var modificationDate: Date? {
         guard let modificationTimestamp, modificationTimestamp > 0 else { return nil }
         return Date(timeIntervalSince1970: TimeInterval(modificationTimestamp))
     }
 
-    var modificationDescription: String {
-        guard let modificationDate else { return String(localized: "common.value.not_available") }
-        return modificationDate.formatted(date: .abbreviated, time: .shortened)
-    }
-
-    /// Spoken alongside the row so damage is never carried by an icon alone.
-    var conditionDescription: String {
+    /// Shown and spoken alongside the row, so damage is never carried by an icon alone.
+    /// Nil for the healthy case: repeating "readable" on every row is noise.
+    var warningDescription: String? {
         if isDamaged { return String(localized: "hyper_backup.restore.condition.damaged") }
         if warnsAgainstRestore { return String(localized: "hyper_backup.restore.condition.unsafe") }
-        return String(localized: "hyper_backup.restore.condition.readable")
+        return nil
     }
 
-    var sortableKind: String { kindDescription }
-    var sortableSize: Int { isFolder ? -1 : (size ?? 0) }
-    var sortableModification: Int { modificationTimestamp ?? 0 }
-    var sortableCondition: String { conditionDescription }
+    /// Secondary line: "2.3 MB · 12 Mar 2024" for a file, nothing for a folder — its record
+    /// size says nothing useful about what it contains. A warning joins either kind.
+    var detailText: String? {
+        var parts: [String] = []
+        if !isFolder {
+            if let size {
+                parts.append(Int64(size).formatted(.byteCount(style: .file)))
+            }
+            if let modificationDate {
+                parts.append(modificationDate.formatted(date: .abbreviated, time: .shortened))
+            }
+        }
+        if let warningDescription {
+            parts.append(warningDescription)
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    }
+
+    /// Full label read by VoiceOver: "photo, folder" or "a.jpg, file, 2.3 MB · 12 Mar 2024".
+    var accessibilityLabel: String {
+        var label = "\(name), \(kindDescription)"
+        if let detailText {
+            label += ", \(detailText)"
+        }
+        return label
+    }
 }
 
 /// `File.list` wraps its entries, unlike `Folder.list` which answers a bare array.

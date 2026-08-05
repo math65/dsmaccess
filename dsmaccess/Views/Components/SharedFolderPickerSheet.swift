@@ -3,7 +3,9 @@
 //  dsmaccess
 //
 //  Picks a folder inside the shared folders of the NAS. Used wherever a screen needs a
-//  destination on the server rather than on the Mac.
+//  destination on the server rather than on the Mac. Browsing works like the File Station
+//  module: the root lists the shared folders themselves, and the table underneath carries
+//  the Finder-style keyboard handling.
 //
 
 import SwiftUI
@@ -17,8 +19,11 @@ struct SharedFolderPickerSheet: View {
     let createFolder: ((String, String) async throws -> Void)?
     let onChoose: (String) -> Void
 
+    /// Empty while the picker is at its root, where the shared folders themselves are listed.
     @State private var currentPath: String
-    @State private var folders: [FileStationItem] = []
+    @State private var folders: [FolderPickerRow] = []
+    @State private var selection: String?
+    @State private var tableFocusRequestID = 0
     @State private var isLoading = false
     @State private var errorMessage: String?
     @State private var reloadCount = 0
@@ -39,11 +44,13 @@ struct SharedFolderPickerSheet: View {
         self.loadFolders = loadFolders
         self.createFolder = createFolder
         self.onChoose = onChoose
+        // Reopening where the caller already points feels like coming back; anything else
+        // starts at the root, on the list of shares.
         let roots = shareNames.map { "/\($0)" }
-        let initialRoot = roots.first {
+        let isInsideAShare = roots.contains {
             initialPath == $0 || initialPath.hasPrefix($0 + "/")
         }
-        _currentPath = State(initialValue: initialRoot == nil ? (roots.first ?? "") : initialPath)
+        _currentPath = State(initialValue: isInsideAShare ? initialPath : "")
     }
 
     var body: some View {
@@ -55,21 +62,17 @@ struct SharedFolderPickerSheet: View {
                 .padding()
 
             Form {
-                Picker("common.folder_picker.title", selection: rootBinding) {
-                    ForEach(shareRoots, id: \.self) { root in
-                        Text(verbatim: root).tag(root)
-                    }
-                }
-                .disabled(shareRoots.count < 2)
-
                 LabeledContent("common.column.path") {
-                    Text(verbatim: currentPath)
+                    Text(verbatim: currentPath.isEmpty
+                        ? String(localized: "common.folder_picker.root.label")
+                        : currentPath)
                         .textSelection(.enabled)
                 }
+                .labeledContentStyle(.readable)
 
                 HStack {
                     Button("common.button.parent_folder", systemImage: "chevron.up", action: goUp)
-                        .disabled(!canGoUp || isLoading)
+                        .disabled(currentPath.isEmpty || isLoading)
                     Button("common.button.refresh", systemImage: "arrow.clockwise") {
                         reloadCount += 1
                     }
@@ -85,48 +88,10 @@ struct SharedFolderPickerSheet: View {
             }
             .formStyle(.grouped)
             .accessibilityLabel("common.folder_picker.location.label")
-            .frame(maxHeight: 180)
+            .frame(maxHeight: 140)
 
             Divider()
-            if isLoading {
-                ProgressView("common.status.loading")
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-                    .accessibilityFocused($contentFocused)
-            } else if let errorMessage {
-                VStack(alignment: .leading, spacing: 12) {
-                    Label(errorMessage, systemImage: "exclamationmark.triangle")
-                        .foregroundStyle(.readableRed)
-                        .accessibilityFocused($errorFocused)
-                    Button("common.button.retry") { reloadCount += 1 }
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .padding()
-            } else if folders.isEmpty {
-                ContentUnavailableView("common.empty.folder.description", systemImage: "folder")
-                    .accessibilityFocused($contentFocused)
-            } else {
-                ScrollView {
-                    LazyVStack(spacing: 0) {
-                        ForEach(folders) { folder in
-                            Button {
-                                currentPath = folder.path
-                            } label: {
-                                Label(folder.name, systemImage: "folder")
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                                    .padding(.horizontal)
-                                    .padding(.vertical, 8)
-                                    .contentShape(Rectangle())
-                            }
-                            .buttonStyle(.plain)
-                            .accessibilityHint("common.folder_picker.open.hint")
-
-                            Divider()
-                        }
-                    }
-                }
-                .accessibilityLabel(folderCountAnnouncement)
-                .accessibilityFocused($contentFocused)
-            }
+            content
 
             Divider()
             HStack {
@@ -162,37 +127,61 @@ struct SharedFolderPickerSheet: View {
         }
     }
 
+    @ViewBuilder
+    private var content: some View {
+        if isLoading {
+            ProgressView("common.status.loading")
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+                .accessibilityFocused($contentFocused)
+        } else if let errorMessage {
+            VStack(alignment: .leading, spacing: 12) {
+                Label(errorMessage, systemImage: "exclamationmark.triangle")
+                    .foregroundStyle(.readableRed)
+                    .accessibilityFocused($errorFocused)
+                Button("common.button.retry") { reloadCount += 1 }
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .padding()
+        } else {
+            FolderPickerTableView(
+                rows: folders,
+                selection: $selection,
+                focusRequestID: tableFocusRequestID,
+                onOpen: { open($0) },
+                onGoUp: goUp
+            )
+            // The empty state covers the table instead of replacing it: replacing it would
+            // take the table's keyboard handling down with it, and ⌘↑ no longer led back
+            // out of an empty folder.
+            .overlay {
+                if folders.isEmpty {
+                    ContentUnavailableView("common.empty.folder.description", systemImage: "folder")
+                        .background(.background)
+                        .accessibilityFocused($contentFocused)
+                        // The message is there to be read, not clicked: swallowing mouse
+                        // events would keep the table underneath from taking keyboard focus.
+                        .allowsHitTesting(false)
+                }
+            }
+        }
+    }
+
     /// Reloading is keyed on the browsed path plus a counter, so refreshing and creating a
     /// folder reload the same path instead of being swallowed as an unchanged identity.
     private var reloadKey: String {
         "\(reloadCount)\u{1F}\(currentPath)"
     }
 
-    private var shareRoots: [String] {
-        shareNames.map { "/\($0)" }
-    }
-
-    private var currentRoot: String {
-        shareRoots.first { currentPath == $0 || currentPath.hasPrefix($0 + "/") }
-            ?? shareRoots.first
-            ?? ""
-    }
-
-    private var rootBinding: Binding<String> {
-        Binding(
-            get: { currentRoot },
-            set: { currentPath = $0 }
-        )
-    }
-
-    private var canGoUp: Bool {
-        !currentPath.isEmpty && currentPath != currentRoot
+    private func open(_ folder: FolderPickerRow) {
+        selection = nil
+        currentPath = folder.path
     }
 
     private func goUp() {
-        guard canGoUp else { return }
+        guard !currentPath.isEmpty else { return }
+        selection = nil
         let parent = (currentPath as NSString).deletingLastPathComponent
-        currentPath = parent.count >= currentRoot.count ? parent : currentRoot
+        currentPath = parent == "/" ? "" : parent
     }
 
     private func create(named name: String) async {
@@ -221,12 +210,14 @@ struct SharedFolderPickerSheet: View {
     private func loadCurrentFolder() async {
         let requestedPath = currentPath
         guard !requestedPath.isEmpty else {
-            folders = []
+            // The root needs no network round trip: the shares were handed in by the caller.
+            folders = shareNames.map { FolderPickerRow(name: $0, path: "/\($0)") }
+            errorMessage = nil
+            settleAfterNavigation()
             return
         }
         isLoading = true
         errorMessage = nil
-        contentFocused = true
         VoiceOver.announce(String(localized: "common.status.loading"), category: .progress)
         defer {
             if currentPath == requestedPath {
@@ -236,15 +227,30 @@ struct SharedFolderPickerSheet: View {
         do {
             let loadedFolders = try await loadFolders(requestedPath)
             guard !Task.isCancelled, currentPath == requestedPath else { return }
-            folders = loadedFolders
-            contentFocused = true
-            VoiceOver.announce(folderCountAnnouncement, category: .result)
+            folders = loadedFolders.map { FolderPickerRow(name: $0.name, path: $0.path) }
+            settleAfterNavigation()
         } catch {
             guard !Task.isCancelled, !DSMError.isCancellation(error), currentPath == requestedPath else { return }
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
             errorFocused = true
             VoiceOver.announce(errorMessage ?? "", category: .error, priority: .high)
         }
+    }
+
+    /// Selection and keyboard focus land on the first row of the folder just entered, the
+    /// way the File Station browser settles after navigating.
+    private func settleAfterNavigation() {
+        if let first = folders.first {
+            selection = first.path
+            tableFocusRequestID += 1
+        } else {
+            selection = nil
+            contentFocused = true
+            // Keyboard focus goes to the table even with nothing in it, so ⌘↑ still leads
+            // back out; the VoiceOver cursor stays on the message above it.
+            tableFocusRequestID += 1
+        }
+        VoiceOver.announce(folderCountAnnouncement, category: .result)
     }
 
     private var folderCountAnnouncement: String {

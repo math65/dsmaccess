@@ -356,27 +356,33 @@ final class KeyboardTableView: NSTableView {
         let option = event.modifierFlags.contains(.option)
         switch event.keyCode {
         case 125 where command:
-            onActivate?()
+            fire(onActivate, for: event)
         case 126 where command:
-            onGoUp?()
+            fire(onGoUp, for: event)
         case 36, 76:
-            onRename?()
+            fire(onRename, for: event)
         case 51 where command:
-            onDelete?()
+            fire(onDelete, for: event)
         case 8 where command:
-            onCopy?()
+            fire(onCopy, for: event)
         // ⌘⌥V before ⌘V: the "command" clause alone would match ⌘⌥V as well.
         case 9 where command && option:
-            onMoveHere?()
+            fire(onMoveHere, for: event)
         case 9 where command:
-            onPaste?()
+            fire(onPaste, for: event)
         case 2 where command && shift:
-            onDownload?()
+            fire(onDownload, for: event)
         case 34 where command:
-            onShowInfo?()
+            fire(onShowInfo, for: event)
         default:
             super.keyDown(with: event)
         }
+    }
+
+    /// Screens wire only the actions they offer; an unwired shortcut follows the responder
+    /// chain instead of being silently swallowed by its case above.
+    private func fire(_ handler: (() -> Void)?, for event: NSEvent) {
+        if let handler { handler() } else { super.keyDown(with: event) }
     }
 
     override func menu(for event: NSEvent) -> NSMenu? {

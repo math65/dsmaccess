@@ -4195,18 +4195,34 @@
         }
       }
     },
-    "common.folder_picker.open.hint": {
+    "common.folder_picker.root.label": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Opens this folder."
+            "value": "Shared folders"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ouvre ce dossier."
+            "value": "Dossiers partagés"
+          }
+        }
+      }
+    },
+    "common.folder_picker.table.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folders"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossiers"
           }
         }
       }
@@ -20275,54 +20291,6 @@
         }
       }
     },
-    "hyper_backup.restore.column.condition": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Condition"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "État"
-          }
-        }
-      }
-    },
-    "hyper_backup.restore.column.kind": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kind"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Type"
-          }
-        }
-      }
-    },
-    "hyper_backup.restore.column.modified": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modified"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modifié le"
-          }
-        }
-      }
-    },
     "hyper_backup.restore.condition.damaged": {
       "localizations": {
         "en": {
@@ -20335,22 +20303,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Endommagé"
-          }
-        }
-      }
-    },
-    "hyper_backup.restore.condition.readable": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Readable"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lisible"
           }
         }
       }
@@ -20451,82 +20403,34 @@
         }
       }
     },
-    "hyper_backup.restore.destination.form.label": {
+    "hyper_backup.restore.destination.statement.one": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Restore settings"
+            "value": "%@ will be restored to %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Réglages de restauration"
+            "value": "%@ sera restauré dans %@"
           }
         }
       }
     },
-    "hyper_backup.restore.destination.choose": {
+    "hyper_backup.restore.destination.statement.several": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choose a folder…"
+            "value": "%lld items will be restored to %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Choisir un dossier…"
-          }
-        }
-      }
-    },
-    "hyper_backup.restore.destination.hint": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opens the folders of the NAS to pick the one that receives the copy."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ouvre les dossiers du NAS pour choisir celui qui reçoit la copie."
-          }
-        }
-      }
-    },
-    "hyper_backup.restore.destination.label": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Destination"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Destination"
-          }
-        }
-      }
-    },
-    "hyper_backup.restore.destination.section": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Where to restore"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Où restaurer"
+            "value": "%lld éléments seront restaurés dans %@"
           }
         }
       }
@@ -21139,18 +21043,98 @@
         }
       }
     },
-    "hyper_backup.restore.selection.section": {
+    "hyper_backup.restore.sort.by": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "What will be restored"
+            "value": "Sort by %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ce qui sera restauré"
+            "value": "Trier par %@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.sort.descending.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descending order"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ordre décroissant"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.sort.menu.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose how the backup contents are sorted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir le tri du contenu de la sauvegarde"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.sort.menu.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trier"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.sort.switch_ascending.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to ascending order"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer à l’ordre croissant"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.sort.switch_descending.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Switch to descending order"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Passer à l’ordre décroissant"
           }
         }
       }

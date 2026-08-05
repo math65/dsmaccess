@@ -35,6 +35,51 @@ final class HyperBackupRestoreViewModel {
         self.session = session
     }
 
+    enum SortMode: String, CaseIterable, Identifiable {
+        case name
+        case modificationDate
+        case size
+
+        var id: Self { self }
+
+        var title: String {
+            switch self {
+            case .name: String(localized: "common.column.name")
+            case .modificationDate: String(localized: "common.column.date_modified")
+            case .size: String(localized: "common.column.size")
+            }
+        }
+    }
+
+    var sortMode = SortMode.name
+    var sortAscending = true
+
+    /// Folders stay ahead of files whatever the axis, matching the File Station browser.
+    var sortedEntries: [HyperBackupEntry] {
+        entries.sorted { left, right in
+            if left.isFolder != right.isFolder {
+                return left.isFolder && !right.isFolder
+            }
+            let result: ComparisonResult
+            switch sortMode {
+            case .name:
+                result = left.name.localizedStandardCompare(right.name)
+            case .modificationDate:
+                result = compare(left.modificationTimestamp, right.modificationTimestamp)
+            case .size:
+                result = compare(left.size, right.size)
+            }
+            return sortAscending ? result == .orderedAscending : result == .orderedDescending
+        }
+    }
+
+    private func compare(_ left: Int?, _ right: Int?) -> ComparisonResult {
+        let leftValue = left ?? -1
+        let rightValue = right ?? -1
+        if leftValue == rightValue { return .orderedSame }
+        return leftValue < rightValue ? .orderedAscending : .orderedDescending
+    }
+
     var isAtRoot: Bool { node.isEmpty }
 
     /// The folders walked through, so the view can offer a way back to each of them.
