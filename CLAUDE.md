@@ -47,6 +47,14 @@ package dependency. Do not add another dependency without explicit approval.
   inventory, whether read here or sent by a tester, says where to point the measurement; it
   never authorises a line of code on its own. The same holds for a name found in DSM's
   JavaScript or in someone's forum post.
+- **Measure by performing the operation, never by reconstructing it.** A contract is learned by
+  carrying the action out end to end in DSM's own web interface with the traffic intercepted,
+  then reading what the client actually sent and what came back. A request assembled by hand and
+  refined against error codes is a guess in the costume of a measurement: a rejection tells you
+  the call was refused, never which parameter was missing, and a call that happens to succeed
+  teaches a wrong contract just as convincingly as a right one. The package's JavaScript says
+  where to look and which method to expect — it does not replace the round trip. When the
+  operation genuinely cannot be performed, say so and ship the smallest verifiable scope.
 - Do not edit these instruction files unless the user specifically requested it.
 
 ## Repository map and boundaries
