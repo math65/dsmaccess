@@ -9795,6 +9795,662 @@
         }
       }
     },
+    "containers.terminal.address_refused": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DSM refused the terminal for the address \u201c%@\u201d. Container Manager only accepts it from an address the NAS recognises as its own: connect with the address you use in your browser."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "DSM a refusé le terminal pour l\u2019adresse \u00ab %@ \u00bb. Container Manager ne l\u2019accepte que depuis une adresse que le NAS reconnaît comme la sienne : connectez-vous avec l\u2019adresse que vous utilisez dans le navigateur."
+          }
+        }
+      }
+    },
+    "containers.terminal.attach_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The container refused to attach the session"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le conteneur a refusé de rattacher la session"
+          }
+        }
+      }
+    },
+    "containers.terminal.attach_taken": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Another client already holds this session"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un autre client occupe déjà cette session"
+          }
+        }
+      }
+    },
+    "containers.terminal.block.interrupt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Control-C"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contrôle-C"
+          }
+        }
+      }
+    },
+    "containers.terminal.block.received": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal:"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal :"
+          }
+        }
+      }
+    },
+    "containers.terminal.block.sent": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vous : %@"
+          }
+        }
+      }
+    },
+    "containers.terminal.close.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closes the terminal and ends the session."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferme le terminal et met fin à la session."
+          }
+        }
+      }
+    },
+    "containers.terminal.command": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commande"
+          }
+        }
+      }
+    },
+    "containers.terminal.command.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shell started in the container, /bin/sh in most images."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interpréteur lancé dans le conteneur, /bin/sh dans la plupart des images."
+          }
+        }
+      }
+    },
+    "containers.terminal.create_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The session could not be opened in the container"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La session n’a pas pu être ouverte dans le conteneur"
+          }
+        }
+      }
+    },
+    "containers.terminal.end_session": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End the session"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fermer la session"
+          }
+        }
+      }
+    },
+    "containers.terminal.end_session.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closes the shell and leaves nothing running in the container."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferme l’interpréteur et ne laisse rien tourner dans le conteneur."
+          }
+        }
+      }
+    },
+    "containers.terminal.ended.closed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session closed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session fermée"
+          }
+        }
+      }
+    },
+    "containers.terminal.ended.exited": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session ended"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session terminée"
+          }
+        }
+      }
+    },
+    "containers.terminal.enter_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The terminal service refused %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le service de terminal a refusé %@"
+          }
+        }
+      }
+    },
+    "containers.terminal.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens a shell inside this container."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre un interpréteur de commandes dans ce conteneur."
+          }
+        }
+      }
+    },
+    "containers.terminal.idle_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No session yet. Open one to run commands inside the container."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune session. Ouvrez-en une pour lancer des commandes dans le conteneur."
+          }
+        }
+      }
+    },
+    "containers.terminal.input": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Command to send"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Commande à envoyer"
+          }
+        }
+      }
+    },
+    "containers.terminal.input.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sent to the shell when you press Return."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyée à l’interpréteur à la validation."
+          }
+        }
+      }
+    },
+    "containers.terminal.interrupt": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrupt"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrompre"
+          }
+        }
+      }
+    },
+    "containers.terminal.interrupt.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrupts the running command, as Control-C does."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interrompt la commande en cours, comme Contrôle-C."
+          }
+        }
+      }
+    },
+    "containers.terminal.no_output_yet": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The session is open. Nothing has been printed yet."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La session est ouverte. Rien n’a encore été affiché."
+          }
+        }
+      }
+    },
+    "containers.terminal.open_session": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open the session"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir la session"
+          }
+        }
+      }
+    },
+    "containers.terminal.open_session.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Runs this command inside the container."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lance cette commande dans le conteneur."
+          }
+        }
+      }
+    },
+    "containers.terminal.opened": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session open in %1$@, running %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session ouverte dans %1$@, avec %2$@"
+          }
+        }
+      }
+    },
+    "containers.terminal.opening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening a session in %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouverture d’une session dans %@"
+          }
+        }
+      }
+    },
+    "containers.terminal.opening_placeholder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening the session…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouverture de la session…"
+          }
+        }
+      }
+    },
+    "containers.terminal.opening_progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening the session"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouverture de la session"
+          }
+        }
+      }
+    },
+    "containers.terminal.output.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Output of the session in %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sortie de la session dans %@"
+          }
+        }
+      }
+    },
+    "containers.terminal.output_summary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld lines received, read them in the output"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld lignes reçues, à lire dans la sortie"
+          }
+        }
+      }
+    },
+    "containers.terminal.send": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Send"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoyer"
+          }
+        }
+      }
+    },
+    "containers.terminal.send.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sends this line to the shell."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoie cette ligne à l’interpréteur."
+          }
+        }
+      }
+    },
+    "containers.terminal.send_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The command could not be sent: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La commande n’a pas pu être envoyée : %@"
+          }
+        }
+      }
+    },
+    "containers.terminal.shell_in_use": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shell: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Interpréteur : %@"
+          }
+        }
+      }
+    },
+    "containers.terminal.status.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session failed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de la session"
+          }
+        }
+      }
+    },
+    "containers.terminal.status.idle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No session"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune session"
+          }
+        }
+      }
+    },
+    "containers.terminal.status.opening": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opening"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouverture"
+          }
+        }
+      }
+    },
+    "containers.terminal.status.running": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session open"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Session ouverte"
+          }
+        }
+      }
+    },
+    "containers.terminal.timeout": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The terminal service did not answer"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le service de terminal n’a pas répondu"
+          }
+        }
+      }
+    },
+    "containers.terminal.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal"
+          }
+        }
+      }
+    },
+    "containers.terminal.title_named": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Terminal : %@"
+          }
+        }
+      }
+    },
     "containers.toolbar.auto_refresh": {
       "localizations": {
         "en": {
@@ -28230,6 +28886,38 @@
     "pdf, docx, jpg": {
       "shouldTranslate": false
     },
+    "permissions.accounts.users": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Users"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Utilisateurs"
+          }
+        }
+      }
+    },
+    "permissions.accounts.groups": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groups"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groupes"
+          }
+        }
+      }
+    },
     "permissions.application.column.name": {
       "localizations": {
         "en": {
@@ -29750,6 +30438,150 @@
         }
       }
     },
+    "share_permissions.accounts.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access to %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès à %@"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.save.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permissions saved: %1$d accounts changed on %2$@."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorisations enregistrées : %1$d comptes modifiés sur %2$@."
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading the accounts…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement des comptes…"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.kind.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Show"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Afficher"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.kind.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose between users and groups"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir entre les utilisateurs et les groupes"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.empty.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The NAS lists no account of this kind."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS ne liste aucun compte de ce type."
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.empty": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun compte"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.count.users": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d users"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d utilisateurs"
+          }
+        }
+      }
+    },
+    "share_permissions.accounts.count.groups": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d groups"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d groupes"
+          }
+        }
+      }
+    },
     "share_permissions.applications.description": {
       "localizations": {
         "en": {
@@ -30134,6 +30966,38 @@
         }
       }
     },
+    "share_permissions.table.accounts.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accounts and their rights on this shared folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Comptes et leurs droits sur ce dossier partagé"
+          }
+        }
+      }
+    },
+    "share_permissions.table.account.column": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Account"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compte"
+          }
+        }
+      }
+    },
     "share_permissions.table.effective_right": {
       "localizations": {
         "en": {
@@ -30294,6 +31158,150 @@
         }
       }
     },
+    "shares.column.encryption": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrement"
+          }
+        }
+      }
+    },
+    "shares.conversion.tracking.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The progress of %@ can no longer be followed. Refresh the list to see its state."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La progression de %@ ne peut plus être suivie. Actualisez la liste pour connaître son état."
+          }
+        }
+      }
+    },
+    "shares.conversion.stop.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stops the rewriting under way"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrête la réécriture en cours"
+          }
+        }
+      }
+    },
+    "shares.conversion.stop.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter"
+          }
+        }
+      }
+    },
+    "shares.conversion.progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@: %2$d%%"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ : %2$d %%"
+          }
+        }
+      }
+    },
+    "shares.conversion.finished": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is ready; the NAS has finished rewriting it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est prêt, le NAS a terminé de le réécrire."
+          }
+        }
+      }
+    },
+    "shares.conversion.cancelled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The conversion of %@ was stopped."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La conversion de %@ a été arrêtée."
+          }
+        }
+      }
+    },
+    "shares.conversion.cancel.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to stop the conversion: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de l'arrêt de la conversion : %@"
+          }
+        }
+      }
+    },
+    "shares.conversion.banner": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ is being rewritten by the NAS: %2$d%%. It stays unavailable until this finishes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS réécrit %1$@ : %2$d %%. Le dossier reste indisponible jusqu'à la fin de l'opération."
+          }
+        }
+      }
+    },
     "shares.create.button": {
       "localizations": {
         "en": {
@@ -30402,6 +31410,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "un dossier partagé porte déjà ce nom"
+          }
+        }
+      }
+    },
+    "shares.create.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "New shared folder settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du nouveau dossier partagé"
           }
         }
       }
@@ -30598,6 +31622,118 @@
         }
       }
     },
+    "shares.edit.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings for %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages de %@"
+          }
+        }
+      }
+    },
+    "shares.edit.success.encrypting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings saved. The NAS is encrypting %@; its contents stay unavailable until that finishes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages enregistrés. Le NAS chiffre %@ ; son contenu reste indisponible jusqu'à la fin de l'opération."
+          }
+        }
+      }
+    },
+    "shares.edit.success.decrypting": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings saved. The NAS is removing the encryption of %@; its contents stay unavailable until that finishes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages enregistrés. Le NAS retire le chiffrement de %@ ; son contenu reste indisponible jusqu'à la fin de l'opération."
+          }
+        }
+      }
+    },
+    "shares.edit.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings saved for %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages enregistrés pour %@"
+          }
+        }
+      }
+    },
+    "shares.edit.fields.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shared folder settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages du dossier partagé"
+          }
+        }
+      }
+    },
+    "shares.edit.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to save the settings: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de l'enregistrement des réglages : %@"
+          }
+        }
+      }
+    },
+    "shares.edit.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Edit…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifier…"
+          }
+        }
+      }
+    },
     "shares.empty.description": {
       "localizations": {
         "en": {
@@ -30610,6 +31746,262 @@
           "stringUnit": {
             "state": "translated",
             "value": "Créez un dossier partagé pour le rendre disponible sur le réseau."
+          }
+        }
+      }
+    },
+    "shares.encryption.state.mounted": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffré"
+          }
+        }
+      }
+    },
+    "shares.encryption.state.locked": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypted, locked"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffré, verrouillé"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write this key down and keep it somewhere safe: without it, nobody can recover the contents of the folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notez cette clé et conservez-la en lieu sûr : sans elle, personne ne peut récupérer le contenu du dossier."
+          }
+        }
+      }
+    },
+    "shares.encryption.key.too_short": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key must be at least 8 characters long."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé doit compter au moins 8 caractères."
+          }
+        }
+      }
+    },
+    "shares.encryption.key.required": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The current key is needed to remove the encryption."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé actuelle est nécessaire pour retirer le chiffrement."
+          }
+        }
+      }
+    },
+    "shares.encryption.key.mismatch": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The two keys do not match."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les deux clés ne correspondent pas."
+          }
+        }
+      }
+    },
+    "shares.encryption.key.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption key"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clé de chiffrement"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "At least 8 characters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au moins 8 caractères"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.current.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current key"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Clé actuelle"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.current.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key this folder was encrypted with"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé avec laquelle ce dossier a été chiffré"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.confirm.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirm the key"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Confirmer la clé"
+          }
+        }
+      }
+    },
+    "shares.encryption.key.confirm.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type the same key again"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saisissez à nouveau la même clé"
+          }
+        }
+      }
+    },
+    "shares.encryption.error.wrong_key": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key does not match this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé ne correspond pas à ce dossier."
+          }
+        }
+      }
+    },
+    "shares.encryption.enable.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypt this shared folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrer ce dossier partagé"
+          }
+        }
+      }
+    },
+    "shares.encryption.enable.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The contents become readable only once the folder is unlocked with its key."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le contenu n'est lisible qu'une fois le dossier déverrouillé avec sa clé."
+          }
+        }
+      }
+    },
+    "shares.encryption.change.warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The NAS rewrites the whole folder to apply this change. The folder stays unavailable until that finishes, and the more it holds the longer it takes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le NAS réécrit tout le dossier pour appliquer ce changement. Le dossier reste indisponible jusqu'à la fin, et l'opération est d'autant plus longue qu'il contient de données."
           }
         }
       }
@@ -30630,6 +32022,54 @@
         }
       }
     },
+    "shares.lock.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is locked; its contents stay unavailable until it is unlocked."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est verrouillé ; son contenu reste indisponible tant qu'il n'est pas déverrouillé."
+          }
+        }
+      }
+    },
+    "shares.lock.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to lock the folder: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec du verrouillage du dossier : %@"
+          }
+        }
+      }
+    },
+    "shares.lock.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouiller"
+          }
+        }
+      }
+    },
     "shares.name.column": {
       "localizations": {
         "en": {
@@ -30642,6 +32082,470 @@
           "stringUnit": {
             "state": "translated",
             "value": "Nom du dossier partagé"
+          }
+        }
+      }
+    },
+    "shares.option.quota.value.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Size in GB"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Taille en Go"
+          }
+        }
+      }
+    },
+    "shares.option.quota.value.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Whole number of gigabytes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nombre entier de gigaoctets"
+          }
+        }
+      }
+    },
+    "shares.option.quota.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limit the size of the folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limiter la taille du dossier"
+          }
+        }
+      }
+    },
+    "shares.option.quota.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Beyond this size, the NAS refuses to write into the folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Au-delà de cette taille, le NAS refuse d'écrire dans le dossier."
+          }
+        }
+      }
+    },
+    "shares.option.disable_modify.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prevent modifying existing files"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêcher la modification des fichiers existants"
+          }
+        }
+      }
+    },
+    "shares.option.disable_modify.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files can still be added, but the ones already there cannot be changed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Des fichiers peuvent encore être ajoutés, mais ceux déjà présents ne peuvent plus être modifiés."
+          }
+        }
+      }
+    },
+    "shares.option.disable_list.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prevent browsing the folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêcher la navigation dans le dossier"
+          }
+        }
+      }
+    },
+    "shares.option.disable_list.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Users can no longer list what the folder holds through File Station, FTP or WebDAV."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les utilisateurs ne peuvent plus lister le contenu du dossier via File Station, FTP ou WebDAV."
+          }
+        }
+      }
+    },
+    "shares.option.disable_download.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prevent downloading files"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêcher le téléchargement des fichiers"
+          }
+        }
+      }
+    },
+    "shares.option.disable_download.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Files can be opened on the NAS but not copied out of it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fichiers peuvent être ouverts sur le NAS mais pas copiés hors de celui-ci."
+          }
+        }
+      }
+    },
+    "shares.option.compression.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable file compression"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer la compression de fichier"
+          }
+        }
+      }
+    },
+    "shares.option.compression.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applies to the files added from now on; the existing ones stay as they are."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "S'applique aux fichiers ajoutés à partir de maintenant ; les fichiers existants restent inchangés."
+          }
+        }
+      }
+    },
+    "shares.option.checksum.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable data checksum"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer la somme de contrôle des données"
+          }
+        }
+      }
+    },
+    "shares.option.checksum.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lets the NAS detect and repair damaged files. It can only be chosen when the folder is created."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet au NAS de détecter et de réparer les fichiers abîmés. Ce choix ne peut être fait qu'à la création du dossier."
+          }
+        }
+      }
+    },
+    "shares.option.recycle_bin.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the recycle bin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer la corbeille"
+          }
+        }
+      }
+    },
+    "shares.option.recycle_bin.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted files are kept in the recycle bin of the folder instead of being erased."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fichiers supprimés sont conservés dans la corbeille du dossier au lieu d'être effacés."
+          }
+        }
+      }
+    },
+    "shares.option.recycle_bin.admin_only.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restrict access to administrators"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restreindre l'accès aux administrateurs"
+          }
+        }
+      }
+    },
+    "shares.option.recycle_bin.admin_only.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only administrators can open the recycle bin of this folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Seuls les administrateurs peuvent ouvrir la corbeille de ce dossier."
+          }
+        }
+      }
+    },
+    "shares.option.hide_unreadable.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide the items users have no permission on"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer les éléments sans autorisation"
+          }
+        }
+      }
+    },
+    "shares.option.hide_unreadable.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sub-folders and files stay invisible to the users who cannot read them."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les sous-dossiers et les fichiers restent invisibles pour les utilisateurs qui ne peuvent pas les lire."
+          }
+        }
+      }
+    },
+    "shares.option.hidden.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide this folder in My Network Places"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer ce dossier dans « Mes emplacements réseau »"
+          }
+        }
+      }
+    },
+    "shares.option.hidden.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The folder no longer appears when browsing the NAS on the network."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le dossier n'apparaît plus lors de l'exploration du NAS sur le réseau."
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The recycle bin of %@ is empty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La corbeille de %@ est vide."
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.menu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the recycle bin…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vider la corbeille…"
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to empty the recycle bin: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec du vidage de la corbeille : %@"
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the recycle bin of “%@”?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vider la corbeille de « %@ » ?"
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The files it holds will be deleted for good. This action cannot be undone."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les fichiers qu'elle contient seront définitivement supprimés. Cette action est irréversible."
+          }
+        }
+      }
+    },
+    "shares.recycle_bin.empty.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty the recycle bin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vider la corbeille"
+          }
+        }
+      }
+    },
+    "shares.permissions.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accès…"
           }
         }
       }
@@ -30678,6 +32582,102 @@
         }
       }
     },
+    "shares.section.storage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Storage"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stockage"
+          }
+        }
+      }
+    },
+    "shares.section.restrictions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Access restrictions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restrictions d'accès"
+          }
+        }
+      }
+    },
+    "shares.section.visibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visibility"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Visibilité"
+          }
+        }
+      }
+    },
+    "shares.section.recycle_bin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recycle bin"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Corbeille"
+          }
+        }
+      }
+    },
+    "shares.section.identity": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Description"
+          }
+        }
+      }
+    },
+    "shares.section.encryption": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrement"
+          }
+        }
+      }
+    },
     "shares.smb_path.copied": {
       "localizations": {
         "en": {
@@ -30706,6 +32706,118 @@
           "stringUnit": {
             "state": "translated",
             "value": "Copier le chemin SMB"
+          }
+        }
+      }
+    },
+    "shares.unlock.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock the shared folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller le dossier partagé"
+          }
+        }
+      }
+    },
+    "shares.unlock.success": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is unlocked."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ est déverrouillé."
+          }
+        }
+      }
+    },
+    "shares.unlock.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "“%@” is locked. Its key is needed to make its contents available again."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "« %@ » est verrouillé. Sa clé est nécessaire pour rendre son contenu de nouveau disponible."
+          }
+        }
+      }
+    },
+    "shares.unlock.menu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller…"
+          }
+        }
+      }
+    },
+    "shares.unlock.key.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The key this folder was encrypted with"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La clé avec laquelle ce dossier a été chiffré"
+          }
+        }
+      }
+    },
+    "shares.unlock.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Failed to unlock the folder: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec du déverrouillage du dossier : %@"
+          }
+        }
+      }
+    },
+    "shares.unlock.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Déverrouiller"
           }
         }
       }

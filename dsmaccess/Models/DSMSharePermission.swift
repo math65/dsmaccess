@@ -21,12 +21,36 @@ enum DSMPermissionHolder: Sendable, Hashable, Identifiable {
 
     var id: String { apiType + ":" + name }
 
-    var apiType: String {
-        switch self {
-        case .user: return "local_user"
-        case .group: return "local_group"
+    /// The holder without its name, for the reverse reading: which accounts reach one folder.
+    enum Kind: String, Sendable, Hashable, CaseIterable, Identifiable {
+        case user
+        case group
+
+        var id: String { rawValue }
+
+        var apiType: String {
+            switch self {
+            case .user: return "local_user"
+            case .group: return "local_group"
+            }
+        }
+
+        var label: String {
+            switch self {
+            case .user: return String(localized: "permissions.accounts.users")
+            case .group: return String(localized: "permissions.accounts.groups")
+            }
         }
     }
+
+    var kind: Kind {
+        switch self {
+        case .user: return .user
+        case .group: return .group
+        }
+    }
+
+    var apiType: String { kind.apiType }
 
     var listMethod: String {
         switch self {
@@ -143,6 +167,22 @@ struct DSMSharePermission: nonisolated Decodable, Identifiable, Hashable, Sendab
         self.inherited = inherited
         self.granted = granted
         self.isCustom = isCustom
+    }
+}
+
+/// Answer of `SYNO.Core.Share.Permission` `list` with `action=enum`: the accounts reaching one
+/// folder. Same rows as `DSMSharePermissionList`, under `items` instead of `shares`, and each
+/// `name` is an account rather than a folder.
+struct DSMShareAccountPermissionList: nonisolated Decodable, Sendable {
+    let items: [DSMSharePermission]
+    let total: Int?
+
+    enum CodingKeys: String, CodingKey { case items, total }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        items = try values.decodeIfPresent([DSMSharePermission].self, forKey: .items) ?? []
+        total = values.flexInt(.total)
     }
 }
 

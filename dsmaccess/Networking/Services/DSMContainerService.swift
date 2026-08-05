@@ -18,6 +18,8 @@ final class DSMContainerService {
     private static let networkAPI = DSMAPI("SYNO.Docker.Network", preferredVersion: 1)
     private static let registryAPI = DSMAPI("SYNO.Docker.Registry", preferredVersion: 1)
     private static let dockerLogAPI = DSMAPI("SYNO.Docker.Log", preferredVersion: 1)
+    /// The terminal service is not an API: it listens on its own path, outside `/webapi`.
+    private static let terminalPath = "/docker/ws"
 
     private let transport: DSMTransport
 
@@ -61,6 +63,29 @@ final class DSMContainerService {
             method: action.rawValue,
             parameters: ["name": .string(name)]
         )
+    }
+
+    /// Opens a socket on the terminal service. A container needs two: a monitor one, which
+    /// lists and opens the sessions, and a terminal one, which carries the input and output.
+    ///
+    /// `usingFallbackAddress` reaches the NAS by the address described in
+    /// `quickConnectHostWithoutLocalPrefix`, which only makes sense once the address of the
+    /// connection has had its handshake refused.
+    func terminalSocket(
+        container: String,
+        role: ContainerTerminalRole,
+        usingFallbackAddress: Bool = false
+    ) throws -> ContainerTerminalSocket {
+        let host = usingFallbackAddress ? terminalFallbackAddress : nil
+        return ContainerTerminalSocket(
+            task: try transport.webSocketTask(path: Self.terminalPath, host: host),
+            container: container,
+            role: role
+        )
+    }
+
+    var terminalFallbackAddress: String? {
+        transport.endpoint.quickConnectHostWithoutLocalPrefix
     }
 
     func logs(name: String, limit: Int = 300) async throws -> [ContainerLogEntry] {

@@ -11,7 +11,9 @@ import SwiftUI
 
 struct SharePermissionTableView: NSViewRepresentable {
     let permissions: [DSMSharePermission]
-    let holder: DSMPermissionHolder
+    /// What each row names: a shared folder when the grid is read from an account, an account
+    /// when it is read from a folder.
+    let subject: Subject
     let isEnabled: Bool
     let onChange: (DSMSharePermission, DSMSharePermissionLevel?) -> Void
 
@@ -20,6 +22,35 @@ struct SharePermissionTableView: NSViewRepresentable {
     /// own right.
     private static let inheritColumn = "inherit"
     private static let textColumns = ["name", "group"]
+
+    /// The two directions the same grid is read in.
+    enum Subject: Sendable, Equatable {
+        /// Folders reached by one account; a user also inherits rights from its groups.
+        case folders(inheritsFromGroups: Bool)
+        /// Accounts reaching one folder. A right inherited from a group applies here too.
+        case accounts
+
+        var inheritsFromGroups: Bool {
+            switch self {
+            case .folders(let inherits): return inherits
+            case .accounts: return true
+            }
+        }
+
+        var columnTitle: String {
+            switch self {
+            case .folders: return String(localized: "share_permissions.table.shared_folder.column")
+            case .accounts: return String(localized: "share_permissions.table.account.column")
+            }
+        }
+
+        var tableLabel: String {
+            switch self {
+            case .folders: return String(localized: "share_permissions.table.title")
+            case .accounts: return String(localized: "share_permissions.table.accounts.title")
+            }
+        }
+    }
 
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
@@ -30,12 +61,12 @@ struct SharePermissionTableView: NSViewRepresentable {
         table.allowsEmptySelection = true
         table.usesAlternatingRowBackgroundColors = true
         table.columnAutoresizingStyle = .uniformColumnAutoresizingStyle
-        table.setAccessibilityLabel(String(localized: "share_permissions.table.title"))
+        table.setAccessibilityLabel(subject.tableLabel)
         table.dataSource = context.coordinator
         table.delegate = context.coordinator
 
-        addColumn(to: table, identifier: "name", title: String(localized: "share_permissions.table.shared_folder.column"), width: 170)
-        if holder.inheritsFromGroups {
+        addColumn(to: table, identifier: "name", title: subject.columnTitle, width: 170)
+        if subject.inheritsFromGroups {
             addColumn(to: table, identifier: "group", title: String(localized: "share_permissions.table.group_right.column"), width: 150)
         }
         addColumn(
@@ -89,7 +120,7 @@ struct SharePermissionTableView: NSViewRepresentable {
     /// With no inheritance possible, "inherit" makes no sense: for a group, the first column
     /// simply says the group grants nothing on this folder.
     private var noRightTitle: String {
-        holder.inheritsFromGroups
+        subject.inheritsFromGroups
             ? String(localized: "share_permissions.table.inherit_from_group")
             : String(localized: "share_permissions.table.no_right")
     }
@@ -97,7 +128,7 @@ struct SharePermissionTableView: NSViewRepresentable {
     /// A denial set on a group takes precedence over each member's own right: this is the
     /// only column whose scope goes beyond what the row shows.
     private var denialHelp: String? {
-        guard !holder.inheritsFromGroups else { return nil }
+        guard !subject.inheritsFromGroups else { return nil }
         return String(
             localized: "share_permissions.table.group_right.description"
         )
@@ -193,7 +224,7 @@ struct SharePermissionTableView: NSViewRepresentable {
         }
 
         private func rowLabel(_ permission: DSMSharePermission) -> String {
-            guard parent.holder.inheritsFromGroups else { return permission.name }
+            guard parent.subject.inheritsFromGroups else { return permission.name }
             guard permission.inherited != nil else {
                 return String(localized: "share_permissions.table.row.without_group_right", defaultValue: "\(permission.name), no group right")
             }

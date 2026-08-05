@@ -203,12 +203,23 @@ protocol DSMClientProtocol: AnyObject {
     func setPerformanceAlarmRules(_ states: [(id: String, enabled: Bool)]) async throws
     func deletePerformanceAlarmRules(ids: [String]) async throws
     func listSharedFolders() async throws -> [SharedFolder]
-    func createSharedFolder(
-        name: String,
-        volumePath: String,
-        description: String
-    ) async throws
+    func createSharedFolder(_ creation: SharedFolderCreation) async throws
+    func updateSharedFolder(_ changes: SharedFolderChanges) async throws -> String?
     func deleteSharedFolder(name: String) async throws
+    func lockSharedFolder(name: String) async throws
+    func unlockSharedFolder(name: String, key: String) async throws
+    func sharedFolderConversionStatus(taskID: String) async throws -> ShareConversionStatus
+    func cancelSharedFolderConversion(taskID: String) async throws
+    func emptySharedFolderRecycleBin(name: String) async throws
+    func shareAccountPermissions(
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws -> [DSMSharePermission]
+    func setShareAccountPermissions(
+        _ permissions: [DSMSharePermission],
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws
     func fileServiceEnabled(_ service: FileService) async throws -> Bool?
     func setFileService(_ service: FileService, enabled: Bool) async throws
     func packageCenterCapabilities() async throws -> PackageCenterCapabilities
@@ -407,6 +418,13 @@ protocol DSMClientProtocol: AnyObject {
     func containerStatistics() async throws -> [String: ContainerStatistics]
     func createContainer(profile: ContainerProfile, startsImmediately: Bool) async throws
     func containerProcesses(name: String) async throws -> [ContainerProcess]
+    func containerTerminalSocket(
+        container: String,
+        role: ContainerTerminalRole,
+        usingFallbackAddress: Bool
+    ) throws -> ContainerTerminalSocket
+    /// Address to fall back on when the terminal's handshake is refused, if there is one.
+    var terminalFallbackAddress: String? { get }
     func pruneDockerImages() async throws
     func startDockerImageUpgrade(repository: String) async throws -> DockerImagePullTask
     func dockerImageUpgradeStatus(taskID: String) async throws -> DockerImagePullStatus
@@ -1008,16 +1026,51 @@ final class DSMClient: DSMClientProtocol {
         try await shares.folders()
     }
 
-    func createSharedFolder(
-        name: String,
-        volumePath: String,
-        description: String
+    func createSharedFolder(_ creation: SharedFolderCreation) async throws {
+        try await shares.create(creation)
+    }
+
+    func updateSharedFolder(_ changes: SharedFolderChanges) async throws -> String? {
+        try await shares.update(changes)
+    }
+
+    func sharedFolderConversionStatus(taskID: String) async throws -> ShareConversionStatus {
+        try await shares.conversionStatus(taskID: taskID)
+    }
+
+    func cancelSharedFolderConversion(taskID: String) async throws {
+        try await shares.cancelConversion(taskID: taskID)
+    }
+
+    func emptySharedFolderRecycleBin(name: String) async throws {
+        try await shares.emptyRecycleBin(name: name)
+    }
+
+    func shareAccountPermissions(
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
+    ) async throws -> [DSMSharePermission] {
+        try await permissions.accountPermissions(onShare: share, of: kind)
+    }
+
+    func setShareAccountPermissions(
+        _ permissions: [DSMSharePermission],
+        onShare share: String,
+        of kind: DSMPermissionHolder.Kind
     ) async throws {
-        try await shares.create(name: name, volumePath: volumePath, description: description)
+        try await self.permissions.setAccountPermissions(permissions, onShare: share, of: kind)
     }
 
     func deleteSharedFolder(name: String) async throws {
         try await shares.delete(name: name)
+    }
+
+    func lockSharedFolder(name: String) async throws {
+        try await shares.lock(name: name)
+    }
+
+    func unlockSharedFolder(name: String, key: String) async throws {
+        try await shares.unlock(name: name, key: key)
     }
 
     func fileServiceEnabled(_ service: FileService) async throws -> Bool? {
@@ -1625,6 +1678,20 @@ final class DSMClient: DSMClientProtocol {
     func containerProcesses(name: String) async throws -> [ContainerProcess] {
         try await containers.containerProcesses(name: name)
     }
+
+    func containerTerminalSocket(
+        container: String,
+        role: ContainerTerminalRole,
+        usingFallbackAddress: Bool
+    ) throws -> ContainerTerminalSocket {
+        try containers.terminalSocket(
+            container: container,
+            role: role,
+            usingFallbackAddress: usingFallbackAddress
+        )
+    }
+
+    var terminalFallbackAddress: String? { containers.terminalFallbackAddress }
 
     func pruneDockerImages() async throws {
         try await containers.pruneImages()

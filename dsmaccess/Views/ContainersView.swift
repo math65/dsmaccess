@@ -91,6 +91,7 @@ struct ContainersPaneView: View {
     @State private var searchText = ""
     @State private var autoRefresh = true
     @State private var detailsContainer: ContainerItem?
+    @State private var terminalContainer: ContainerItem?
     @State private var detailsSection = DetailsSection.information
     @State private var pendingDelete: ContainerItem?
     @State private var pendingForceStop: ContainerItem?
@@ -106,10 +107,14 @@ struct ContainersPaneView: View {
     /// Whether this tab is the selected one. Its search field and toolbar live at the window
     /// level: left unconditioned, they linger — disabled but reachable — over the other tabs.
     private let isActive: Bool
+    /// Kept for the terminal, which runs its own session rather than going through the
+    /// containers view model.
+    private let session: SessionStore
 
     init(session: SessionStore, isActive: Bool) {
         _viewModel = State(initialValue: ContainersViewModel(session: session))
         self.isActive = isActive
+        self.session = session
     }
 
     var body: some View {
@@ -119,6 +124,9 @@ struct ContainersPaneView: View {
             .task { await load(restoresInitialFocus: true) }
             .task(id: autoRefresh) { await refreshPeriodically() }
             .sheet(item: $detailsContainer, content: detailsSheet)
+            .sheet(item: $terminalContainer) { container in
+                ContainerTerminalSheet(session: session, containerName: container.name)
+            }
             .confirmationDialog(
                 deleteTitle,
                 isPresented: Binding(
@@ -420,6 +428,9 @@ struct ContainersPaneView: View {
             presentDetails(for: container)
         }
         .help("containers.action.show_details.hint")
+        Button("containers.terminal.title") { terminalContainer = container }
+            .disabled(!container.isRunning)
+            .help("containers.terminal.hint")
     }
 
     private var deleteTitle: Text {

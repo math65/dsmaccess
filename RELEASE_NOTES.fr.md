@@ -1,3 +1,30 @@
+## v1.2 (build 24) — 4 août 2026
+
+### En bref
+
+- Conteneurs reçoit un terminal. Vous pouvez ouvrir un interpréteur de commandes
+  dans un conteneur en marche et y travailler, avec des réponses présentées pour
+  être lues ligne à ligne, au lieu du terminal en forme d'écran qu'affiche DSM
+  et qu'aucun lecteur d'écran ne sait suivre.
+
+### Conteneurs
+
+- Terminal : sélectionnez un conteneur, ouvrez Terminal depuis son menu, et une
+  session démarre à l'intérieur. Ce que vous envoyez et ce que l'interpréteur
+  répond sont présentés comme un échange, un bloc chacun, pour se lire
+  séparément. La sortie occupe un champ en lecture seule que vous parcourez
+  ligne à ligne et d'où vous pouvez copier, et l'interpréteur est réglé pour
+  écrire ses listes une entrée par ligne plutôt qu'en colonnes alignées.
+- La session utilise `/bin/sh`, sauf si vous nommez un autre interpréteur avant
+  qu'elle ne démarre. Un bouton Interrompre envoie ce qu'enverrait un vrai
+  terminal, pour une commande qui n'en finit pas.
+- Fermer la fenêtre met fin à la session, et ne laisse rien tourner dans le
+  conteneur.
+- Container Manager n'accepte un terminal que par une adresse que le NAS
+  reconnaît comme la sienne. Si la vôtre est refusée, l'application le dit et
+  nomme l'adresse au lieu d'annoncer une erreur de serveur, et elle essaie une
+  fois votre nom QuickConnect avant d'abandonner.
+
 ## v1.1 (build 23) — 3 août 2026
 
 La première version stable depuis la 1.0, parue le 10 juillet. Si vous venez de
