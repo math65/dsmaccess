@@ -1,3 +1,65 @@
+## v1.3-beta.1 (build 25) — 5 août 2026
+
+### En bref
+
+- Nouveau module Hyper Backup : suivez vos sauvegardes et, enfin, restaurez
+  depuis elles sans l'écran DSM qui rendait la restauration inquiétante. Une
+  sauvegarde se parcourt comme un dossier, et restaurer à côté des originaux
+  est le comportement par défaut.
+
+### Hyper Backup
+
+- Le module (⌘⇧6) liste vos tâches de sauvegarde dans un tableau triable,
+  avec leur destination, leur état et leur chiffrement. Une sauvegarde en
+  cours annonce sa progression en direct. Lancez une sauvegarde, annulez-en
+  une avec confirmation, parcourez les versions datées, et lisez le journal
+  et les statistiques de la tâche.
+- Explorateur de restauration : ouvrez n'importe quelle version et parcourez
+  son contenu comme dans le module Fichiers — les flèches pour se déplacer,
+  ⌘flèche bas pour ouvrir un dossier, ⌘flèche haut pour remonter. Chaque
+  ligne dit son nom, son type, sa taille et sa date, et un élément endommagé
+  le dit en toutes lettres.
+- « Restaurer vers… » dépose une copie à côté des originaux — la direction
+  sûre est celle par défaut. La feuille est elle-même le navigateur de
+  dossiers : avancez jusqu'au dossier qui recevra la copie, créez-le au
+  passage s'il n'existe pas encore, et une phrase écrite dit ce qui sera
+  restauré et où, avant que vous ne confirmiez. Le remplacement de l'existant
+  reste éteint tant que vous ne l'activez pas, et sa conséquence est écrite
+  noir sur blanc.
+- « Restaurer à l'emplacement d'origine… » remet la sélection là d'où elle
+  vient. La confirmation nomme ce qui sera remplacé et où — pas seulement
+  « vos fichiers originaux ».
+- Téléchargez un fichier d'une sauvegarde vers le Mac, en choisissant où il
+  arrive, avec une progression annoncée en octets reçus.
+- Pas encore là, et dit franchement : la recherche dans une sauvegarde, le
+  suivi d'une longue restauration, le déverrouillage des sauvegardes
+  chiffrées, la mise en pause d'une sauvegarde, et la création ou la
+  suppression de tâches.
+
+### Dossiers partagés
+
+- La création d'un dossier partagé propose désormais la corbeille, sa
+  restriction aux administrateurs, les deux options de visibilité et le
+  chiffrement. Une nouvelle feuille de réglages apporte les mêmes choix à un
+  dossier existant, et un dossier chiffré se verrouille et se déverrouille
+  depuis son menu.
+- Les réglages gagnent le quota, la compression des fichiers, la somme de
+  contrôle des données et les trois restrictions avancées (parcourir,
+  modifier, télécharger). La corbeille d'un dossier peut être vidée, et une
+  nouvelle feuille montre quels comptes atteignent le dossier, et avec quel
+  droit.
+- Le chiffrement d'un dossier existant est suivi jusqu'au bout : l'écran dit
+  où en est la réécriture, que le dossier reste indisponible pendant ce
+  temps, et propose de l'arrêter.
+- Corrigé : la colonne Corbeille disait « Non » sur tous les dossiers, même
+  ceux où elle est active.
+
+### Changements
+
+- Choisir un dossier du NAS — dans Conteneurs, USB Copy et Hyper Backup —
+  passe par un même tableau façon Finder, avec les dossiers partagés à sa
+  racine.
+
 ## v1.2 (build 24) — 4 août 2026
 
 ### En bref

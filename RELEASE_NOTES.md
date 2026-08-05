@@ -1,3 +1,57 @@
+## v1.3-beta.1 (build 25) — 2026-08-05
+
+### Highlights
+
+- New Hyper Backup module: follow your backups and, at last, restore from
+  them without the DSM screen that made restoring feel dangerous. A backup
+  browses like a folder, and restoring beside the originals is the default.
+
+### Hyper Backup
+
+- The module (Cmd-Shift-6) lists your backup tasks in a sortable table with
+  their destination, state and encryption. A running backup announces its
+  progress live. Start a backup, cancel one with confirmation, browse the
+  dated versions, and read the task's log and statistics.
+- Restore explorer: open any version and move through what it holds the way
+  the Files module works — arrow keys, Cmd-Down Arrow to open a folder,
+  Cmd-Up Arrow to go back. Each row reads its name, kind, size and date, and
+  a damaged entry says so in words.
+- "Restore to…" puts a copy beside the originals — the safe direction is the
+  default. The sheet is the folder browser itself: walk to the folder that
+  should receive the copy, create it on the way if it does not exist yet, and
+  a written sentence states what will be restored where before you confirm.
+  Replacing what is already there stays off until you switch it on, and the
+  consequence is spelled out.
+- "Restore to the original location…" puts the selection back where it came
+  from. The confirmation names what will be replaced and where — not just
+  "your original files".
+- Download a file from a backup to the Mac, choosing where it lands, with
+  progress announced in bytes received.
+- Not there yet, and said plainly: searching inside a backup, following a
+  long restore, unlocking encrypted backups, pausing a backup, and creating
+  or deleting tasks.
+
+### Shared folders
+
+- Creating a shared folder now offers the recycle bin, its administrator
+  restriction, both visibility options and encryption. A new settings sheet
+  brings the same choices to an existing folder, and an encrypted folder can
+  be locked and unlocked from its menu.
+- The settings gain the quota, file compression, the data checksum and the
+  three advanced restrictions (browsing, modifying, downloading). A folder's
+  recycle bin can be emptied, and a new sheet shows which accounts reach the
+  folder, and with which right.
+- Encrypting an existing folder is followed to the end: the screen says how
+  far the rewrite is, that the folder stays unavailable meanwhile, and offers
+  to stop it.
+- Fixed: the recycle bin column read "No" on every folder, even those where
+  it is on.
+
+### Changes
+
+- Picking a folder on the NAS — in Containers, USB Copy and Hyper Backup —
+  goes through one Finder-style table, with the shared folders at its root.
+
 ## v1.2 (build 24) — 2026-08-04
 
 ### Highlights
