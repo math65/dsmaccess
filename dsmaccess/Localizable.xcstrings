@@ -19587,6 +19587,966 @@
         }
       }
     },
+    "hyper_backup.restore.announcement.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ restored to %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ restauré dans %@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.announcement.several": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld items restored to %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld éléments restaurés dans %@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.column.condition": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Condition"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "État"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.column.kind": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kind"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Type"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.column.modified": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modified"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifié le"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.condition.damaged": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Damaged"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Endommagé"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.condition.readable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Readable"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lisible"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.condition.unsafe": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unsafe to put back in place"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Risqué à remettre en place"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.consequence.keep": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The originals are left untouched. If %@ already holds items of the same name, nothing is restored and the app says so."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les originaux ne sont pas touchés. Si %@ contient déjà des éléments du même nom, rien n’est restauré et l’app le signale."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.consequence.none": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose where the copy should go."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez où déposer la copie."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.consequence.replace": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Items of the same name already in %@ will be replaced, and their current contents cannot be recovered."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les éléments du même nom déjà présents dans %@ seront remplacés, et leur contenu actuel sera irrécupérable."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.copy_to.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore to…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer vers…"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.copy_to.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copies the selection to a folder you choose, leaving the originals untouched."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copie la sélection vers un dossier de votre choix, sans toucher aux originaux."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.destination.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages de restauration"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.destination.choose": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choose a folder…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisir un dossier…"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.destination.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the folders of the NAS to pick the one that receives the copy."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre les dossiers du NAS pour choisir celui qui reçoit la copie."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.destination.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Destination"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Destination"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.destination.section": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Where to restore"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Où restaurer"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.destination.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore to"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer vers"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.download.announcement": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ downloaded"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ téléchargé"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.download.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Download…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Télécharger…"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.download.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading %1$@ failed: %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le téléchargement de %1$@ a échoué : %2$@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.download.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Saves the selected file to this Mac."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistre le fichier sélectionné sur ce Mac."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.download.in_progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargement en cours"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.download.received": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading, %@ received"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargement en cours, %@ reçus"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.download.started": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Downloading %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Téléchargement de %@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.empty.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This folder held nothing when the backup was taken."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce dossier était vide au moment de la sauvegarde."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.empty.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empty folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier vide"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.error.failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore to %@ failed: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de la restauration vers %@ : %@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.error.no_destination": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No shared folder can receive the copy."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucun dossier partagé ne peut recevoir la copie."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.error.nothing_copied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nothing was restored: %@ already holds these items, and replacing them was declined"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rien n’a été restauré : %@ contient déjà ces éléments, et leur remplacement a été refusé"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.error.unknown_destination": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ is not inside a shared folder this session can restore to"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ ne se trouve pas dans un dossier partagé où cette session peut restaurer"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.go_to_root.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back to the top of the backup"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revenir en haut de la sauvegarde"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.go_up.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enclosing folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier parent"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.go_up.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Goes back to the enclosing folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Revient au dossier parent."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.action": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacer %@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.announcement.one": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ put back where it came from"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ remis à son emplacement d’origine"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.announcement.several": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld items put back where they came from"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld éléments remis à leur emplacement d’origine"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore to original location…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer à l’emplacement d’origine…"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.confirm": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Put this back where it came from?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remettre ceci à son emplacement d’origine ?"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restoring to the original location failed: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La restauration à l’emplacement d’origine a échoué : %@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replaces the originals with the backed-up version."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplace les originaux par la version sauvegardée."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.started": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restoring %@ to its original location"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restauration de %@ à son emplacement d’origine"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.selection_count": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld items"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld éléments"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_place.warning": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ will be put back where it came from, in %2$@, replacing what is there now. The current contents cannot be recovered afterwards."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ sera remis à son emplacement d’origine, dans %2$@, en remplaçant ce qui s’y trouve. Le contenu actuel sera alors irrécupérable."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.in_progress": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restoring…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restauration en cours…"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.kind.file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.kind.folder": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dossier"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reading the backup…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture de la sauvegarde…"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.location.root": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Root of the backup"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Racine de la sauvegarde"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.open.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvrir"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.open.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shows what this folder holds."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Affiche le contenu de ce dossier."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.origin.shares": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "the shared folders they were backed up from"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "les dossiers partagés d’où ils ont été sauvegardés"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.replace.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replaces items of the same name already present at the destination."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplace les éléments du même nom déjà présents à la destination."
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.replace.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Replace existing items"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remplacer les éléments existants"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.restore.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restaurer"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.selection.section": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "What will be restored"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ce qui sera restauré"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.summary": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld folders, %lld files in %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld dossiers, %lld fichiers dans %@"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.table.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Backup contents"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contenu de la sauvegarde"
+          }
+        }
+      }
+    },
+    "hyper_backup.restore.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ — backup of %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ — sauvegarde du %@"
+          }
+        }
+      }
+    },
     "hyper_backup.statistics.completed": {
       "localizations": {
         "en": {
@@ -19967,6 +20927,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réussie"
+          }
+        }
+      }
+    },
+    "hyper_backup.versions.browse.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Browse and restore…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Parcourir et restaurer…"
+          }
+        }
+      }
+    },
+    "hyper_backup.versions.browse.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the contents of the selected version."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre le contenu de la version sélectionnée."
           }
         }
       }

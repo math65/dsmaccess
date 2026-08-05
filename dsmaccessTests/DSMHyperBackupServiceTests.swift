@@ -245,6 +245,152 @@ struct DSMHyperBackupServiceTests {
         #expect(task.isEncrypted)
     }
 
+    /// The root of a version comes from `Folder.list`, which answers a bare array rather than
+    /// a wrapped list, and refuses to answer at all without the version.
+    @Test func listsBackupRootFromBareArray() async throws {
+        let response = Data(
+            #"""
+            {"success":true,"data":[
+              {"name":"Test","path":"Test","type":"Folder","size":0,"mtime":0,
+               "is_bad":false,"restore_unsafe_warn":false}]}
+            """#.utf8
+        )
+        let stub = DSMRequestStub(results: [.response(response)])
+        let service = makeService(stub: stub)
+
+        let entries = try await service.backupRoot(taskID: 7, versionID: "3")
+
+        let entry = try #require(entries.first)
+        #expect(entry.name == "Test")
+        #expect(entry.isFolder)
+
+        let parameters = try query(from: #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.SDS.Backup.Client.Explore.Folder")
+        #expect(parameters["method"] == "list")
+        #expect(parameters["version_id"] == "\"3\"")
+    }
+
+    /// Listing a folder needs `node`, and the path it carries has no leading slash: `/Test`
+    /// is refused where `Test` is accepted.
+    @Test func listsFolderContentsWithRelativeNode() async throws {
+        let response = Data(
+            #"""
+            {"success":true,"data":{"total":2,"files":[
+              {"name":"temoin-un.txt","path":"Test/essai/temoin-un.txt","type":"File",
+               "size":69,"mtime":1785723573,"is_bad":false,"restore_unsafe_warn":false},
+              {"name":"casse.txt","path":"Test/essai/casse.txt","type":"File",
+               "size":12,"mtime":1785723573,"is_bad":true,"restore_unsafe_warn":false}]}}
+            """#.utf8
+        )
+        let stub = DSMRequestStub(results: [.response(response)])
+        let service = makeService(stub: stub)
+
+        let entries = try await service.backupEntries(taskID: 7, versionID: "3", node: "Test/essai")
+
+        #expect(entries.count == 2)
+        let file = try #require(entries.first)
+        #expect(!file.isFolder)
+        #expect(file.size == 69)
+        // Damage is written out, never carried by an icon alone.
+        #expect(try #require(entries.last).isDamaged)
+
+        let parameters = try query(from: #require(await stub.requests.first))
+        #expect(parameters["api"] == "SYNO.SDS.Backup.Client.Explore.File")
+        let node = try jsonString(#require(parameters["node"]))
+        #expect(node == "Test/essai")
+        // Relative to the backup root: a leading slash is answered with error 4400.
+        #expect(!node.hasPrefix("/"))
+    }
+
+    /// The parameter the whole feature hangs on. `copy` answers error 4401 without `backend`,
+    /// whatever else the request carries, and DSM reports that failure as a network problem —
+    /// so losing this field would look like a broken NAS rather than a broken request.
+    @Test func copyCarriesTheBackendTheEngineDemands() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.copyFromBackup(
+            taskID: 7,
+            versionID: "3",
+            node: "Test",
+            sourcePaths: ["Test/dsmaccess-restore-test"],
+            destinationPath: "/volume1/Documents",
+            overwrite: false
+        )
+
+        let parameters = try query(from: #require(await stub.requests.first))
+        #expect(parameters["method"] == "copy")
+        #expect(try jsonString(#require(parameters["backend"])) == "HyperBackup-backend")
+        #expect(try jsonString(#require(parameters["action"])) == "copy")
+        let sources = try JSONDecoder().decode(
+            [String].self,
+            from: Data(#require(parameters["source_path"]).utf8)
+        )
+        #expect(sources == ["Test/dsmaccess-restore-test"])
+        // The physical volume path, never the `/Documents` share path, which is refused.
+        #expect(try jsonString(#require(parameters["dest_path"])) == "/volume1/Documents")
+        #expect(parameters["overwrite"] == "false")
+    }
+
+    /// Restoring in place is the one operation that writes over the user's own files, and it
+    /// differs from `copy` on every point that matters: relative paths instead of a physical
+    /// one, and `overwrite` forced rather than chosen. Values measured on the NAS by
+    /// intercepting the DSM explorer's own "Restaurer" button.
+    @Test func restoreInPlaceKeepsRelativePathsAndForcesOverwrite() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub)
+
+        try await service.restoreInPlaceFromBackup(
+            taskID: 7,
+            versionID: "3",
+            node: "Test",
+            sourcePaths: ["Test/dsmaccess-restore-test"],
+            originPath: "Test/dsmaccess-restore-test"
+        )
+
+        let parameters = try query(from: #require(await stub.requests.first))
+        #expect(parameters["method"] == "restore")
+        #expect(try jsonString(#require(parameters["action"])) == "restore")
+        // The explorer sends `backend` on every request, this one included.
+        #expect(try jsonString(#require(parameters["backend"])) == "HyperBackup-backend")
+        // Relative to the backup root, unlike `copy` which insists on `/volume1/…`.
+        #expect(try jsonString(#require(parameters["dest_path"])) == "Test/dsmaccess-restore-test")
+        #expect(parameters["overwrite"] == "true")
+    }
+
+    /// The download URL is built rather than posted, and two of its details come from the DSM
+    /// client alone: the file name sits in the CGI path, and `source_path` is a single string
+    /// where the other explorer mutations take an array.
+    @Test func downloadNamesTheFileInThePathAndSendsOneSourcePath() async throws {
+        let stub = DSMRequestStub(results: [])
+        let service = makeService(stub: stub)
+
+        let url = try await service.backupDownloadURL(
+            taskID: 7,
+            versionID: "3",
+            node: "Test/dsmaccess-restore-test",
+            sourcePath: "Test/dsmaccess-restore-test/temoin-un.txt",
+            fileName: "temoin-un.txt"
+        )
+
+        #expect(url.path().hasSuffix("/temoin-un.txt"))
+        let items = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
+        let parameters = Dictionary(items.map { ($0.name, $0.value ?? "") }) { first, _ in first }
+        #expect(parameters["method"] == "download")
+        #expect(try jsonString(#require(parameters["backend"])) == "HyperBackup-backend")
+        // A lone path, never a JSON array: DSM downloads one entry at a time.
+        #expect(try jsonString(#require(parameters["source_path"])) == "Test/dsmaccess-restore-test/temoin-un.txt")
+        #expect(parameters["support_utf8_name"] == "true")
+        #expect(try !jsonString(#require(parameters["download_id"])).isEmpty)
+    }
+
+    /// Strings travel JSON-encoded because these APIs advertise `requestFormat: JSON`, which
+    /// also escapes the slashes inside paths. Comparing decoded values keeps the tests about
+    /// the contract rather than about the encoder's punctuation.
+    private func jsonString(_ raw: String) throws -> String {
+        try JSONDecoder().decode(String.self, from: Data(raw.utf8))
+    }
+
     private func makeService(stub: DSMRequestStub) -> DSMHyperBackupService {
         var capabilities = DSMCapabilities()
         capabilities.merge([
@@ -273,6 +419,18 @@ struct DSMHyperBackupServiceTests {
                 requestFormat: "JSON"
             ),
             "SYNO.SDS.Backup.Client.Common.Statistic": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.SDS.Backup.Client.Explore.Folder": APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 1,
+                requestFormat: "JSON"
+            ),
+            "SYNO.SDS.Backup.Client.Explore.File": APIInfoEntry(
                 path: "entry.cgi",
                 minVersion: 1,
                 maxVersion: 1,

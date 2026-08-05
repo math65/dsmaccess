@@ -9,12 +9,15 @@ import SwiftUI
 
 struct HyperBackupVersionsSheet: View {
     let task: HyperBackupTask?
+    let session: SessionStore
     let loadDetails: () async throws -> HyperBackupTaskDetails
 
     @State private var details: HyperBackupTaskDetails?
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var order = [KeyPathComparator(\HyperBackupVersion.sortableCompletion, order: .reverse)]
+    @State private var selectedVersionID: String?
+    @State private var browsedVersion: HyperBackupVersion?
     @AccessibilityFocusState private var focusContent: Bool
     @Environment(\.dismiss) private var dismiss
 
@@ -23,6 +26,13 @@ struct HyperBackupVersionsSheet: View {
             content
                 .navigationTitle(task?.name ?? String(localized: "hyper_backup.versions.title"))
                 .toolbar {
+                    ToolbarItem {
+                        Button("hyper_backup.versions.browse.button", systemImage: "folder.badge.questionmark") {
+                            browsedVersion = selectedVersion
+                        }
+                        .disabled(selectedVersion == nil)
+                        .help("hyper_backup.versions.browse.hint")
+                    }
                     ToolbarItem(placement: .confirmationAction) {
                         Button("common.button.close", role: .cancel) { dismiss() }
                             .keyboardShortcut(.cancelAction)
@@ -31,6 +41,16 @@ struct HyperBackupVersionsSheet: View {
         }
         .frame(minWidth: 680, minHeight: 520)
         .task { await load() }
+        .sheet(item: $browsedVersion) { version in
+            if let task {
+                HyperBackupRestoreSheet(task: task, version: version, session: session)
+            }
+        }
+    }
+
+    private var selectedVersion: HyperBackupVersion? {
+        guard let selectedVersionID else { return nil }
+        return details?.versions.first { $0.versionID == selectedVersionID }
     }
 
     @ViewBuilder
@@ -62,7 +82,11 @@ struct HyperBackupVersionsSheet: View {
             )
             .accessibilityFocused($focusContent)
         } else {
-            Table(details.versions.sorted(using: order), sortOrder: $order) {
+            Table(
+                details.versions.sorted(using: order),
+                selection: $selectedVersionID,
+                sortOrder: $order
+            ) {
                 TableColumn("hyper_backup.versions.column.completed", value: \.sortableCompletion) { version in
                     Text(dateText(version.completionDate))
                 }
@@ -78,6 +102,12 @@ struct HyperBackupVersionsSheet: View {
             }
             .accessibilityLabel("hyper_backup.versions.table.label")
             .accessibilityFocused($focusContent)
+            .contextMenu(forSelectionType: String.self) { ids in
+                Button("hyper_backup.versions.browse.button") {
+                    browsedVersion = details.versions.first { ids.contains($0.versionID) }
+                }
+                .disabled(ids.isEmpty)
+            }
         }
     }
 

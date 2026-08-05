@@ -297,6 +297,36 @@ protocol DSMClientProtocol: AnyObject {
     func hyperBackupStatistics(taskID: Int) async throws -> HyperBackupStatistics
     func startHyperBackupTask(id: Int) async throws
     func cancelHyperBackupTask(id: Int, state: String) async throws
+    func hyperBackupRoot(taskID: Int, versionID: String) async throws -> [HyperBackupEntry]
+    func hyperBackupEntries(
+        taskID: Int,
+        versionID: String,
+        node: String
+    ) async throws -> [HyperBackupEntry]
+    func copyFromHyperBackup(
+        taskID: Int,
+        versionID: String,
+        node: String,
+        sourcePaths: [String],
+        destinationPath: String,
+        overwrite: Bool
+    ) async throws
+    func restoreInPlaceFromHyperBackup(
+        taskID: Int,
+        versionID: String,
+        node: String,
+        sourcePaths: [String],
+        originPath: String
+    ) async throws
+    func downloadFromHyperBackup(
+        taskID: Int,
+        versionID: String,
+        node: String,
+        sourcePath: String,
+        fileName: String,
+        to destination: URL,
+        progress: @escaping DSMTransferProgressHandler
+    ) async throws
     func listVirtualMachines() async throws -> [VirtualMachine]
     func performVirtualMachineAction(
         _ action: VirtualMachinePowerAction,
@@ -1292,6 +1322,72 @@ final class DSMClient: DSMClientProtocol {
 
     func startHyperBackupTask(id: Int) async throws {
         try await hyperBackup.backUp(taskID: id)
+    }
+
+    func hyperBackupRoot(taskID: Int, versionID: String) async throws -> [HyperBackupEntry] {
+        try await hyperBackup.backupRoot(taskID: taskID, versionID: versionID)
+    }
+
+    func hyperBackupEntries(
+        taskID: Int,
+        versionID: String,
+        node: String
+    ) async throws -> [HyperBackupEntry] {
+        try await hyperBackup.backupEntries(taskID: taskID, versionID: versionID, node: node)
+    }
+
+    func copyFromHyperBackup(
+        taskID: Int,
+        versionID: String,
+        node: String,
+        sourcePaths: [String],
+        destinationPath: String,
+        overwrite: Bool
+    ) async throws {
+        try await hyperBackup.copyFromBackup(
+            taskID: taskID,
+            versionID: versionID,
+            node: node,
+            sourcePaths: sourcePaths,
+            destinationPath: destinationPath,
+            overwrite: overwrite
+        )
+    }
+
+    func restoreInPlaceFromHyperBackup(
+        taskID: Int,
+        versionID: String,
+        node: String,
+        sourcePaths: [String],
+        originPath: String
+    ) async throws {
+        try await hyperBackup.restoreInPlaceFromBackup(
+            taskID: taskID,
+            versionID: versionID,
+            node: node,
+            sourcePaths: sourcePaths,
+            originPath: originPath
+        )
+    }
+
+    func downloadFromHyperBackup(
+        taskID: Int,
+        versionID: String,
+        node: String,
+        sourcePath: String,
+        fileName: String,
+        to destination: URL,
+        progress: @escaping DSMTransferProgressHandler
+    ) async throws {
+        try await hyperBackup.downloadFromBackup(
+            taskID: taskID,
+            versionID: versionID,
+            node: node,
+            sourcePath: sourcePath,
+            fileName: fileName,
+            to: destination,
+            progress: progress
+        )
     }
 
     func cancelHyperBackupTask(id: Int, state: String) async throws {

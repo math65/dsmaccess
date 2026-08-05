@@ -17,7 +17,10 @@ struct HyperBackupView: View {
     @State private var runningTaskNames: [Int: String] = [:]
     @AccessibilityFocusState private var contentFocused: Bool
 
+    private let session: SessionStore
+
     init(session: SessionStore) {
+        self.session = session
         _viewModel = State(initialValue: HyperBackupViewModel(session: session))
     }
 
@@ -275,6 +278,7 @@ struct HyperBackupView: View {
         case .details(let taskID):
             HyperBackupVersionsSheet(
                 task: viewModel.tasks.first { $0.taskID == taskID },
+                session: session,
                 loadDetails: { try await viewModel.details(taskID: taskID) }
             )
         case .logs(let taskID):
