@@ -128,15 +128,23 @@ Pour d'abord valider sans rien publier : `./build.sh` (local) ou `./build.sh --n
 
 ### B2. Vérifier
 
+- **Le tag est sur le commit de bump** (régression réelle des beta.8 et 9, corrigée
+  depuis, à contrôler quand même). `gh` pose le tag côté GitHub seulement :
+  `git fetch --tags && git rev-parse vX.Y^{commit}` doit rendre le commit de bump.
 - L'asset direct résout : `https://github.com/math65/dsmaccess/releases/download/vX.Y/dsmaccess-X.Y.zip`
 - L'appcast charge et liste la nouvelle version : `https://math65.github.io/dsmaccess/appcast.xml`
-  (le build Pages prend ~1-2 min après le push).
-- Signature EdDSA de l'appcast cohérente avec le zip publié :
-  `<...>/bin/sign_update <zip>` doit donner la même `sparkle:edSignature` que l'appcast.
+  (le build Pages prend ~1-2 min après le push — re-sonder avant de conclure à un raté).
+- Signature EdDSA de l'appcast cohérente avec le zip publié — `sign_update` vit dans
+  `~/Library/Developer/Xcode/DerivedData/dsmaccess-*/SourcePackages/artifacts/sparkle/Sparkle/bin/` :
+  `sign_update BuildArtifacts/dsmaccess-X.Y.zip` doit donner la même `sparkle:edSignature`
+  que l'appcast.
 - Idéal : tester l'updater in-app depuis une install de la version précédente.
 
-### B3. Annoncer (optionnel, AppleVis)
+### B3. Annoncer (AppleVis)
 
 Canal de retour = **AppleVis** (communauté lecteurs d'écran Apple). Post en anglais,
 Markdown, sujet ≤ 64 caractères, titres H4 ou moins, URL directe de l'asset cliquable.
 Rédiger la version AppleVis séparément — ne pas réutiliser tel quel le corps GitHub.
+L'annonce n'est pas un luxe : deux fois déjà, des testeurs sont restés sur une version
+qu'ils croyaient à jour faute d'annonce au fil. Et dire aussi ce qui n'a **pas** marché —
+taire un raté connu abîme la confiance plus sûrement que l'avouer.
