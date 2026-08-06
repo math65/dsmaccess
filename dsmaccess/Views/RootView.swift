@@ -13,6 +13,7 @@ struct RootView: View {
     @Environment(\.openWindow) private var openWindow
     @State private var announcements = BackendAnnouncementCoordinator()
     @State private var incidents = DSMResponseIncidents.shared
+    @State private var failures = OperationFailures.shared
 
     var body: some View {
         Group {
@@ -30,6 +31,32 @@ struct RootView: View {
         .onChange(of: incidents.pending) { _, incident in
             guard incident != nil else { return }
             presentPendingIncident()
+        }
+        .onChange(of: failures.pending) { _, failure in
+            guard failure != nil else { return }
+            presentPendingFailure()
+        }
+    }
+
+    /// Same NSAlert choice as the incident alert below. The app is deliberately not
+    /// activated: when the failure lands while the user is working elsewhere, the
+    /// operation's own completion signal already reaches them, and pulling the whole app
+    /// forward would steal their focus mid-keystroke — the alert simply waits for their
+    /// return.
+    private func presentPendingFailure() {
+        guard let failure = failures.pending else { return }
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = String(localized: "root.operation_failure.title")
+        alert.informativeText = failure.message
+        alert.addButton(withTitle: String(localized: "common.button.ok"))
+        alert.addButton(withTitle: String(localized: "root.operation_failure.report.button"))
+
+        if alert.runModal() == .alertSecondButtonReturn {
+            failures.acceptPending()
+            openWindow(id: "feedback")
+        } else {
+            failures.dismissPending()
         }
     }
 

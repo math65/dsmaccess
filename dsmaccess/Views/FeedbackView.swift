@@ -102,6 +102,7 @@ struct FeedbackView: View {
         .disabled(model.isSending)
         .onAppear {
             model.adoptPendingIncident()
+            model.adoptPendingOperationFailure()
             typeFocused = true
             typeA11yFocused = true
         }

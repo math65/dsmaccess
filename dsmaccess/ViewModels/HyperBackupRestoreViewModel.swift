@@ -29,6 +29,11 @@ final class HyperBackupRestoreViewModel {
     private let session: SessionStore
     private var loadGeneration = 0
 
+    /// Title of the completion sound or notification for both restore flavors.
+    private static var restoreOperationTitle: String {
+        String(localized: "hyper_backup.operation.restore", defaultValue: "Restore")
+    }
+
     init(task: HyperBackupTask, version: HyperBackupVersion, session: SessionStore) {
         self.task = task
         self.version = version
@@ -215,7 +220,9 @@ final class HyperBackupRestoreViewModel {
         }
         isRestoring = true
         defer { isRestoring = false }
+        await OperationNotifier.prepare()
 
+        let outcome: DSMOperationOutcome
         do {
             try await session.withClient {
                 try await $0.copyFromHyperBackup(
@@ -227,11 +234,14 @@ final class HyperBackupRestoreViewModel {
                     overwrite: overwriting
                 )
             }
-            return .success(successMessage(for: selection, destination: sharePath))
+            outcome = .success(successMessage(for: selection, destination: sharePath))
         } catch {
-            guard !DSMError.isCancellation(error) else { return .cancelled }
-            return .failure(failureMessage(for: error, destination: sharePath))
+            outcome = DSMError.isCancellation(error)
+                ? .cancelled
+                : .failure(failureMessage(for: error, destination: sharePath))
         }
+        await OperationNotifier.signalCompletion(of: outcome, title: Self.restoreOperationTitle)
+        return outcome
     }
 
     /// Writes the backed-up entries back over their originals. DSM gives no choice of
@@ -241,7 +251,9 @@ final class HyperBackupRestoreViewModel {
         guard let first = selection.first, !isRestoring else { return .cancelled }
         isRestoring = true
         defer { isRestoring = false }
+        await OperationNotifier.prepare()
 
+        let outcome: DSMOperationOutcome
         do {
             try await session.withClient {
                 try await $0.restoreInPlaceFromHyperBackup(
@@ -252,14 +264,18 @@ final class HyperBackupRestoreViewModel {
                     originPath: first.path
                 )
             }
-            guard selection.count == 1 else {
-                return .success(String(localized: "hyper_backup.restore.in_place.announcement.several", defaultValue: "\(selection.count) items put back where they came from"))
+            if selection.count == 1 {
+                outcome = .success(String(localized: "hyper_backup.restore.in_place.announcement.one", defaultValue: "\(first.name) put back where it came from"))
+            } else {
+                outcome = .success(String(localized: "hyper_backup.restore.in_place.announcement.several", defaultValue: "\(selection.count) items put back where they came from"))
             }
-            return .success(String(localized: "hyper_backup.restore.in_place.announcement.one", defaultValue: "\(first.name) put back where it came from"))
         } catch {
-            guard !DSMError.isCancellation(error) else { return .cancelled }
-            return .failure(String(localized: "hyper_backup.restore.in_place.error", defaultValue: "Restoring to the original location failed: \(reason(for: error))"))
+            outcome = DSMError.isCancellation(error)
+                ? .cancelled
+                : .failure(String(localized: "hyper_backup.restore.in_place.error", defaultValue: "Restoring to the original location failed: \(reason(for: error))"))
         }
+        await OperationNotifier.signalCompletion(of: outcome, title: Self.restoreOperationTitle)
+        return outcome
     }
 
     /// Pulls one file onto the Mac. DSM allows this for a single file at a time, so the view
@@ -273,10 +289,12 @@ final class HyperBackupRestoreViewModel {
             isDownloading = false
             downloadProgress = nil
         }
+        await OperationNotifier.prepare()
 
         let taskID = task.taskID
         let versionID = version.versionID
         let currentNode = node
+        let outcome: DSMOperationOutcome
         do {
             try await session.withClient { client in
                 try await client.downloadFromHyperBackup(
@@ -291,11 +309,14 @@ final class HyperBackupRestoreViewModel {
                     }
                 )
             }
-            return .success(String(localized: "hyper_backup.restore.download.announcement", defaultValue: "\(entry.name) downloaded"))
+            outcome = .success(String(localized: "hyper_backup.restore.download.announcement", defaultValue: "\(entry.name) downloaded"))
         } catch {
-            guard !DSMError.isCancellation(error) else { return .cancelled }
-            return .failure(String(localized: "hyper_backup.restore.download.error", defaultValue: "Downloading \(entry.name) failed: \(reason(for: error))"))
+            outcome = DSMError.isCancellation(error)
+                ? .cancelled
+                : .failure(String(localized: "hyper_backup.restore.download.error", defaultValue: "Downloading \(entry.name) failed: \(reason(for: error))"))
         }
+        await OperationNotifier.signalCompletion(of: outcome, title: String(localized: "common.operation.download"))
+        return outcome
     }
 
     var summary: String {

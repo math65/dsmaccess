@@ -346,6 +346,7 @@ final class DSMTransport {
 
     func download(
         from url: URL,
+        timeoutInterval: TimeInterval? = nil,
         progress: @escaping DSMTransferProgressHandler
     ) async throws -> (URL, URLResponse) {
         if hasInjectedDownloadFile {
@@ -355,9 +356,14 @@ final class DSMTransport {
             return result
         }
         let delegate = DSMTransferDelegate(progress: progress)
+        // The request's own value overrides the session's 20-second idle limit in both
+        // directions (measured on macOS 26): this is the one place a caller can wait
+        // longer for a server that prepares before sending its first byte.
+        var request = URLRequest(url: url)
+        if let timeoutInterval { request.timeoutInterval = timeoutInterval }
         do {
             let result = try await session.download(
-                for: URLRequest(url: url),
+                for: request,
                 delegate: delegate
             )
             let size = try await MultipartBodyFile.fileSize(at: result.0)

@@ -49,7 +49,7 @@ struct HyperBackupRestoreSheet: View {
                     to: destinationPath,
                     overwriting: overwriting
                 )
-                VoiceOver.announce(outcome, priority: .high)
+                OperationFailures.shared.present(outcome, from: .hyperBackup)
                 if case .success = outcome { return true }
                 return false
             }
@@ -343,7 +343,7 @@ struct HyperBackupRestoreSheet: View {
             category: .progress
         )
         let outcome = await viewModel.restoreInPlace(entries)
-        VoiceOver.announce(outcome, priority: .high)
+        OperationFailures.shared.present(outcome, from: .hyperBackup)
     }
 
     /// The save panel is where the user names the file and picks the folder, so the app never
@@ -361,18 +361,17 @@ struct HyperBackupRestoreSheet: View {
             category: .progress
         )
         let outcome = await viewModel.download(entry, to: url)
-        VoiceOver.announce(outcome, priority: .high)
+        OperationFailures.shared.present(outcome, from: .hyperBackup)
     }
 
     private func prepareRestore(of entries: [HyperBackupEntry]) async {
         guard !entries.isEmpty else { return }
         await viewModel.loadDestinations()
         guard !viewModel.destinations.isEmpty else {
-            VoiceOver.announce(
-                String(localized: "hyper_backup.restore.error.no_destination"),
-                category: .error,
-                priority: .high
-            )
+            OperationFailures.shared.record(OperationFailure(
+                message: String(localized: "hyper_backup.restore.error.no_destination"),
+                module: .hyperBackup
+            ))
             return
         }
         pendingRestore = HyperBackupPendingRestore(entries: entries)

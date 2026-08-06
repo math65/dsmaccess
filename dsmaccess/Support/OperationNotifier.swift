@@ -37,6 +37,20 @@ enum OperationNotifier {
         _ = try? await center.requestAuthorization(options: [.alert, .sound])
     }
 
+    /// Signals the end of an operation from its outcome: success and failure each go out
+    /// over the usual channel, a cancellation stays silent like everywhere else.
+    @MainActor
+    static func signalCompletion(of outcome: DSMOperationOutcome, title: String) async {
+        switch outcome {
+        case .success(let message):
+            await signalCompletion(title: title, body: message, succeeded: true)
+        case .failure(let message):
+            await signalCompletion(title: title, body: message, succeeded: false)
+        case .cancelled:
+            break
+        }
+    }
+
     /// Signals the end of an operation over the channel that suits where the user is: a sound
     /// in front of the screen, a notification if they are elsewhere. Never both — the banner
     /// would be read out again by VoiceOver after the announcement.

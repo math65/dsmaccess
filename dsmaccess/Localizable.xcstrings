@@ -13843,6 +13843,22 @@
         }
       }
     },
+    "feedback.operation_failure.prefill": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "An operation failed in %1$@. The app reported: %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Une opération a échoué dans %1$@. L’app a signalé : %2$@"
+          }
+        }
+      }
+    },
     "feedback.send.done.announcement": {
       "localizations": {
         "en": {
@@ -20175,6 +20191,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "annulation de la sauvegarde"
+          }
+        }
+      }
+    },
+    "hyper_backup.operation.restore": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restauration"
           }
         }
       }
@@ -29330,6 +29362,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Une réponse du NAS n’a pas pu être lue"
+          }
+        }
+      }
+    },
+    "root.operation_failure.report.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Report"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signaler"
+          }
+        }
+      }
+    },
+    "root.operation_failure.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The operation failed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’opération a échoué"
           }
         }
       }
