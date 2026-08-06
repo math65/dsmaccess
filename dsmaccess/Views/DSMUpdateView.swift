@@ -180,8 +180,7 @@ struct DSMUpdateView: View {
         operationTask = Task {
             let outcome = await viewModel.uploadAndCheck()
             operationTask = nil
-            VoiceOver.announce(outcome, priority: .high)
-            if case .success = outcome { focusWarning = true }
+            OperationFailures.shared.present(outcome, from: .controlPanel) { focusWarning = true }
         }
     }
 
@@ -195,7 +194,7 @@ struct DSMUpdateView: View {
         operationTask = Task {
             let outcome = await viewModel.startUpgrade()
             operationTask = nil
-            VoiceOver.announce(outcome, priority: .high)
+            OperationFailures.shared.present(outcome, from: .controlPanel)
         }
     }
 }

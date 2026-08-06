@@ -31,7 +31,6 @@ struct UsersGroupsView: View {
     /// cannot follow each other without waiting for the first one to close.
     @State private var userAwaitingPermissions: String?
     @State private var groupAwaitingPermissions: String?
-    @State private var operationFailure: String?
     @AccessibilityFocusState private var contentFocused: Bool
 
     private let session: SessionStore
@@ -58,7 +57,7 @@ struct UsersGroupsView: View {
                         let outcome = await viewModel.createUser(draft)
                         // A failure stays in the sheet, which keeps what was typed; only
                         // success is announced here, once the sheet is closed.
-                        if case .success = outcome { await announce(outcome) }
+                        if case .success = outcome { await present(outcome) }
                         return outcome
                     },
                     onConfigurePermissions: { userAwaitingPermissions = $0 }
@@ -72,7 +71,7 @@ struct UsersGroupsView: View {
                 CreateGroupSheet(
                     onCreate: { draft in
                         let outcome = await viewModel.createGroup(draft)
-                        if case .success = outcome { await announce(outcome) }
+                        if case .success = outcome { await present(outcome) }
                         return outcome
                     },
                     onConfigurePermissions: { groupAwaitingPermissions = $0 }
@@ -80,31 +79,17 @@ struct UsersGroupsView: View {
             }
             .sheet(item: $holderToConfigure) { holder in
                 SharePermissionsSheet(holder: holder, session: session) { outcome in
-                    Task { await announce(outcome) }
+                    Task { await present(outcome) }
                 }
             }
             .sheet(item: $userToDelete) { user in
                 AccountDeletionSheet(name: user.name, kind: .user) {
-                    Task { await announce(viewModel.deleteUser(user)) }
+                    Task { await present(viewModel.deleteUser(user)) }
                 }
             }
             .sheet(item: $groupToDelete) { group in
                 AccountDeletionSheet(name: group.name, kind: .group) {
-                    Task { await announce(viewModel.deleteGroup(group)) }
-                }
-            }
-            .alert(
-                "common.level.error",
-                isPresented: Binding(
-                    get: { operationFailure != nil },
-                    set: { if !$0 { operationFailure = nil } }
-                )
-            ) {
-                Button("common.button.ok", role: .cancel) { }
-                    .help("users.error.dismiss.label")
-            } message: {
-                if let operationFailure {
-                    Text(operationFailure)
+                    Task { await present(viewModel.deleteGroup(group)) }
                 }
             }
     }
@@ -239,7 +224,7 @@ struct UsersGroupsView: View {
             }
             ToolbarItem {
                 Button {
-                    Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
+                    Task { await present(viewModel.setUser(user, disabled: !user.isDisabled)) }
                 } label: {
                     Label(
                         user.isDisabled ? "users.user.enable.button" : "users.user.disable.button",
@@ -278,7 +263,7 @@ struct UsersGroupsView: View {
             .help("users.user.permissions.hint")
         Divider()
         Button(user.isDisabled ? "common.button.enable" : "common.button.disable") {
-            Task { await announce(viewModel.setUser(user, disabled: !user.isDisabled)) }
+            Task { await present(viewModel.setUser(user, disabled: !user.isDisabled)) }
         }
         .disabled(isProtected(user) || isBusy(user))
         .help(user.isDisabled ? "users.user.enable.hint" : "users.user.disable.hint")
@@ -344,14 +329,8 @@ struct UsersGroupsView: View {
         )
     }
 
-    private func announce(_ outcome: DSMOperationOutcome) async {
-        // A failure shows up in an alert, which VoiceOver reads on its own; an extra
-        // announcement would make it narrate twice.
-        if case .failure(let message) = outcome {
-            operationFailure = message
-        } else {
-            VoiceOver.announce(outcome, priority: .high)
-        }
+    private func present(_ outcome: DSMOperationOutcome) async {
+        OperationFailures.shared.present(outcome, from: .usersGroups)
     }
 }
 

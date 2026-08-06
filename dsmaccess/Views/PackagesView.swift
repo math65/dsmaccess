@@ -26,9 +26,7 @@ struct PackagesView: View {
     @State private var order = [KeyPathComparator(\PackageInfo.sortableName, order: .forward)]
     @State private var refreshTask: Task<Void, Never>?
     @State private var operationTask: Task<Void, Never>?
-    @State private var operationError: String?
     @AccessibilityFocusState private var focusContent: Bool
-    @AccessibilityFocusState private var focusOperationError: Bool
 
     private let session: SessionStore
 
@@ -309,18 +307,6 @@ struct PackagesView: View {
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(.quaternary)
-        }
-        if let operationError {
-            HStack {
-                Label(operationError, systemImage: "exclamationmark.triangle.fill")
-                    .foregroundStyle(.readableRed)
-                    .accessibilityFocused($focusOperationError)
-                Spacer()
-                Button("common.button.dismiss_error") { self.operationError = nil }
-            }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
             .background(.quaternary)
         }
     }
@@ -608,19 +594,10 @@ struct PackagesView: View {
         operation: @escaping @MainActor () async -> DSMOperationOutcome
     ) {
         guard operationTask == nil else { return }
-        operationError = nil
         VoiceOver.announce(announcement, category: .progress, priority: .high)
         operationTask = Task {
             let outcome = await operation()
-            if case .failure(let message) = outcome {
-                operationError = message
-                focusOperationError = true
-            }
-            if case .cancelled = outcome {
-                operationTask = nil
-                return
-            }
-            VoiceOver.announce(outcome, priority: .high)
+            OperationFailures.shared.present(outcome, from: .packages)
             operationTask = nil
         }
     }
@@ -715,9 +692,7 @@ struct PackagesView: View {
     }
 
     private func presentOperationError(_ message: String) {
-        operationError = message
-        focusOperationError = true
-        VoiceOver.announce(message, category: .error, priority: .high)
+        OperationFailures.shared.record(OperationFailure(message: message, module: .packages))
     }
 }
 

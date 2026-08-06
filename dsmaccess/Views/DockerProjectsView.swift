@@ -66,7 +66,7 @@ struct DockerProjectsView: View {
                     guard let project = pendingDelete else { return }
                     pendingDelete = nil
                     Task {
-                        VoiceOver.announce(await vm.delete(project), priority: .high)
+                        OperationFailures.shared.present(await vm.delete(project), from: .containers)
                     }
                 }
                 Button("common.button.cancel", role: .cancel) { }
@@ -252,7 +252,7 @@ struct DockerProjectsView: View {
             ),
             category: .progress
         )
-        VoiceOver.announce(await vm.perform(action, on: project), priority: .high)
+        OperationFailures.shared.present(await vm.perform(action, on: project), from: .containers)
     }
 }
 
@@ -471,7 +471,7 @@ struct DockerProjectDetailsSheet: View {
         )
         let outcome = await vm.updateCompose(of: project, content: composeContent, rebuild: rebuild)
         isSaving = false
-        VoiceOver.announce(outcome, priority: .high)
+        OperationFailures.shared.present(outcome, from: .containers)
         guard !rebuild else {
             // The rebuild leaves its docker-compose output in the report sheet, which the list
             // behind this one presents — and that is as true of a build that failed as of one

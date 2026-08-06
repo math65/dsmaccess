@@ -137,7 +137,7 @@ struct FileServicesView: View {
     private func apply(_ service: FileService, enabled: Bool) {
         Task {
             let msg = await vm.setEnabled(service, enabled)
-            VoiceOver.announce(msg, priority: .high)
+            OperationFailures.shared.present(msg, from: .fileServices)
         }
     }
 

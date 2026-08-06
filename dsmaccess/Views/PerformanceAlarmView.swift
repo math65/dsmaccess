@@ -30,7 +30,7 @@ struct PerformanceAlarmView: View {
                     guard let saved else { return }
                     Task {
                         let outcome = await vm.save(saved)
-                        VoiceOver.announce(outcome, priority: .high)
+                        OperationFailures.shared.present(outcome, from: .resourceMonitor)
                     }
                 }
             }
@@ -47,7 +47,7 @@ struct PerformanceAlarmView: View {
                     pendingDeletion = []
                     Task {
                         let outcome = await vm.delete(doomed)
-                        VoiceOver.announce(outcome, priority: .high)
+                        OperationFailures.shared.present(outcome, from: .resourceMonitor)
                     }
                 }
                 Button("common.button.cancel", role: .cancel) { pendingDeletion = [] }
@@ -135,7 +135,7 @@ struct PerformanceAlarmView: View {
                         set: { enabled in
                             Task {
                                 let outcome = await vm.setEnabled(rule, enabled)
-                                VoiceOver.announce(outcome, priority: .high)
+                                OperationFailures.shared.present(outcome, from: .resourceMonitor)
                             }
                         }
                     )

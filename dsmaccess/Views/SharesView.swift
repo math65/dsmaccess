@@ -56,7 +56,7 @@ struct SharesView: View {
             CreateShareSheet(volumes: vm.volumes) { creation in
                 Task {
                     let outcome = await vm.create(creation)
-                    VoiceOver.announce(outcome, priority: .high)
+                    OperationFailures.shared.present(outcome, from: .shares)
                 }
             }
         }
@@ -64,7 +64,7 @@ struct SharesView: View {
             EditShareSheet(folder: folder) { changes in
                 Task {
                     let outcome = await vm.update(changes)
-                    VoiceOver.announce(outcome, priority: .high)
+                    OperationFailures.shared.present(outcome, from: .shares)
                 }
             }
         }
@@ -72,7 +72,7 @@ struct SharesView: View {
             UnlockShareSheet(folder: folder) { key in
                 Task {
                     let outcome = await vm.unlock(folder, key: key)
-                    VoiceOver.announce(outcome, priority: .high)
+                    OperationFailures.shared.present(outcome, from: .shares)
                 }
             }
         }
@@ -80,13 +80,13 @@ struct SharesView: View {
             DeleteShareSheet(folder: folder) {
                 Task {
                     let msg = await vm.delete(folder)
-                    VoiceOver.announce(msg, priority: .high)
+                    OperationFailures.shared.present(msg, from: .shares)
                 }
             }
         }
         .sheet(item: $pendingPermissions) { folder in
             ShareAccountPermissionsSheet(shareName: folder.name, session: session) { outcome in
-                VoiceOver.announce(outcome, priority: .high)
+                OperationFailures.shared.present(outcome, from: .shares)
             }
         }
         .confirmationDialog(
@@ -100,7 +100,7 @@ struct SharesView: View {
             Button("shares.recycle_bin.empty.button", role: .destructive) {
                 Task {
                     let outcome = await vm.emptyRecycleBin(folder)
-                    VoiceOver.announce(outcome, priority: .high)
+                    OperationFailures.shared.present(outcome, from: .shares)
                 }
             }
             Button("common.button.cancel", role: .cancel) { }
@@ -134,7 +134,7 @@ struct SharesView: View {
             Button("shares.conversion.stop.button") {
                 Task {
                     if let outcome = await vm.cancelConversion() {
-                        VoiceOver.announce(outcome, priority: .high)
+                        OperationFailures.shared.present(outcome, from: .shares)
                     }
                 }
             }
@@ -207,7 +207,7 @@ struct SharesView: View {
                 guard let share else { return }
                 Task {
                     let outcome = await vm.lock(share)
-                    VoiceOver.announce(outcome, priority: .high)
+                    OperationFailures.shared.present(outcome, from: .shares)
                 }
             }
             .disabled(share?.encryptionState != .mounted)

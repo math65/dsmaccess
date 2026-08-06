@@ -137,7 +137,7 @@ struct ContainersPaneView: View {
                 Button("common.button.delete", role: .destructive) {
                     guard let container = pendingDelete else { return }
                     pendingDelete = nil
-                    Task { VoiceOver.announce(await viewModel.delete(container), priority: .high) }
+                    Task { OperationFailures.shared.present(await viewModel.delete(container), from: .containers) }
                 }
                 Button("common.button.cancel", role: .cancel) { }
             } message: {
@@ -158,7 +158,7 @@ struct ContainersPaneView: View {
                 Button("containers.action.force_stop", role: .destructive) {
                     guard let container = pendingForceStop else { return }
                     pendingForceStop = nil
-                    Task { VoiceOver.announce(await viewModel.forceStop(container), priority: .high) }
+                    Task { OperationFailures.shared.present(await viewModel.forceStop(container), from: .containers) }
                 }
                 Button("common.button.cancel", role: .cancel) { }
             } message: {
@@ -179,7 +179,7 @@ struct ContainersPaneView: View {
                 Button("containers.action.reset", role: .destructive) {
                     guard let container = pendingReset else { return }
                     pendingReset = nil
-                    Task { VoiceOver.announce(await viewModel.reset(container), priority: .high) }
+                    Task { OperationFailures.shared.present(await viewModel.reset(container), from: .containers) }
                 }
                 Button("common.button.cancel", role: .cancel) { }
             } message: {
@@ -210,9 +210,9 @@ struct ContainersPaneView: View {
                     duplicating = nil
                     guard !name.isEmpty else { return }
                     Task {
-                        VoiceOver.announce(
+                        OperationFailures.shared.present(
                             await viewModel.duplicate(container, as: name),
-                            priority: .high
+                            from: .containers
                         )
                     }
                 }
@@ -238,9 +238,9 @@ struct ContainersPaneView: View {
                     createFolder: nil
                 ) { chosen in
                     Task {
-                        VoiceOver.announce(
+                        OperationFailures.shared.present(
                             await viewModel.exportProfile(of: container, to: chosen),
-                            priority: .high
+                            from: .containers
                         )
                     }
                 }
@@ -715,7 +715,7 @@ struct ContainersPaneView: View {
     }
 
     private func perform(_ action: ContainerAction, on container: ContainerItem) async {
-        VoiceOver.announce(await viewModel.perform(action, on: container), priority: .high)
+        OperationFailures.shared.present(await viewModel.perform(action, on: container), from: .containers)
     }
 
     private func presentDetails(for container: ContainerItem) {
