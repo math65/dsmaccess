@@ -40,7 +40,7 @@ struct HyperBackupView: View {
             ) {
                 Button("hyper_backup.list.cancel.button", role: .destructive) {
                     if let task = pendingCancellation {
-                        Task { await announce(viewModel.cancel(task)) }
+                        Task { await present(viewModel.cancel(task)) }
                     }
                     pendingCancellation = nil
                 }
@@ -106,7 +106,7 @@ struct HyperBackupView: View {
     @ViewBuilder
     private func contextMenu(for task: HyperBackupTask) -> some View {
         Button("hyper_backup.list.back_up_now.button") {
-            Task { await announce(viewModel.backUp(task)) }
+            Task { await present(viewModel.backUp(task)) }
         }
         .disabled(!task.canBackUp || viewModel.busyTaskIDs.contains(task.taskID))
 
@@ -132,7 +132,7 @@ struct HyperBackupView: View {
                 .help("hyper_backup.list.cancel.hint")
             } else {
                 Button("hyper_backup.list.back_up_now.button", systemImage: "play.fill") {
-                    if let task = selectedTask { Task { await announce(viewModel.backUp(task)) } }
+                    if let task = selectedTask { Task { await present(viewModel.backUp(task)) } }
                 }
                 .disabled(selectedTask?.canBackUp != true || selectedTaskIsBusy)
                 .help("hyper_backup.list.back_up_now.hint")
@@ -289,8 +289,8 @@ struct HyperBackupView: View {
         }
     }
 
-    private func announce(_ outcome: DSMOperationOutcome) async {
-        VoiceOver.announce(outcome, priority: .high)
+    private func present(_ outcome: DSMOperationOutcome) async {
+        OperationFailures.shared.present(outcome, from: .hyperBackup)
     }
 }
 

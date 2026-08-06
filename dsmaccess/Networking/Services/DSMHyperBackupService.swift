@@ -214,7 +214,15 @@ final class DSMHyperBackupService {
             sourcePath: sourcePath,
             fileName: fileName
         )
-        let (temporaryURL, response) = try await transport.download(from: url, progress: progress)
+        // The NAS prepares the file before the first byte moves — on a busy machine, or
+        // when the backup lives on a remote target the server has to fetch from, the
+        // silence exceeded the transport's 20-second idle default. This is an idle
+        // ceiling, not a duration: any received byte resets it.
+        let (temporaryURL, response) = try await transport.download(
+            from: url,
+            timeoutInterval: 300,
+            progress: progress
+        )
         guard let httpResponse = response as? HTTPURLResponse,
               (200..<300).contains(httpResponse.statusCode) else {
             throw DSMError.invalidResponse

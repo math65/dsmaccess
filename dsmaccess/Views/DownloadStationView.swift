@@ -32,7 +32,7 @@ struct DownloadStationView: View {
             .task(id: autoRefresh) { await refreshPeriodically() }
             .sheet(isPresented: $showCreateSheet) {
                 CreateDownloadSheet { uri, destination in
-                    Task { await announce(viewModel.create(uri: uri, destination: destination)) }
+                    Task { await present(viewModel.create(uri: uri, destination: destination)) }
                 }
             }
             .confirmationDialog(
@@ -263,21 +263,21 @@ struct DownloadStationView: View {
     }
 
     private func pause(ids: Set<String>) async {
-        await announce(viewModel.pause(ids: ids))
+        await present(viewModel.pause(ids: ids))
     }
 
     private func resume(ids: Set<String>) async {
-        await announce(viewModel.resume(ids: ids))
+        await present(viewModel.resume(ids: ids))
     }
 
     private func deleteSelection(forceComplete: Bool) async {
         let ids = selection
         selection.removeAll()
-        await announce(viewModel.delete(ids: ids, forceComplete: forceComplete))
+        await present(viewModel.delete(ids: ids, forceComplete: forceComplete))
     }
 
-    private func announce(_ outcome: DSMOperationOutcome) async {
-        VoiceOver.announce(outcome, priority: .high)
+    private func present(_ outcome: DSMOperationOutcome) async {
+        OperationFailures.shared.present(outcome, from: .downloads)
     }
 
     private func sizeSummary(_ task: DownloadTask) -> String {

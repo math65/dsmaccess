@@ -211,9 +211,15 @@ final class ExternalDevicesViewModel {
         lastOutcome = nil
     }
 
+    /// A success stays visible in the outcome banner and is announced; a failure goes to
+    /// the global alert, which VoiceOver reads on its own.
     private func report(_ message: String, category: AnnouncementCategory) {
+        if category == .error {
+            OperationFailures.shared.record(OperationFailure(message: message, module: .controlPanel))
+            return
+        }
         lastOutcome = message
-        VoiceOver.announce(message, category: category, priority: category == .error ? .high : .normal)
+        VoiceOver.announce(message, category: category, priority: .normal)
     }
 
     private static func description(of error: Error) -> String {

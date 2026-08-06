@@ -219,14 +219,6 @@ struct ConnectionsView: View {
         // The list has been reloaded: the retained identifiers no longer point to anything,
         // and a phantom selection would re-arm the button on sessions that are gone.
         selection = []
-        switch outcome {
-        case .success(let message):
-            VoiceOver.announce(message, category: .result, priority: .high)
-            focusContent = true
-        case .failure(let message):
-            VoiceOver.announce(message, category: .error, priority: .high)
-        case .cancelled:
-            break
-        }
+        OperationFailures.shared.present(outcome, from: .resourceMonitor) { focusContent = true }
     }
 }

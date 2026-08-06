@@ -19,7 +19,6 @@ struct ShareLinksView: View {
     @State private var pendingDelete = [SharingLink]()
     @State private var confirmsInvalidCleanup = false
     @State private var isMutating = false
-    @State private var operationError: String?
     @AccessibilityFocusState private var focusTitle: Bool
     @AccessibilityFocusState private var focusStatus: Bool
 
@@ -103,16 +102,7 @@ struct ShareLinksView: View {
 
     @ViewBuilder
     private var content: some View {
-        if let operationError {
-            VStack(spacing: 12) {
-                Text(operationError)
-                    .foregroundStyle(.readableRed)
-                    .multilineTextAlignment(.center)
-                    .accessibilityFocused($focusStatus)
-                Button("common.button.dismiss_error") { self.operationError = nil }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-        } else if vm.isLoadingShareLinks && vm.shareLinks.isEmpty {
+        if vm.isLoadingShareLinks && vm.shareLinks.isEmpty {
             ModuleLoadingView("share_links.loading")
                 .accessibilityFocused($focusStatus)
         } else if let error = vm.shareLinksError {
@@ -219,7 +209,6 @@ struct ShareLinksView: View {
     }
 
     private func loadShareLinks(forceRefresh: Bool) async {
-        operationError = nil
         // The NAS is asked for a stable order; the column the user picked is applied here,
         // on the loaded links, so sorting never costs a round trip.
         await vm.loadShareLinks(
@@ -264,11 +253,7 @@ struct ShareLinksView: View {
     }
 
     private func handle(_ outcome: DSMOperationOutcome) {
-        if case .failure(let message) = outcome {
-            operationError = message
-            focusStatus = true
-        }
-        VoiceOver.announce(outcome, priority: .high)
+        OperationFailures.shared.present(outcome, from: .files)
     }
 
     private func copyToClipboard(_ url: String) {

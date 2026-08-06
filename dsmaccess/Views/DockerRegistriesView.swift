@@ -84,7 +84,7 @@ struct DockerRegistriesView: View {
                 Button("common.button.delete", role: .destructive) {
                     guard let registry = pendingDeletion else { return }
                     pendingDeletion = nil
-                    Task { VoiceOver.announce(await vm.delete(registry), priority: .high) }
+                    Task { OperationFailures.shared.present(await vm.delete(registry), from: .containers) }
                 }
                 Button("common.button.cancel", role: .cancel) { }
             } message: {
@@ -152,7 +152,7 @@ struct DockerRegistriesView: View {
 
             Button("containers.registry.action.use") {
                 guard let registry = selectedRegistry else { return }
-                Task { VoiceOver.announce(await vm.use(registry), priority: .high) }
+                Task { OperationFailures.shared.present(await vm.use(registry), from: .containers) }
             }
             .disabled(!canUseSelection)
             .help("containers.registry.action.use.hint")
@@ -179,7 +179,7 @@ struct DockerRegistriesView: View {
         Button("common.button.edit") { form = .edit(row.registry) }
         if !row.isActive {
             Button("containers.registry.action.use") {
-                Task { VoiceOver.announce(await vm.use(row.registry), priority: .high) }
+                Task { OperationFailures.shared.present(await vm.use(row.registry), from: .containers) }
             }
         }
         if !row.registry.isDefaultRegistry {

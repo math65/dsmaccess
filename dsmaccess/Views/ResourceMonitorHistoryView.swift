@@ -128,7 +128,7 @@ struct ResourceMonitorHistoryView: View {
                 set: { enabled in
                     Task {
                         let outcome = await vm.setHistoryEnabled(enabled)
-                        VoiceOver.announce(outcome, priority: .high)
+                        OperationFailures.shared.present(outcome, from: .resourceMonitor)
                     }
                 }
             )

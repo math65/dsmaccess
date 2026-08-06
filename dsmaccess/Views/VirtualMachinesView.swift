@@ -303,7 +303,7 @@ struct VirtualMachinesView: View {
     }
 
     private func perform(_ action: VirtualMachinePowerAction, on machine: VirtualMachine) async {
-        VoiceOver.announce(await viewModel.perform(action, on: machine), priority: .high)
+        OperationFailures.shared.present(await viewModel.perform(action, on: machine), from: .virtualMachines)
     }
 
     private func memoryText(_ machine: VirtualMachine) -> String? {

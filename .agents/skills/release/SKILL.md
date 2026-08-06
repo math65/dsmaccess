@@ -62,18 +62,22 @@ manuel n'y a aucun sens. Les versions jusqu'à la 1.1 en portaient une, par habi
 - Une idée par puce. Test à voix haute : si ça sonne comme un titre de commit,
   reformuler comme on le dirait à un ami non technique.
 
-### A3. Notes françaises + rendu HTML — DIFFÉRÉ (à brancher quand ça devient visible)
+### A3. Notes françaises + rendu HTML — ACTIF depuis la 1.1-beta.11
 
-Pour v1.0 on a choisi **lean** : `RELEASE_NOTES.md` EN seul (personne ne met à jour
-VERS une première version → le dialogue de notes Sparkle n'est jamais affiché).
-Dès qu'une version met à jour depuis une précédente et qu'on veut de belles notes
-FR/EN dans l'app, brancher le rendu riche :
-- Copier `scripts/render-release-notes.sh` + `release-notes-template.html` depuis
-  `~/dev/teamtalk/ttaccessible/scripts/` (pandoc, thème clair/sombre).
-- Écrire `RELEASE_NOTES.fr.md` **en français idiomatique** (vouvoiement, PAS un calque
-  mot à mot de l'anglais — Mathieu rejette le « translationese »).
-- Rendre `docs/<base>.html` + `docs/<base>.fr.html` AVANT `generate_appcast` : il détecte
-  les sidecars et émet les `<sparkle:releaseNotesLink>`. Ajouter ce rendu dans `build.sh`.
+`RELEASE_NOTES.md` (EN) **et** `RELEASE_NOTES.fr.md` sont **tous les deux obligatoires**
+et **cumulatifs** : la nouvelle section se met EN TÊTE, l'historique reste dessous
+(écrasé par erreur en beta.12 ; le .fr.md oublié en beta.5 — les deux pièges sont réels).
+- Le titre de section porte **la version ET le build** : `## vX.Y-beta.N (build M) — date`.
+  Sparkle compare par build ; les dates EN sont en `AAAA-MM-JJ`, les FR en toutes lettres.
+- Écrire `RELEASE_NOTES.fr.md` **en français idiomatique et accentué** (vouvoiement, PAS
+  un calque mot à mot de l'anglais — et pas d'ASCII strict par contagion d'un e-mail :
+  c'est arrivé en beta.13).
+- Le rendu HTML est automatique : `build.sh` appelle `scripts/render-release-notes.sh`
+  (pandoc) et `generate_appcast` détecte les sidecars `docs/<base>.html` + `.fr.html`
+  pour émettre les `<sparkle:releaseNotesLink>` (`xml:lang="fr"` inclus).
+- Rattrapage après publication : éditer les `.md`, re-rendre, pousser, puis
+  `gh release edit vX.Y --notes-file RELEASE_NOTES.md`. **Ne pas toucher
+  `docs/appcast.xml`** : la signature EdDSA du zip publié reste valide.
 
 **Si invoqué avec `notes` : stop ici.** Sinon, continuer en Phase B.
 
@@ -95,10 +99,13 @@ release publique qui atteint chaque utilisateur via l'updater in-app.
   (ex. `1.1-beta.1`, build 2 ; `1.1-beta.2`, build 3 ; puis la stable `1.1`, build suivant).
   `build.sh` détecte « beta » dans la version et, automatiquement : tague l'entrée d'appcast
   sur le canal `beta` (`--channel beta`) et marque la release GitHub `--prerelease`. Côté app,
-  `UpdaterChannelDelegate.allowedChannels` n'ouvre le canal `beta` que pour un build dont la
-  version contient « beta » → un build stable ignore les entrées beta, sans rien à basculer.
-  Les entrées stables (sans canal) restent visibles de tous ; seules les entrées beta sont
-  réservées aux builds beta.
+  **le canal est un choix de l'utilisateur depuis la 1.1-beta.20** : Réglages > Mises à jour
+  porte « Recevoir les versions bêta » (`Preferences.receivesBetaUpdates`, lu par
+  `allowedChannels`). Le défaut reprend l'ancien comportement — vrai si la version installée
+  contient « beta » — pour que personne ne change de canal en installant une version.
+  Cocher déclenche une vérification immédiate ; décocher ne redescend pas (l'app garde sa
+  bêta jusqu'à ce qu'une stable la dépasse, l'écran le dit). Les entrées stables (sans
+  canal) restent visibles de tous.
 - `RELEASE_NOTES.md` à jour (Phase A).
 - Sur `main`, arbre de travail propre.
 

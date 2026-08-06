@@ -59,9 +59,9 @@ struct DockerImagesView: View {
                     guard let url = urls.first else { return }
                     Task { await sendFromMac(url) }
                 case .failure(let error):
-                    VoiceOver.announce(
+                    OperationFailures.shared.present(
                         .failure(error.localizedDescription),
-                        priority: .high
+                        from: .containers
                     )
                 }
             }
@@ -70,7 +70,7 @@ struct DockerImagesView: View {
                 isPresented: $isConfirmingPrune
             ) {
                 Button("containers.image.prune", role: .destructive) {
-                    Task { VoiceOver.announce(await vm.prune(), priority: .high) }
+                    Task { OperationFailures.shared.present(await vm.prune(), from: .containers) }
                 }
                 Button("common.button.cancel", role: .cancel) { }
             } message: {
@@ -86,7 +86,7 @@ struct DockerImagesView: View {
                 Button("common.button.delete", role: .destructive) {
                     guard let image = pendingDelete else { return }
                     pendingDelete = nil
-                    Task { VoiceOver.announce(await vm.delete(image), priority: .high) }
+                    Task { OperationFailures.shared.present(await vm.delete(image), from: .containers) }
                 }
                 Button("common.button.cancel", role: .cancel) { }
             } message: {
@@ -178,7 +178,7 @@ struct DockerImagesView: View {
 
             Button("containers.image.action.upgrade") {
                 guard let image = selectedImage else { return }
-                Task { VoiceOver.announce(await vm.upgrade(image), priority: .high) }
+                Task { OperationFailures.shared.present(await vm.upgrade(image), from: .containers) }
             }
             .disabled(selectedImage?.isUpgradable != true || selectedIsBusy || vm.isPulling)
             .help("containers.image.action.upgrade.hint")
@@ -254,7 +254,7 @@ struct DockerImagesView: View {
             String(localized: "containers.image.upload.in_progress"),
             category: .progress
         )
-        VoiceOver.announce(await vm.uploadImage(at: url), priority: .high)
+        OperationFailures.shared.present(await vm.uploadImage(at: url), from: .containers)
     }
 
     private func load(announce: Bool) async {
@@ -308,9 +308,9 @@ struct DockerImagePullSheet: View {
                         let tag = tag.trimmingCharacters(in: .whitespaces)
                         dismiss()
                         Task {
-                            VoiceOver.announce(
+                            OperationFailures.shared.present(
                                 await vm.pull(repository: repository, tag: tag),
-                                priority: .high
+                                from: .containers
                             )
                         }
                     }

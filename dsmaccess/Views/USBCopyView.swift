@@ -37,7 +37,7 @@ struct USBCopyView: View {
             ) {
                 Button("usb_copy.list.delete_task.button", role: .destructive) {
                     if let task = pendingDeletion {
-                        Task { await announce(viewModel.delete(task)) }
+                        Task { await present(viewModel.delete(task)) }
                     }
                     pendingDeletion = nil
                 }
@@ -53,7 +53,7 @@ struct USBCopyView: View {
             ) {
                 Button("usb_copy.list.run_task.button", role: .destructive) {
                     if let task = pendingHighImpactRun {
-                        Task { await announce(viewModel.run(task)) }
+                        Task { await present(viewModel.run(task)) }
                     }
                     pendingHighImpactRun = nil
                 }
@@ -138,7 +138,7 @@ struct USBCopyView: View {
         ToolbarItem {
             if selectedTask?.canCancel == true {
                 Button("usb_copy.list.cancel_copy.button", systemImage: "stop.fill") {
-                    if let task = selectedTask { Task { await announce(viewModel.cancel(task)) } }
+                    if let task = selectedTask { Task { await present(viewModel.cancel(task)) } }
                 }
                 .disabled(selectedTaskIsBusy)
                 .help("usb_copy.list.stop_task.hint")
@@ -173,7 +173,7 @@ struct USBCopyView: View {
                     }
                 } else if selectedTask?.canDisable == true {
                     Button("common.button.disable") {
-                        if let task = selectedTask { Task { await announce(viewModel.disable(task)) } }
+                        if let task = selectedTask { Task { await present(viewModel.disable(task)) } }
                     }
                 }
             }
@@ -350,7 +350,7 @@ struct USBCopyView: View {
     @ViewBuilder
     private func contextMenu(for task: USBCopyTask) -> some View {
         if task.canCancel {
-            Button("usb_copy.list.cancel_copy.button") { Task { await announce(viewModel.cancel(task)) } }
+            Button("usb_copy.list.cancel_copy.button") { Task { await present(viewModel.cancel(task)) } }
         } else if task.canRun {
             Button("usb_copy.list.run.button") { requestRun(task) }
         }
@@ -366,7 +366,7 @@ struct USBCopyView: View {
         if task.canEnable {
             Button("common.button.enable") { requestEnable(task) }
         } else if task.canDisable {
-            Button("common.button.disable") { Task { await announce(viewModel.disable(task)) } }
+            Button("common.button.disable") { Task { await present(viewModel.disable(task)) } }
         }
         if task.canDelete {
             Button("common.menu.delete", role: .destructive) { pendingDeletion = task }
@@ -389,7 +389,7 @@ struct USBCopyView: View {
         if task.destinationPath.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             presentedSheet = .edit(task.id)
         } else {
-            Task { await announce(viewModel.enable(task)) }
+            Task { await present(viewModel.enable(task)) }
         }
     }
 
@@ -397,12 +397,12 @@ struct USBCopyView: View {
         if task.knownStrategy == .mirror || task.removeSourceFile == true {
             pendingHighImpactRun = task
         } else {
-            Task { await announce(viewModel.run(task)) }
+            Task { await present(viewModel.run(task)) }
         }
     }
 
-    private func announce(_ outcome: DSMOperationOutcome) async {
-        VoiceOver.announce(outcome, priority: .high)
+    private func present(_ outcome: DSMOperationOutcome) async {
+        OperationFailures.shared.present(outcome, from: .usbCopy)
     }
 }
 

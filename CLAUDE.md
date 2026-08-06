@@ -194,6 +194,14 @@ loading, content, empty, validation failure, operation in progress, and error.
   visible and announced. Successful mutations need an announced result. Use `VoiceOver.announce`
   with the correct `AnnouncementCategory` and priority; do not post ad hoc accessibility
   notifications from each feature.
+- **The failure of an operation the user explicitly requested is an alert, never only an
+  announcement.** An announcement is gone the moment it is spoken: missed if attention is
+  elsewhere, lost entirely if the app is in the background when the result lands. A download,
+  a restore, or any explicit mutation that fails presents a dialog that stays until dismissed.
+  This is for outcomes of explicit gestures only — a background refresh failure remains an
+  on-screen message, never a modal. Operations long enough for the user to leave also signal
+  their end through `OperationNotifier` (sound in the foreground, system notification in the
+  background), the pattern the file transfer flow already uses.
 - Use `@AccessibilityFocusState` to move VoiceOver to the useful new element after navigation,
   modal presentation, replacement of loading/error content, and validation failure. Avoid
   stealing focus during background refresh or while the user is interacting elsewhere.

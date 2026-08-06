@@ -129,7 +129,7 @@ struct LogsSecurityView: View {
                 pendingUnblock = []
                 Task {
                     let outcome = await vm.unblock(addresses)
-                    VoiceOver.announce(outcome, priority: .high)
+                    OperationFailures.shared.present(outcome, from: .logsSecurity)
                 }
             }
             Button("common.button.cancel", role: .cancel) { pendingUnblock = [] }
@@ -194,7 +194,7 @@ struct LogsSecurityView: View {
                         Button("logs.load_more.button") {
                             Task {
                                 if let outcome = await vm.loadMore() {
-                                    VoiceOver.announce(outcome, priority: .high)
+                                    OperationFailures.shared.present(outcome, from: .logsSecurity)
                                 }
                             }
                         }
@@ -403,7 +403,7 @@ struct LogsSecurityView: View {
         )
         Task {
             let outcome = await vm.export(as: format, to: url)
-            VoiceOver.announce(outcome, priority: .high)
+            OperationFailures.shared.present(outcome, from: .logsSecurity)
         }
     }
 
@@ -426,7 +426,7 @@ struct LogsSecurityView: View {
                             set: { enabled in
                                 Task {
                                     let outcome = await vm.setTransferLogging(kind, enabled: enabled)
-                                    VoiceOver.announce(outcome, priority: .high)
+                                    OperationFailures.shared.present(outcome, from: .logsSecurity)
                                 }
                             }
                         )
@@ -540,7 +540,7 @@ struct LogsSecurityView: View {
     private func save(_ settings: AutoBlockSettings) {
         Task {
             let outcome = await vm.save(settings)
-            VoiceOver.announce(outcome, priority: .high)
+            OperationFailures.shared.present(outcome, from: .logsSecurity)
         }
     }
 

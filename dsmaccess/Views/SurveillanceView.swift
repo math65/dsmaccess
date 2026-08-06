@@ -309,7 +309,7 @@ struct SurveillanceView: View {
     }
 
     private func set(enabled: Bool, ids: Set<String>) async {
-        VoiceOver.announce(await viewModel.setEnabled(enabled, ids: ids), priority: .high)
+        OperationFailures.shared.present(await viewModel.setEnabled(enabled, ids: ids), from: .surveillance)
     }
 
     private func loadSnapshot(_ camera: SurveillanceCamera) async {

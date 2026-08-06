@@ -60,6 +60,19 @@ final class FeedbackViewModel {
         }
     }
 
+    /// Picks up the operation failure the user chose to report from the alert. The failure
+    /// is quoted at the top of the message, where it stays visible and editable: what gets
+    /// sent is exactly what the field shows.
+    func adoptPendingOperationFailure() {
+        guard let failure = OperationFailures.shared.consumeAccepted() else { return }
+        contactType = .bug
+        if trimmedMessage.isEmpty {
+            message = failure.reportPrefill
+        } else {
+            message += "\n\n" + failure.reportPrefill
+        }
+    }
+
     func send(sessionConnected: Bool, settings: AppSettings) async {
         guard canSend else { return }
         isSending = true

@@ -10,7 +10,6 @@ import SwiftUI
 struct FileStationTasksView: View {
     @Bindable var vm: FileBrowserViewModel
 
-    @State private var operationError: String?
     @State private var automaticFollowStopped = false
     @State private var selection = Set<FileStationBackgroundTask.ID>()
     @State private var order = [
@@ -26,12 +25,6 @@ struct FileStationTasksView: View {
                 .font(.title2.bold())
                 .accessibilityAddTraits(.isHeader)
                 .accessibilityFocused($focusHeading)
-
-            if let operationError {
-                Text(operationError)
-                    .foregroundStyle(.readableRed)
-                    .accessibilityFocused($focusStatus)
-            }
 
             if automaticFollowStopped {
                 Text("file_tasks.polling_stopped.description")
@@ -170,7 +163,6 @@ struct FileStationTasksView: View {
     }
 
     private func loadTasks() async {
-        operationError = nil
         automaticFollowStopped = false
         await vm.loadBackgroundTasks()
         guard !Task.isCancelled else { return }
@@ -191,22 +183,10 @@ struct FileStationTasksView: View {
     }
 
     private func stop(_ task: FileStationBackgroundTask) async {
-        operationError = nil
-        let outcome = await vm.stopBackgroundTask(task)
-        if case .failure(let message) = outcome {
-            operationError = message
-            focusStatus = true
-        }
-        VoiceOver.announce(outcome, priority: .high)
+        OperationFailures.shared.present(await vm.stopBackgroundTask(task), from: .files)
     }
 
     private func clearFinishedTasks() async {
-        operationError = nil
-        let outcome = await vm.clearFinishedBackgroundTasks()
-        if case .failure(let message) = outcome {
-            operationError = message
-            focusStatus = true
-        }
-        VoiceOver.announce(outcome, priority: .high)
+        OperationFailures.shared.present(await vm.clearFinishedBackgroundTasks(), from: .files)
     }
 }

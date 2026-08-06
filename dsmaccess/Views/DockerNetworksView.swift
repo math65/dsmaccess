@@ -39,7 +39,7 @@ struct DockerNetworksView: View {
                 Button("common.button.delete", role: .destructive) {
                     guard let network = pendingRemoval else { return }
                     pendingRemoval = nil
-                    Task { VoiceOver.announce(await vm.remove(network), priority: .high) }
+                    Task { OperationFailures.shared.present(await vm.remove(network), from: .containers) }
                 }
                 Button("common.button.cancel", role: .cancel) { }
             } message: {
