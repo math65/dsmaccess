@@ -1,3 +1,30 @@
+## v1.3-beta.2 (build 26) — 6 août 2026
+
+### En bref
+
+- Quand quelque chose échoue, DSM Access le dit désormais dans une boîte de
+  dialogue qui reste à l'écran jusqu'à ce que vous la fermiez. Fini les
+  erreurs prononcées une fois puis perdues — et un bouton Signaler transmet
+  le message au développeur si vous le souhaitez.
+
+### Changements
+
+- Tous les modules : une opération qui échoue — une restauration, une
+  suppression, un réglage — ouvre la même boîte de dialogue d'erreur.
+  VoiceOver la lit de lui-même, OK la ferme, et Signaler ouvre le formulaire
+  de contact prérempli avec l'erreur, que vous relisez avant tout envoi.
+- Hyper Backup : télécharger ou restaurer depuis une sauvegarde joue
+  désormais le son de fin d'opération, ou envoie une notification quand
+  l'app est en arrière-plan — les mêmes signaux que les transferts de
+  fichiers.
+- Hyper Backup : le téléchargement d'un fichier laisse maintenant au NAS
+  jusqu'à cinq minutes pour le préparer. Sur un NAS occupé, ou quand la
+  sauvegarde vit sur un autre NAS, l'ancienne limite de vingt secondes
+  pouvait couper court avant le premier octet.
+- Utilisateurs et groupes, liens de partage, favoris, Centre de paquets et
+  tâches File Station affichaient chacun leurs erreurs à leur manière ; tous
+  passent par la même boîte de dialogue.
+
 ## v1.3-beta.1 (build 25) — 5 août 2026
 
 ### En bref

@@ -1,3 +1,28 @@
+## v1.3-beta.2 (build 26) — 2026-08-06
+
+### Highlights
+
+- When something fails, DSM Access now says so in a dialog that stays on
+  screen until you close it. No more errors spoken once and lost — and a
+  Report button sends the message straight to the developer if you want to.
+
+### Changes
+
+- Every module: a failed operation — a restore, a deletion, a settings
+  change — opens the same error dialog. VoiceOver reads it on its own, OK
+  closes it, and Report opens the contact form pre-filled with the error,
+  which you review before anything is sent.
+- Hyper Backup: downloading or restoring from a backup now plays the
+  completion sound, or posts a notification when the app is in the
+  background — the same signals file transfers already had.
+- Hyper Backup: downloading a file from a backup now gives the NAS up to
+  five minutes to prepare it. On a busy NAS, or when the backup lives on
+  another NAS, the former twenty-second limit could cut the download short
+  before the first byte arrived.
+- Users and groups, share links, favorites, Package Center and File Station
+  tasks used to show errors each in their own way; they all use the same
+  dialog now.
+
 ## v1.3-beta.1 (build 25) — 2026-08-05
 
 ### Highlights
