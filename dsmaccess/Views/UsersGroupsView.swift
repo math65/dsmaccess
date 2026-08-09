@@ -497,6 +497,9 @@ private struct CreateUserSheet: View {
     private func copyPassword() {
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(password, forType: .string)
+        // Mark the entry confidential so clipboard-history managers, and the iCloud Universal
+        // Clipboard, exclude it: a generated NAS password must not linger in a history.
+        NSPasteboard.general.setString(password, forType: .init("org.nspasteboard.ConcealedType"))
         VoiceOver.announce(String(localized: "users.create_user.password_copied.announcement"), category: .result)
     }
 
