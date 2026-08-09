@@ -199,6 +199,36 @@ struct BackendAnnouncementCoordinatorTests {
         #"{"ok": true, "announcement": {"id": "\#(id)", "title": "T", "body": "B", "style": "info", "mode": "\#(mode)", "link": null}}"#
     }
 
+    private func link(_ url: String) -> AppBackendClient.Announcement.Link {
+        AppBackendClient.Announcement.Link(label: "Open", url: url)
+    }
+
+    @Test func opensWebLinks() {
+        #expect(
+            BackendAnnouncementCoordinator.openableURL(for: link("https://example.com/notes"))?
+                .absoluteString == "https://example.com/notes"
+        )
+        #expect(
+            BackendAnnouncementCoordinator.openableURL(for: link("http://example.com"))?
+                .absoluteString == "http://example.com"
+        )
+    }
+
+    /// A backend response must not be able to launch anything but a web page: file access,
+    /// a JavaScript handler or a third-party app's scheme are all refused.
+    @Test func rejectsEverySchemeButHTTP() {
+        let refused = [
+            "file:///etc/passwd",
+            "javascript:alert(1)",
+            "x-apple.systempreferences:com.apple.preference.security",
+            "custom-app://do-something",
+            "",
+        ]
+        for url in refused {
+            #expect(BackendAnnouncementCoordinator.openableURL(for: link(url)) == nil, "\(url)")
+        }
+    }
+
     @Test func skipsAnAlreadySeenOnceAnnouncement() async throws {
         try await withCleanDefaults {
             Preferences.seenBackendAnnouncementIDs = ["a1"]

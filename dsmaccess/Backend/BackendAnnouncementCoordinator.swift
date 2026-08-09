@@ -82,9 +82,19 @@ final class BackendAnnouncementCoordinator {
         }
     }
 
+    /// Only http(s) links are opened. A backend response is remote input: without this guard
+    /// it could hand NSWorkspace a `file:` URL or a third-party app's custom scheme, opening
+    /// something other than a web page from behind an innocuous-looking button.
+    nonisolated static func openableURL(for link: AppBackendClient.Announcement.Link) -> URL? {
+        guard let url = URL(string: link.url),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https" else { return nil }
+        return url
+    }
+
     /// Opens the secondary button's link and counts the click on the backend side.
     func openLink(of announcement: AppBackendClient.Announcement) {
-        guard let link = announcement.link, let url = URL(string: link.url) else { return }
+        guard let link = announcement.link, let url = Self.openableURL(for: link) else { return }
         NSWorkspace.shared.open(url)
         Task {
             await client.reportAnnouncementClick(
