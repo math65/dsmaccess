@@ -80,6 +80,22 @@ enum CredentialStore {
              account: account, target: target)
     }
 
+    /// Forgets the device token, so DSM asks for the verification code again on the next
+    /// sign-in. Nothing else clears it: it outlives the password and the stored session, and
+    /// a token that bypasses the second factor must not survive a deliberate forget.
+    static func forgetDeviceID(account: String, target: NASConnectionTarget) {
+        delete(service: KeychainStore.deviceTokenService, account: account, target: target)
+    }
+
+    /// Forgets every secret tied to this NAS identity — password, resumable session and
+    /// device token — so removing or forgetting a profile leaves nothing behind that could
+    /// reopen the NAS or bypass its verification code.
+    static func forgetAll(account: String, target: NASConnectionTarget) {
+        forget(account: account, target: target)
+        forgetSession(account: account, target: target)
+        forgetDeviceID(account: account, target: target)
+    }
+
     private static func save(
         _ value: String,
         service: String,

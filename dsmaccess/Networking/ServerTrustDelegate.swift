@@ -44,6 +44,16 @@ final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendab
         self.persistApprovedFingerprint = persistApprovedFingerprint
     }
 
+    /// Forgets the fingerprint approved for this endpoint, so a certificate presented later
+    /// must be approved again. Used when its NAS profile is removed: an approval granted by
+    /// mistake must not outlive the server it was granted for.
+    static func forgetApprovedFingerprint(for endpoint: DSMEndpoint) {
+        KeychainStore.delete(
+            service: KeychainStore.serverTrustService,
+            account: endpoint.trustStoreKey
+        )
+    }
+
     func approve(fingerprint: String) -> Bool {
         guard persistApprovedFingerprint(fingerprint) else { return false }
         lock.lock()

@@ -27,6 +27,11 @@ final class SessionStore {
     private var requestedProfileID: UUID?
     private var requestsBlankConnection = false
 
+    /// Secret-purging hooks, injected so profile removal can be tested without touching the
+    /// Keychain. The defaults are the real stores; only tests substitute them.
+    private let forgetSecrets: (String, NASConnectionTarget) -> Void
+    private let forgetCertificate: (DSMEndpoint) -> Void
+
     /// Reason for a forced disconnection, consumed by the sign-in screen.
     private(set) var disconnectionMessage: String?
 
@@ -49,7 +54,12 @@ final class SessionStore {
         return profiles.first { $0.id == profileID }
     }
 
-    init() {
+    init(
+        forgetSecrets: @escaping (String, NASConnectionTarget) -> Void = CredentialStore.forgetAll,
+        forgetCertificate: @escaping (DSMEndpoint) -> Void = ServerTrustDelegate.forgetApprovedFingerprint
+    ) {
+        self.forgetSecrets = forgetSecrets
+        self.forgetCertificate = forgetCertificate
         profiles = Preferences.nasProfiles
         activeProfileID = nil
         requestedProfileID = Preferences.selectedNASProfileID
@@ -176,7 +186,13 @@ final class SessionStore {
     func removeProfile(_ profileID: UUID) {
         guard profileID != activeProfileID,
               let profile = profiles.first(where: { $0.id == profileID }) else { return }
-        CredentialStore.forget(account: profile.account, target: profile.connection)
+        forgetSecrets(profile.account, profile.connection)
+        if let endpoint = profile.connection.directEndpoint {
+            // A direct endpoint is the only case that can hold an approved fingerprint:
+            // QuickConnect reaches the NAS through a system-valid Synology certificate, so it
+            // never asks for an explicit approval to forget.
+            forgetCertificate(endpoint)
+        }
         profiles.removeAll { $0.id == profileID }
         if requestedProfileID == profileID { requestedProfileID = nil }
         if Preferences.selectedNASProfileID == profileID {
@@ -192,8 +208,10 @@ final class SessionStore {
         guard let activeProfileID,
               let index = profiles.firstIndex(where: { $0.id == activeProfileID }) else { return }
         let profile = profiles[index]
-        CredentialStore.forget(account: profile.account, target: profile.connection)
-        CredentialStore.forgetSession(account: profile.account, target: profile.connection)
+        // Forgets the authentication secrets (password, session, device token) but keeps the
+        // approved certificate: the user stays on the same server, so its identity is
+        // unchanged. Removing the profile is what clears the fingerprint too.
+        forgetSecrets(profile.account, profile.connection)
         profiles[index].remembersPassword = false
         Preferences.rememberPassword = false
         persistProfiles()
