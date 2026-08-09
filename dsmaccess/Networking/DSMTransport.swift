@@ -309,7 +309,7 @@ final class DSMTransport {
             throw DSMError.sessionExpired
         }
         // Lowercased, as a browser writes it: DSM compares the origin it is given to the
-        // addresses it knows without folding the case, so `MATH65…` is not `math65…` to it.
+        // addresses it knows without folding the case, so `MY-NAS…` is not `my-nas…` to it.
         let host = (host ?? endpoint.host).lowercased()
         var components = URLComponents()
         components.scheme = endpoint.useHTTPS ? "wss" : "ws"

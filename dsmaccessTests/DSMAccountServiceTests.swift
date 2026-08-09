@@ -10,10 +10,10 @@ struct DSMAccountServiceTests {
                 #"{"success":true,"data":{"groups":[{"name":"administrators"},{"name":"users"}],"offset":0,"total":2}}"#.utf8
             )),
             .response(Data(
-                #"{"success":true,"data":{"offset":0,"total":2,"users":[{"name":"admin","uid":1024},{"name":"math65","uid":1026}]}}"#.utf8
+                #"{"success":true,"data":{"offset":0,"total":2,"users":[{"name":"admin","uid":1024},{"name":"nasuser","uid":1026}]}}"#.utf8
             )),
             .response(Data(
-                #"{"success":true,"data":{"offset":0,"total":1,"users":[{"name":"math65","uid":1026}]}}"#.utf8
+                #"{"success":true,"data":{"offset":0,"total":1,"users":[{"name":"nasuser","uid":1026}]}}"#.utf8
             )),
         ])
         let service = makeService(stub: stub)
@@ -21,8 +21,8 @@ struct DSMAccountServiceTests {
         let groups = try await service.groups()
 
         #expect(groups.map(\.name) == ["administrators", "users"])
-        #expect(groups.first?.members == ["admin", "math65"])
-        #expect(groups.last?.members == ["math65"])
+        #expect(groups.first?.members == ["admin", "nasuser"])
+        #expect(groups.last?.members == ["nasuser"])
 
         let requests = await stub.requests
         #expect(requests.count == 3)

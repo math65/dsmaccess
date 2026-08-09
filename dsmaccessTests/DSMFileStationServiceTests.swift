@@ -532,7 +532,7 @@ struct DSMFileStationServiceTests {
     @Test func createsAShareLinkFromAResponseWithoutAnErrorField() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(
-                #"{"success":true,"data":{"has_folder":true,"links":[{"app":{},"date_available":"0","date_expired":"0","enable_upload":false,"expire_times":0,"has_password":false,"id":"link-9","isFolder":true,"limit_size":0,"link_owner":"math65","name":"notes.txt","path":"/documents/notes.txt","project_name":"","protect_type":"","qrcode":"abc","status":"valid","uid":1026,"url":"https://nas.example/s/link-9"}]}}"#.utf8
+                #"{"success":true,"data":{"has_folder":true,"links":[{"app":{},"date_available":"0","date_expired":"0","enable_upload":false,"expire_times":0,"has_password":false,"id":"link-9","isFolder":true,"limit_size":0,"link_owner":"nasuser","name":"notes.txt","path":"/documents/notes.txt","project_name":"","protect_type":"","qrcode":"abc","status":"valid","uid":1026,"url":"https://nas.example/s/link-9"}]}}"#.utf8
             )),
         ])
         let service = makeService(

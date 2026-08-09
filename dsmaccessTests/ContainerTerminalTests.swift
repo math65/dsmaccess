@@ -62,22 +62,22 @@ struct QuickConnectTerminalAddressTests {
     @Test func dropsTheAddressPrefixOfALocalQuickConnectRoute() {
         let endpoint = DSMEndpoint(
             useHTTPS: true,
-            host: "192-168-1-15.MATH65.direct.quickconnect.to",
-            port: 20281
+            host: "192-0-2-10.MY-NAS.direct.quickconnect.to",
+            port: 5001
         )
 
-        #expect(endpoint.quickConnectHostWithoutLocalPrefix == "MATH65.direct.quickconnect.to")
+        #expect(endpoint.quickConnectHostWithoutLocalPrefix == "MY-NAS.direct.quickconnect.to")
     }
 
     @Test func leavesEveryOtherAddressAlone() {
         let hosts = [
-            "MATH65.direct.quickconnect.to",
+            "MY-NAS.direct.quickconnect.to",
             "cloud.example.net",
-            "192.168.1.15",
+            "192.0.2.10",
             "nas.local",
-            "math65.quickconnect.to",
+            "my-nas.quickconnect.to",
             // A name that merely looks the part: no encoded address in front.
-            "office.MATH65.direct.quickconnect.to",
+            "office.MY-NAS.direct.quickconnect.to",
         ]
 
         for host in hosts {

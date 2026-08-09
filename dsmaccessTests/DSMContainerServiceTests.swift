@@ -390,7 +390,7 @@ struct DSMContainerServiceTests {
         // Captured contract: `action=load` is mandatory alongside offset/limit.
         let stub = DSMRequestStub(results: [
             .response(Data(
-                #"{"success":true,"data":{"error_count":0,"info_count":615,"limit":3,"logs":[{"event":"Delete image hello-world:latest","level":"info","log_type":"dockerlog","time":"2026/07/31 20:13:45","user":"math65"}],"offset":0,"total":615,"warn_count":0}}"#.utf8
+                #"{"success":true,"data":{"error_count":0,"info_count":615,"limit":3,"logs":[{"event":"Delete image hello-world:latest","level":"info","log_type":"dockerlog","time":"2026/07/31 20:13:45","user":"nasuser"}],"offset":0,"total":615,"warn_count":0}}"#.utf8
             )),
         ])
         let service = makeService(stub: stub)
@@ -400,7 +400,7 @@ struct DSMContainerServiceTests {
         #expect(page.total == 615)
         let entry = try #require(page.entries.first)
         #expect(entry.event == "Delete image hello-world:latest")
-        #expect(entry.user == "math65")
+        #expect(entry.user == "nasuser")
         let parameters = try query(from: try #require(await stub.requests.first))
         #expect(parameters["action"] == #""load""#)
         // Measured vocabulary: the filter wants full words, the entries carry `info`/`err`.

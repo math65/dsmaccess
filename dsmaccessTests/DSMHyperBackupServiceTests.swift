@@ -152,9 +152,9 @@ struct DSMHyperBackupServiceTests {
             {"success":true,"data":{"total":3,"offset":0,"error_count":2,"warn_count":0,
               "info_count":1,"log_list":[
                 {"event":"[Local][dsmaccess-test] Backup task was cancelled.","level":"err",
-                 "time":"2026/08/03 04:42:19","user":"math65"},
+                 "time":"2026/08/03 04:42:19","user":"nasuser"},
                 {"event":"[Local][dsmaccess-test] Backup task started.","level":"info",
-                 "time":"2026/08/03 04:42:01","user":"math65"}]}}
+                 "time":"2026/08/03 04:42:01","user":"nasuser"}]}}
             """#.utf8
         )
         let stub = DSMRequestStub(results: [.response(response)])
