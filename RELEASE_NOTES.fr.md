@@ -1,3 +1,61 @@
+## v1.3-beta.3 (build 27) — 17 août 2026
+
+### En bref
+
+- Le Centre de paquets montre enfin tout le catalogue. Les paquets publiés
+  par les sources que vous pouvez ajouter — SynoCommunity et les autres —
+  n'apparaissaient nulle part : ajouter une source ne servait donc à rien.
+  Ils sont là, aux côtés des paquets Synology et des versions bêta, et ils
+  s'installent depuis l'application.
+
+### Centre de paquets
+
+- L'écran des réglages s'ouvre de nouveau. Il ne le pouvait pas : il
+  réclamait au NAS une valeur que DSM 7.4 n'envoie jamais, et échouait avant
+  d'afficher quoi que ce soit.
+- Les paquets portent leur vrai nom — « Synology Drive Server » plutôt que
+  SynologyDrive — avec leur éditeur, leur taille et leur catégorie. Leur
+  fiche donne la description et les nouveautés de la version : vous savez ce
+  que fait un paquet avant de l'installer.
+- Filtrez le catalogue par catégorie, et cherchez par nom, éditeur ou
+  description, plus seulement par identifiant.
+- L'installation d'un paquet qui en réclame d'autres fonctionne.
+  L'application refusait jusqu'ici l'opération entière dès qu'un paquet avait
+  une dépendance. Celles-ci sont installées d'abord, et le message
+  d'avancement dit lequel se télécharge et où il en est dans la liste.
+- Installer un paquet issu d'une source affiche le même avertissement que
+  DSM : il est publié par quelqu'un d'autre que Synology et n'est pas
+  vérifié par eux. L'éditeur est nommé.
+- Choisissez si un paquet démarre une fois installé, au lieu qu'il démarre
+  systématiquement.
+- La désinstallation d'un paquet qui demande quoi faire de ses données pose
+  la question dans l'application. Elle vous renvoyait à DSM pour cela. Un
+  paquet qui dessine ses propres questions avec le code de DSM — c'est le
+  cas de Plex — reste à retirer depuis DSM, et le dit.
+- La désinstallation retire aussi ce que le paquet avait ajouté au bureau de
+  DSM, qu'elle laissait derrière elle.
+- Mises à jour automatiques : la quatrième stratégie, un choix par paquet,
+  se règle depuis le menu du paquet. Un NAS déjà réglé ainsi s'affichait
+  comme « désactivé ».
+- Un paquet que DSM ne prend plus en charge affiche « Non pris en charge »
+  au lieu d'un code interne, et ne se voit plus proposer de réparation :
+  réinstaller la même version n'y changerait rien.
+- La fiche d'un paquet installé indique son éditeur, le volume où il se
+  trouve, sa date de mise à jour, sa description, et l'adresse de sa propre
+  interface web lorsqu'il en publie une.
+- Un paquet comportant un contrat de licence à accepter est reconnu avant
+  tout téléchargement, au lieu d'échouer en cours de route.
+
+### Confidentialité
+
+- Supprimer ou oublier un NAS efface désormais tous les secrets qu'il avait
+  enregistrés.
+- Un lien contenu dans une annonce du développeur ne s'ouvre que s'il s'agit
+  d'une adresse web.
+- Un mot de passe généré puis copié est marqué comme confidentiel : il ne
+  voyage pas vers vos autres appareils et n'entre pas dans l'historique du
+  presse-papiers.
+
 ## v1.3-beta.2 (build 26) — 6 août 2026
 
 ### En bref

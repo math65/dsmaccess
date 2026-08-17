@@ -1,3 +1,58 @@
+## v1.3-beta.3 (build 27) — 2026-08-17
+
+### Highlights
+
+- Package Center now shows the whole catalogue. The packages published
+  through the package sources you can add — SynoCommunity and the rest —
+  were never listed, so adding a source did nothing at all. They are there
+  now, alongside Synology's own packages and the beta ones, and they install
+  from the app.
+
+### Package Center
+
+- The settings screen opens again. It could not: it asked the NAS for a
+  value DSM 7.4 never sends, and failed before showing anything.
+- Packages are listed by their real name — "Synology Drive Server" rather
+  than SynologyDrive — with their publisher, size and category. Details show
+  the description and what changed in the version, so you can tell what a
+  package does before installing it.
+- Filter the catalogue by category, and search by name, publisher or
+  description, not just by identifier.
+- Installing a package that needs other packages works. The app used to
+  refuse the whole operation as soon as a package had a dependency. The ones
+  it pulls in are installed first, and the progress message says which is
+  being downloaded and where it sits in the plan.
+- Installing a package from a package source carries the same warning DSM
+  shows: it is published by someone other than Synology and is not verified
+  by them. The publisher is named.
+- Choose whether a package starts once installed, instead of it always
+  starting.
+- Uninstalling a package that asks what to do with its data now asks you in
+  the app. Until now the app sent you to DSM for those. A package that draws
+  its own questions with DSM's code — Plex does — still has to be removed
+  from DSM, and says so.
+- Uninstalling also removes what the package added to the DSM desktop, which
+  it used to leave behind.
+- Automatic updates: the fourth strategy, one choice per package, set from
+  the package's own menu. A NAS already set that way used to read as
+  "disabled".
+- A package DSM no longer supports now reads "No longer supported" instead
+  of an internal code, and is never offered a repair — reinstalling the same
+  version would change nothing.
+- Details of an installed package show its publisher, the volume it lives
+  on, when it was last updated, its description, and the address of its own
+  web interface when it has one.
+- A package with a licence agreement to accept is recognised before anything
+  is downloaded, instead of failing partway.
+
+### Privacy
+
+- Removing or forgetting a NAS now erases every secret it had stored.
+- A link in an announcement from the developer opens only if it is a web
+  address.
+- A generated password copied to the clipboard is marked confidential, so it
+  does not travel to your other devices or land in clipboard history.
+
 ## v1.3-beta.2 (build 26) — 2026-08-06
 
 ### Highlights
