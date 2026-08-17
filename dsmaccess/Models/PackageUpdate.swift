@@ -15,6 +15,14 @@ struct PackageUpdate: Equatable, Identifiable, Sendable {
     let fileSize: Int
     let isBeta: Bool
     let packageType: Int
+    let origin: PackageCatalogOrigin
+    /// Name DSM displays ("Synology Drive Server"), as opposed to the technical identifier.
+    let displayName: String
+    let summary: String?
+    let maintainer: String?
+    /// Category identifiers; empty for a third-party package, which DSM does not classify.
+    let categories: [String]
+    let changelog: String?
     let requirements: PackageInstallationRequirements
 
     init(
@@ -25,6 +33,12 @@ struct PackageUpdate: Equatable, Identifiable, Sendable {
         fileSize: Int,
         isBeta: Bool,
         packageType: Int,
+        origin: PackageCatalogOrigin = .synology,
+        displayName: String? = nil,
+        summary: String? = nil,
+        maintainer: String? = nil,
+        categories: [String] = [],
+        changelog: String? = nil,
         requirements: PackageInstallationRequirements = PackageInstallationRequirements()
     ) {
         self.packageID = packageID
@@ -34,6 +48,13 @@ struct PackageUpdate: Equatable, Identifiable, Sendable {
         self.fileSize = fileSize
         self.isBeta = isBeta
         self.packageType = packageType
+        self.origin = origin
+        let trimmedName = displayName?.trimmingCharacters(in: .whitespacesAndNewlines)
+        self.displayName = trimmedName?.isEmpty == false ? trimmedName! : packageID
+        self.summary = summary
+        self.maintainer = maintainer
+        self.categories = categories
+        self.changelog = changelog
         self.requirements = requirements
     }
 
@@ -43,9 +64,15 @@ struct PackageUpdate: Equatable, Identifiable, Sendable {
             version,
             String(isBeta),
             String(packageType),
+            origin.rawValue,
             downloadURL.absoluteString,
         ].joined(separator: "|")
     }
+
+    /// Non-optional sort key: a package without a publisher sorts first rather than keeping
+    /// its column unsortable.
+    var sortableMaintainer: String { maintainer ?? "" }
+    var sortableOrigin: String { origin.name }
 
     var betaDescription: String {
         isBeta

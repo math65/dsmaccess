@@ -60,29 +60,126 @@ struct DSMPackageServiceTests {
             }
             """#.utf8
         )
-        let stub = DSMRequestStub(results: [.response(response), .response(response)])
+        let community = Data(
+            #"""
+            {
+              "success": true,
+              "data": {
+                "packages": [
+                  {
+                    "id": "Adminer",
+                    "version": "4.8.1-1",
+                    "dname": "Adminer",
+                    "desc": "Database management in a single file.",
+                    "maintainer": "Piwi",
+                    "link": "https://packages.synocommunity.com/Adminer.spk",
+                    "md5": "0123456789abcdef0123456789abcdef",
+                    "size": 481280,
+                    "source": "others"
+                  }
+                ]
+              }
+            }
+            """#.utf8
+        )
+        let stub = DSMRequestStub(results: [.response(response), .response(community)])
         let service = makeService(stub: stub)
 
-        let updates = try await service.availableUpdates()
-        let refreshedCatalog = try await service.officialCatalog(forceRefresh: true)
+        let catalog = try await service.catalog(forceRefresh: true)
 
-        #expect(updates.count == 1)
-        let update = try #require(updates["activebackup"])
-        #expect(update.packageID == "ActiveBackup")
+        // The third-party entry carries neither type nor category, and DSM answers for it in
+        // a second listing; both used to be discarded outright.
+        #expect(catalog.packages.count == 2)
+        let update = try #require(catalog.packages.first { $0.packageID == "ActiveBackup" })
         #expect(update.version == "3.0.0-1")
         #expect(update.fileSize == 2048)
         #expect(!update.isBeta)
         #expect(update.packageType == 0)
+        #expect(update.origin == .synology)
         #expect(update.checksum == "0123456789abcdef0123456789abcdef")
-        #expect(refreshedCatalog == [update])
+
+        let thirdParty = try #require(catalog.packages.first { $0.packageID == "Adminer" })
+        #expect(thirdParty.origin == .community)
+        #expect(thirdParty.displayName == "Adminer")
+        #expect(thirdParty.maintainer == "Piwi")
+        #expect(thirdParty.packageType == 0)
+        #expect(catalog.communityFailure == nil)
 
         let requests = await stub.requests
-        let cachedQuery = try parameters(from: requests[0])
-        #expect(cachedQuery["blforcerefresh"] == "false")
-        #expect(cachedQuery["blloadothers"] == "false")
-        let refreshedQuery = try parameters(from: requests[1])
-        #expect(refreshedQuery["blforcerefresh"] == "true")
-        #expect(refreshedQuery["blloadothers"] == "false")
+        #expect(requests.count == 2)
+        let synologyQuery = try parameters(from: requests[0])
+        #expect(synologyQuery["blforcerefresh"] == "true")
+        #expect(synologyQuery["blloadothers"] == "false")
+        let communityQuery = try parameters(from: requests[1])
+        #expect(communityQuery["blforcerefresh"] == "true")
+        #expect(communityQuery["blloadothers"] == "true")
+    }
+
+    /// A package source that cannot be reached must not empty the catalogue, and must not be
+    /// swallowed either: DSM keeps its own listing and marks the community store as failed.
+    @Test func keepsTheSynologyCatalogWhenAPackageSourceFails() async throws {
+        let synology = Data(
+            #"""
+            {
+              "success": true,
+              "data": {
+                "categories": [{"id": "utilities", "dname": "Utilitaires"}],
+                "beta_packages": [
+                  {
+                    "id": "DSMAgent",
+                    "version": "1.0.0-1",
+                    "dname": "DSM Agent",
+                    "link": "https://downloads.synology.com/DSMAgent.spk",
+                    "md5": "0123456789abcdef0123456789abcdef",
+                    "size": 4096,
+                    "beta": true,
+                    "source": "syno",
+                    "type": 0
+                  }
+                ],
+                "packages": [
+                  {
+                    "id": "PDFViewer",
+                    "version": "1.3.1-1233",
+                    "dname": "Visionneuse de PDF",
+                    "desc": "Affiche des fichiers PDF.",
+                    "maintainer": "Synology Inc.",
+                    "category": ["utilities"],
+                    "changelog": "Correction de sécurité.",
+                    "link": "https://downloads.synology.com/PDFViewer.spk",
+                    "md5": "0123456789abcdef0123456789abcdef",
+                    "size": 768989,
+                    "beta": false,
+                    "source": "syno",
+                    "type": 0
+                  }
+                ]
+              }
+            }
+            """#.utf8
+        )
+        let stub = DSMRequestStub(results: [
+            .response(synology),
+            .response(Data(#"{"success":false,"error":{"code":407}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        let catalog = try await service.catalog()
+
+        #expect(catalog.packages.count == 2)
+        #expect(catalog.categories == [PackageCategory(id: "utilities", name: "Utilitaires")])
+        #expect(catalog.communityFailure != nil)
+
+        let viewer = try #require(catalog.packages.first { $0.packageID == "PDFViewer" })
+        #expect(viewer.displayName == "Visionneuse de PDF")
+        #expect(viewer.maintainer == "Synology Inc.")
+        #expect(viewer.categories == ["utilities"])
+        #expect(viewer.changelog == "Correction de sécurité.")
+
+        // Beta packages arrive in their own array and used to be dropped entirely.
+        let beta = try #require(catalog.packages.first { $0.packageID == "DSMAgent" })
+        #expect(beta.isBeta)
+        #expect(beta.origin == .synology)
     }
 
     @Test(arguments: [false, true])
@@ -431,11 +528,12 @@ struct DSMPackageServiceTests {
     @Test func reportsDiscoveredPackageCapabilitiesWithoutInferringMissingMutations() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"packages":[]}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"packages":[]}}"#.utf8)),
         ])
         let service = makeService(stub: stub, includesInstallation: false)
 
         let capabilities = service.capabilities()
-        let updates = try await service.availableUpdates()
+        let catalog = try await service.catalog()
 
         #expect(capabilities.canBrowseCatalog)
         #expect(!capabilities.canInstallCatalogPackages)
@@ -446,7 +544,7 @@ struct DSMPackageServiceTests {
         #expect(!capabilities.canUninstallPackages)
         #expect(!capabilities.canManageSettings)
         #expect(capabilities.maximumVersions["SYNO.Core.Package.Server"] == 2)
-        #expect(updates.isEmpty)
+        #expect(catalog.packages.isEmpty)
     }
 
     @Test func rejectsUnsafeUpdateMetadataBeforeSendingARequest() async throws {

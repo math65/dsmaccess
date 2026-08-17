@@ -22,6 +22,8 @@ struct PackagesView: View {
     @State private var searchText = ""
     @State private var filter = PackageFilter.all
     @State private var catalogFilter = CatalogFilter.all
+    @State private var catalogCategory: String?
+    @State private var detailsCatalogItem: PackageUpdate?
     @State private var selection = Set<PackageInfo.ID>()
     @State private var order = [KeyPathComparator(\PackageInfo.sortableName, order: .forward)]
     @State private var refreshTask: Task<Void, Never>?
@@ -176,6 +178,9 @@ struct PackagesView: View {
         .sheet(item: $detailsPackage) { package in
             PackageDetailsSheet(vm: vm, package: package)
         }
+        .sheet(item: $detailsCatalogItem) { item in
+            PackageCatalogDetailsSheet(vm: vm, item: item)
+        }
         .fileImporter(
             isPresented: $showPackageImporter,
             allowedContentTypes: [.data],
@@ -218,6 +223,19 @@ struct PackagesView: View {
                 }
                 .pickerStyle(.menu)
                 .help("packages.filter.label")
+            }
+        }
+
+        if section == .catalog, !vm.categories.isEmpty {
+            ToolbarItem {
+                Picker("packages.filter.category.label", selection: $catalogCategory) {
+                    Text("common.filter.all").tag(String?.none)
+                    ForEach(vm.categories) { category in
+                        Text(category.name).tag(String?.some(category.id))
+                    }
+                }
+                .pickerStyle(.menu)
+                .help("packages.filter.category.hint")
             }
         }
 
@@ -321,9 +339,11 @@ struct PackagesView: View {
                 vm: vm,
                 searchText: searchText,
                 filter: catalogFilter,
+                category: catalogCategory,
                 operationsDisabled: operationTask != nil,
                 retry: startRefresh,
-                requestAction: { pendingCatalogAction = $0 }
+                requestAction: { pendingCatalogAction = $0 },
+                showDetails: { detailsCatalogItem = $0 }
             )
             .accessibilityFocused($focusContent)
         }
@@ -532,7 +552,7 @@ struct PackagesView: View {
         if let installedPackage = request.installedPackage {
             return String(localized: "packages.update.action", defaultValue: "Update \(installedPackage.displayName)")
         }
-        return String(localized: "packages.install.action", defaultValue: "Install \(request.item.packageID)")
+        return String(localized: "packages.install.action", defaultValue: "Install \(request.item.displayName)")
     }
 
     private func catalogConfirmationMessage(for request: CatalogActionRequest) -> String {
@@ -544,7 +564,7 @@ struct PackagesView: View {
         }
         return String(
             localized: "packages.install.confirm.description",
-            defaultValue: "“\(request.item.packageID)” version \(request.item.version) will be downloaded from the official catalog, installed, and started if supported by the package."
+            defaultValue: "“\(request.item.displayName)” version \(request.item.version) will be downloaded from the official catalog, installed, and started if supported by the package."
         )
     }
 
@@ -562,7 +582,7 @@ struct PackagesView: View {
             startOperation(
                 announcement: String(
                     localized: "packages.install.progress",
-                    defaultValue: "Installing \(request.item.packageID)…"
+                    defaultValue: "Installing \(request.item.displayName)…"
                 )
             ) {
                 await vm.install(request.item)

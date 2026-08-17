@@ -117,35 +117,60 @@ final class DSMPackageService {
         return list.packages ?? []
     }
 
-    func availableUpdates() async throws -> [String: PackageUpdate] {
-        let catalog = try await officialCatalog()
-        return catalog.reduce(into: [:]) { updates, update in
-            updates[update.packageID.lowercased()] = update
+    /// Reads the catalogue the way the Package Center web client does: once for the Synology
+    /// listing, which also carries the beta packages and the categories, then once more with
+    /// `blloadothers` for everything published through a package source.
+    ///
+    /// A third-party source that cannot be reached degrades to a reported failure rather than
+    /// emptying the catalogue, which is what DSM does with its own community store.
+    func catalog(forceRefresh: Bool = false) async throws -> PackageCatalog {
+        let synology = try await serverList(forceRefresh: forceRefresh, loadsOthers: false)
+        var entries = (synology.packages ?? []) + (synology.betaPackages ?? [])
+        var communityFailure: String?
+        do {
+            let community = try await serverList(forceRefresh: forceRefresh, loadsOthers: true)
+            entries += (community.packages ?? []) + (community.betaPackages ?? [])
+        } catch let error as DSMError {
+            guard !DSMError.isCancellation(error) else { throw error }
+            communityFailure = error.errorDescription
         }
-    }
 
-    func officialCatalog(forceRefresh: Bool = false) async throws -> [PackageUpdate] {
-        let list = try await transport.read(
-            api: Self.serverAPI,
-            method: "list",
-            parameters: [
-                "blforcerefresh": .boolean(forceRefresh),
-                "blloadothers": .boolean(false),
-            ],
-            as: ServerPackageList.self
-        )
-
-        let uniquePackages = (list.packages ?? [])
+        let uniquePackages = entries
             .compactMap(packageUpdate)
             .reduce(into: [String: PackageUpdate]()) { packages, package in
                 packages[package.id] = package
             }
             .values
-        return uniquePackages.sorted { left, right in
-            let nameOrder = left.packageID.localizedStandardCompare(right.packageID)
-            if nameOrder != .orderedSame { return nameOrder == .orderedAscending }
-            return left.version.localizedStandardCompare(right.version) == .orderedAscending
-        }
+        return PackageCatalog(
+            packages: uniquePackages.sorted { left, right in
+                let nameOrder = left.displayName.localizedStandardCompare(right.displayName)
+                if nameOrder != .orderedSame { return nameOrder == .orderedAscending }
+                return left.version.localizedStandardCompare(right.version) == .orderedAscending
+            },
+            categories: (synology.categories ?? []).compactMap { category in
+                guard let id = category.id?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !id.isEmpty,
+                      let name = category.name?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !name.isEmpty else { return nil }
+                return PackageCategory(id: id, name: name)
+            },
+            communityFailure: communityFailure
+        )
+    }
+
+    private func serverList(
+        forceRefresh: Bool,
+        loadsOthers: Bool
+    ) async throws -> ServerPackageList {
+        try await transport.read(
+            api: Self.serverAPI,
+            method: "list",
+            parameters: [
+                "blforcerefresh": .boolean(forceRefresh),
+                "blloadothers": .boolean(loadsOthers),
+            ],
+            as: ServerPackageList.self
+        )
     }
 
     func upgrade(_ update: PackageUpdate) async throws {
@@ -412,9 +437,11 @@ final class DSMPackageService {
     }
 
     private func packageUpdate(from package: ServerPackage) -> PackageUpdate? {
+        // A third-party entry carries neither `type` nor `category`: DSM only classifies its
+        // own listing, so their absence must not disqualify the package.
         let packageType = package.type ?? 0
         let source = package.source?.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard source?.lowercased() == "syno",
+        guard let origin = PackageCatalogOrigin(rawValue: source?.lowercased() ?? ""),
               let packageID = package.id?.trimmingCharacters(in: .whitespacesAndNewlines),
               !packageID.isEmpty,
               let version = package.version?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -437,6 +464,12 @@ final class DSMPackageService {
             fileSize: fileSize,
             isBeta: package.beta ?? false,
             packageType: packageType,
+            origin: origin,
+            displayName: package.displayName,
+            summary: package.summary,
+            maintainer: package.maintainer ?? package.distributor,
+            categories: package.categories ?? [],
+            changelog: package.changelog,
             requirements: PackageInstallationRequirements(
                 dependencyServers: package.dependencyServers,
                 dependencyPackages: package.dependencyPackages,

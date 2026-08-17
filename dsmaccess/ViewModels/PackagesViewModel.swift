@@ -13,6 +13,7 @@ import Observation
 final class PackagesViewModel {
     private(set) var packages: [PackageInfo] = []
     private(set) var catalog: [PackageUpdate] = []
+    private(set) var categories: [PackageCategory] = []
     private(set) var availableUpdates: [String: PackageUpdate] = [:]
     private(set) var capabilities: PackageCenterCapabilities?
     private(set) var isLoading = false
@@ -51,19 +52,19 @@ final class PackagesViewModel {
                     $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending
                 }
                 guard capabilities.canBrowseCatalog else {
-                    return (packages, [PackageUpdate](), capabilities, String?.none)
+                    return (packages, PackageCatalog(), capabilities, String?.none)
                 }
                 do {
-                    let catalog = try await client.officialPackageCatalog(
+                    let catalog = try await client.packageCatalog(
                         forceRefresh: forceCatalogRefresh
                     )
-                    return (packages, catalog, capabilities, String?.none)
+                    return (packages, catalog, capabilities, catalog.communityFailure)
                 } catch DSMError.sessionExpired {
                     throw DSMError.sessionExpired
                 } catch {
                     return (
                         packages,
-                        [PackageUpdate](),
+                        PackageCatalog(),
                         capabilities,
                         Self.errorDescription(for: error)
                     )
@@ -71,10 +72,15 @@ final class PackagesViewModel {
             }
             guard generation == loadGeneration else { return }
             packages = result.0
-            catalog = result.1
+            catalog = result.1.packages
+            categories = result.1.categories
             capabilities = result.2
             catalogErrorMessage = result.3
+            // Updates are taken from the Synology listing only. A third-party source can
+            // publish a higher version of a name DSM also ships, and installing that in place
+            // of the installed package is not the same operation at all.
             availableUpdates = catalog.reduce(into: [:]) { updates, candidate in
+                guard candidate.origin == .synology else { return }
                 let key = candidate.packageID.lowercased()
                 guard let existing = updates[key] else {
                     updates[key] = candidate
@@ -224,6 +230,14 @@ final class PackagesViewModel {
                 String(localized: "common.error.catalog_install_unavailable")
             )
         }
+        guard catalogItem.origin == .synology else {
+            return .failure(
+                String(
+                    localized: "packages.install.community_requires_dsm.error",
+                    defaultValue: "The \(catalogItem.displayName) package comes from a package source. Install it in DSM Package Center."
+                )
+            )
+        }
         guard installedPackage(for: catalogItem) == nil else {
             return .failure(
                 String(localized: "packages.install.already_installed.error", defaultValue: "The \(catalogItem.packageID) package is already installed.")
@@ -239,8 +253,8 @@ final class PackagesViewModel {
         }
         return await runCatalogOperation(
             packageID: catalogItem.packageID,
-            operationName: String(localized: "packages.install.status", defaultValue: "Installing \(catalogItem.packageID)"),
-            successMessage: String(localized: "packages.install.success", defaultValue: "\(catalogItem.packageID) installed")
+            operationName: String(localized: "packages.install.status", defaultValue: "Installing \(catalogItem.displayName)"),
+            successMessage: String(localized: "packages.install.success", defaultValue: "\(catalogItem.displayName) installed")
         ) { client, progress in
             try await client.installPackage(catalogItem, progress: progress)
         }
@@ -407,14 +421,21 @@ final class PackagesViewModel {
         packages.first { $0.pkgId.caseInsensitiveCompare(catalogItem.packageID) == .orderedSame }
     }
 
+    /// Repair reinstalls from the Synology listing, so a third-party entry sharing the name
+    /// must not be picked up here.
     func catalogItem(for package: PackageInfo) -> PackageUpdate? {
         catalog.first {
-            $0.packageID.caseInsensitiveCompare(package.pkgId) == .orderedSame
+            $0.origin == .synology
+                && $0.packageID.caseInsensitiveCompare(package.pkgId) == .orderedSame
         }
     }
 
+    /// Third-party packages are listed but not installed from here: the install call carries
+    /// an `is_syno` flag whose value for a package source has not been measured on a NAS, and
+    /// a guess would be an install performed on the wrong contract.
     func canInstall(_ catalogItem: PackageUpdate) -> Bool {
         capabilities?.canInstallCatalogPackages == true
+            && catalogItem.origin == .synology
             && installedPackage(for: catalogItem) == nil
             && !catalogItem.requirements.requiresInteractiveInstaller
     }

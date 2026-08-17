@@ -13,9 +13,36 @@ struct PackageList: nonisolated Decodable, Sendable {
     let packages: [PackageInfo]?
 }
 
-/// Response of the Package Center catalogue.
+/// Response of the Package Center catalogue (SYNO.Core.Package.Server, method=list,
+/// version 2). Measured on DSM 7.4: beta packages arrive in their own array, and the
+/// categories come already translated by DSM. The community listing (`blloadothers` true)
+/// answers with `packages` only.
 struct ServerPackageList: nonisolated Decodable, Sendable {
     let packages: [ServerPackage]?
+    let betaPackages: [ServerPackage]?
+    let categories: [ServerCategory]?
+
+    private enum CodingKeys: String, CodingKey {
+        case packages
+        case betaPackages = "beta_packages"
+        case categories
+    }
+}
+
+struct ServerCategory: nonisolated Decodable, Sendable {
+    let id: String?
+    let name: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name = "dname"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = container.flexString(.id)
+        name = container.flexString(.name)
+    }
 }
 
 struct ServerPackage: nonisolated Decodable, Sendable {
@@ -27,6 +54,13 @@ struct ServerPackage: nonisolated Decodable, Sendable {
     let beta: Bool?
     let source: String?
     let type: Int?
+    let displayName: String?
+    let summary: String?
+    let maintainer: String?
+    let distributor: String?
+    /// Category identifiers matching `ServerCategory.id`. Absent from third-party entries.
+    let categories: [String]?
+    let changelog: String?
     let dependencyServers: DSMJSONValue?
     let dependencyPackages: DSMJSONValue?
     let conflictingPackages: DSMJSONValue?
@@ -38,7 +72,11 @@ struct ServerPackage: nonisolated Decodable, Sendable {
     let installPages: DSMJSONValue?
 
     private enum CodingKeys: String, CodingKey {
-        case id, version, link, md5, size, beta, source, type
+        case id, version, link, md5, size, beta, source, type, changelog
+        case displayName = "dname"
+        case summary = "desc"
+        case maintainer, distributor
+        case categories = "category"
         case dependencyServers = "depsers"
         case dependencyPackages = "deppkgs"
         case conflictingPackages = "conflictpkgs"
@@ -60,6 +98,12 @@ struct ServerPackage: nonisolated Decodable, Sendable {
         beta = container.flexBool(.beta)
         source = container.flexString(.source)
         type = container.flexInt(.type)
+        displayName = container.flexString(.displayName)
+        summary = container.flexString(.summary)
+        maintainer = container.flexString(.maintainer)
+        distributor = container.flexString(.distributor)
+        categories = try? container.decodeIfPresent([String].self, forKey: .categories)
+        changelog = container.flexString(.changelog)
         dependencyServers = try container.decodeIfPresent(
             DSMJSONValue.self,
             forKey: .dependencyServers
