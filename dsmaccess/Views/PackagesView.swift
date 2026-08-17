@@ -24,6 +24,7 @@ struct PackagesView: View {
     @State private var catalogFilter = CatalogFilter.all
     @State private var catalogCategory: String?
     @State private var detailsCatalogItem: PackageUpdate?
+    @State private var uninstallRequest: PackageUninstallRequest?
     @State private var selection = Set<PackageInfo.ID>()
     @State private var order = [KeyPathComparator(\PackageInfo.sortableName, order: .forward)]
     @State private var refreshTask: Task<Void, Never>?
@@ -188,6 +189,11 @@ struct PackagesView: View {
         }
         .sheet(item: $detailsCatalogItem) { item in
             PackageCatalogDetailsSheet(vm: vm, item: item)
+        }
+        .sheet(item: $uninstallRequest) { request in
+            PackageUninstallSheet(request: request) { answers in
+                requestUninstall(request.package, answers: answers)
+            }
         }
         .fileImporter(
             isPresented: $showPackageImporter,
@@ -482,7 +488,7 @@ struct PackagesView: View {
         }
         if vm.canSafelyUninstall(package) {
             if package.canStartStop { Divider() }
-            Button("packages.uninstall.menu", role: .destructive) { pendingUninstall = package }
+            Button("packages.uninstall.menu", role: .destructive) { prepareUninstall(package) }
                 .disabled(vm.busy.contains(package.id) || operationTask != nil)
                 .help("packages.uninstall.hint")
         }
@@ -536,11 +542,41 @@ struct PackagesView: View {
         }
     }
 
-    private func requestUninstall(_ package: PackageInfo) {
+    private func requestUninstall(_ package: PackageInfo, answers: [String: Bool] = [:]) {
         startOperation(
             announcement: String(localized: "packages.uninstall.progress", defaultValue: "Uninstalling \(package.displayName)…")
         ) {
-            await vm.uninstall(package)
+            await vm.uninstall(package, answers: answers)
+        }
+    }
+
+    /// A package that asks questions before removal gets its own screen; the others keep the
+    /// plain confirmation. Loading the questions is a network call, so it announces itself.
+    private func prepareUninstall(_ package: PackageInfo) {
+        guard package.hasUninstallOptions else {
+            pendingUninstall = package
+            return
+        }
+        guard operationTask == nil else { return }
+        VoiceOver.announce(
+            String(localized: "packages.uninstall.wizard.loading"),
+            category: .progress,
+            priority: .high
+        )
+        operationTask = Task {
+            defer { operationTask = nil }
+            do {
+                guard let wizard = try await vm.uninstallWizard(for: package) else {
+                    pendingUninstall = package
+                    return
+                }
+                uninstallRequest = PackageUninstallRequest(package: package, wizard: wizard)
+            } catch {
+                guard !DSMError.isCancellation(error) else { return }
+                presentOperationError(
+                    (error as? DSMError)?.errorDescription ?? error.localizedDescription
+                )
+            }
         }
     }
 
@@ -697,11 +733,7 @@ struct PackagesView: View {
     }
 
     private func uninstallWarning(for package: PackageInfo) -> String {
-        var text = String(localized: "packages.uninstall.confirm.description", defaultValue: "“\(package.displayName)” will be uninstalled. Data stored in shared folders (photos, databases…) may be kept depending on the package; to delete it, use the Shares module. You can reinstall the package from DSM.")
-        if package.hasUninstallOptions {
-            text += " " + String(localized: "packages.uninstall.assistant_required.description")
-        }
-        return text
+        String(localized: "packages.uninstall.confirm.description", defaultValue: "“\(package.displayName)” will be uninstalled. Data stored in shared folders (photos, databases…) may be kept depending on the package; to delete it, use the Shares module. You can reinstall the package from DSM.")
     }
 
     private func updateWarning(for package: PackageInfo) -> String {

@@ -26483,6 +26483,134 @@
         }
       }
     },
+    "packages.uninstall.asks_questions" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Asks questions"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pose des questions"
+          }
+        }
+      }
+    },
+    "packages.uninstall.wizard.choice" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choice"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choix"
+          }
+        }
+      }
+    },
+    "packages.uninstall.wizard.custom_render.error" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This package draws its uninstall questions with DSM's own code, which the app cannot reproduce. Uninstall it in DSM Package Center."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce paquet dessine ses questions de désinstallation avec le code de DSM, que l’application ne peut pas reproduire. Désinstallez-le depuis le Centre de paquets de DSM."
+          }
+        }
+      }
+    },
+    "packages.uninstall.wizard.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstalling this package asks what to do with its data first."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La désinstallation de ce paquet demande d’abord quoi faire de ses données."
+          }
+        }
+      }
+    },
+    "packages.uninstall.wizard.label" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall options"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Options de désinstallation"
+          }
+        }
+      }
+    },
+    "packages.uninstall.wizard.loading" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading the uninstall options…"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chargement des options de désinstallation…"
+          }
+        }
+      }
+    },
+    "packages.uninstall.wizard.title" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uninstall %@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Désinstaller %@"
+          }
+        }
+      }
+    },
+    "packages.uninstall.wizard.unreadable.error" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The uninstall questions of this package could not be read, and uninstalling without answering them is not safe. Uninstall it in DSM Package Center."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les questions de désinstallation de ce paquet n’ont pas pu être lues, et désinstaller sans y répondre n’est pas sûr. Désinstallez-le depuis le Centre de paquets de DSM."
+          }
+        }
+      }
+    },
     "packages.column.installed_version": {
       "localizations": {
         "en": {

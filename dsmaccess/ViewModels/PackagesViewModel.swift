@@ -145,17 +145,22 @@ final class PackagesViewModel {
         }
     }
 
-    func uninstall(_ package: PackageInfo) async -> DSMOperationOutcome {
+    /// Loads the questions a package asks before removal. Nil means it asks none; an error
+    /// means DSM draws them with its own JavaScript and the app must not pretend otherwise.
+    func uninstallWizard(for package: PackageInfo) async throws -> PackageUninstallWizard? {
+        guard package.hasUninstallOptions else { return nil }
+        return try await session.withClient {
+            try await $0.packageUninstallWizard(id: package.pkgId)
+        }
+    }
+
+    func uninstall(
+        _ package: PackageInfo,
+        answers: [String: Bool] = [:]
+    ) async -> DSMOperationOutcome {
         guard capabilities?.canUninstallPackages == true, package.canUninstall else {
             return .failure(
                 String(localized: "packages.uninstall.unavailable.error")
-            )
-        }
-        guard !package.hasUninstallOptions else {
-            return .failure(
-                String(
-                    localized: "packages.uninstall.assistant_required.error"
-                )
             )
         }
         let id = package.pkgId
@@ -166,7 +171,7 @@ final class PackagesViewModel {
         do {
             let dsmApps = package.dsmApps
             try await session.withClient {
-                try await $0.uninstallPackage(id: id, dsmApps: dsmApps)
+                try await $0.uninstallPackage(id: id, dsmApps: dsmApps, answers: answers)
             }
             await load()
             return .success(String(localized: "packages.uninstall.success", defaultValue: "\(package.displayName) uninstalled"))
@@ -502,9 +507,7 @@ final class PackagesViewModel {
     }
 
     func canSafelyUninstall(_ package: PackageInfo) -> Bool {
-        capabilities?.canUninstallPackages == true
-            && package.canUninstall
-            && !package.hasUninstallOptions
+        capabilities?.canUninstallPackages == true && package.canUninstall
     }
 
     var canApplyUpdates: Bool {

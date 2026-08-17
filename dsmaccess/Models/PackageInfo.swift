@@ -168,6 +168,9 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         /// Per-package automatic update strategy.
         let autoUpdate: Bool?
         let autoUpdateImportant: Bool?
+        /// Questions the package asks before it is removed, as a URL-escaped JSON string.
+        /// Only requested when an uninstall is about to be prepared: these run to kilobytes.
+        let uninstallPages: String?
         /// Where the package is installed. The path is what tells the volume apart:
         /// "/volume1/@appstore/PlexMediaServer" against "/usr/local/packages/@appstore/…".
         let installedInfo: InstalledInfo?
@@ -199,6 +202,7 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
             case autoUpdate = "autoupdate"
             case autoUpdateImportant = "autoupdate_important"
             case installedInfo = "installed_info"
+            case uninstallPages = "uninstall_pages"
         }
 
         nonisolated init(from decoder: Decoder) throws {
@@ -222,6 +226,7 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
                 InstalledInfo.self,
                 forKey: .installedInfo
             )
+            uninstallPages = container.flexString(.uninstallPages)
         }
     }
 
@@ -340,11 +345,11 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         return .none
     }
 
-    /// Uninstalling this package goes through a DSM assistant the app does not reproduce.
+    /// Uninstalling this package asks questions first — what to do with its data, typically.
     /// The table says so rather than letting the user discover it at the last step.
     var uninstallDescription: String {
         hasUninstallOptions
-            ? String(localized: "packages.uninstall.assistant_required.title")
+            ? String(localized: "packages.uninstall.asks_questions")
             : "—"
     }
 

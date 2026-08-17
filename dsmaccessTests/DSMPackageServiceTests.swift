@@ -182,6 +182,26 @@ struct DSMPackageServiceTests {
         #expect(beta.origin == .synology)
     }
 
+    /// DSM answers 120 when `extra_values` is a JSON object: the value is a string holding
+    /// the JSON. Measured the hard way — an uninstall refused with that code.
+    @Test func sendsTheUninstallWizardAnswersAsAJSONString() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub, includesDirectMutations: true)
+
+        try await service.uninstall(
+            packageID: "ffmpeg8",
+            dsmApps: "com.synocommunity.packages.ffmpeg8",
+            answers: ["wizard_keep_data": true, "wizard_delete_data": false]
+        )
+
+        let sent = try parameters(from: await stub.requests[0])
+        let extra = try #require(sent["extra_values"])
+        let decoded = try #require(
+            try JSONSerialization.jsonObject(with: Data(extra.utf8)) as? [String: Bool]
+        )
+        #expect(decoded == ["wizard_keep_data": true, "wizard_delete_data": false])
+    }
+
     /// Measured on ffmpeg8, which pulls two dependencies: `get_queue` answers with DSM's own
     /// installation plan, dependencies first. The app used to refuse the whole operation as
     /// soon as the queue held anything besides the requested package.
@@ -627,6 +647,7 @@ struct DSMPackageServiceTests {
         #expect(uninstall["method"] == "uninstall")
         #expect(uninstall["id"] == "Perl")
         #expect(uninstall["dsm_apps"] == "SYNO.SDS.Perl.Application SYNO.SDS.Perl.MainWindow")
+        #expect(uninstall["extra_values"] == nil)
 
         // The web client sends these six fields and no others.
         let setting = try parameters(from: requests[2])

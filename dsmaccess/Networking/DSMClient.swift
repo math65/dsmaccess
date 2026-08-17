@@ -245,7 +245,12 @@ protocol DSMClientProtocol: AnyObject {
         progress: @escaping DSMTransferProgressHandler
     ) async throws -> String
     func setPackageRunning(id: String, running: Bool) async throws
-    func uninstallPackage(id: String, dsmApps: String) async throws
+    func uninstallPackage(
+        id: String,
+        dsmApps: String,
+        answers: [String: Bool]
+    ) async throws
+    func packageUninstallWizard(id: String) async throws -> PackageUninstallWizard?
     func packageSettings() async throws -> PackageSettings
     func setPackageSettings(
         _ settings: PackageSettings,
@@ -1142,8 +1147,16 @@ final class DSMClient: DSMClientProtocol {
         try await packages.setRunning(running, packageID: id)
     }
 
-    func uninstallPackage(id: String, dsmApps: String) async throws {
-        try await packages.uninstall(packageID: id, dsmApps: dsmApps)
+    func uninstallPackage(
+        id: String,
+        dsmApps: String,
+        answers: [String: Bool]
+    ) async throws {
+        try await packages.uninstall(packageID: id, dsmApps: dsmApps, answers: answers)
+    }
+
+    func packageUninstallWizard(id: String) async throws -> PackageUninstallWizard? {
+        try await packages.uninstallWizard(packageID: id)
     }
 
     func packageSettings() async throws -> PackageSettings {

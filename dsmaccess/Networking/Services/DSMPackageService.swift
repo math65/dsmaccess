@@ -443,16 +443,48 @@ final class DSMPackageService {
     /// installed on the desktop, exactly as the list returned them. The web client passes
     /// them back so DSM removes the desktop entries along with the package; sending an empty
     /// value left them behind.
-    func uninstall(packageID: String, dsmApps: String) async throws {
+    func uninstall(
+        packageID: String,
+        dsmApps: String,
+        answers: [String: Bool] = [:]
+    ) async throws {
+        var parameters: [String: DSMParameter] = [
+            "id": .string(packageID),
+            "dsm_apps": .string(dsmApps),
+        ]
+        if !answers.isEmpty {
+            // DSM 7.4 rejects a JSON object here with code 120: the value is a *string*
+            // holding the JSON, the same quirk as `extra_values: "{}"` on the install path.
+            let encoded = try JSONEncoder().encode(answers)
+            guard let text = String(data: encoded, encoding: .utf8) else {
+                throw DSMError.invalidResponse
+            }
+            parameters["extra_values"] = .string(text)
+        }
         try await transport.perform(
             api: Self.uninstallationAPI,
             method: "uninstall",
-            parameters: [
-                "id": .string(packageID),
-                "dsm_apps": .string(dsmApps),
-            ],
+            parameters: parameters,
             timeoutInterval: 900
         )
+    }
+
+    /// Reads the questions a package asks before being removed. DSM only serves them through
+    /// the package listing, so the package is picked out of it rather than fetched alone.
+    func uninstallWizard(packageID: String) async throws -> PackageUninstallWizard? {
+        let list = try await transport.read(
+            api: Self.packageAPI,
+            method: "list",
+            parameters: [
+                "additional": try DSMParameter.json(["uninstall_pages"])
+            ],
+            as: PackageList.self
+        )
+        let package = (list.packages ?? []).first {
+            $0.pkgId.caseInsensitiveCompare(packageID) == .orderedSame
+        }
+        guard let package else { throw DSMError.invalidResponse }
+        return try PackageUninstallWizard.decode(from: package.additional?.uninstallPages)
     }
 
     func settings() async throws -> PackageSettings {

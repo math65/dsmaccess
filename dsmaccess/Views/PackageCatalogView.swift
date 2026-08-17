@@ -413,7 +413,7 @@ struct PackageDetailsSheet: View {
                 value: yesNo(vm.canSafelyUninstall(package))
             )
             if package.hasUninstallOptions {
-                Text("packages.uninstall.requires_dsm.description")
+                Text("packages.uninstall.wizard.description")
                     .foregroundStyle(.readableSecondary)
             }
             if package.requiresAttention {
