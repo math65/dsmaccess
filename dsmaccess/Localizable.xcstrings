@@ -26611,6 +26611,38 @@
         }
       }
     },
+    "packages.status.unsupported" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No longer supported"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non pris en charge"
+          }
+        }
+      }
+    },
+    "packages.status.unsupported.description" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM no longer supports this package on this system version. Reinstalling it would change nothing; remove it or look for a version that supports your DSM."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "DSM ne prend plus en charge ce paquet sur cette version du système. Le réinstaller n’y changerait rien : supprimez-le, ou cherchez une version compatible avec votre DSM."
+          }
+        }
+      }
+    },
     "packages.column.installed_version": {
       "localizations": {
         "en": {

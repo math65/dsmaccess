@@ -421,6 +421,12 @@ struct PackageDetailsSheet: View {
                 Text(repairAvailabilityDescription)
                 .foregroundStyle(.readableRed)
             }
+            // An unsupported package is not repairable: reinstalling the same version would
+            // leave it exactly as unsupported.
+            if let explanation = package.statusExplanation {
+                Text(explanation)
+                    .foregroundStyle(.readableRed)
+            }
         }
     }
 

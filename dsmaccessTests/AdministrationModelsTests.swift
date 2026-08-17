@@ -270,6 +270,29 @@ struct AdministrationModelsTests {
                 #"{"id":"Drive","additional":{"status":"broken","startable":false,"ctl_uninstall":false}}"#.utf8
             )
         )
+        // Measured on DSM 7.4: an end-of-life package reports version_limit, code 264. It is
+        // reported but never offered a repair — reinstalling the same version changes nothing.
+        let unsupported = try JSONDecoder().decode(
+            PackageInfo.self,
+            from: Data(#"{"id":"PHP7.4","additional":{"status":"version_limit"}}"#.utf8)
+        )
+        #expect(unsupported.isUnsupported)
+        #expect(unsupported.needsAttention)
+        #expect(!unsupported.requiresAttention)
+        #expect(unsupported.statusText != "DSM status: version_limit")
+        #expect(unsupported.statusExplanation != nil)
+
+        // DSM answers "retrieve from status script" for a healthy package: internal noise
+        // that must never reach the screen.
+        let healthy = try JSONDecoder().decode(
+            PackageInfo.self,
+            from: Data(
+                #"{"id":"FileStation","additional":{"status":"running","status_description":"retrieve from status script"}}"#.utf8
+            )
+        )
+        #expect(healthy.statusExplanation == nil)
+        #expect(!healthy.needsAttention)
+
         let unknownStatus = try JSONDecoder().decode(
             PackageInfo.self,
             from: Data(#"{"id":"Example","additional":{"status":"no_error"}}"#.utf8)

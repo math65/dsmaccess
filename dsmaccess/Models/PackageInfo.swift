@@ -249,6 +249,8 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         switch status {
         case "running", "start", "started": return String(localized: "common.status.in_progress")
         case "stop", "stopped", "stopping": return String(localized: "common.status.stopped")
+        case .some(let value) where Self.isUnsupported(value):
+            return String(localized: "packages.status.unsupported")
         case .some(let value) where Self.requiresAttention(value):
             return String(localized: "common.status.repair_required")
         case .some(let value) where !value.isEmpty:
@@ -272,9 +274,25 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         }
     }
 
+    /// Damaged, and repairable by reinstalling from the catalogue.
     var requiresAttention: Bool {
         guard let status = additional?.status?.lowercased() else { return false }
         return Self.requiresAttention(status)
+    }
+
+    /// DSM no longer supports this package on this system version. Reinstalling it would not
+    /// help, so it is reported without offering a repair — DSM lists it under "attention
+    /// required" and invites you to remove it.
+    var isUnsupported: Bool {
+        guard let status = additional?.status?.lowercased() else { return false }
+        return Self.isUnsupported(status)
+    }
+
+    /// Anything the user should look at, repairable or not.
+    var needsAttention: Bool { requiresAttention || isUnsupported }
+
+    private static func isUnsupported(_ status: String) -> Bool {
+        status == "version_limit"
     }
 
     private static func requiresAttention(_ status: String) -> Bool {
@@ -322,15 +340,13 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         )
     }
 
-    /// DSM's explanation of a status that is not simply running, shown only when it adds
-    /// something to the status itself.
+    /// What to tell the user about a status that is not simply running or stopped. DSM's own
+    /// `status_description` is not it: for a running package it reads "retrieve from status
+    /// script", and for an unsupported one it is an untranslated sentence about the package
+    /// being end of life.
     var statusExplanation: String? {
-        guard let explanation = additional?.statusDescription?
-            .trimmingCharacters(in: .whitespacesAndNewlines),
-              !explanation.isEmpty,
-              explanation.caseInsensitiveCompare(additional?.status ?? "") != .orderedSame
-        else { return nil }
-        return explanation
+        guard isUnsupported else { return nil }
+        return String(localized: "packages.status.unsupported.description")
     }
 
     var webInterfaces: [String] {

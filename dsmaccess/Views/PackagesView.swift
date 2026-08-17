@@ -411,7 +411,7 @@ struct PackagesView: View {
                 }
                 TableColumn("common.column.state", value: \.sortableStatus) { package in
                     Text(statusText(for: package))
-                        .foregroundStyle(package.requiresAttention ? .readableRed : .readableSecondary)
+                        .foregroundStyle(package.needsAttention ? .readableRed : .readableSecondary)
                 }
                 TableColumn("packages.column.uninstall", value: \.sortableUninstall) { package in
                     Text(package.uninstallDescription)
@@ -501,7 +501,7 @@ struct PackagesView: View {
             case .running: package.isRunning
             case .stopped: package.isStopped
             case .updates: vm.updateVersion(for: package) != nil
-            case .attention: package.requiresAttention
+            case .attention: package.needsAttention
             }
             let matchesSearch = searchText.isEmpty
                 || package.displayName.localizedStandardContains(searchText)
