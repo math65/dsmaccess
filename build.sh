@@ -174,15 +174,49 @@ if [[ $RELEASE -eq 1 ]]; then
     fi
 
     echo "==> Release GitHub $TAG..."
-    if gh release view "$TAG" -R "$REPO" &>/dev/null; then
-        echo "⚠ $TAG existe déjà — mise à jour de l'asset."
-        gh release upload "$TAG" "$ZIP_PATH" --clobber -R "$REPO"
-    else
-        gh release create "$TAG" "$ZIP_PATH" \
-            --title "DSM Access ${VERSION}" \
-            --notes-file "$NOTES_FILE" \
-            ${PRERELEASE_ARGS[@]+"${PRERELEASE_ARGS[@]}"} \
-            -R "$REPO"
+    # L'API GitHub rend des 5xx passagers (503 sur la v1.3-beta.3, la release a échoué
+    # alors que tout le reste avait réussi). Trois tentatives espacées plutôt que
+    # d'abandonner une build notarisée pour une panne d'une minute.
+    release_attempt() {
+        if gh release view "$TAG" -R "$REPO" &>/dev/null; then
+            echo "⚠ $TAG existe déjà — mise à jour de l'asset."
+            gh release upload "$TAG" "$ZIP_PATH" --clobber -R "$REPO"
+        else
+            gh release create "$TAG" "$ZIP_PATH" \
+                --title "DSM Access ${VERSION}" \
+                --notes-file "$NOTES_FILE" \
+                ${PRERELEASE_ARGS[@]+"${PRERELEASE_ARGS[@]}"} \
+                -R "$REPO"
+        fi
+    }
+    RELEASE_OK=0
+    for attempt in 1 2 3; do
+        if release_attempt; then RELEASE_OK=1; break; fi
+        echo "⚠ Tentative $attempt échouée — nouvel essai dans 20 s."
+        sleep 20
+    done
+    if [[ $RELEASE_OK -eq 0 ]]; then
+        echo "✗ Release $TAG impossible après trois tentatives."
+        echo "  L'appcast n'est PAS poussé : il annoncerait un téléchargement inexistant."
+        echo "  Une release en brouillon a pu rester derrière — vérifier :"
+        echo "  gh api repos/${REPO}/releases --jq '.[] | select(.draft) | .id, .tag_name'"
+        exit 1
+    fi
+
+    # Une release avortée laisse parfois un brouillon : le zip y est déjà, mais personne
+    # ne peut le télécharger. Contrôler l'état réel avant d'annoncer la mise à jour.
+    RELEASE_STATE=$(gh api "repos/${REPO}/releases/tags/${TAG}" --jq '.draft' 2>/dev/null || echo "inconnu")
+    if [[ "$RELEASE_STATE" != "false" ]]; then
+        echo "✗ La release $TAG n'est pas publiée (draft=$RELEASE_STATE) — appcast non poussé."
+        echo "  La publier : gh release edit $TAG --draft=false -R $REPO"
+        exit 1
+    fi
+
+    # Dernier garde-fou : l'URL que l'appcast s'apprête à annoncer doit répondre.
+    ASSET_URL="https://github.com/${REPO}/releases/download/${TAG}/$(basename "$ZIP_PATH")"
+    if ! curl -fsIL --max-time 30 -o /dev/null "$ASSET_URL"; then
+        echo "✗ $ASSET_URL ne répond pas — appcast non poussé."
+        exit 1
     fi
     echo "✓ https://github.com/${REPO}/releases/tag/$TAG"
 

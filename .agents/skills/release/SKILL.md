@@ -126,6 +126,29 @@ Ce que ça fait (voir `build.sh` pour le détail) :
 Pour d'abord valider sans rien publier : `./build.sh` (local) ou `./build.sh --notarize`
 (notarise + appcast, sans release/push).
 
+⚠️ **Lancer `./build.sh --release` SEUL, jamais dans un tuyau.** Le script tourne sous
+`set -euo pipefail` et sort en erreur comme il faut — mais `./build.sh --release | tail -60`
+rend le code de sortie de `tail`, donc **0**, et une publication ratée passe pour réussie
+(vécu sur la 1.3-beta.3). La sortie est longue : la rediriger vers un fichier et le lire
+(`./build.sh --release > /tmp/release.log 2>&1`), pas la filtrer en direct.
+
+Depuis la 1.3-beta.3, `build.sh` encaisse les pannes passagères de l'API GitHub : trois
+tentatives espacées de 20 s sur la création de la release, puis deux garde-fous avant de
+pousser l'appcast — la release doit être **publiée** (pas restée en brouillon) et l'URL de
+téléchargement doit répondre. Un appcast annonçant un zip inexistant casserait la mise à
+jour de tout le monde ; il vaut mieux s'arrêter et reprendre à la main.
+
+Reprise après un échec de release : `gh release create` laisse parfois un **brouillon** avec
+le zip déjà téléversé. Le retrouver et le publier plutôt que tout reconstruire :
+
+```bash
+gh api repos/math65/dsmaccess/releases --jq '.[] | select(.draft) | "\(.id) \(.tag_name)"'
+gh api -X PATCH repos/math65/dsmaccess/releases/<id> -f draft=false
+```
+
+Puis pousser l'appcast à la main (`docs/appcast.xml` + les deux `.html`), que `build.sh`
+n'aura pas poussé.
+
 ### B2. Vérifier
 
 - **Le tag est sur le commit de bump** (régression réelle des beta.8 et 9, corrigée
