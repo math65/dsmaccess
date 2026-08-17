@@ -60,31 +60,260 @@ struct DSMPackageServiceTests {
             }
             """#.utf8
         )
-        let stub = DSMRequestStub(results: [.response(response), .response(response)])
+        let community = Data(
+            #"""
+            {
+              "success": true,
+              "data": {
+                "packages": [
+                  {
+                    "id": "Adminer",
+                    "version": "4.8.1-1",
+                    "dname": "Adminer",
+                    "desc": "Database management in a single file.",
+                    "maintainer": "Piwi",
+                    "link": "https://packages.synocommunity.com/Adminer.spk",
+                    "md5": "0123456789abcdef0123456789abcdef",
+                    "size": 481280,
+                    "source": "others"
+                  }
+                ]
+              }
+            }
+            """#.utf8
+        )
+        let stub = DSMRequestStub(results: [.response(response), .response(community)])
         let service = makeService(stub: stub)
 
-        let updates = try await service.availableUpdates()
-        let refreshedCatalog = try await service.officialCatalog(forceRefresh: true)
+        let catalog = try await service.catalog(forceRefresh: true)
 
-        #expect(updates.count == 1)
-        let update = try #require(updates["activebackup"])
-        #expect(update.packageID == "ActiveBackup")
+        // The third-party entry carries neither type nor category, and DSM answers for it in
+        // a second listing; both used to be discarded outright.
+        #expect(catalog.packages.count == 2)
+        let update = try #require(catalog.packages.first { $0.packageID == "ActiveBackup" })
         #expect(update.version == "3.0.0-1")
         #expect(update.fileSize == 2048)
         #expect(!update.isBeta)
         #expect(update.packageType == 0)
+        #expect(update.origin == .synology)
         #expect(update.checksum == "0123456789abcdef0123456789abcdef")
-        #expect(refreshedCatalog == [update])
+
+        let thirdParty = try #require(catalog.packages.first { $0.packageID == "Adminer" })
+        #expect(thirdParty.origin == .community)
+        #expect(thirdParty.displayName == "Adminer")
+        #expect(thirdParty.maintainer == "Piwi")
+        #expect(thirdParty.packageType == 0)
+        #expect(catalog.communityFailure == nil)
 
         let requests = await stub.requests
-        let cachedQuery = try parameters(from: requests[0])
-        #expect(cachedQuery["blforcerefresh"] == "false")
-        #expect(cachedQuery["blloadothers"] == "false")
-        let refreshedQuery = try parameters(from: requests[1])
-        #expect(refreshedQuery["blforcerefresh"] == "true")
-        #expect(refreshedQuery["blloadothers"] == "false")
+        #expect(requests.count == 2)
+        let synologyQuery = try parameters(from: requests[0])
+        #expect(synologyQuery["blforcerefresh"] == "true")
+        #expect(synologyQuery["blloadothers"] == "false")
+        let communityQuery = try parameters(from: requests[1])
+        #expect(communityQuery["blforcerefresh"] == "true")
+        #expect(communityQuery["blloadothers"] == "true")
     }
 
+    /// A package source that cannot be reached must not empty the catalogue, and must not be
+    /// swallowed either: DSM keeps its own listing and marks the community store as failed.
+    @Test func keepsTheSynologyCatalogWhenAPackageSourceFails() async throws {
+        let synology = Data(
+            #"""
+            {
+              "success": true,
+              "data": {
+                "categories": [{"id": "utilities", "dname": "Utilitaires"}],
+                "beta_packages": [
+                  {
+                    "id": "DSMAgent",
+                    "version": "1.0.0-1",
+                    "dname": "DSM Agent",
+                    "link": "https://downloads.synology.com/DSMAgent.spk",
+                    "md5": "0123456789abcdef0123456789abcdef",
+                    "size": 4096,
+                    "beta": true,
+                    "source": "syno",
+                    "type": 0
+                  }
+                ],
+                "packages": [
+                  {
+                    "id": "PDFViewer",
+                    "version": "1.3.1-1233",
+                    "dname": "Visionneuse de PDF",
+                    "desc": "Affiche des fichiers PDF.",
+                    "maintainer": "Synology Inc.",
+                    "category": ["utilities"],
+                    "changelog": "Correction de sécurité.",
+                    "link": "https://downloads.synology.com/PDFViewer.spk",
+                    "md5": "0123456789abcdef0123456789abcdef",
+                    "size": 768989,
+                    "beta": false,
+                    "source": "syno",
+                    "type": 0
+                  }
+                ]
+              }
+            }
+            """#.utf8
+        )
+        let stub = DSMRequestStub(results: [
+            .response(synology),
+            .response(Data(#"{"success":false,"error":{"code":407}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub)
+
+        let catalog = try await service.catalog()
+
+        #expect(catalog.packages.count == 2)
+        #expect(catalog.categories == [PackageCategory(id: "utilities", name: "Utilitaires")])
+        #expect(catalog.communityFailure != nil)
+
+        let viewer = try #require(catalog.packages.first { $0.packageID == "PDFViewer" })
+        #expect(viewer.displayName == "Visionneuse de PDF")
+        #expect(viewer.maintainer == "Synology Inc.")
+        #expect(viewer.categories == ["utilities"])
+        #expect(viewer.changelog == "Correction de sécurité.")
+
+        // Beta packages arrive in their own array and used to be dropped entirely.
+        let beta = try #require(catalog.packages.first { $0.packageID == "DSMAgent" })
+        #expect(beta.isBeta)
+        #expect(beta.origin == .synology)
+    }
+
+    /// DSM answers 120 when `extra_values` is a JSON object: the value is a string holding
+    /// the JSON. Measured the hard way — an uninstall refused with that code.
+    @Test func sendsTheUninstallWizardAnswersAsAJSONString() async throws {
+        let stub = DSMRequestStub(results: [.response(Data(#"{"success":true}"#.utf8))])
+        let service = makeService(stub: stub, includesDirectMutations: true)
+
+        try await service.uninstall(
+            packageID: "ffmpeg8",
+            dsmApps: "com.synocommunity.packages.ffmpeg8",
+            answers: ["wizard_keep_data": true, "wizard_delete_data": false]
+        )
+
+        let sent = try parameters(from: await stub.requests[0])
+        let extra = try #require(sent["extra_values"])
+        let decoded = try #require(
+            try JSONSerialization.jsonObject(with: Data(extra.utf8)) as? [String: Bool]
+        )
+        #expect(decoded == ["wizard_keep_data": true, "wizard_delete_data": false])
+    }
+
+    /// Measured on ffmpeg8, which pulls two dependencies: `get_queue` answers with DSM's own
+    /// installation plan, dependencies first. The app used to refuse the whole operation as
+    /// soon as the queue held anything besides the requested package.
+    @Test func installsTheDependenciesDSMPutsInFrontOfAThirdPartyPackage() async throws {
+        let catalogListing = Data(
+            #"""
+            {"success":true,"data":{"packages":[
+              {"id":"synocli-videodriver","version":"1.5-8","dname":"SynoCli Video Drivers",
+               "link":"https://packages.synocommunity.com/videodriver.spk",
+               "md5":"0123456789abcdef0123456789abcdef","size":4096,"source":"others"},
+              {"id":"ffmpeg8","version":"8.1.2-3","dname":"FFmpeg 8",
+               "link":"https://packages.synocommunity.com/ffmpeg8.spk",
+               "md5":"0123456789abcdef0123456789abcdef","size":2048,"source":"others"}
+            ]}}
+            """#.utf8
+        )
+        func installationSteps(id: String, name: String) -> [DSMRequestStub.Result] {
+            [
+                .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+                .response(Data(#"{"success":true,"data":{"taskid":"download-\#(id)"}}"#.utf8)),
+                .response(Data(#"{"success":true,"data":{"finished":true,"success":true}}"#.utf8)),
+                .response(Data(
+                    #"{"success":true,"data":{"filename":"/var/packages/@download/\#(id).spk","id":"\#(id)","name":"\#(name)","version":"1.0","status":"non_installed","install_type":"","install_on_cold_storage":false}}"#.utf8
+                )),
+                .response(Data(
+                    #"{"success":true,"data":{"has_fail":false,"result":[{"success":true},{"success":true},{"success":true}]}}"#.utf8
+                )),
+                .response(Data(#"{"success":true}"#.utf8)),
+            ]
+        }
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(
+                #"{"success":true,"data":{"queue":[{"pkg":"synocli-videodriver","beta":false,"volume":""},{"pkg":"ffmpeg8","beta":false,"volume":""}]}}"#.utf8
+            )),
+            .response(catalogListing),
+            .response(Data(#"{"success":true,"data":{"packages":[]}}"#.utf8)),
+        ]
+        + installationSteps(id: "synocli-videodriver", name: "SynoCli Video Drivers")
+        + installationSteps(id: "ffmpeg8", name: "FFmpeg 8"))
+        let service = makeService(stub: stub)
+        let downloadURL = try #require(
+            URL(string: "https://packages.synocommunity.com/ffmpeg8.spk")
+        )
+        let update = PackageUpdate(
+            packageID: "ffmpeg8",
+            version: "8.1.2-3",
+            downloadURL: downloadURL,
+            checksum: "0123456789abcdef0123456789abcdef",
+            fileSize: 2048,
+            isBeta: false,
+            packageType: 0,
+            origin: .community,
+            displayName: "FFmpeg 8"
+        )
+
+        var steps = [String]()
+        try await service.install(update, runsAfterInstall: true) { progress in
+            if let name = progress.packageName { steps.append("\(name) \(progress.step)/\(progress.stepCount)") }
+        }
+
+        let requests = await stub.requests
+        let installs = try requests.map { try parameters(from: $0) }
+            .filter { $0["method"] == "install" && $0["name"] != nil }
+        #expect(installs.count == 2)
+        #expect(installs[0]["name"] == "synocli-videodriver")
+        #expect(installs[1]["name"] == "ffmpeg8")
+        // Measured on DSM 7.4: a package coming from a package source is not "syno".
+        #expect(installs.allSatisfy { $0["is_syno"] == "false" })
+        #expect(steps == ["SynoCli Video Drivers 1/2", "FFmpeg 8 2/2"])
+    }
+
+    /// DSM checks for a licence agreement before every catalogue installation. The app cannot
+    /// display one, so a package that has one must stop before anything is downloaded rather
+    /// than be installed on terms the user never saw.
+    @Test func stopsBeforeInstallingAPackageThatCarriesALicenceAgreement() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(
+                #"{"success":true,"data":{"queue":[{"pkg":"ActiveBackup","beta":false,"volume":""}]}}"#.utf8
+            )),
+            .response(Data(#"{"success":true,"data":{"has_eula":true}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, includesEula: true)
+        let downloadURL = try #require(
+            URL(string: "https://downloads.synology.com/ActiveBackup.spk")
+        )
+        let update = PackageUpdate(
+            packageID: "ActiveBackup",
+            version: "3.0.0-1",
+            downloadURL: downloadURL,
+            checksum: "0123456789abcdef0123456789abcdef",
+            fileSize: 2048,
+            isBeta: false,
+            packageType: 0
+        )
+
+        await #expect(throws: (any Error).self) {
+            try await service.install(update, runsAfterInstall: true) { _ in }
+        }
+
+        let requests = await stub.requests
+        #expect(requests.count == 3)
+        let eula = try parameters(from: requests[2])
+        #expect(eula["api"] == "SYNO.Core.Package.Eula")
+        #expect(eula["method"] == "check")
+        #expect(eula["package"] == "ActiveBackup")
+    }
+
+    /// The service is built without the EULA API here, which is also what proves the check is
+    /// skipped rather than invented on a NAS that does not publish it: the request count stays
+    /// exactly what DSM sends.
     @Test(arguments: [false, true])
     func completesTheDSM74CatalogInstallationPipeline(isUpgrade: Bool) async throws {
         let operationMethod = isUpgrade ? "upgrade" : "install"
@@ -124,7 +353,9 @@ struct DSMPackageServiceTests {
         if isUpgrade {
             try await service.upgrade(update) { progressUpdates.append($0) }
         } else {
-            try await service.install(update) { progressUpdates.append($0) }
+            try await service.install(update, runsAfterInstall: true) {
+                progressUpdates.append($0)
+            }
         }
 
         let requests = await stub.requests
@@ -135,12 +366,14 @@ struct DSMPackageServiceTests {
                     PackageOperationProgress(
                         taskID: "download-42",
                         statusChecks: 1,
-                        isFinished: false
+                        isFinished: false,
+                        packageName: "ActiveBackup"
                     ),
                     PackageOperationProgress(
                         taskID: "download-42",
                         statusChecks: 2,
-                        isFinished: true
+                        isFinished: true,
+                        packageName: "ActiveBackup"
                     ),
                 ]
         )
@@ -242,7 +475,7 @@ struct DSMPackageServiceTests {
             packageType: 0
         )
 
-        try await service.install(update)
+        try await service.install(update, runsAfterInstall: true) { _ in }
 
         #expect(await stub.requestCount == 8)
     }
@@ -390,12 +623,15 @@ struct DSMPackageServiceTests {
         let settings = try JSONDecoder().decode(
             PackageSettings.self,
             from: Data(
-                #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":true,"enable_email":false,"default_vol":"volume1","trust_level":1,"update_channel":false}"#.utf8
+                #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":true,"enable_email":false,"update_channel":false}"#.utf8
             )
         )
 
         try await service.setRunning(true, packageID: "Perl")
-        try await service.uninstall(packageID: "Perl")
+        try await service.uninstall(
+            packageID: "Perl",
+            dsmApps: "SYNO.SDS.Perl.Application SYNO.SDS.Perl.MainWindow"
+        )
         try await service.setSettings(settings)
 
         let requests = await stub.requests
@@ -406,25 +642,35 @@ struct DSMPackageServiceTests {
         #expect(control["method"] == "start")
         #expect(control["id"] == "Perl")
 
+        // DSM removes the desktop entries only when it is handed the identifiers back.
         let uninstall = try parameters(from: requests[1])
         #expect(uninstall["method"] == "uninstall")
         #expect(uninstall["id"] == "Perl")
+        #expect(uninstall["dsm_apps"] == "SYNO.SDS.Perl.Application SYNO.SDS.Perl.MainWindow")
+        #expect(uninstall["extra_values"] == nil)
 
+        // The web client sends these six fields and no others.
         let setting = try parameters(from: requests[2])
         #expect(setting["method"] == "set")
-        #expect(setting["default_vol"] == "volume1")
-        #expect(setting["trust_level"] == "1")
         #expect(setting["update_channel"] == "stable")
+        #expect(setting["enable_autoupdate"] == "true")
+        #expect(setting["autoupdateall"] == "false")
+        #expect(setting["autoupdateimportant"] == "true")
+        #expect(setting["enable_dsm"] == "true")
+        #expect(setting["enable_email"] == "false")
+        #expect(setting["default_vol"] == nil)
+        #expect(setting["trust_level"] == nil)
     }
 
     @Test func reportsDiscoveredPackageCapabilitiesWithoutInferringMissingMutations() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true,"data":{"packages":[]}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"packages":[]}}"#.utf8)),
         ])
         let service = makeService(stub: stub, includesInstallation: false)
 
         let capabilities = service.capabilities()
-        let updates = try await service.availableUpdates()
+        let catalog = try await service.catalog()
 
         #expect(capabilities.canBrowseCatalog)
         #expect(!capabilities.canInstallCatalogPackages)
@@ -435,7 +681,7 @@ struct DSMPackageServiceTests {
         #expect(!capabilities.canUninstallPackages)
         #expect(!capabilities.canManageSettings)
         #expect(capabilities.maximumVersions["SYNO.Core.Package.Server"] == 2)
-        #expect(updates.isEmpty)
+        #expect(catalog.packages.isEmpty)
     }
 
     @Test func rejectsUnsafeUpdateMetadataBeforeSendingARequest() async throws {
@@ -470,7 +716,8 @@ struct DSMPackageServiceTests {
         pollInterval: Duration = .milliseconds(1200),
         pollLimit: Int = 900,
         includesInstallation: Bool = true,
-        includesDirectMutations: Bool = false
+        includesDirectMutations: Bool = false,
+        includesEula: Bool = false
     ) -> DSMPackageService {
         var capabilities = DSMCapabilities()
         var entries = [
@@ -485,6 +732,13 @@ struct DSMPackageServiceTests {
                 maxVersion: 2
             ),
         ]
+        if includesEula {
+            entries["SYNO.Core.Package.Eula"] = APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 2
+            )
+        }
         if includesInstallation {
             entries["SYNO.Core.Package.Installation"] = APIInfoEntry(
                 path: "entry.cgi",

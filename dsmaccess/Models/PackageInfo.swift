@@ -13,9 +13,36 @@ struct PackageList: nonisolated Decodable, Sendable {
     let packages: [PackageInfo]?
 }
 
-/// Response of the Package Center catalogue.
+/// Response of the Package Center catalogue (SYNO.Core.Package.Server, method=list,
+/// version 2). Measured on DSM 7.4: beta packages arrive in their own array, and the
+/// categories come already translated by DSM. The community listing (`blloadothers` true)
+/// answers with `packages` only.
 struct ServerPackageList: nonisolated Decodable, Sendable {
     let packages: [ServerPackage]?
+    let betaPackages: [ServerPackage]?
+    let categories: [ServerCategory]?
+
+    private enum CodingKeys: String, CodingKey {
+        case packages
+        case betaPackages = "beta_packages"
+        case categories
+    }
+}
+
+struct ServerCategory: nonisolated Decodable, Sendable {
+    let id: String?
+    let name: String?
+
+    private enum CodingKeys: String, CodingKey {
+        case id
+        case name = "dname"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = container.flexString(.id)
+        name = container.flexString(.name)
+    }
 }
 
 struct ServerPackage: nonisolated Decodable, Sendable {
@@ -27,6 +54,13 @@ struct ServerPackage: nonisolated Decodable, Sendable {
     let beta: Bool?
     let source: String?
     let type: Int?
+    let displayName: String?
+    let summary: String?
+    let maintainer: String?
+    let distributor: String?
+    /// Category identifiers matching `ServerCategory.id`. Absent from third-party entries.
+    let categories: [String]?
+    let changelog: String?
     let dependencyServers: DSMJSONValue?
     let dependencyPackages: DSMJSONValue?
     let conflictingPackages: DSMJSONValue?
@@ -38,7 +72,11 @@ struct ServerPackage: nonisolated Decodable, Sendable {
     let installPages: DSMJSONValue?
 
     private enum CodingKeys: String, CodingKey {
-        case id, version, link, md5, size, beta, source, type
+        case id, version, link, md5, size, beta, source, type, changelog
+        case displayName = "dname"
+        case summary = "desc"
+        case maintainer, distributor
+        case categories = "category"
         case dependencyServers = "depsers"
         case dependencyPackages = "deppkgs"
         case conflictingPackages = "conflictpkgs"
@@ -60,6 +98,12 @@ struct ServerPackage: nonisolated Decodable, Sendable {
         beta = container.flexBool(.beta)
         source = container.flexString(.source)
         type = container.flexInt(.type)
+        displayName = container.flexString(.displayName)
+        summary = container.flexString(.summary)
+        maintainer = container.flexString(.maintainer)
+        distributor = container.flexString(.distributor)
+        categories = try? container.decodeIfPresent([String].self, forKey: .categories)
+        changelog = container.flexString(.changelog)
         dependencyServers = try container.decodeIfPresent(
             DSMJSONValue.self,
             forKey: .dependencyServers
@@ -106,6 +150,42 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         let ctlUninstall: Bool?
         /// Does the package offer custom uninstall options in DSM?
         let isUninstallPages: Bool?
+        /// Space-separated DSM application identifiers the package adds to the desktop
+        /// ("SYNO.SDS.PDFViewer.Application SYNO.SDS.PDFViewer.MainWindow…"). DSM expects
+        /// them back when uninstalling.
+        let dsmApps: String?
+        let summary: String?
+        let maintainer: String?
+        let distributor: String?
+        let beta: Bool?
+        /// Date DSM shows for the last update, as the string it sends ("2026/08/05").
+        let updatedAt: String?
+        /// DSM's own explanation of a status that is not simply "running"; it accompanies
+        /// `status` without having to be asked for.
+        let statusDescription: String?
+        /// Addresses of the package's own web interface, when it publishes one.
+        let webInterfaces: [String]?
+        /// Per-package automatic update strategy.
+        let autoUpdate: Bool?
+        let autoUpdateImportant: Bool?
+        /// Questions the package asks before it is removed, as a URL-escaped JSON string.
+        /// Only requested when an uninstall is about to be prepared: these run to kilobytes.
+        let uninstallPages: String?
+        /// Where the package is installed. The path is what tells the volume apart:
+        /// "/volume1/@appstore/PlexMediaServer" against "/usr/local/packages/@appstore/…".
+        let installedInfo: InstalledInfo?
+
+        struct InstalledInfo: nonisolated Decodable, Sendable {
+            let path: String?
+            let isBrick: Bool?
+            let isBroken: Bool?
+
+            enum CodingKeys: String, CodingKey {
+                case path
+                case isBrick = "is_brick"
+                case isBroken = "is_broken"
+            }
+        }
 
         enum CodingKeys: String, CodingKey {
             case status
@@ -113,6 +193,40 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
             case startable
             case ctlUninstall = "ctl_uninstall"
             case isUninstallPages = "is_uninstall_pages"
+            case dsmApps = "dsm_apps"
+            case summary = "description"
+            case maintainer, distributor, beta
+            case updatedAt = "updated_at"
+            case statusDescription = "status_description"
+            case webInterfaces = "url"
+            case autoUpdate = "autoupdate"
+            case autoUpdateImportant = "autoupdate_important"
+            case installedInfo = "installed_info"
+            case uninstallPages = "uninstall_pages"
+        }
+
+        nonisolated init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            status = container.flexString(.status)
+            installType = container.flexString(.installType)
+            startable = container.flexBool(.startable)
+            ctlUninstall = container.flexBool(.ctlUninstall)
+            isUninstallPages = container.flexBool(.isUninstallPages)
+            dsmApps = container.flexString(.dsmApps)
+            summary = container.flexString(.summary)
+            maintainer = container.flexString(.maintainer)
+            distributor = container.flexString(.distributor)
+            beta = container.flexBool(.beta)
+            updatedAt = container.flexString(.updatedAt)
+            statusDescription = container.flexString(.statusDescription)
+            webInterfaces = try? container.decodeIfPresent([String].self, forKey: .webInterfaces)
+            autoUpdate = container.flexBool(.autoUpdate)
+            autoUpdateImportant = container.flexBool(.autoUpdateImportant)
+            installedInfo = try? container.decodeIfPresent(
+                InstalledInfo.self,
+                forKey: .installedInfo
+            )
+            uninstallPages = container.flexString(.uninstallPages)
         }
     }
 
@@ -135,6 +249,8 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         switch status {
         case "running", "start", "started": return String(localized: "common.status.in_progress")
         case "stop", "stopped", "stopping": return String(localized: "common.status.stopped")
+        case .some(let value) where Self.isUnsupported(value):
+            return String(localized: "packages.status.unsupported")
         case .some(let value) where Self.requiresAttention(value):
             return String(localized: "common.status.repair_required")
         case .some(let value) where !value.isEmpty:
@@ -158,9 +274,25 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         }
     }
 
+    /// Damaged, and repairable by reinstalling from the catalogue.
     var requiresAttention: Bool {
         guard let status = additional?.status?.lowercased() else { return false }
         return Self.requiresAttention(status)
+    }
+
+    /// DSM no longer supports this package on this system version. Reinstalling it would not
+    /// help, so it is reported without offering a repair — DSM lists it under "attention
+    /// required" and invites you to remove it.
+    var isUnsupported: Bool {
+        guard let status = additional?.status?.lowercased() else { return false }
+        return Self.isUnsupported(status)
+    }
+
+    /// Anything the user should look at, repairable or not.
+    var needsAttention: Bool { requiresAttention || isUnsupported }
+
+    private static func isUnsupported(_ status: String) -> Bool {
+        status == "version_limit"
     }
 
     private static func requiresAttention(_ status: String) -> Bool {
@@ -180,11 +312,60 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
     /// True if the package offers uninstall options in DSM (not exposed here).
     var hasUninstallOptions: Bool { additional?.isUninstallPages == true }
 
-    /// Uninstalling this package goes through a DSM assistant the app does not reproduce.
+    /// DSM application identifiers to hand back when uninstalling; empty for a package that
+    /// adds nothing to the DSM desktop.
+    var dsmApps: String { additional?.dsmApps ?? "" }
+
+    var maintainer: String? {
+        let value = additional?.maintainer ?? additional?.distributor
+        guard let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return nil
+        }
+        return value
+    }
+
+    /// Where DSM installed the package, read from the install path: a data volume, or the
+    /// system area used by the packages that ship with DSM.
+    var installedLocation: String? {
+        guard let path = additional?.installedInfo?.path, path.hasPrefix("/") else { return nil }
+        let firstComponent = path.split(separator: "/").first.map(String.init) ?? ""
+        guard firstComponent.hasPrefix("volume") else {
+            return String(localized: "packages.detail.location.system")
+        }
+        let number = firstComponent.dropFirst("volume".count)
+        guard !number.isEmpty else { return "/" + firstComponent }
+        return String(
+            localized: "packages.detail.location.volume",
+            defaultValue: "Volume \(String(number))"
+        )
+    }
+
+    /// What to tell the user about a status that is not simply running or stopped. DSM's own
+    /// `status_description` is not it: for a running package it reads "retrieve from status
+    /// script", and for an unsupported one it is an untranslated sentence about the package
+    /// being end of life.
+    var statusExplanation: String? {
+        guard isUnsupported else { return nil }
+        return String(localized: "packages.status.unsupported.description")
+    }
+
+    var webInterfaces: [String] {
+        (additional?.webInterfaces ?? []).filter { !$0.isEmpty }
+    }
+
+    /// What this package currently does about updates. DSM reports both flags per package,
+    /// and its own settings dialog ticks its boxes from them.
+    var autoUpdateChoice: PackageAutoUpdateChoice {
+        if additional?.autoUpdate == true { return .all }
+        if additional?.autoUpdateImportant == true { return .important }
+        return .none
+    }
+
+    /// Uninstalling this package asks questions first — what to do with its data, typically.
     /// The table says so rather than letting the user discover it at the last step.
     var uninstallDescription: String {
         hasUninstallOptions
-            ? String(localized: "packages.uninstall.assistant_required.title")
+            ? String(localized: "packages.uninstall.asks_questions")
             : "—"
     }
 

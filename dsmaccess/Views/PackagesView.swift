@@ -22,6 +22,9 @@ struct PackagesView: View {
     @State private var searchText = ""
     @State private var filter = PackageFilter.all
     @State private var catalogFilter = CatalogFilter.all
+    @State private var catalogCategory: String?
+    @State private var detailsCatalogItem: PackageUpdate?
+    @State private var uninstallRequest: PackageUninstallRequest?
     @State private var selection = Set<PackageInfo.ID>()
     @State private var order = [KeyPathComparator(\PackageInfo.sortableName, order: .forward)]
     @State private var refreshTask: Task<Void, Never>?
@@ -140,7 +143,14 @@ struct PackagesView: View {
             presenting: pendingCatalogAction
         ) { request in
             Button(catalogConfirmButtonTitle(for: request)) {
-                requestCatalogOperation(request)
+                requestCatalogOperation(request, runsAfterInstall: true)
+            }
+            // DSM's wizard offers the same choice as a checkbox; two buttons say it out loud
+            // and keep the dialog navigable.
+            if request.installedPackage == nil {
+                Button("packages.install.without_starting.button") {
+                    requestCatalogOperation(request, runsAfterInstall: false)
+                }
             }
             Button("common.button.cancel", role: .cancel) { }
         } message: { request in
@@ -167,7 +177,8 @@ struct PackagesView: View {
         .sheet(isPresented: $showSettings) {
             PackageSettingsSheet(
                 session: session,
-                canManagePackageSources: vm.capabilities?.canManagePackageSources == true
+                canManagePackageSources: vm.capabilities?.canManagePackageSources == true,
+                selection: vm.autoUpdateSelection()
             )
         }
         .sheet(isPresented: $showPackageSources) {
@@ -175,6 +186,14 @@ struct PackagesView: View {
         }
         .sheet(item: $detailsPackage) { package in
             PackageDetailsSheet(vm: vm, package: package)
+        }
+        .sheet(item: $detailsCatalogItem) { item in
+            PackageCatalogDetailsSheet(vm: vm, item: item)
+        }
+        .sheet(item: $uninstallRequest) { request in
+            PackageUninstallSheet(request: request) { answers in
+                requestUninstall(request.package, answers: answers)
+            }
         }
         .fileImporter(
             isPresented: $showPackageImporter,
@@ -218,6 +237,19 @@ struct PackagesView: View {
                 }
                 .pickerStyle(.menu)
                 .help("packages.filter.label")
+            }
+        }
+
+        if section == .catalog, !vm.categories.isEmpty {
+            ToolbarItem {
+                Picker("packages.filter.category.label", selection: $catalogCategory) {
+                    Text("common.filter.all").tag(String?.none)
+                    ForEach(vm.categories) { category in
+                        Text(category.name).tag(String?.some(category.id))
+                    }
+                }
+                .pickerStyle(.menu)
+                .help("packages.filter.category.hint")
             }
         }
 
@@ -321,9 +353,11 @@ struct PackagesView: View {
                 vm: vm,
                 searchText: searchText,
                 filter: catalogFilter,
+                category: catalogCategory,
                 operationsDisabled: operationTask != nil,
                 retry: startRefresh,
-                requestAction: { pendingCatalogAction = $0 }
+                requestAction: { pendingCatalogAction = $0 },
+                showDetails: { detailsCatalogItem = $0 }
             )
             .accessibilityFocused($focusContent)
         }
@@ -377,7 +411,7 @@ struct PackagesView: View {
                 }
                 TableColumn("common.column.state", value: \.sortableStatus) { package in
                     Text(statusText(for: package))
-                        .foregroundStyle(package.requiresAttention ? .readableRed : .readableSecondary)
+                        .foregroundStyle(package.needsAttention ? .readableRed : .readableSecondary)
                 }
                 TableColumn("packages.column.uninstall", value: \.sortableUninstall) { package in
                     Text(package.uninstallDescription)
@@ -432,6 +466,19 @@ struct PackagesView: View {
                 Divider()
             }
         }
+        if vm.capabilities?.canManageSettings == true {
+            Menu("packages.auto_update.menu") {
+                ForEach(PackageAutoUpdateChoice.allCases) { choice in
+                    Button(choice.name) { setAutoUpdate(choice, for: package) }
+                        .disabled(
+                            choice == package.autoUpdateChoice
+                                || vm.busy.contains(package.id)
+                                || operationTask != nil
+                        )
+                }
+            }
+            Divider()
+        }
         if package.canStartStop, vm.capabilities?.canControlPackages == true {
             Button(package.isRunning ? "common.button.stop" : "common.button.start") {
                 setRunning(package, running: !package.isRunning)
@@ -441,7 +488,7 @@ struct PackagesView: View {
         }
         if vm.canSafelyUninstall(package) {
             if package.canStartStop { Divider() }
-            Button("packages.uninstall.menu", role: .destructive) { pendingUninstall = package }
+            Button("packages.uninstall.menu", role: .destructive) { prepareUninstall(package) }
                 .disabled(vm.busy.contains(package.id) || operationTask != nil)
                 .help("packages.uninstall.hint")
         }
@@ -454,7 +501,7 @@ struct PackagesView: View {
             case .running: package.isRunning
             case .stopped: package.isStopped
             case .updates: vm.updateVersion(for: package) != nil
-            case .attention: package.requiresAttention
+            case .attention: package.needsAttention
             }
             let matchesSearch = searchText.isEmpty
                 || package.displayName.localizedStandardContains(searchText)
@@ -495,11 +542,41 @@ struct PackagesView: View {
         }
     }
 
-    private func requestUninstall(_ package: PackageInfo) {
+    private func requestUninstall(_ package: PackageInfo, answers: [String: Bool] = [:]) {
         startOperation(
             announcement: String(localized: "packages.uninstall.progress", defaultValue: "Uninstalling \(package.displayName)…")
         ) {
-            await vm.uninstall(package)
+            await vm.uninstall(package, answers: answers)
+        }
+    }
+
+    /// A package that asks questions before removal gets its own screen; the others keep the
+    /// plain confirmation. Loading the questions is a network call, so it announces itself.
+    private func prepareUninstall(_ package: PackageInfo) {
+        guard package.hasUninstallOptions else {
+            pendingUninstall = package
+            return
+        }
+        guard operationTask == nil else { return }
+        VoiceOver.announce(
+            String(localized: "packages.uninstall.wizard.loading"),
+            category: .progress,
+            priority: .high
+        )
+        operationTask = Task {
+            defer { operationTask = nil }
+            do {
+                guard let wizard = try await vm.uninstallWizard(for: package) else {
+                    pendingUninstall = package
+                    return
+                }
+                uninstallRequest = PackageUninstallRequest(package: package, wizard: wizard)
+            } catch {
+                guard !DSMError.isCancellation(error) else { return }
+                presentOperationError(
+                    (error as? DSMError)?.errorDescription ?? error.localizedDescription
+                )
+            }
         }
     }
 
@@ -508,6 +585,17 @@ struct PackagesView: View {
             announcement: String(localized: "packages.update.progress", defaultValue: "Updating \(package.displayName)…")
         ) {
             await vm.applyUpdate(package)
+        }
+    }
+
+    private func setAutoUpdate(_ choice: PackageAutoUpdateChoice, for package: PackageInfo) {
+        startOperation(
+            announcement: String(
+                localized: "packages.auto_update.progress",
+                defaultValue: "Changing the automatic update of \(package.displayName)…"
+            )
+        ) {
+            await vm.setAutoUpdate(choice, for: package)
         }
     }
 
@@ -532,7 +620,7 @@ struct PackagesView: View {
         if let installedPackage = request.installedPackage {
             return String(localized: "packages.update.action", defaultValue: "Update \(installedPackage.displayName)")
         }
-        return String(localized: "packages.install.action", defaultValue: "Install \(request.item.packageID)")
+        return String(localized: "packages.install.action", defaultValue: "Install \(request.item.displayName)")
     }
 
     private func catalogConfirmationMessage(for request: CatalogActionRequest) -> String {
@@ -542,13 +630,22 @@ struct PackagesView: View {
                 defaultValue: "“\(installedPackage.displayName)” will be updated to version \(request.item.version). The package will be downloaded, installed, and restarted."
             )
         }
-        return String(
+        let base = String(
             localized: "packages.install.confirm.description",
-            defaultValue: "“\(request.item.packageID)” version \(request.item.version) will be downloaded from the official catalog, installed, and started if supported by the package."
+            defaultValue: "“\(request.item.displayName)” version \(request.item.version) will be downloaded from the official catalog, installed, and started if supported by the package."
+        )
+        guard request.item.origin == .community else { return base }
+        // DSM shows the same warning before installing anything it has not signed.
+        return base + " " + String(
+            localized: "packages.install.community.warning",
+            defaultValue: "This package is published by \(request.item.maintainer ?? request.item.origin.name) through a package source and is not verified by Synology. Its dependencies will be installed as well."
         )
     }
 
-    private func requestCatalogOperation(_ request: CatalogActionRequest) {
+    private func requestCatalogOperation(
+        _ request: CatalogActionRequest,
+        runsAfterInstall: Bool
+    ) {
         if let installedPackage = request.installedPackage {
             startOperation(
                 announcement: String(
@@ -562,10 +659,10 @@ struct PackagesView: View {
             startOperation(
                 announcement: String(
                     localized: "packages.install.progress",
-                    defaultValue: "Installing \(request.item.packageID)…"
+                    defaultValue: "Installing \(request.item.displayName)…"
                 )
             ) {
-                await vm.install(request.item)
+                await vm.install(request.item, runsAfterInstall: runsAfterInstall)
             }
         }
     }
@@ -636,11 +733,7 @@ struct PackagesView: View {
     }
 
     private func uninstallWarning(for package: PackageInfo) -> String {
-        var text = String(localized: "packages.uninstall.confirm.description", defaultValue: "“\(package.displayName)” will be uninstalled. Data stored in shared folders (photos, databases…) may be kept depending on the package; to delete it, use the Shares module. You can reinstall the package from DSM.")
-        if package.hasUninstallOptions {
-            text += " " + String(localized: "packages.uninstall.assistant_required.description")
-        }
-        return text
+        String(localized: "packages.uninstall.confirm.description", defaultValue: "“\(package.displayName)” will be uninstalled. Data stored in shared folders (photos, databases…) may be kept depending on the package; to delete it, use the Shares module. You can reinstall the package from DSM.")
     }
 
     private func updateWarning(for package: PackageInfo) -> String {

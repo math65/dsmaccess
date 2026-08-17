@@ -22,9 +22,14 @@ final class PackageSettingsViewModel {
 
     private let session: SessionStore
     private var loadGeneration = 0
+    /// What each package is already set to. DSM does not return the custom lists from `get`,
+    /// so switching to the per-package strategy has to send back what the packages
+    /// themselves reported, or it would silently clear every choice.
+    private let selection: PackageAutoUpdateSelection
 
-    init(session: SessionStore) {
+    init(session: SessionStore, selection: PackageAutoUpdateSelection = .init()) {
         self.session = session
+        self.selection = selection
     }
 
     func load() async {
@@ -70,7 +75,10 @@ final class PackageSettingsViewModel {
         saveErrorMessage = nil
         defer { isSaving = false }
         do {
-            try await session.withClient { try await $0.setPackageSettings(updated) }
+            let selection = selection
+            try await session.withClient {
+                try await $0.setPackageSettings(updated, selection: selection)
+            }
             settings = updated
             return .success(String(localized: "packages.settings.save.success"))
         } catch {

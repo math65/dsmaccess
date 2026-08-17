@@ -45,6 +45,21 @@ struct PackageInstallationRequirements: Equatable, Sendable {
     }
 }
 
+/// Answer of SYNO.Core.Package.Eula (method=check), which DSM calls before every catalogue
+/// installation. Measured on DSM 7.4: `{"has_eula": false}` for a package with no licence.
+struct PackageEulaCheck: nonisolated Decodable, Sendable {
+    let hasEula: Bool
+
+    private enum CodingKeys: String, CodingKey {
+        case hasEula = "has_eula"
+    }
+
+    nonisolated init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        hasEula = container.flexBool(.hasEula) ?? false
+    }
+}
+
 struct PackageInstallQueue: nonisolated Decodable, Sendable {
     let brokenPackages: [String]
     let conflictingPackages: [String]

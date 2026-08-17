@@ -24,6 +24,7 @@ final class DSMPackageService {
         preferredVersion: 1
     )
     private static let entryRequestAPI = DSMAPI("SYNO.Entry.Request", preferredVersion: 1)
+    private static let eulaAPI = DSMAPI("SYNO.Core.Package.Eula", preferredVersion: 1)
 
     private enum CatalogOperation {
         case install
@@ -107,8 +108,13 @@ final class DSMPackageService {
             api: Self.packageAPI,
             method: "list",
             parameters: [
+                // The web client asks for 27 of these. Requested here are the ones the app
+                // actually shows; `status_description` needs no asking, it comes with
+                // `status`, and `autoupdate` brings `autoupdate_important` with it.
                 "additional": try DSMParameter.json([
                     "status", "installed_info", "startable", "ctl_uninstall", "is_uninstall_pages",
+                    "dsm_apps", "description", "maintainer", "distributor", "beta",
+                    "updated_at", "url", "autoupdate", "silent_upgrade",
                 ])
             ],
             as: PackageList.self
@@ -116,35 +122,60 @@ final class DSMPackageService {
         return list.packages ?? []
     }
 
-    func availableUpdates() async throws -> [String: PackageUpdate] {
-        let catalog = try await officialCatalog()
-        return catalog.reduce(into: [:]) { updates, update in
-            updates[update.packageID.lowercased()] = update
+    /// Reads the catalogue the way the Package Center web client does: once for the Synology
+    /// listing, which also carries the beta packages and the categories, then once more with
+    /// `blloadothers` for everything published through a package source.
+    ///
+    /// A third-party source that cannot be reached degrades to a reported failure rather than
+    /// emptying the catalogue, which is what DSM does with its own community store.
+    func catalog(forceRefresh: Bool = false) async throws -> PackageCatalog {
+        let synology = try await serverList(forceRefresh: forceRefresh, loadsOthers: false)
+        var entries = (synology.packages ?? []) + (synology.betaPackages ?? [])
+        var communityFailure: String?
+        do {
+            let community = try await serverList(forceRefresh: forceRefresh, loadsOthers: true)
+            entries += (community.packages ?? []) + (community.betaPackages ?? [])
+        } catch let error as DSMError {
+            guard !DSMError.isCancellation(error) else { throw error }
+            communityFailure = error.errorDescription
         }
-    }
 
-    func officialCatalog(forceRefresh: Bool = false) async throws -> [PackageUpdate] {
-        let list = try await transport.read(
-            api: Self.serverAPI,
-            method: "list",
-            parameters: [
-                "blforcerefresh": .boolean(forceRefresh),
-                "blloadothers": .boolean(false),
-            ],
-            as: ServerPackageList.self
-        )
-
-        let uniquePackages = (list.packages ?? [])
+        let uniquePackages = entries
             .compactMap(packageUpdate)
             .reduce(into: [String: PackageUpdate]()) { packages, package in
                 packages[package.id] = package
             }
             .values
-        return uniquePackages.sorted { left, right in
-            let nameOrder = left.packageID.localizedStandardCompare(right.packageID)
-            if nameOrder != .orderedSame { return nameOrder == .orderedAscending }
-            return left.version.localizedStandardCompare(right.version) == .orderedAscending
-        }
+        return PackageCatalog(
+            packages: uniquePackages.sorted { left, right in
+                let nameOrder = left.displayName.localizedStandardCompare(right.displayName)
+                if nameOrder != .orderedSame { return nameOrder == .orderedAscending }
+                return left.version.localizedStandardCompare(right.version) == .orderedAscending
+            },
+            categories: (synology.categories ?? []).compactMap { category in
+                guard let id = category.id?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !id.isEmpty,
+                      let name = category.name?.trimmingCharacters(in: .whitespacesAndNewlines),
+                      !name.isEmpty else { return nil }
+                return PackageCategory(id: id, name: name)
+            },
+            communityFailure: communityFailure
+        )
+    }
+
+    private func serverList(
+        forceRefresh: Bool,
+        loadsOthers: Bool
+    ) async throws -> ServerPackageList {
+        try await transport.read(
+            api: Self.serverAPI,
+            method: "list",
+            parameters: [
+                "blforcerefresh": .boolean(forceRefresh),
+                "blloadothers": .boolean(loadsOthers),
+            ],
+            as: ServerPackageList.self
+        )
     }
 
     func upgrade(_ update: PackageUpdate) async throws {
@@ -158,15 +189,17 @@ final class DSMPackageService {
         try await runCatalogOperation(.upgrade, update: update, progress: progress)
     }
 
-    func install(_ update: PackageUpdate) async throws {
-        try await install(update, progress: { _ in })
-    }
-
     func install(
         _ update: PackageUpdate,
+        runsAfterInstall: Bool,
         progress: (PackageOperationProgress) -> Void
     ) async throws {
-        try await runCatalogOperation(.install, update: update, progress: progress)
+        try await runCatalogOperation(
+            .install,
+            update: update,
+            runsAfterInstall: runsAfterInstall,
+            progress: progress
+        )
     }
 
     func repair(
@@ -219,6 +252,7 @@ final class DSMPackageService {
                 checkDependencies: true,
                 checkCodesign: false,
                 force: false,
+                runsAfterInstall: true,
                 source: .task(taskID)
             )
             // DSM may delete the task as soon as the installation finishes.
@@ -264,6 +298,7 @@ final class DSMPackageService {
     private func runCatalogOperation(
         _ operation: CatalogOperation,
         update: PackageUpdate,
+        runsAfterInstall: Bool = true,
         progress: (PackageOperationProgress) -> Void
     ) async throws {
         guard !update.packageID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -301,6 +336,31 @@ final class DSMPackageService {
         )
         try validate(queue: queue, packageID: update.packageID)
 
+        // The queue is DSM's own installation plan, dependencies first and the requested
+        // package last. Measured on ffmpeg8, which brings two of them.
+        let plan = try await installationPlan(queue: queue, target: update)
+        for (index, step) in plan.enumerated() {
+            let isTarget = step.packageID.caseInsensitiveCompare(update.packageID) == .orderedSame
+            try await installOne(
+                step,
+                operation: isTarget ? operation : .install,
+                runsAfterInstall: isTarget ? runsAfterInstall : true,
+                step: index + 1,
+                stepCount: plan.count,
+                progress: progress
+            )
+        }
+    }
+
+    private func installOne(
+        _ update: PackageUpdate,
+        operation: CatalogOperation,
+        runsAfterInstall: Bool,
+        step: Int,
+        stepCount: Int,
+        progress: (PackageOperationProgress) -> Void
+    ) async throws {
+        try await checkEula(packageID: update.packageID)
         _ = try await transport.read(
             api: DSMAPI(Self.installationAPI.name, preferredVersion: 2),
             method: "check",
@@ -313,7 +373,8 @@ final class DSMPackageService {
             method: operation.method,
             parameters: [
                 "name": .string(update.packageID),
-                "is_syno": .boolean(true),
+                // Measured on DSM 7.4: false for anything coming from a package source.
+                "is_syno": .boolean(update.origin == .synology),
                 "beta": .boolean(update.isBeta),
                 "url": .string(update.downloadURL.absoluteString),
                 "checksum": .string(update.checksum),
@@ -326,7 +387,13 @@ final class DSMPackageService {
             as: PackageInstallTask.self
         )
 
-        try await waitForDownload(taskID: task.taskID, progress: progress)
+        try await waitForDownload(
+            taskID: task.taskID,
+            packageName: update.displayName,
+            step: step,
+            stepCount: stepCount,
+            progress: progress
+        )
         let metadata = try await transport.read(
             api: Self.installationDownloadAPI,
             method: "check",
@@ -348,8 +415,11 @@ final class DSMPackageService {
                 method: operation.method,
                 packageType: update.packageType,
                 checkDependencies: false,
-                checkCodesign: true,
+                // The web client sends false once the "third-party package" warning has been
+                // accepted, which the app does through its own confirmation.
+                checkCodesign: update.origin == .synology,
                 force: true,
+                runsAfterInstall: runsAfterInstall,
                 source: .path(filename)
             )
         } catch {
@@ -369,16 +439,52 @@ final class DSMPackageService {
         )
     }
 
-    func uninstall(packageID: String) async throws {
+    /// `dsm_apps` carries the space-separated DSM application identifiers the package
+    /// installed on the desktop, exactly as the list returned them. The web client passes
+    /// them back so DSM removes the desktop entries along with the package; sending an empty
+    /// value left them behind.
+    func uninstall(
+        packageID: String,
+        dsmApps: String,
+        answers: [String: Bool] = [:]
+    ) async throws {
+        var parameters: [String: DSMParameter] = [
+            "id": .string(packageID),
+            "dsm_apps": .string(dsmApps),
+        ]
+        if !answers.isEmpty {
+            // DSM 7.4 rejects a JSON object here with code 120: the value is a *string*
+            // holding the JSON, the same quirk as `extra_values: "{}"` on the install path.
+            let encoded = try JSONEncoder().encode(answers)
+            guard let text = String(data: encoded, encoding: .utf8) else {
+                throw DSMError.invalidResponse
+            }
+            parameters["extra_values"] = .string(text)
+        }
         try await transport.perform(
             api: Self.uninstallationAPI,
             method: "uninstall",
-            parameters: [
-                "id": .string(packageID),
-                "dsm_apps": "",
-            ],
+            parameters: parameters,
             timeoutInterval: 900
         )
+    }
+
+    /// Reads the questions a package asks before being removed. DSM only serves them through
+    /// the package listing, so the package is picked out of it rather than fetched alone.
+    func uninstallWizard(packageID: String) async throws -> PackageUninstallWizard? {
+        let list = try await transport.read(
+            api: Self.packageAPI,
+            method: "list",
+            parameters: [
+                "additional": try DSMParameter.json(["uninstall_pages"])
+            ],
+            as: PackageList.self
+        )
+        let package = (list.packages ?? []).first {
+            $0.pkgId.caseInsensitiveCompare(packageID) == .orderedSame
+        }
+        guard let package else { throw DSMError.invalidResponse }
+        return try PackageUninstallWizard.decode(from: package.additional?.uninstallPages)
     }
 
     func settings() async throws -> PackageSettings {
@@ -389,27 +495,40 @@ final class DSMPackageService {
         )
     }
 
-    func setSettings(_ settings: PackageSettings) async throws {
+    /// Sends exactly the six fields the Package Center web client sends. DSM neither returns
+    /// `default_vol` here nor expects it back, and it leaves `trust_level` alone.
+    ///
+    /// The two per-package lists travel only with the custom strategy, which is what the web
+    /// client does: saving one of the three global strategies omits them entirely.
+    func setSettings(
+        _ settings: PackageSettings,
+        selection: PackageAutoUpdateSelection? = nil
+    ) async throws {
+        var parameters: [String: DSMParameter] = [
+            "enable_autoupdate": .boolean(settings.enableAutoupdate),
+            "autoupdateall": .boolean(settings.autoupdateAll),
+            "autoupdateimportant": .boolean(settings.autoupdateImportant),
+            "enable_dsm": .boolean(settings.enableDsm),
+            "enable_email": .boolean(settings.enableEmail),
+            "update_channel": .string(settings.updateChannelBeta ? "beta" : "stable"),
+        ]
+        if settings.autoUpdateMode == .custom, let selection {
+            parameters["packages"] = try DSMParameter.json(selection.allVersions)
+            parameters["packages_important"] = try DSMParameter.json(selection.importantVersions)
+        }
         try await transport.perform(
             api: Self.settingAPI,
             method: "set",
-            parameters: [
-                "enable_autoupdate": .boolean(settings.enableAutoupdate),
-                "autoupdateall": .boolean(settings.autoupdateAll),
-                "autoupdateimportant": .boolean(settings.autoupdateImportant),
-                "enable_dsm": .boolean(settings.enableDsm),
-                "enable_email": .boolean(settings.enableEmail),
-                "default_vol": .string(settings.defaultVol),
-                "trust_level": .integer(settings.trustLevel),
-                "update_channel": .string(settings.updateChannelBeta ? "beta" : "stable"),
-            ]
+            parameters: parameters
         )
     }
 
     private func packageUpdate(from package: ServerPackage) -> PackageUpdate? {
+        // A third-party entry carries neither `type` nor `category`: DSM only classifies its
+        // own listing, so their absence must not disqualify the package.
         let packageType = package.type ?? 0
         let source = package.source?.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard source?.lowercased() == "syno",
+        guard let origin = PackageCatalogOrigin(rawValue: source?.lowercased() ?? ""),
               let packageID = package.id?.trimmingCharacters(in: .whitespacesAndNewlines),
               !packageID.isEmpty,
               let version = package.version?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -432,6 +551,12 @@ final class DSMPackageService {
             fileSize: fileSize,
             isBeta: package.beta ?? false,
             packageType: packageType,
+            origin: origin,
+            displayName: package.displayName,
+            summary: package.summary,
+            maintainer: package.maintainer ?? package.distributor,
+            categories: package.categories ?? [],
+            changelog: package.changelog,
             requirements: PackageInstallationRequirements(
                 dependencyServers: package.dependencyServers,
                 dependencyPackages: package.dependencyPackages,
@@ -465,6 +590,30 @@ final class DSMPackageService {
         }
     }
 
+    /// DSM asks this before every catalogue installation. A package with a licence needs it
+    /// displayed and accepted, which is a DSM screen the app does not reproduce — so the
+    /// operation stops here rather than installing something whose terms were never shown.
+    ///
+    /// A NAS that does not publish the API is left alone: the check is DSM's, not a
+    /// precondition we invented.
+    private func checkEula(packageID: String) async throws {
+        guard transport.capabilities.supports(Self.eulaAPI) else { return }
+        let eula = try await transport.read(
+            api: Self.eulaAPI,
+            method: "check",
+            parameters: ["package": .string(packageID)],
+            as: PackageEulaCheck.self
+        )
+        guard !eula.hasEula else {
+            throw DSMError.packageCenter(
+                String(
+                    localized: "packages.install.eula_required.error",
+                    defaultValue: "The \(packageID) package has a licence agreement to accept. Install it in DSM Package Center so you can read and accept it."
+                )
+            )
+        }
+    }
+
     private func feasibilityCheck(packageID: String, type: String) async throws {
         let response = try await transport.response(
             api: DSMAPI(Self.packageAPI.name, preferredVersion: 1),
@@ -481,21 +630,64 @@ final class DSMPackageService {
         }
     }
 
+    /// The queue may legitimately hold more than the requested package: DSM puts its
+    /// dependencies in front of it. What must stay empty are the lists that describe trouble
+    /// — broken, conflicting, missing, paused or replaced packages.
     private func validate(queue: PackageInstallQueue, packageID: String) throws {
-        let queuedTarget = queue.queue.count == 1
-            && queue.queue[0].packageID.caseInsensitiveCompare(packageID) == .orderedSame
-            && (queue.queue[0].operation ?? "install") == "install"
+        let installsTarget = queue.queue.contains {
+            $0.packageID.caseInsensitiveCompare(packageID) == .orderedSame
+                && ($0.operation ?? "install") == "install"
+        }
         guard queue.brokenPackages.isEmpty,
               queue.conflictingPackages.isEmpty,
               queue.missingPackages.isEmpty,
               queue.pausedPackages.isEmpty,
               queue.replacementPackages.isEmpty,
-              queuedTarget else {
+              installsTarget else {
             throw DSMError.packageCenter(
                 String(
                     localized: "packages.install.extra_operations.error"
                 )
             )
+        }
+    }
+
+    /// Resolves every queued package against the catalogue, in DSM's order. The catalogue is
+    /// only read again when there is something beside the requested package, and a dependency
+    /// that cannot be resolved stops the operation rather than being skipped.
+    private func installationPlan(
+        queue: PackageInstallQueue,
+        target: PackageUpdate
+    ) async throws -> [PackageUpdate] {
+        let queued = queue.queue.map(\.packageID)
+        guard queued.count > 1 else { return [target] }
+
+        let catalog = try await catalog()
+        return try queued.map { packageID in
+            if packageID.caseInsensitiveCompare(target.packageID) == .orderedSame {
+                return target
+            }
+            let candidates = catalog.packages.filter {
+                $0.packageID.caseInsensitiveCompare(packageID) == .orderedSame
+            }
+            guard let dependency = candidates.first(where: { $0.origin == target.origin })
+                ?? candidates.first else {
+                throw DSMError.packageCenter(
+                    String(
+                        localized: "packages.install.dependency_missing.error",
+                        defaultValue: "The \(packageID) package is required by this installation but is not in the catalogue."
+                    )
+                )
+            }
+            guard !dependency.requirements.requiresInteractiveInstaller else {
+                throw DSMError.packageCenter(
+                    String(
+                        localized: "packages.install.dependency_requires_dsm.error",
+                        defaultValue: "This installation requires \(dependency.displayName), which asks for a licence or a configuration wizard. Install it in DSM Package Center."
+                    )
+                )
+            }
+            return dependency
         }
     }
 
@@ -524,6 +716,9 @@ final class DSMPackageService {
 
     private func waitForDownload(
         taskID: String,
+        packageName: String,
+        step: Int,
+        stepCount: Int,
         progress: (PackageOperationProgress) -> Void
     ) async throws {
         for statusIndex in 0..<updatePollLimit {
@@ -538,7 +733,10 @@ final class DSMPackageService {
                 PackageOperationProgress(
                     taskID: taskID,
                     statusChecks: statusIndex + 1,
-                    isFinished: status.isFinished
+                    isFinished: status.isFinished,
+                    packageName: packageName,
+                    step: step,
+                    stepCount: stepCount
                 )
             )
             if status.isFinished {
@@ -561,6 +759,7 @@ final class DSMPackageService {
         checkDependencies: Bool,
         checkCodesign: Bool,
         force: Bool,
+        runsAfterInstall: Bool,
         source: InstallationSource
     ) async throws {
         let check: [String: DSMJSONValue] = [
@@ -584,7 +783,7 @@ final class DSMPackageService {
             "type": .integer(packageType),
             "check_codesign": .boolean(checkCodesign),
             "force": .boolean(force),
-            "installrunpackage": .boolean(true),
+            "installrunpackage": .boolean(runsAfterInstall),
         ]
         switch source {
         case .path(let path):
