@@ -319,7 +319,6 @@ final class DSMPackageService {
         }
 
         try await feasibilityCheck(packageID: update.packageID, type: "install_check")
-        try await checkEula(packageID: update.packageID)
         let queue = try await transport.read(
             api: Self.installationAPI,
             method: "get_queue",
@@ -337,6 +336,31 @@ final class DSMPackageService {
         )
         try validate(queue: queue, packageID: update.packageID)
 
+        // The queue is DSM's own installation plan, dependencies first and the requested
+        // package last. Measured on ffmpeg8, which brings two of them.
+        let plan = try await installationPlan(queue: queue, target: update)
+        for (index, step) in plan.enumerated() {
+            let isTarget = step.packageID.caseInsensitiveCompare(update.packageID) == .orderedSame
+            try await installOne(
+                step,
+                operation: isTarget ? operation : .install,
+                runsAfterInstall: isTarget ? runsAfterInstall : true,
+                step: index + 1,
+                stepCount: plan.count,
+                progress: progress
+            )
+        }
+    }
+
+    private func installOne(
+        _ update: PackageUpdate,
+        operation: CatalogOperation,
+        runsAfterInstall: Bool,
+        step: Int,
+        stepCount: Int,
+        progress: (PackageOperationProgress) -> Void
+    ) async throws {
+        try await checkEula(packageID: update.packageID)
         _ = try await transport.read(
             api: DSMAPI(Self.installationAPI.name, preferredVersion: 2),
             method: "check",
@@ -349,7 +373,8 @@ final class DSMPackageService {
             method: operation.method,
             parameters: [
                 "name": .string(update.packageID),
-                "is_syno": .boolean(true),
+                // Measured on DSM 7.4: false for anything coming from a package source.
+                "is_syno": .boolean(update.origin == .synology),
                 "beta": .boolean(update.isBeta),
                 "url": .string(update.downloadURL.absoluteString),
                 "checksum": .string(update.checksum),
@@ -362,7 +387,13 @@ final class DSMPackageService {
             as: PackageInstallTask.self
         )
 
-        try await waitForDownload(taskID: task.taskID, progress: progress)
+        try await waitForDownload(
+            taskID: task.taskID,
+            packageName: update.displayName,
+            step: step,
+            stepCount: stepCount,
+            progress: progress
+        )
         let metadata = try await transport.read(
             api: Self.installationDownloadAPI,
             method: "check",
@@ -384,7 +415,9 @@ final class DSMPackageService {
                 method: operation.method,
                 packageType: update.packageType,
                 checkDependencies: false,
-                checkCodesign: true,
+                // The web client sends false once the "third-party package" warning has been
+                // accepted, which the app does through its own confirmation.
+                checkCodesign: update.origin == .synology,
                 force: true,
                 runsAfterInstall: runsAfterInstall,
                 source: .path(filename)
@@ -565,21 +598,64 @@ final class DSMPackageService {
         }
     }
 
+    /// The queue may legitimately hold more than the requested package: DSM puts its
+    /// dependencies in front of it. What must stay empty are the lists that describe trouble
+    /// — broken, conflicting, missing, paused or replaced packages.
     private func validate(queue: PackageInstallQueue, packageID: String) throws {
-        let queuedTarget = queue.queue.count == 1
-            && queue.queue[0].packageID.caseInsensitiveCompare(packageID) == .orderedSame
-            && (queue.queue[0].operation ?? "install") == "install"
+        let installsTarget = queue.queue.contains {
+            $0.packageID.caseInsensitiveCompare(packageID) == .orderedSame
+                && ($0.operation ?? "install") == "install"
+        }
         guard queue.brokenPackages.isEmpty,
               queue.conflictingPackages.isEmpty,
               queue.missingPackages.isEmpty,
               queue.pausedPackages.isEmpty,
               queue.replacementPackages.isEmpty,
-              queuedTarget else {
+              installsTarget else {
             throw DSMError.packageCenter(
                 String(
                     localized: "packages.install.extra_operations.error"
                 )
             )
+        }
+    }
+
+    /// Resolves every queued package against the catalogue, in DSM's order. The catalogue is
+    /// only read again when there is something beside the requested package, and a dependency
+    /// that cannot be resolved stops the operation rather than being skipped.
+    private func installationPlan(
+        queue: PackageInstallQueue,
+        target: PackageUpdate
+    ) async throws -> [PackageUpdate] {
+        let queued = queue.queue.map(\.packageID)
+        guard queued.count > 1 else { return [target] }
+
+        let catalog = try await catalog()
+        return try queued.map { packageID in
+            if packageID.caseInsensitiveCompare(target.packageID) == .orderedSame {
+                return target
+            }
+            let candidates = catalog.packages.filter {
+                $0.packageID.caseInsensitiveCompare(packageID) == .orderedSame
+            }
+            guard let dependency = candidates.first(where: { $0.origin == target.origin })
+                ?? candidates.first else {
+                throw DSMError.packageCenter(
+                    String(
+                        localized: "packages.install.dependency_missing.error",
+                        defaultValue: "The \(packageID) package is required by this installation but is not in the catalogue."
+                    )
+                )
+            }
+            guard !dependency.requirements.requiresInteractiveInstaller else {
+                throw DSMError.packageCenter(
+                    String(
+                        localized: "packages.install.dependency_requires_dsm.error",
+                        defaultValue: "This installation requires \(dependency.displayName), which asks for a licence or a configuration wizard. Install it in DSM Package Center."
+                    )
+                )
+            }
+            return dependency
         }
     }
 
@@ -608,6 +684,9 @@ final class DSMPackageService {
 
     private func waitForDownload(
         taskID: String,
+        packageName: String,
+        step: Int,
+        stepCount: Int,
         progress: (PackageOperationProgress) -> Void
     ) async throws {
         for statusIndex in 0..<updatePollLimit {
@@ -622,7 +701,10 @@ final class DSMPackageService {
                 PackageOperationProgress(
                     taskID: taskID,
                     statusChecks: statusIndex + 1,
-                    isFinished: status.isFinished
+                    isFinished: status.isFinished,
+                    packageName: packageName,
+                    step: step,
+                    stepCount: stepCount
                 )
             )
             if status.isFinished {

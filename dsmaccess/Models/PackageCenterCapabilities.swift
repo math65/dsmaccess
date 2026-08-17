@@ -25,4 +25,11 @@ struct PackageOperationProgress: Equatable, Sendable {
     let taskID: String
     let statusChecks: Int
     let isFinished: Bool
+    /// Name of the package this step is downloading. A package installed with its
+    /// dependencies runs one of these per package, and saying which one is being fetched is
+    /// the difference between a progress message and a spinner.
+    var packageName: String?
+    /// Position of the step in the plan and its length, both 1 when there is no dependency.
+    var step: Int = 1
+    var stepCount: Int = 1
 }

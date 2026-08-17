@@ -233,14 +233,6 @@ final class PackagesViewModel {
                 String(localized: "common.error.catalog_install_unavailable")
             )
         }
-        guard catalogItem.origin == .synology else {
-            return .failure(
-                String(
-                    localized: "packages.install.community_requires_dsm.error",
-                    defaultValue: "The \(catalogItem.displayName) package comes from a package source. Install it in DSM Package Center."
-                )
-            )
-        }
         guard installedPackage(for: catalogItem) == nil else {
             return .failure(
                 String(localized: "packages.install.already_installed.error", defaultValue: "The \(catalogItem.packageID) package is already installed.")
@@ -497,12 +489,8 @@ final class PackagesViewModel {
         }
     }
 
-    /// Third-party packages are listed but not installed from here: the install call carries
-    /// an `is_syno` flag whose value for a package source has not been measured on a NAS, and
-    /// a guess would be an install performed on the wrong contract.
     func canInstall(_ catalogItem: PackageUpdate) -> Bool {
         capabilities?.canInstallCatalogPackages == true
-            && catalogItem.origin == .synology
             && installedPackage(for: catalogItem) == nil
             && !catalogItem.requirements.requiresInteractiveInstaller
     }
@@ -540,6 +528,14 @@ final class PackagesViewModel {
         }
         guard let operationProgress else {
             return String(localized: "packages.operation.preparing.progress", defaultValue: "\(activeOperationName), preparing on the NAS")
+        }
+        // A package pulled in as a dependency downloads under its own name: saying which one
+        // and where it sits in the plan is what stops the wait from sounding stuck.
+        if let packageName = operationProgress.packageName, operationProgress.stepCount > 1 {
+            return String(
+                localized: "packages.operation.dependency.progress",
+                defaultValue: "\(activeOperationName), downloading \(packageName), \(operationProgress.step) of \(operationProgress.stepCount)"
+            )
         }
         return String(
             localized: "packages.operation.status_check.progress",

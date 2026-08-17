@@ -182,12 +182,87 @@ struct DSMPackageServiceTests {
         #expect(beta.origin == .synology)
     }
 
+    /// Measured on ffmpeg8, which pulls two dependencies: `get_queue` answers with DSM's own
+    /// installation plan, dependencies first. The app used to refuse the whole operation as
+    /// soon as the queue held anything besides the requested package.
+    @Test func installsTheDependenciesDSMPutsInFrontOfAThirdPartyPackage() async throws {
+        let catalogListing = Data(
+            #"""
+            {"success":true,"data":{"packages":[
+              {"id":"synocli-videodriver","version":"1.5-8","dname":"SynoCli Video Drivers",
+               "link":"https://packages.synocommunity.com/videodriver.spk",
+               "md5":"0123456789abcdef0123456789abcdef","size":4096,"source":"others"},
+              {"id":"ffmpeg8","version":"8.1.2-3","dname":"FFmpeg 8",
+               "link":"https://packages.synocommunity.com/ffmpeg8.spk",
+               "md5":"0123456789abcdef0123456789abcdef","size":2048,"source":"others"}
+            ]}}
+            """#.utf8
+        )
+        func installationSteps(id: String, name: String) -> [DSMRequestStub.Result] {
+            [
+                .response(Data(#"{"success":true,"data":{}}"#.utf8)),
+                .response(Data(#"{"success":true,"data":{"taskid":"download-\#(id)"}}"#.utf8)),
+                .response(Data(#"{"success":true,"data":{"finished":true,"success":true}}"#.utf8)),
+                .response(Data(
+                    #"{"success":true,"data":{"filename":"/var/packages/@download/\#(id).spk","id":"\#(id)","name":"\#(name)","version":"1.0","status":"non_installed","install_type":"","install_on_cold_storage":false}}"#.utf8
+                )),
+                .response(Data(
+                    #"{"success":true,"data":{"has_fail":false,"result":[{"success":true},{"success":true},{"success":true}]}}"#.utf8
+                )),
+                .response(Data(#"{"success":true}"#.utf8)),
+            ]
+        }
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(
+                #"{"success":true,"data":{"queue":[{"pkg":"synocli-videodriver","beta":false,"volume":""},{"pkg":"ffmpeg8","beta":false,"volume":""}]}}"#.utf8
+            )),
+            .response(catalogListing),
+            .response(Data(#"{"success":true,"data":{"packages":[]}}"#.utf8)),
+        ]
+        + installationSteps(id: "synocli-videodriver", name: "SynoCli Video Drivers")
+        + installationSteps(id: "ffmpeg8", name: "FFmpeg 8"))
+        let service = makeService(stub: stub)
+        let downloadURL = try #require(
+            URL(string: "https://packages.synocommunity.com/ffmpeg8.spk")
+        )
+        let update = PackageUpdate(
+            packageID: "ffmpeg8",
+            version: "8.1.2-3",
+            downloadURL: downloadURL,
+            checksum: "0123456789abcdef0123456789abcdef",
+            fileSize: 2048,
+            isBeta: false,
+            packageType: 0,
+            origin: .community,
+            displayName: "FFmpeg 8"
+        )
+
+        var steps = [String]()
+        try await service.install(update, runsAfterInstall: true) { progress in
+            if let name = progress.packageName { steps.append("\(name) \(progress.step)/\(progress.stepCount)") }
+        }
+
+        let requests = await stub.requests
+        let installs = try requests.map { try parameters(from: $0) }
+            .filter { $0["method"] == "install" && $0["name"] != nil }
+        #expect(installs.count == 2)
+        #expect(installs[0]["name"] == "synocli-videodriver")
+        #expect(installs[1]["name"] == "ffmpeg8")
+        // Measured on DSM 7.4: a package coming from a package source is not "syno".
+        #expect(installs.allSatisfy { $0["is_syno"] == "false" })
+        #expect(steps == ["SynoCli Video Drivers 1/2", "FFmpeg 8 2/2"])
+    }
+
     /// DSM checks for a licence agreement before every catalogue installation. The app cannot
     /// display one, so a package that has one must stop before anything is downloaded rather
     /// than be installed on terms the user never saw.
     @Test func stopsBeforeInstallingAPackageThatCarriesALicenceAgreement() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(
+                #"{"success":true,"data":{"queue":[{"pkg":"ActiveBackup","beta":false,"volume":""}]}}"#.utf8
+            )),
             .response(Data(#"{"success":true,"data":{"has_eula":true}}"#.utf8)),
         ])
         let service = makeService(stub: stub, includesEula: true)
@@ -209,8 +284,8 @@ struct DSMPackageServiceTests {
         }
 
         let requests = await stub.requests
-        #expect(requests.count == 2)
-        let eula = try parameters(from: requests[1])
+        #expect(requests.count == 3)
+        let eula = try parameters(from: requests[2])
         #expect(eula["api"] == "SYNO.Core.Package.Eula")
         #expect(eula["method"] == "check")
         #expect(eula["package"] == "ActiveBackup")
@@ -271,12 +346,14 @@ struct DSMPackageServiceTests {
                     PackageOperationProgress(
                         taskID: "download-42",
                         statusChecks: 1,
-                        isFinished: false
+                        isFinished: false,
+                        packageName: "ActiveBackup"
                     ),
                     PackageOperationProgress(
                         taskID: "download-42",
                         statusChecks: 2,
-                        isFinished: true
+                        isFinished: true,
+                        packageName: "ActiveBackup"
                     ),
                 ]
         )

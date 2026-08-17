@@ -26147,38 +26147,6 @@
         }
       }
     },
-    "packages.install.community_requires_dsm.description" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Install from DSM"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "À installer depuis DSM"
-          }
-        }
-      }
-    },
-    "packages.install.community_requires_dsm.error" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The %@ package comes from a package source. Install it in DSM Package Center."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le paquet %@ provient d’une source de paquets. Installez-le depuis le Centre de paquets de DSM."
-          }
-        }
-      }
-    },
     "packages.origin.community" : {
       "localizations" : {
         "en" : {
@@ -26447,6 +26415,70 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Chaque paquet garde sa propre stratégie, choisie depuis son menu dans la liste des paquets installés."
+          }
+        }
+      }
+    },
+    "packages.install.community.warning" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This package is published by %@ through a package source and is not verified by Synology. Its dependencies will be installed as well."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ce paquet est publié par %@ via une source de paquets et n’est pas vérifié par Synology. Ses dépendances seront installées également."
+          }
+        }
+      }
+    },
+    "packages.install.dependency_missing.error" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The %@ package is required by this installation but is not in the catalogue."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le paquet %@ est requis par cette installation mais ne figure pas dans le catalogue."
+          }
+        }
+      }
+    },
+    "packages.install.dependency_requires_dsm.error" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This installation requires %@, which asks for a licence or a configuration wizard. Install it in DSM Package Center."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette installation requiert %@, qui réclame une licence ou un assistant de configuration. Installez-le depuis le Centre de paquets de DSM."
+          }
+        }
+      }
+    },
+    "packages.operation.dependency.progress" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@, downloading %2$@, %3$@ of %4$@"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@, téléchargement de %@, %@ sur %@"
           }
         }
       }

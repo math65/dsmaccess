@@ -594,9 +594,15 @@ struct PackagesView: View {
                 defaultValue: "“\(installedPackage.displayName)” will be updated to version \(request.item.version). The package will be downloaded, installed, and restarted."
             )
         }
-        return String(
+        let base = String(
             localized: "packages.install.confirm.description",
             defaultValue: "“\(request.item.displayName)” version \(request.item.version) will be downloaded from the official catalog, installed, and started if supported by the package."
+        )
+        guard request.item.origin == .community else { return base }
+        // DSM shows the same warning before installing anything it has not signed.
+        return base + " " + String(
+            localized: "packages.install.community.warning",
+            defaultValue: "This package is published by \(request.item.maintainer ?? request.item.origin.name) through a package source and is not verified by Synology. Its dependencies will be installed as well."
         )
     }
 

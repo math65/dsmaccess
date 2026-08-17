@@ -141,9 +141,6 @@ struct PackageCatalogView: View {
         if item.requirements.requiresInteractiveInstaller {
             return String(localized: "packages.install.requires_dsm.description")
         }
-        if item.origin == .community {
-            return String(localized: "packages.install.community_requires_dsm.description")
-        }
         if action(for: item, installedPackage: nil) == nil {
             return String(localized: "common.error.catalog_install_unavailable")
         }
