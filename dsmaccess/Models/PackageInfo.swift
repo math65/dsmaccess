@@ -154,6 +154,35 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         /// ("SYNO.SDS.PDFViewer.Application SYNO.SDS.PDFViewer.MainWindow…"). DSM expects
         /// them back when uninstalling.
         let dsmApps: String?
+        let summary: String?
+        let maintainer: String?
+        let distributor: String?
+        let beta: Bool?
+        /// Date DSM shows for the last update, as the string it sends ("2026/08/05").
+        let updatedAt: String?
+        /// DSM's own explanation of a status that is not simply "running"; it accompanies
+        /// `status` without having to be asked for.
+        let statusDescription: String?
+        /// Addresses of the package's own web interface, when it publishes one.
+        let webInterfaces: [String]?
+        /// Per-package automatic update strategy.
+        let autoUpdate: Bool?
+        let autoUpdateImportant: Bool?
+        /// Where the package is installed. The path is what tells the volume apart:
+        /// "/volume1/@appstore/PlexMediaServer" against "/usr/local/packages/@appstore/…".
+        let installedInfo: InstalledInfo?
+
+        struct InstalledInfo: nonisolated Decodable, Sendable {
+            let path: String?
+            let isBrick: Bool?
+            let isBroken: Bool?
+
+            enum CodingKeys: String, CodingKey {
+                case path
+                case isBrick = "is_brick"
+                case isBroken = "is_broken"
+            }
+        }
 
         enum CodingKeys: String, CodingKey {
             case status
@@ -162,6 +191,37 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
             case ctlUninstall = "ctl_uninstall"
             case isUninstallPages = "is_uninstall_pages"
             case dsmApps = "dsm_apps"
+            case summary = "description"
+            case maintainer, distributor, beta
+            case updatedAt = "updated_at"
+            case statusDescription = "status_description"
+            case webInterfaces = "url"
+            case autoUpdate = "autoupdate"
+            case autoUpdateImportant = "autoupdate_important"
+            case installedInfo = "installed_info"
+        }
+
+        nonisolated init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            status = container.flexString(.status)
+            installType = container.flexString(.installType)
+            startable = container.flexBool(.startable)
+            ctlUninstall = container.flexBool(.ctlUninstall)
+            isUninstallPages = container.flexBool(.isUninstallPages)
+            dsmApps = container.flexString(.dsmApps)
+            summary = container.flexString(.summary)
+            maintainer = container.flexString(.maintainer)
+            distributor = container.flexString(.distributor)
+            beta = container.flexBool(.beta)
+            updatedAt = container.flexString(.updatedAt)
+            statusDescription = container.flexString(.statusDescription)
+            webInterfaces = try? container.decodeIfPresent([String].self, forKey: .webInterfaces)
+            autoUpdate = container.flexBool(.autoUpdate)
+            autoUpdateImportant = container.flexBool(.autoUpdateImportant)
+            installedInfo = try? container.decodeIfPresent(
+                InstalledInfo.self,
+                forKey: .installedInfo
+            )
         }
     }
 
@@ -232,6 +292,53 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
     /// DSM application identifiers to hand back when uninstalling; empty for a package that
     /// adds nothing to the DSM desktop.
     var dsmApps: String { additional?.dsmApps ?? "" }
+
+    var maintainer: String? {
+        let value = additional?.maintainer ?? additional?.distributor
+        guard let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return nil
+        }
+        return value
+    }
+
+    /// Where DSM installed the package, read from the install path: a data volume, or the
+    /// system area used by the packages that ship with DSM.
+    var installedLocation: String? {
+        guard let path = additional?.installedInfo?.path, path.hasPrefix("/") else { return nil }
+        let firstComponent = path.split(separator: "/").first.map(String.init) ?? ""
+        guard firstComponent.hasPrefix("volume") else {
+            return String(localized: "packages.detail.location.system")
+        }
+        let number = firstComponent.dropFirst("volume".count)
+        guard !number.isEmpty else { return "/" + firstComponent }
+        return String(
+            localized: "packages.detail.location.volume",
+            defaultValue: "Volume \(String(number))"
+        )
+    }
+
+    /// DSM's explanation of a status that is not simply running, shown only when it adds
+    /// something to the status itself.
+    var statusExplanation: String? {
+        guard let explanation = additional?.statusDescription?
+            .trimmingCharacters(in: .whitespacesAndNewlines),
+              !explanation.isEmpty,
+              explanation.caseInsensitiveCompare(additional?.status ?? "") != .orderedSame
+        else { return nil }
+        return explanation
+    }
+
+    var webInterfaces: [String] {
+        (additional?.webInterfaces ?? []).filter { !$0.isEmpty }
+    }
+
+    /// What this package currently does about updates. DSM reports both flags per package,
+    /// and its own settings dialog ticks its boxes from them.
+    var autoUpdateChoice: PackageAutoUpdateChoice {
+        if additional?.autoUpdate == true { return .all }
+        if additional?.autoUpdateImportant == true { return .important }
+        return .none
+    }
 
     /// Uninstalling this package goes through a DSM assistant the app does not reproduce.
     /// The table says so rather than letting the user discover it at the last step.

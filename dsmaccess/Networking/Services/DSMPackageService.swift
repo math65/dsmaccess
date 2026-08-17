@@ -24,6 +24,7 @@ final class DSMPackageService {
         preferredVersion: 1
     )
     private static let entryRequestAPI = DSMAPI("SYNO.Entry.Request", preferredVersion: 1)
+    private static let eulaAPI = DSMAPI("SYNO.Core.Package.Eula", preferredVersion: 1)
 
     private enum CatalogOperation {
         case install
@@ -107,9 +108,13 @@ final class DSMPackageService {
             api: Self.packageAPI,
             method: "list",
             parameters: [
+                // The web client asks for 27 of these. Requested here are the ones the app
+                // actually shows; `status_description` needs no asking, it comes with
+                // `status`, and `autoupdate` brings `autoupdate_important` with it.
                 "additional": try DSMParameter.json([
                     "status", "installed_info", "startable", "ctl_uninstall", "is_uninstall_pages",
-                    "dsm_apps",
+                    "dsm_apps", "description", "maintainer", "distributor", "beta",
+                    "updated_at", "url", "autoupdate", "silent_upgrade",
                 ])
             ],
             as: PackageList.self
@@ -184,15 +189,17 @@ final class DSMPackageService {
         try await runCatalogOperation(.upgrade, update: update, progress: progress)
     }
 
-    func install(_ update: PackageUpdate) async throws {
-        try await install(update, progress: { _ in })
-    }
-
     func install(
         _ update: PackageUpdate,
+        runsAfterInstall: Bool,
         progress: (PackageOperationProgress) -> Void
     ) async throws {
-        try await runCatalogOperation(.install, update: update, progress: progress)
+        try await runCatalogOperation(
+            .install,
+            update: update,
+            runsAfterInstall: runsAfterInstall,
+            progress: progress
+        )
     }
 
     func repair(
@@ -245,6 +252,7 @@ final class DSMPackageService {
                 checkDependencies: true,
                 checkCodesign: false,
                 force: false,
+                runsAfterInstall: true,
                 source: .task(taskID)
             )
             // DSM may delete the task as soon as the installation finishes.
@@ -290,6 +298,7 @@ final class DSMPackageService {
     private func runCatalogOperation(
         _ operation: CatalogOperation,
         update: PackageUpdate,
+        runsAfterInstall: Bool = true,
         progress: (PackageOperationProgress) -> Void
     ) async throws {
         guard !update.packageID.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
@@ -310,6 +319,7 @@ final class DSMPackageService {
         }
 
         try await feasibilityCheck(packageID: update.packageID, type: "install_check")
+        try await checkEula(packageID: update.packageID)
         let queue = try await transport.read(
             api: Self.installationAPI,
             method: "get_queue",
@@ -376,6 +386,7 @@ final class DSMPackageService {
                 checkDependencies: false,
                 checkCodesign: true,
                 force: true,
+                runsAfterInstall: runsAfterInstall,
                 source: .path(filename)
             )
         } catch {
@@ -421,18 +432,29 @@ final class DSMPackageService {
 
     /// Sends exactly the six fields the Package Center web client sends. DSM neither returns
     /// `default_vol` here nor expects it back, and it leaves `trust_level` alone.
-    func setSettings(_ settings: PackageSettings) async throws {
+    ///
+    /// The two per-package lists travel only with the custom strategy, which is what the web
+    /// client does: saving one of the three global strategies omits them entirely.
+    func setSettings(
+        _ settings: PackageSettings,
+        selection: PackageAutoUpdateSelection? = nil
+    ) async throws {
+        var parameters: [String: DSMParameter] = [
+            "enable_autoupdate": .boolean(settings.enableAutoupdate),
+            "autoupdateall": .boolean(settings.autoupdateAll),
+            "autoupdateimportant": .boolean(settings.autoupdateImportant),
+            "enable_dsm": .boolean(settings.enableDsm),
+            "enable_email": .boolean(settings.enableEmail),
+            "update_channel": .string(settings.updateChannelBeta ? "beta" : "stable"),
+        ]
+        if settings.autoUpdateMode == .custom, let selection {
+            parameters["packages"] = try DSMParameter.json(selection.allVersions)
+            parameters["packages_important"] = try DSMParameter.json(selection.importantVersions)
+        }
         try await transport.perform(
             api: Self.settingAPI,
             method: "set",
-            parameters: [
-                "enable_autoupdate": .boolean(settings.enableAutoupdate),
-                "autoupdateall": .boolean(settings.autoupdateAll),
-                "autoupdateimportant": .boolean(settings.autoupdateImportant),
-                "enable_dsm": .boolean(settings.enableDsm),
-                "enable_email": .boolean(settings.enableEmail),
-                "update_channel": .string(settings.updateChannelBeta ? "beta" : "stable"),
-            ]
+            parameters: parameters
         )
     }
 
@@ -500,6 +522,30 @@ final class DSMPackageService {
             self.operation = operation
             self.version = version
             beta = isBeta
+        }
+    }
+
+    /// DSM asks this before every catalogue installation. A package with a licence needs it
+    /// displayed and accepted, which is a DSM screen the app does not reproduce — so the
+    /// operation stops here rather than installing something whose terms were never shown.
+    ///
+    /// A NAS that does not publish the API is left alone: the check is DSM's, not a
+    /// precondition we invented.
+    private func checkEula(packageID: String) async throws {
+        guard transport.capabilities.supports(Self.eulaAPI) else { return }
+        let eula = try await transport.read(
+            api: Self.eulaAPI,
+            method: "check",
+            parameters: ["package": .string(packageID)],
+            as: PackageEulaCheck.self
+        )
+        guard !eula.hasEula else {
+            throw DSMError.packageCenter(
+                String(
+                    localized: "packages.install.eula_required.error",
+                    defaultValue: "The \(packageID) package has a licence agreement to accept. Install it in DSM Package Center so you can read and accept it."
+                )
+            )
         }
     }
 
@@ -599,6 +645,7 @@ final class DSMPackageService {
         checkDependencies: Bool,
         checkCodesign: Bool,
         force: Bool,
+        runsAfterInstall: Bool,
         source: InstallationSource
     ) async throws {
         let check: [String: DSMJSONValue] = [
@@ -622,7 +669,7 @@ final class DSMPackageService {
             "type": .integer(packageType),
             "check_codesign": .boolean(checkCodesign),
             "force": .boolean(force),
-            "installrunpackage": .boolean(true),
+            "installrunpackage": .boolean(runsAfterInstall),
         ]
         switch source {
         case .path(let path):

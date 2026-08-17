@@ -182,6 +182,43 @@ struct DSMPackageServiceTests {
         #expect(beta.origin == .synology)
     }
 
+    /// DSM checks for a licence agreement before every catalogue installation. The app cannot
+    /// display one, so a package that has one must stop before anything is downloaded rather
+    /// than be installed on terms the user never saw.
+    @Test func stopsBeforeInstallingAPackageThatCarriesALicenceAgreement() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"has_eula":true}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, includesEula: true)
+        let downloadURL = try #require(
+            URL(string: "https://downloads.synology.com/ActiveBackup.spk")
+        )
+        let update = PackageUpdate(
+            packageID: "ActiveBackup",
+            version: "3.0.0-1",
+            downloadURL: downloadURL,
+            checksum: "0123456789abcdef0123456789abcdef",
+            fileSize: 2048,
+            isBeta: false,
+            packageType: 0
+        )
+
+        await #expect(throws: (any Error).self) {
+            try await service.install(update, runsAfterInstall: true) { _ in }
+        }
+
+        let requests = await stub.requests
+        #expect(requests.count == 2)
+        let eula = try parameters(from: requests[1])
+        #expect(eula["api"] == "SYNO.Core.Package.Eula")
+        #expect(eula["method"] == "check")
+        #expect(eula["package"] == "ActiveBackup")
+    }
+
+    /// The service is built without the EULA API here, which is also what proves the check is
+    /// skipped rather than invented on a NAS that does not publish it: the request count stays
+    /// exactly what DSM sends.
     @Test(arguments: [false, true])
     func completesTheDSM74CatalogInstallationPipeline(isUpgrade: Bool) async throws {
         let operationMethod = isUpgrade ? "upgrade" : "install"
@@ -221,7 +258,9 @@ struct DSMPackageServiceTests {
         if isUpgrade {
             try await service.upgrade(update) { progressUpdates.append($0) }
         } else {
-            try await service.install(update) { progressUpdates.append($0) }
+            try await service.install(update, runsAfterInstall: true) {
+                progressUpdates.append($0)
+            }
         }
 
         let requests = await stub.requests
@@ -339,7 +378,7 @@ struct DSMPackageServiceTests {
             packageType: 0
         )
 
-        try await service.install(update)
+        try await service.install(update, runsAfterInstall: true) { _ in }
 
         #expect(await stub.requestCount == 8)
     }
@@ -579,7 +618,8 @@ struct DSMPackageServiceTests {
         pollInterval: Duration = .milliseconds(1200),
         pollLimit: Int = 900,
         includesInstallation: Bool = true,
-        includesDirectMutations: Bool = false
+        includesDirectMutations: Bool = false,
+        includesEula: Bool = false
     ) -> DSMPackageService {
         var capabilities = DSMCapabilities()
         var entries = [
@@ -594,6 +634,13 @@ struct DSMPackageServiceTests {
                 maxVersion: 2
             ),
         ]
+        if includesEula {
+            entries["SYNO.Core.Package.Eula"] = APIInfoEntry(
+                path: "entry.cgi",
+                minVersion: 1,
+                maxVersion: 2
+            )
+        }
         if includesInstallation {
             entries["SYNO.Core.Package.Installation"] = APIInfoEntry(
                 path: "entry.cgi",

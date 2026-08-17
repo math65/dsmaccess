@@ -19,10 +19,16 @@ struct PackageSettingsSheet: View {
     private let session: SessionStore
     private let canManagePackageSources: Bool
 
-    init(session: SessionStore, canManagePackageSources: Bool) {
+    init(
+        session: SessionStore,
+        canManagePackageSources: Bool,
+        selection: PackageAutoUpdateSelection
+    ) {
         self.session = session
         self.canManagePackageSources = canManagePackageSources
-        _vm = State(initialValue: PackageSettingsViewModel(session: session))
+        _vm = State(
+            initialValue: PackageSettingsViewModel(session: session, selection: selection)
+        )
     }
 
     var body: some View {
@@ -93,8 +99,13 @@ struct PackageSettingsSheet: View {
                     Text("common.status.disabled.feminine").tag(AutoUpdateMode.off)
                     Text("packages.settings.update_scope.important").tag(AutoUpdateMode.important)
                     Text("packages.settings.update_scope.latest").tag(AutoUpdateMode.latest)
+                    Text("packages.settings.update_scope.custom").tag(AutoUpdateMode.custom)
                 }
                 .help("packages.settings.automatic_updates.hint")
+                Text("packages.settings.update_scope.custom.description")
+                    .font(.caption)
+                    .foregroundStyle(.readableSecondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text("packages.settings.auto_update.footer")
                     .font(.caption)
                     .foregroundStyle(.readableSecondary)

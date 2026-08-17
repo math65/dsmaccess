@@ -369,8 +369,35 @@ struct PackageDetailsSheet: View {
                 LabeledContent("common.label.installed_version", value: version)
             }
             LabeledContent("common.column.state", value: package.statusText)
-            if let installType = package.additional?.installType {
+            if let explanation = package.statusExplanation {
+                Text(explanation)
+                    .foregroundStyle(.readableSecondary)
+                    .textSelection(.enabled)
+            }
+            if let maintainer = package.maintainer {
+                LabeledContent("packages.column.publisher", value: maintainer)
+            }
+            if let location = package.installedLocation {
+                LabeledContent("packages.detail.installed_volume", value: location)
+            }
+            if let updatedAt = package.additional?.updatedAt, !updatedAt.isEmpty {
+                LabeledContent("packages.detail.updated_at", value: updatedAt)
+            }
+            if package.additional?.beta == true {
+                LabeledContent("packages.detail.beta_version", value: yesNo(true))
+            }
+            if let installType = package.additional?.installType, !installType.isEmpty {
                 LabeledContent("packages.detail.installation_type", value: installType)
+            }
+            if let summary = package.additional?.summary, !summary.isEmpty {
+                Text(summary)
+                    .textSelection(.enabled)
+            }
+            ForEach(package.webInterfaces, id: \.self) { address in
+                LabeledContent("packages.detail.web_interface") {
+                    Text(address)
+                        .textSelection(.enabled)
+                }
             }
         }
     }
@@ -403,13 +430,25 @@ struct PackageDetailsSheet: View {
     private var catalogSection: some View {
         Section("common.label.official_catalog") {
             if let catalogItem {
-                LabeledContent("packages.detail.source", value: "Synology")
+                LabeledContent("packages.detail.source", value: catalogItem.origin.name)
                 LabeledContent("packages.catalog.version.label", value: catalogItem.version)
                 LabeledContent(
                     "common.column.size",
                     value: catalogItem.fileSize.formatted(.byteCount(style: .file))
                 )
                 LabeledContent("packages.detail.beta_version", value: yesNo(catalogItem.isBeta))
+                if !catalogCategoryNames.isEmpty {
+                    LabeledContent(
+                        "packages.detail.categories",
+                        value: catalogCategoryNames.formatted(.list(type: .and))
+                    )
+                }
+                if let changelog = catalogItem.changelog, !changelog.isEmpty {
+                    LabeledContent("packages.detail.changelog.section") {
+                        Text(changelog)
+                            .textSelection(.enabled)
+                    }
+                }
             } else {
                 Text("packages.catalog.missing_package.description")
                     .foregroundStyle(.readableSecondary)
@@ -430,6 +469,12 @@ struct PackageDetailsSheet: View {
     private var catalogItem: PackageUpdate? {
         vm.catalog.first {
             $0.packageID.caseInsensitiveCompare(package.pkgId) == .orderedSame
+        }
+    }
+
+    private var catalogCategoryNames: [String] {
+        (catalogItem?.categories ?? []).compactMap { id in
+            vm.categories.first { $0.id == id }?.name
         }
     }
 

@@ -73,19 +73,53 @@ struct PackageSettings: nonisolated Decodable, Equatable, Sendable {
     }
 }
 
-/// Automatic update strategy, derived from the API's three raw fields.
+/// Automatic update strategy, derived from the API's three raw fields. DSM offers four,
+/// measured by saving each one and reading back what the web client sent.
 enum AutoUpdateMode: CaseIterable, Identifiable, Sendable {
     case off        // disabled
-    case important  // important versions (security)
-    case latest     // latest versions
+    case important  // important versions (security), every package
+    case latest     // latest versions, every package
+    case custom     // per-package lists, sent as `packages` and `packages_important`
     var id: Self { self }
 }
 
+/// What a single package does about updates, as DSM's own per-package menu offers it.
+enum PackageAutoUpdateChoice: CaseIterable, Identifiable, Sendable {
+    case none
+    case important
+    case all
+
+    var id: Self { self }
+
+    var name: String {
+        switch self {
+        case .none: String(localized: "packages.auto_update.none")
+        case .important: String(localized: "packages.settings.update_scope.important")
+        case .all: String(localized: "packages.settings.update_scope.latest")
+        }
+    }
+}
+
+/// The two per-package lists the custom strategy sends. DSM does not return them from `get`:
+/// the current state of a package is read from its own `autoupdate` fields.
+struct PackageAutoUpdateSelection: Equatable, Sendable {
+    var allVersions: [String]
+    var importantVersions: [String]
+
+    init(allVersions: [String] = [], importantVersions: [String] = []) {
+        self.allVersions = allVersions
+        self.importantVersions = importantVersions
+    }
+}
+
 extension PackageSettings {
-    /// Current mode, computed from enable_autoupdate + autoupdateall.
+    /// Current mode. Custom is what remains once automatic updates are on and neither
+    /// "everything" flag is: that is exactly the shape DSM saves for a per-package strategy.
     var autoUpdateMode: AutoUpdateMode {
         guard enableAutoupdate else { return .off }
-        return autoupdateAll ? .latest : .important
+        if autoupdateAll { return .latest }
+        if autoupdateImportant { return .important }
+        return .custom
     }
 
     /// Applies a mode to the three raw fields.
@@ -101,6 +135,10 @@ extension PackageSettings {
             enableAutoupdate = true
             autoupdateAll = true
             autoupdateImportant = true
+        case .custom:
+            enableAutoupdate = true
+            autoupdateAll = false
+            autoupdateImportant = false
         }
     }
 }

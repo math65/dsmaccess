@@ -224,7 +224,10 @@ final class PackagesViewModel {
         }
     }
 
-    func install(_ catalogItem: PackageUpdate) async -> DSMOperationOutcome {
+    func install(
+        _ catalogItem: PackageUpdate,
+        runsAfterInstall: Bool
+    ) async -> DSMOperationOutcome {
         guard capabilities?.canInstallCatalogPackages == true else {
             return .failure(
                 String(localized: "common.error.catalog_install_unavailable")
@@ -256,7 +259,11 @@ final class PackagesViewModel {
             operationName: String(localized: "packages.install.status", defaultValue: "Installing \(catalogItem.displayName)"),
             successMessage: String(localized: "packages.install.success", defaultValue: "\(catalogItem.displayName) installed")
         ) { client, progress in
-            try await client.installPackage(catalogItem, progress: progress)
+            try await client.installPackage(
+                catalogItem,
+                runsAfterInstall: runsAfterInstall,
+                progress: progress
+            )
         }
     }
 
@@ -403,6 +410,66 @@ final class PackagesViewModel {
                 defaultValue: "\(completed) packages updated, \(failures.count) failed: \(failureSummary)"
             )
         )
+    }
+
+    /// Automatic update strategy for a single package. DSM exposes it in the package's own
+    /// menu, and saves it as the global custom strategy plus two lists of package names.
+    func setAutoUpdate(
+        _ choice: PackageAutoUpdateChoice,
+        for package: PackageInfo
+    ) async -> DSMOperationOutcome {
+        guard capabilities?.canManageSettings == true else {
+            return .failure(String(localized: "packages.settings.unavailable.error"))
+        }
+        let id = package.pkgId
+        guard busy.insert(id).inserted else {
+            return .failure(String(localized: "packages.operation.busy_package.error"))
+        }
+        defer { busy.remove(id) }
+        do {
+            var settings = try await session.withClient { try await $0.packageSettings() }
+            let selection = autoUpdateSelection(changing: id, to: choice)
+            settings.setAutoUpdateMode(.custom)
+            try await session.withClient {
+                try await $0.setPackageSettings(settings, selection: selection)
+            }
+            await load()
+            return .success(
+                String(
+                    localized: "packages.auto_update.success",
+                    defaultValue: "Automatic update for \(package.displayName): \(choice.name)"
+                )
+            )
+        } catch {
+            guard !DSMError.isCancellation(error) else { return .cancelled }
+            let reason = Self.errorDescription(for: error)
+            return .failure(
+                String(localized: "common.error.failed_for_item", defaultValue: "Failed for \(package.displayName): \(reason)")
+            )
+        }
+    }
+
+    /// The two lists DSM expects, rebuilt from what every package currently reports, with the
+    /// one being changed replaced. Sending only the changed package would clear the others.
+    func autoUpdateSelection(
+        changing packageID: String? = nil,
+        to choice: PackageAutoUpdateChoice = .none
+    ) -> PackageAutoUpdateSelection {
+        var selection = PackageAutoUpdateSelection()
+        for package in packages {
+            let current: PackageAutoUpdateChoice
+            if package.pkgId == packageID {
+                current = choice
+            } else {
+                current = package.autoUpdateChoice
+            }
+            switch current {
+            case .none: continue
+            case .important: selection.importantVersions.append(package.pkgId)
+            case .all: selection.allVersions.append(package.pkgId)
+            }
+        }
+        return selection
     }
 
     func updateVersion(for package: PackageInfo) -> String? {

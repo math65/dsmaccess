@@ -232,6 +232,7 @@ protocol DSMClientProtocol: AnyObject {
     ) async throws
     func installPackage(
         _ update: PackageUpdate,
+        runsAfterInstall: Bool,
         progress: (PackageOperationProgress) -> Void
     ) async throws
     func repairPackage(
@@ -246,7 +247,10 @@ protocol DSMClientProtocol: AnyObject {
     func setPackageRunning(id: String, running: Bool) async throws
     func uninstallPackage(id: String, dsmApps: String) async throws
     func packageSettings() async throws -> PackageSettings
-    func setPackageSettings(_ settings: PackageSettings) async throws
+    func setPackageSettings(
+        _ settings: PackageSettings,
+        selection: PackageAutoUpdateSelection?
+    ) async throws
     func packageSources() async throws -> [PackageSource]
     func addPackageSource(_ source: PackageSource) async throws
     func updatePackageSource(_ source: PackageSource, originalFeed: String) async throws
@@ -1105,9 +1109,14 @@ final class DSMClient: DSMClientProtocol {
 
     func installPackage(
         _ update: PackageUpdate,
+        runsAfterInstall: Bool,
         progress: (PackageOperationProgress) -> Void
     ) async throws {
-        try await packages.install(update, progress: progress)
+        try await packages.install(
+            update,
+            runsAfterInstall: runsAfterInstall,
+            progress: progress
+        )
     }
 
     func repairPackage(
@@ -1141,8 +1150,11 @@ final class DSMClient: DSMClientProtocol {
         try await packages.settings()
     }
 
-    func setPackageSettings(_ settings: PackageSettings) async throws {
-        try await packages.setSettings(settings)
+    func setPackageSettings(
+        _ settings: PackageSettings,
+        selection: PackageAutoUpdateSelection?
+    ) async throws {
+        try await packages.setSettings(settings, selection: selection)
     }
 
     func packageSources() async throws -> [PackageSource] {

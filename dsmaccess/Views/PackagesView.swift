@@ -142,7 +142,14 @@ struct PackagesView: View {
             presenting: pendingCatalogAction
         ) { request in
             Button(catalogConfirmButtonTitle(for: request)) {
-                requestCatalogOperation(request)
+                requestCatalogOperation(request, runsAfterInstall: true)
+            }
+            // DSM's wizard offers the same choice as a checkbox; two buttons say it out loud
+            // and keep the dialog navigable.
+            if request.installedPackage == nil {
+                Button("packages.install.without_starting.button") {
+                    requestCatalogOperation(request, runsAfterInstall: false)
+                }
             }
             Button("common.button.cancel", role: .cancel) { }
         } message: { request in
@@ -169,7 +176,8 @@ struct PackagesView: View {
         .sheet(isPresented: $showSettings) {
             PackageSettingsSheet(
                 session: session,
-                canManagePackageSources: vm.capabilities?.canManagePackageSources == true
+                canManagePackageSources: vm.capabilities?.canManagePackageSources == true,
+                selection: vm.autoUpdateSelection()
             )
         }
         .sheet(isPresented: $showPackageSources) {
@@ -452,6 +460,19 @@ struct PackagesView: View {
                 Divider()
             }
         }
+        if vm.capabilities?.canManageSettings == true {
+            Menu("packages.auto_update.menu") {
+                ForEach(PackageAutoUpdateChoice.allCases) { choice in
+                    Button(choice.name) { setAutoUpdate(choice, for: package) }
+                        .disabled(
+                            choice == package.autoUpdateChoice
+                                || vm.busy.contains(package.id)
+                                || operationTask != nil
+                        )
+                }
+            }
+            Divider()
+        }
         if package.canStartStop, vm.capabilities?.canControlPackages == true {
             Button(package.isRunning ? "common.button.stop" : "common.button.start") {
                 setRunning(package, running: !package.isRunning)
@@ -531,6 +552,17 @@ struct PackagesView: View {
         }
     }
 
+    private func setAutoUpdate(_ choice: PackageAutoUpdateChoice, for package: PackageInfo) {
+        startOperation(
+            announcement: String(
+                localized: "packages.auto_update.progress",
+                defaultValue: "Changing the automatic update of \(package.displayName)…"
+            )
+        ) {
+            await vm.setAutoUpdate(choice, for: package)
+        }
+    }
+
     private func requestRepair(_ package: PackageInfo) {
         startOperation(
             announcement: String(localized: "packages.repair.progress", defaultValue: "Repairing \(package.displayName)…")
@@ -568,7 +600,10 @@ struct PackagesView: View {
         )
     }
 
-    private func requestCatalogOperation(_ request: CatalogActionRequest) {
+    private func requestCatalogOperation(
+        _ request: CatalogActionRequest,
+        runsAfterInstall: Bool
+    ) {
         if let installedPackage = request.installedPackage {
             startOperation(
                 announcement: String(
@@ -585,7 +620,7 @@ struct PackagesView: View {
                     defaultValue: "Installing \(request.item.displayName)…"
                 )
             ) {
-                await vm.install(request.item)
+                await vm.install(request.item, runsAfterInstall: runsAfterInstall)
             }
         }
     }
