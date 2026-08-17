@@ -3,10 +3,16 @@
 //  dsmaccess
 //
 //  Response of SYNO.Core.Package.Setting (method=get): global Package Center preferences.
-//  UNDOCUMENTED API. Confirmed quirk: `update_channel` is a boolean when read but is written
-//  as a string ("stable"/"beta"). All the fields are kept (even those not exposed in the UI,
-//  such as default_vol/trust_level) in order to *preserve* them on write: the API's `set`
-//  expects the complete object.
+//  UNDOCUMENTED API, measured on DSM 7.4 by intercepting the Package Center web client.
+//  Confirmed quirk: `update_channel` is a boolean when read but is written as a string
+//  ("stable"/"beta").
+//
+//  `get` returns autoupdateall, autoupdateimportant, enable_autoupdate, enable_dsm,
+//  enable_email, mailset, show_disable_autoupdate, trust_level, update_channel,
+//  volume_count, volume_list and volume_status. It does *not* return `default_vol`, which
+//  belongs to SYNO.Core.Package.Setting.Volume — requiring it here made the whole screen
+//  fail to load. The web client's `set` sends only the six fields modelled below, so
+//  nothing else has to be read back in order to be preserved.
 //
 
 import Foundation
@@ -17,8 +23,6 @@ struct PackageSettings: nonisolated Decodable, Equatable, Sendable {
     var autoupdateImportant: Bool
     var enableDsm: Bool
     var enableEmail: Bool
-    var defaultVol: String
-    var trustLevel: Int
     /// Beta channel: true = beta versions shown. Sent as "beta"/"stable" on write.
     var updateChannelBeta: Bool
 
@@ -28,9 +32,23 @@ struct PackageSettings: nonisolated Decodable, Equatable, Sendable {
         case autoupdateImportant = "autoupdateimportant"
         case enableDsm = "enable_dsm"
         case enableEmail = "enable_email"
-        case defaultVol = "default_vol"
-        case trustLevel = "trust_level"
         case updateChannelBeta = "update_channel"
+    }
+
+    init(
+        enableAutoupdate: Bool,
+        autoupdateAll: Bool,
+        autoupdateImportant: Bool,
+        enableDsm: Bool,
+        enableEmail: Bool,
+        updateChannelBeta: Bool
+    ) {
+        self.enableAutoupdate = enableAutoupdate
+        self.autoupdateAll = autoupdateAll
+        self.autoupdateImportant = autoupdateImportant
+        self.enableDsm = enableDsm
+        self.enableEmail = enableEmail
+        self.updateChannelBeta = updateChannelBeta
     }
 
     nonisolated init(from decoder: Decoder) throws {
@@ -40,8 +58,6 @@ struct PackageSettings: nonisolated Decodable, Equatable, Sendable {
         autoupdateImportant = try c.requiredFlexBool(.autoupdateImportant)
         enableDsm = try c.requiredFlexBool(.enableDsm)
         enableEmail = try c.requiredFlexBool(.enableEmail)
-        defaultVol = try c.requiredFlexString(.defaultVol)
-        trustLevel = try c.requiredFlexInt(.trustLevel)
         // update_channel: boolean when read, but a string ("beta"/"stable") is tolerated.
         if let b = try? c.decode(Bool.self, forKey: .updateChannelBeta) {
             updateChannelBeta = b

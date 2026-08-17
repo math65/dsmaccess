@@ -245,7 +245,7 @@ protocol DSMClientProtocol: AnyObject {
         progress: @escaping DSMTransferProgressHandler
     ) async throws -> String
     func setPackageRunning(id: String, running: Bool) async throws
-    func uninstallPackage(id: String) async throws
+    func uninstallPackage(id: String, dsmApps: String) async throws
     func packageSettings() async throws -> PackageSettings
     func setPackageSettings(_ settings: PackageSettings) async throws
     func packageSources() async throws -> [PackageSource]
@@ -1138,8 +1138,8 @@ final class DSMClient: DSMClientProtocol {
         try await packages.setRunning(running, packageID: id)
     }
 
-    func uninstallPackage(id: String) async throws {
-        try await packages.uninstall(packageID: id)
+    func uninstallPackage(id: String, dsmApps: String) async throws {
+        try await packages.uninstall(packageID: id, dsmApps: dsmApps)
     }
 
     func packageSettings() async throws -> PackageSettings {

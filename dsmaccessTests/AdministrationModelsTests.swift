@@ -221,10 +221,10 @@ struct AdministrationModelsTests {
 
     @Test func handlesNumericValuesOutsideIntegerRange() throws {
         let oversizedInteger = Data(
-            #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":true,"enable_email":false,"default_vol":"volume1","trust_level":1e300,"update_channel":"stable"}"#.utf8
+            #"{"task_id":1e300,"state":"backupable","status":"done"}"#.utf8
         )
         #expect(throws: (any Error).self) {
-            try JSONDecoder().decode(PackageSettings.self, from: oversizedInteger)
+            try JSONDecoder().decode(HyperBackupTaskState.self, from: oversizedInteger)
         }
 
         let oversizedTransfer = Data(
@@ -234,24 +234,26 @@ struct AdministrationModelsTests {
         #expect(task.size == 0)
     }
 
-    @Test func requiresCompletePackageSettingsBeforeMutation() throws {
-        let complete = Data(
-            #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":1,"enable_email":"false","default_vol":"volume1","trust_level":"2","update_channel":"stable"}"#.utf8
+    /// The payload is the one DSM 7.4 actually returns: it carries neither `default_vol`
+    /// (which belongs to SYNO.Core.Package.Setting.Volume) nor anything else the write path
+    /// needs, and requiring more than this made the settings screen fail to load.
+    @Test func decodesThePackageSettingsDSMActuallyReturns() throws {
+        let measured = Data(
+            #"{"autoupdateall":false,"autoupdateimportant":true,"enable_autoupdate":true,"enable_dsm":1,"enable_email":"false","mailset":true,"show_disable_autoupdate":true,"trust_level":0,"update_channel":"stable","volume_count":1,"volume_status":"unknown"}"#.utf8
         )
-        var settings = try JSONDecoder().decode(PackageSettings.self, from: complete)
+        var settings = try JSONDecoder().decode(PackageSettings.self, from: measured)
         settings.setAutoUpdateMode(.latest)
 
         #expect(settings.autoUpdateMode == .latest)
-        #expect(settings.defaultVol == "volume1")
-        #expect(settings.trustLevel == 2)
         #expect(settings.enableDsm)
         #expect(!settings.enableEmail)
+        #expect(!settings.updateChannelBeta)
 
-        let incomplete = Data(
-            #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":true,"enable_email":false,"default_vol":"volume1","update_channel":false}"#.utf8
+        let missingChannel = Data(
+            #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":true,"enable_email":false}"#.utf8
         )
         #expect(throws: (any Error).self) {
-            try JSONDecoder().decode(PackageSettings.self, from: incomplete)
+            try JSONDecoder().decode(PackageSettings.self, from: missingChannel)
         }
     }
 

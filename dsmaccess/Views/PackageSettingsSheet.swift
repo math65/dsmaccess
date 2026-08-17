@@ -134,19 +134,6 @@ struct PackageSettingsSheet: View {
             Divider()
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("packages.settings.preserved_settings.label")
-                    .font(.subheadline.weight(.semibold))
-                    .accessibilityAddTraits(.isHeader)
-                if let settings = vm.settings {
-                    LabeledContent("packages.settings.default_volume", value: settings.defaultVol)
-                    LabeledContent("packages.settings.trust_level.label") {
-                        Text(settings.trustLevel, format: .number.grouping(.never))
-                    }
-                }
-                Text("packages.settings.trust_level.description")
-                    .font(.caption)
-                    .foregroundStyle(.readableSecondary)
-                    .fixedSize(horizontal: false, vertical: true)
                 if canManagePackageSources {
                     Button("packages.settings.manage_sources.button") {
                         showPackageSources = true

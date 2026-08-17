@@ -390,12 +390,15 @@ struct DSMPackageServiceTests {
         let settings = try JSONDecoder().decode(
             PackageSettings.self,
             from: Data(
-                #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":true,"enable_email":false,"default_vol":"volume1","trust_level":1,"update_channel":false}"#.utf8
+                #"{"enable_autoupdate":true,"autoupdateall":false,"autoupdateimportant":true,"enable_dsm":true,"enable_email":false,"update_channel":false}"#.utf8
             )
         )
 
         try await service.setRunning(true, packageID: "Perl")
-        try await service.uninstall(packageID: "Perl")
+        try await service.uninstall(
+            packageID: "Perl",
+            dsmApps: "SYNO.SDS.Perl.Application SYNO.SDS.Perl.MainWindow"
+        )
         try await service.setSettings(settings)
 
         let requests = await stub.requests
@@ -406,15 +409,23 @@ struct DSMPackageServiceTests {
         #expect(control["method"] == "start")
         #expect(control["id"] == "Perl")
 
+        // DSM removes the desktop entries only when it is handed the identifiers back.
         let uninstall = try parameters(from: requests[1])
         #expect(uninstall["method"] == "uninstall")
         #expect(uninstall["id"] == "Perl")
+        #expect(uninstall["dsm_apps"] == "SYNO.SDS.Perl.Application SYNO.SDS.Perl.MainWindow")
 
+        // The web client sends these six fields and no others.
         let setting = try parameters(from: requests[2])
         #expect(setting["method"] == "set")
-        #expect(setting["default_vol"] == "volume1")
-        #expect(setting["trust_level"] == "1")
         #expect(setting["update_channel"] == "stable")
+        #expect(setting["enable_autoupdate"] == "true")
+        #expect(setting["autoupdateall"] == "false")
+        #expect(setting["autoupdateimportant"] == "true")
+        #expect(setting["enable_dsm"] == "true")
+        #expect(setting["enable_email"] == "false")
+        #expect(setting["default_vol"] == nil)
+        #expect(setting["trust_level"] == nil)
     }
 
     @Test func reportsDiscoveredPackageCapabilitiesWithoutInferringMissingMutations() async throws {

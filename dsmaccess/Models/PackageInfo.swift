@@ -106,6 +106,10 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
         let ctlUninstall: Bool?
         /// Does the package offer custom uninstall options in DSM?
         let isUninstallPages: Bool?
+        /// Space-separated DSM application identifiers the package adds to the desktop
+        /// ("SYNO.SDS.PDFViewer.Application SYNO.SDS.PDFViewer.MainWindow…"). DSM expects
+        /// them back when uninstalling.
+        let dsmApps: String?
 
         enum CodingKeys: String, CodingKey {
             case status
@@ -113,6 +117,7 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
             case startable
             case ctlUninstall = "ctl_uninstall"
             case isUninstallPages = "is_uninstall_pages"
+            case dsmApps = "dsm_apps"
         }
     }
 
@@ -179,6 +184,10 @@ struct PackageInfo: nonisolated Decodable, Identifiable, Sendable {
 
     /// True if the package offers uninstall options in DSM (not exposed here).
     var hasUninstallOptions: Bool { additional?.isUninstallPages == true }
+
+    /// DSM application identifiers to hand back when uninstalling; empty for a package that
+    /// adds nothing to the DSM desktop.
+    var dsmApps: String { additional?.dsmApps ?? "" }
 
     /// Uninstalling this package goes through a DSM assistant the app does not reproduce.
     /// The table says so rather than letting the user discover it at the last step.

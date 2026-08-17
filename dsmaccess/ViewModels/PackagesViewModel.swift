@@ -158,7 +158,10 @@ final class PackagesViewModel {
         }
         defer { busy.remove(id) }
         do {
-            try await session.withClient { try await $0.uninstallPackage(id: id) }
+            let dsmApps = package.dsmApps
+            try await session.withClient {
+                try await $0.uninstallPackage(id: id, dsmApps: dsmApps)
+            }
             await load()
             return .success(String(localized: "packages.uninstall.success", defaultValue: "\(package.displayName) uninstalled"))
         } catch {

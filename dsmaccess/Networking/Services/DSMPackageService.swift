@@ -109,6 +109,7 @@ final class DSMPackageService {
             parameters: [
                 "additional": try DSMParameter.json([
                     "status", "installed_info", "startable", "ctl_uninstall", "is_uninstall_pages",
+                    "dsm_apps",
                 ])
             ],
             as: PackageList.self
@@ -369,13 +370,17 @@ final class DSMPackageService {
         )
     }
 
-    func uninstall(packageID: String) async throws {
+    /// `dsm_apps` carries the space-separated DSM application identifiers the package
+    /// installed on the desktop, exactly as the list returned them. The web client passes
+    /// them back so DSM removes the desktop entries along with the package; sending an empty
+    /// value left them behind.
+    func uninstall(packageID: String, dsmApps: String) async throws {
         try await transport.perform(
             api: Self.uninstallationAPI,
             method: "uninstall",
             parameters: [
                 "id": .string(packageID),
-                "dsm_apps": "",
+                "dsm_apps": .string(dsmApps),
             ],
             timeoutInterval: 900
         )
@@ -389,6 +394,8 @@ final class DSMPackageService {
         )
     }
 
+    /// Sends exactly the six fields the Package Center web client sends. DSM neither returns
+    /// `default_vol` here nor expects it back, and it leaves `trust_level` alone.
     func setSettings(_ settings: PackageSettings) async throws {
         try await transport.perform(
             api: Self.settingAPI,
@@ -399,8 +406,6 @@ final class DSMPackageService {
                 "autoupdateimportant": .boolean(settings.autoupdateImportant),
                 "enable_dsm": .boolean(settings.enableDsm),
                 "enable_email": .boolean(settings.enableEmail),
-                "default_vol": .string(settings.defaultVol),
-                "trust_level": .integer(settings.trustLevel),
                 "update_channel": .string(settings.updateChannelBeta ? "beta" : "stable"),
             ]
         )
