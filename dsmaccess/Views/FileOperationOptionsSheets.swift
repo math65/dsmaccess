@@ -72,6 +72,7 @@ struct FileConflictPolicySheet: View {
 
 struct FileCompressionOptionsSheet: View {
     let initialName: String
+    let defaultCodepage: FileStationArchiveCodepage
     let onSubmit: (String, FileStationCompressionOptions) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -80,7 +81,7 @@ struct FileCompressionOptionsSheet: View {
     @State private var level = FileStationCompressionLevel.moderate
     @State private var mode = FileStationCompressionMode.add
     @State private var usesCodepage = false
-    @State private var codepage = FileStationArchiveCodepage.french
+    @State private var codepage: FileStationArchiveCodepage
     @State private var password = ""
     @State private var validationMessage: String?
     @FocusState private var nameIsFocused: Bool
@@ -88,11 +89,14 @@ struct FileCompressionOptionsSheet: View {
 
     init(
         initialName: String,
+        defaultCodepage: FileStationArchiveCodepage,
         onSubmit: @escaping (String, FileStationCompressionOptions) -> Void
     ) {
         self.initialName = initialName
+        self.defaultCodepage = defaultCodepage
         self.onSubmit = onSubmit
         _archiveName = State(initialValue: initialName)
+        _codepage = State(initialValue: defaultCodepage)
     }
 
     var body: some View {
@@ -192,6 +196,7 @@ struct FileCompressionOptionsSheet: View {
 struct FileExtractionOptionsSheet: View {
     let archiveName: String
     let itemIDs: [Int]
+    let defaultCodepage: FileStationArchiveCodepage
     let onSubmit: (FileStationExtractionOptions) -> Void
 
     @Environment(\.dismiss) private var dismiss
@@ -199,22 +204,24 @@ struct FileExtractionOptionsSheet: View {
     @State private var keepsDirectoryStructure = true
     @State private var createsSubfolder = true
     @State private var usesCodepage = false
-    @State private var codepage = FileStationArchiveCodepage.french
+    @State private var codepage: FileStationArchiveCodepage
     @State private var password = ""
     @AccessibilityFocusState private var focusTitle: Bool
 
     init(
         archiveName: String,
         itemIDs: [Int],
+        defaultCodepage: FileStationArchiveCodepage,
         initialCodepage: FileStationArchiveCodepage? = nil,
         initialPassword: String = "",
         onSubmit: @escaping (FileStationExtractionOptions) -> Void
     ) {
         self.archiveName = archiveName
         self.itemIDs = itemIDs
+        self.defaultCodepage = defaultCodepage
         self.onSubmit = onSubmit
         _usesCodepage = State(initialValue: initialCodepage != nil)
-        _codepage = State(initialValue: initialCodepage ?? .french)
+        _codepage = State(initialValue: initialCodepage ?? defaultCodepage)
         _password = State(initialValue: initialPassword)
     }
 

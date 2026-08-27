@@ -13,16 +13,27 @@ import Foundation
 struct FileStationInfo: nonisolated Decodable, Equatable, Sendable {
     let supportedVirtualProtocols: Set<String>
     let supportsSharing: Bool?
+    /// The NAS's own code page, in DSM's three-letter vocabulary — "fre" on a French system,
+    /// measured on DSM 7.4.1. It is the same vocabulary the archive parameter takes.
+    let systemCodepage: String?
+
+    /// The code page an archive should default to: the one the NAS itself announces. A value
+    /// DSM offers but this app does not yet list resolves to nil rather than to a wrong guess.
+    var archiveCodepage: FileStationArchiveCodepage? {
+        systemCodepage.flatMap(FileStationArchiveCodepage.init(rawValue:))
+    }
 
     private enum CodingKeys: String, CodingKey {
         case supportedVirtualProtocols = "support_virtual_protocol"
         case legacySupportedVirtualProtocols = "support_virtual"
         case supportsSharing = "support_sharing"
+        case systemCodepage = "system_codepage"
     }
 
     nonisolated init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         supportsSharing = container.flexBool(.supportsSharing)
+        systemCodepage = container.flexString(.systemCodepage)
         let protocols = container.flexString(.supportedVirtualProtocols)
             ?? container.flexString(.legacySupportedVirtualProtocols)
             ?? ""

@@ -17,13 +17,24 @@ struct ArchiveBrowserSheet: View {
     let archive: FileStationItem
     let onExtract: (FileStationExtractionOptions) -> Void
 
+    init(
+        vm: FileBrowserViewModel,
+        archive: FileStationItem,
+        onExtract: @escaping (FileStationExtractionOptions) -> Void
+    ) {
+        self.vm = vm
+        self.archive = archive
+        self.onExtract = onExtract
+        _codepage = State(initialValue: vm.defaultArchiveCodepage)
+    }
+
     @Environment(\.dismiss) private var dismiss
     @State private var levels = [Level(name: String(localized: "files.archive.path.root"), itemID: nil)]
     @State private var selection = Set<Int>()
     @State private var sort = FileStationArchiveSort.name
     @State private var ascending = true
     @State private var usesCodepage = false
-    @State private var codepage = FileStationArchiveCodepage.french
+    @State private var codepage: FileStationArchiveCodepage
     @State private var password = ""
     @State private var showingExtractionOptions = false
     @AccessibilityFocusState private var focusHeading: Bool
@@ -49,6 +60,7 @@ struct ArchiveBrowserSheet: View {
             FileExtractionOptionsSheet(
                 archiveName: archive.name,
                 itemIDs: Array(selection).sorted(),
+                defaultCodepage: vm.defaultArchiveCodepage,
                 initialCodepage: usesCodepage ? codepage : nil,
                 initialPassword: password
             ) { options in

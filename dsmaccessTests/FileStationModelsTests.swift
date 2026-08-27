@@ -132,6 +132,32 @@ struct FileStationModelsTests {
         #expect(unknown.kindDescription == "ZZZ1")
     }
 
+    /// Measured on DSM 7.4.1: File Station's own information call answers `system_codepage` in
+    /// the same three-letter vocabulary the archive parameter takes, so an archive can start on
+    /// the NAS's code page instead of the one the app was written in.
+    @Test func readsTheCodePageTheNASAnnounces() throws {
+        let decoder = JSONDecoder()
+        let french = try decoder.decode(
+            FileStationInfo.self,
+            from: Data(
+                #"{"hostname":"nas","is_manager":true,"support_sharing":true,"support_virtual_protocol":"cifs,nfs","system_codepage":"fre"}"#.utf8
+            )
+        )
+        let unknown = try decoder.decode(
+            FileStationInfo.self,
+            from: Data(#"{"support_virtual_protocol":"cifs","system_codepage":"zzz"}"#.utf8)
+        )
+        let silent = try decoder.decode(
+            FileStationInfo.self,
+            from: Data(#"{"support_virtual_protocol":"cifs"}"#.utf8)
+        )
+
+        #expect(french.archiveCodepage == .french)
+        // A code page DSM offers and this app does not list must not resolve to a neighbour.
+        #expect(unknown.archiveCodepage == nil)
+        #expect(silent.archiveCodepage == nil)
+    }
+
     @Test func buildsAllAdvancedSearchCriteria() throws {
         let start = Date(timeIntervalSince1970: 1_700_000_000)
         let end = Date(timeIntervalSince1970: 1_800_000_000)

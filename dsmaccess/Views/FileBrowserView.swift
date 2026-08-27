@@ -571,7 +571,10 @@ struct FileBrowserView: View {
                 }
             }
         case .compress(let items):
-            FileCompressionOptionsSheet(initialName: suggestedArchiveName(for: items)) {
+            FileCompressionOptionsSheet(
+                initialName: suggestedArchiveName(for: items),
+                defaultCodepage: vm.defaultArchiveCodepage
+            ) {
                 name, options in
                 VoiceOver.announce(
                     String(localized: "files.progress.compressing"),
