@@ -64,31 +64,16 @@ struct HyperBackupEntry: nonisolated Decodable, Equatable, Identifiable, Sendabl
         return nil
     }
 
-    /// Secondary line: "2.3 MB · 12 Mar 2024" for a file, nothing for a folder — its record
-    /// size says nothing useful about what it contains. A warning joins either kind.
-    var detailText: String? {
-        var parts: [String] = []
-        if !isFolder {
-            if let size {
-                parts.append(Int64(size).formatted(.byteCount(style: .file)))
-            }
-            if let modificationDate {
-                parts.append(modificationDate.formatted(date: .abbreviated, time: .shortened))
-            }
-        }
-        if let warningDescription {
-            parts.append(warningDescription)
-        }
-        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+    /// Value of the size column, nil for a folder: the size of its own record says nothing
+    /// useful about what it holds.
+    var sizeDescription: String? {
+        guard !isFolder, let size else { return nil }
+        return Int64(size).formatted(.byteCount(style: .file))
     }
 
-    /// Full label read by VoiceOver: "photo, folder" or "a.jpg, file, 2.3 MB · 12 Mar 2024".
-    var accessibilityLabel: String {
-        var label = "\(name), \(kindDescription)"
-        if let detailText {
-            label += ", \(detailText)"
-        }
-        return label
+    /// Value of the modification date column.
+    var modificationDescription: String? {
+        modificationDate?.formatted(date: .abbreviated, time: .shortened)
     }
 }
 
