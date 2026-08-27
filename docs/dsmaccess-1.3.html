@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>dsmaccess-1.3</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #1d1d1f;
+  --muted: #6e6e73;
+  --code-bg: #f5f5f7;
+  --link: #0066cc;
+  --link-hover: #0040a0;
+  --rule: #e5e5ea;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1e;
+    --fg: #ececec;
+    --muted: #a0a0a0;
+    --code-bg: #2d2d2d;
+    --link: #4eaaff;
+    --link-hover: #82c4ff;
+    --rule: #3a3a3a;
+  }
+}
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+  padding: 1rem 1.25rem 1.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+h1, h2, h3, h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.4em 0 0.5em;
+}
+h1 { font-size: 1.35rem; }
+h2 { font-size: 1.15rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.2em; }
+h3 { font-size: 1.02rem; }
+h4 { font-size: 0.95rem; color: var(--muted); }
+p { margin: 0.6em 0; }
+ul, ol { padding-left: 1.4em; margin: 0.6em 0; }
+li { margin: 0.25em 0; }
+li > p { margin: 0.3em 0; }
+a { color: var(--link); text-decoration: none; }
+a:hover, a:focus { color: var(--link-hover); text-decoration: underline; }
+code {
+  background: var(--code-bg);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.88em;
+}
+pre {
+  background: var(--code-bg);
+  padding: 0.75em 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.88em;
+  line-height: 1.45;
+}
+pre code { background: transparent; padding: 0; border-radius: 0; }
+blockquote {
+  border-left: 3px solid var(--rule);
+  margin: 0.8em 0;
+  padding: 0.1em 0 0.1em 1em;
+  color: var(--muted);
+}
+hr { border: 0; border-top: 1px solid var(--rule); margin: 1.5em 0; }
+strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<h2 id="v13-build-28--2026-08-27">v1.3 (build 28) — 2026-08-27</h2>
+<h3 id="highlights">Highlights</h3>
+<ul>
+<li>Hyper Backup is a module of its own now: your backup tasks, what
+each one did, and a browser that walks through a backup version and puts
+files back.</li>
+<li>Package Center shows the whole catalogue, including the packages
+from the sources you add, and installs them together with what they
+depend on.</li>
+<li>The file list and the backup browser have real columns — name, kind,
+size, date — with headers that sort on a click, and each column can be
+read on its own instead of the row running together as one line.</li>
+<li>When an operation you asked for fails, a dialog says so and stays
+until you dismiss it, with a button to send a report.</li>
+</ul>
+<h3 id="hyper-backup">Hyper Backup</h3>
+<ul>
+<li>Every backup task with its state, its destination and when it last
+ran.</li>
+<li>The history of a task: what ran, when, how long it took and what
+failed.</li>
+<li>Walk through what a backup version holds, folder by folder, and put
+a file or a folder back — beside the original or over it.</li>
+<li>Download a file straight out of a backup version, without restoring
+it first.</li>
+<li>A task that ends in failure is announced, and the failure stays on
+screen.</li>
+</ul>
+<h3 id="files">Files</h3>
+<ul>
+<li>Name, kind, size and modification date are four columns now. Click a
+header to sort on it, and read a row column by column.</li>
+<li>Search results carry a location column, so two files with the same
+name are told apart by where they live.</li>
+<li>Compressing and extracting start on the code page your NAS announces
+instead of always proposing French.</li>
+<li>Deleting a large folder shows progress that actually moves: the NAS
+is asked to count what it is about to remove.</li>
+<li>A cell with no value keeps its dash on screen but no longer says "em
+dash" out loud on every row.</li>
+</ul>
+<h3 id="shared-folders">Shared folders</h3>
+<ul>
+<li>Settings of a shared folder in the app: recycle bin and who is
+allowed to empty it, encryption and locking, quota, file compression and
+checksum.</li>
+<li>Empty a recycle bin from the app.</li>
+<li>See which accounts actually reach a folder, and what they may do
+there.</li>
+</ul>
+<h3 id="package-center">Package Center</h3>
+<ul>
+<li>The whole catalogue, Synology's packages and the ones published
+through the sources you add, with real names, publishers, sizes and
+categories.</li>
+<li>Installing a package that needs other packages works: they are
+installed first, and the progress says which one is being
+downloaded.</li>
+<li>Uninstalling asks the questions the package itself declares, instead
+of sending you to DSM.</li>
+<li>Automatic updates can be set package by package, and the settings
+screen opens again on DSM 7.4.</li>
+</ul>
+<h3 id="privacy">Privacy</h3>
+<ul>
+<li>Removing or forgetting a NAS erases every secret it had stored.</li>
+<li>A link in an announcement from the developer opens only if it is a
+web address.</li>
+<li>A generated password copied to the clipboard is marked confidential,
+so it does not travel to your other devices or land in clipboard
+history.</li>
+</ul>
+<h2 id="v13-beta3-build-27--2026-08-17">v1.3-beta.3 (build 27) —
+2026-08-17</h2>
+<h3 id="highlights-1">Highlights</h3>
+<ul>
+<li>Package Center now shows the whole catalogue. The packages published
+through the package sources you can add — SynoCommunity and the rest —
+were never listed, so adding a source did nothing at all. They are there
+now, alongside Synology's own packages and the beta ones, and they
+install from the app.</li>
+</ul>
+<h3 id="package-center-1">Package Center</h3>
+<ul>
+<li>The settings screen opens again. It could not: it asked the NAS for
+a value DSM 7.4 never sends, and failed before showing anything.</li>
+<li>Packages are listed by their real name — "Synology Drive Server"
+rather than SynologyDrive — with their publisher, size and category.
+Details show the description and what changed in the version, so you can
+tell what a package does before installing it.</li>
+<li>Filter the catalogue by category, and search by name, publisher or
+description, not just by identifier.</li>
+<li>Installing a package that needs other packages works. The app used
+to refuse the whole operation as soon as a package had a dependency. The
+ones it pulls in are installed first, and the progress message says
+which is being downloaded and where it sits in the plan.</li>
+<li>Installing a package from a package source carries the same warning
+DSM shows: it is published by someone other than Synology and is not
+verified by them. The publisher is named.</li>
+<li>Choose whether a package starts once installed, instead of it always
+starting.</li>
+<li>Uninstalling a package that asks what to do with its data now asks
+you in the app. Until now the app sent you to DSM for those. A package
+that draws its own questions with DSM's code — Plex does — still has to
+be removed from DSM, and says so.</li>
+<li>Uninstalling also removes what the package added to the DSM desktop,
+which it used to leave behind.</li>
+<li>Automatic updates: the fourth strategy, one choice per package, set
+from the package's own menu. A NAS already set that way used to read as
+"disabled".</li>
+<li>A package DSM no longer supports now reads "No longer supported"
+instead of an internal code, and is never offered a repair —
+reinstalling the same version would change nothing.</li>
+<li>Details of an installed package show its publisher, the volume it
+lives on, when it was last updated, its description, and the address of
+its own web interface when it has one.</li>
+<li>A package with a licence agreement to accept is recognised before
+anything is downloaded, instead of failing partway.</li>
+</ul>
+<h3 id="privacy-1">Privacy</h3>
+<ul>
+<li>Removing or forgetting a NAS now erases every secret it had
+stored.</li>
+<li>A link in an announcement from the developer opens only if it is a
+web address.</li>
+<li>A generated password copied to the clipboard is marked confidential,
+so it does not travel to your other devices or land in clipboard
+history.</li>
+</ul>
+<h2 id="v13-beta2-build-26--2026-08-06">v1.3-beta.2 (build 26) —
+2026-08-06</h2>
+<h3 id="highlights-2">Highlights</h3>
+<ul>
+<li>When something fails, DSM Access now says so in a dialog that stays
+on screen until you close it. No more errors spoken once and lost — and
+a Report button sends the message straight to the developer if you want
+to.</li>
+</ul>
+<h3 id="changes">Changes</h3>
+<ul>
+<li>Every module: a failed operation — a restore, a deletion, a settings
+change — opens the same error dialog. VoiceOver reads it on its own, OK
+closes it, and Report opens the contact form pre-filled with the error,
+which you review before anything is sent.</li>
+<li>Hyper Backup: downloading or restoring from a backup now plays the
+completion sound, or posts a notification when the app is in the
+background — the same signals file transfers already had.</li>
+<li>Hyper Backup: downloading a file from a backup now gives the NAS up
+to five minutes to prepare it. On a busy NAS, or when the backup lives
+on another NAS, the former twenty-second limit could cut the download
+short before the first byte arrived.</li>
+<li>Users and groups, share links, favorites, Package Center and File
+Station tasks used to show errors each in their own way; they all use
+the same dialog now.</li>
+</ul>
+<h2 id="v13-beta1-build-25--2026-08-05">v1.3-beta.1 (build 25) —
+2026-08-05</h2>
+<h3 id="highlights-3">Highlights</h3>
+<ul>
+<li>New Hyper Backup module: follow your backups and, at last, restore
+from them without the DSM screen that made restoring feel dangerous. A
+backup browses like a folder, and restoring beside the originals is the
+default.</li>
+</ul>
+<h3 id="hyper-backup-1">Hyper Backup</h3>
+<ul>
+<li>The module (Cmd-Shift-6) lists your backup tasks in a sortable table
+with their destination, state and encryption. A running backup announces
+its progress live. Start a backup, cancel one with confirmation, browse
+the dated versions, and read the task's log and statistics.</li>
+<li>Restore explorer: open any version and move through what it holds
+the way the Files module works — arrow keys, Cmd-Down Arrow to open a
+folder, Cmd-Up Arrow to go back. Each row reads its name, kind, size and
+date, and a damaged entry says so in words.</li>
+<li>"Restore to…" puts a copy beside the originals — the safe direction
+is the default. The sheet is the folder browser itself: walk to the
+folder that should receive the copy, create it on the way if it does not
+exist yet, and a written sentence states what will be restored where
+before you confirm. Replacing what is already there stays off until you
+switch it on, and the consequence is spelled out.</li>
+<li>"Restore to the original location…" puts the selection back where it
+came from. The confirmation names what will be replaced and where — not
+just "your original files".</li>
+<li>Download a file from a backup to the Mac, choosing where it lands,
+with progress announced in bytes received.</li>
+<li>Not there yet, and said plainly: searching inside a backup,
+following a long restore, unlocking encrypted backups, pausing a backup,
+and creating or deleting tasks.</li>
+</ul>
+<h3 id="shared-folders-1">Shared folders</h3>
+<ul>
+<li>Creating a shared folder now offers the recycle bin, its
+administrator restriction, both visibility options and encryption. A new
+settings sheet brings the same choices to an existing folder, and an
+encrypted folder can be locked and unlocked from its menu.</li>
+<li>The settings gain the quota, file compression, the data checksum and
+the three advanced restrictions (browsing, modifying, downloading). A
+folder's recycle bin can be emptied, and a new sheet shows which
+accounts reach the folder, and with which right.</li>
+<li>Encrypting an existing folder is followed to the end: the screen
+says how far the rewrite is, that the folder stays unavailable
+meanwhile, and offers to stop it.</li>
+<li>Fixed: the recycle bin column read "No" on every folder, even those
+where it is on.</li>
+</ul>
+<h3 id="changes-1">Changes</h3>
+<ul>
+<li>Picking a folder on the NAS — in Containers, USB Copy and Hyper
+Backup — goes through one Finder-style table, with the shared folders at
+its root.</li>
+</ul>
+<h2 id="v12-build-24--2026-08-04">v1.2 (build 24) — 2026-08-04</h2>
+<h3 id="highlights-4">Highlights</h3>
+<ul>
+<li>Containers gains a terminal. You can open a shell inside a running
+container and work in it, with the answers laid out to be read line by
+line instead of the screen-shaped terminal DSM shows, which no screen
+reader can follow.</li>
+</ul>
+<h3 id="containers">Containers</h3>
+<ul>
+<li>Terminal: select a container, open Terminal from its menu, and a
+session starts inside it. What you send and what the shell answers are
+laid out as an exchange, one block each, so they read apart. The output
+sits in a read-only field you can move through line by line and copy
+from, and the shell is asked to print its listings one entry per line
+rather than in aligned columns.</li>
+<li>The session runs <code>/bin/sh</code> unless you name another shell
+before it starts. A Stop button sends the interruption a terminal would,
+for a command that runs on and on.</li>
+<li>Closing the window ends the session, and leaves nothing running
+inside the container.</li>
+<li>Container Manager only accepts a terminal through an address the NAS
+knows as its own. Where yours is refused, the app says so and names the
+address rather than reporting a server error, and it tries your
+QuickConnect name once before giving up.</li>
+</ul>
+<h2 id="v11-build-23--2026-08-03">v1.1 (build 23) — 2026-08-03</h2>
+<p>The first stable release since 1.0, which came out on 10 July. If you
+are coming from 1.0, everything below is new to you.</p>
+<h3 id="highlights-5">Highlights</h3>
+<ul>
+<li>Seven modules that did not exist in 1.0: Resource Monitor, Logs and
+Security, Package Center, Containers, USB Copy, External Devices, and
+permissions in Users and Groups.</li>
+<li>Files now works with the Finder: copy on one side, paste on the
+other, in both directions.</li>
+<li>The app updates itself, and tells you what a long operation is doing
+while it runs.</li>
+</ul>
+<h3 id="new-modules">New modules</h3>
+<ul>
+<li>External Devices: a Control Panel section lists the USB and eSATA
+drives connected to the NAS, with their maker, model, capacity and
+state, and the partitions of the selected one with their file system,
+sizes and shared folder. Eject a drive, or format it in EXT4, FAT32 or
+EXFAT. An eject button appears in the toolbar as soon as something is
+plugged in.</li>
+<li>Resource Monitor: processor, memory, network and disks, plus the
+open files, the alerts the NAS recorded and the connections in progress.
+You can end a session that should not be there.</li>
+<li>Logs and Security: all four logs the NAS keeps, not just one of
+them, with Security Advisor's findings, the blocked addresses, and
+export to a file.</li>
+<li>Package Center: browse the official Synology catalog, install,
+update and remove packages, install a package file by hand, and manage
+your package sources.</li>
+<li>Containers: the Container Manager is covered in full. Create a
+container, duplicate one, rename it, cap its memory, read its logs and
+statistics, and handle images, networks, projects and registries.</li>
+<li>USB Copy: set up and run your USB copy tasks entirely from the app —
+direction, folders, filters and schedule. Contributed by Ashley
+Cox.</li>
+<li>Users and Groups gains permissions: a panel lists every shared
+folder with the rights of an account or a group, and a second tab does
+the same for applications.</li>
+</ul>
+<h3 id="files-1">Files</h3>
+<ul>
+<li>Copy files in the Finder and paste them into a folder on the NAS, or
+drag an item out of the list and drop it in the Finder. A folder dropped
+in the Finder arrives as an archive built by the NAS.</li>
+<li>Copy and paste behave as they do in the Finder: Command-C copies,
+Command-V pastes, and Return renames.</li>
+<li>A running copy shows what it is doing, how far along it is, its
+speed and the time left, with a Cancel button that really stops it.
+Sending and downloading show the same banner.</li>
+<li>The result of a long operation stays on screen until you dismiss it,
+and a short sound marks the end of a transfer. You can turn the sound
+off.</li>
+<li>Create and manage share links, with passwords and expiry dates.</li>
+<li>See full details for any file or folder, search with advanced
+criteria, look inside an archive and extract only what you need.</li>
+</ul>
+<h3 id="sign-in-and-accounts">Sign-in and accounts</h3>
+<ul>
+<li>Open a session without typing a password, by approving it on your
+phone with Secure SignIn.</li>
+<li>Sessions are kept between launches: tick "Stay signed in" and the
+app reopens on the session it already had.</li>
+<li>Connect with QuickConnect by entering your QuickConnect ID instead
+of an address. Contributed by Ashley Cox.</li>
+<li>Accounts without administrator rights can sign in, and the app tells
+you when your NAS requires a new password before letting an account
+in.</li>
+<li>Create users and groups, choose what they may reach, and generate a
+password that satisfies your NAS policy.</li>
+</ul>
+<h3 id="changes-2">Changes</h3>
+<ul>
+<li>The keyboard shortcuts for the last modules use Command-Option
+rather than Command-Shift. macOS keeps Command-Shift-3, 4 and 5 for
+screen capture and always wins, which left three modules out of reach
+from the keyboard.</li>
+<li>You choose whether to receive beta versions, in Settings &gt;
+Updates. Trying a beta once no longer means staying on the betas.</li>
+<li>The app checks for a new version at every launch, and has its own
+icon, designed by Ashley Cox.</li>
+</ul>
+<h3 id="fixes">Fixes</h3>
+<ul>
+<li>A long copy is no longer abandoned after five minutes, and leaving
+the screen no longer stops it.</li>
+<li>A package installed while the app is running is now noticed, instead
+of staying unavailable until the next sign-in.</li>
+<li>Creating a share link, sending files to the NAS, installing a
+package file, and creating a user on DSM 7.4 all work again.</li>
+<li>Approving your NAS certificate once signs you in, instead of
+blocking there.</li>
+</ul>
+<h3 id="accessibility-and-language">Accessibility and language</h3>
+<ul>
+<li>Lists, forms and scrolling areas across the app say what they hold
+instead of announcing "scroll area".</li>
+<li>Status and detail text was made legible: the system colours failed
+the contrast threshold at the sizes this app uses.</li>
+<li>Transfers name their direction in words rather than with an icon
+alone.</li>
+<li>The app shows up in English on a Mac set to a language it does not
+ship, instead of mixing languages.</li>
+</ul>
+<h3 id="known-limits">Known limits</h3>
+<ul>
+<li>Ejecting and formatting have been tested on USB. eSATA uses the same
+calls, but no eSATA drive was available to try them on.</li>
+</ul>
+<h2 id="v11-beta21-build-22--2026-08-03">v1.1-beta.21 (build 22) —
+2026-08-03</h2>
+<h3 id="highlights-6">Highlights</h3>
+<ul>
+<li>Container Manager is now covered in full: you can create a
+container, not just watch the ones already there.</li>
+</ul>
+<h3 id="new">New</h3>
+<ul>
+<li>Containers: a New container button asks for an image, a name, the
+ports to publish, the folders to mount and the environment variables,
+then creates it. A port left at 0 is chosen for you when the container
+starts.</li>
+<li>Containers: Duplicate makes a second container with the same
+settings. The copy arrives stopped, and its ports are left free so it
+cannot clash with the original.</li>
+<li>Containers: a Settings screen renames a container, caps its memory
+and decides whether it restarts on its own.</li>
+<li>Containers: a Statistics tab shows the memory in use and the bytes
+received and sent. A container that has just started says its processor
+share is not measurable yet rather than showing zero.</li>
+<li>Containers: Force stop kills a container that will not stop, and
+Reset builds it again from its settings. Both say what is lost before
+doing it.</li>
+<li>Containers: a container's settings can be written to a folder of the
+NAS.</li>
+</ul>
+<h3 id="changes-3">Changes</h3>
+<ul>
+<li>Nine more lists became sortable tables, with one column per value:
+File Station favourites, tasks, virtual folders and transfers, installed
+packages, the package catalogue, shared folders, the USB Copy log and
+the archive browser. Reading a row column by column no longer means
+hearing it as one block.</li>
+<li>Per-row buttons moved into each table's context menu, everywhere.
+The Actions column is gone: it widened every row and stood between you
+and the next line.</li>
+<li>Shared folders show whether the recycle bin is on, which the NAS
+reported all along without the app saying so.</li>
+<li>Transfers name the direction in words. Until now it was an icon, so
+it was said nowhere.</li>
+<li>The archive browser says whether an entry is a folder or a
+file.</li>
+<li>Packages say when an operation is running, and when uninstalling
+needs the DSM assistant. Both were only hinted at.</li>
+</ul>
+<h3 id="fixes-1">Fixes</h3>
+<ul>
+<li>VoiceOver: forms, lists and scroll views across the app now say what
+they hold. Most of them announced only "scroll area".</li>
+<li>Two labels showed their internal key instead of their text.</li>
+</ul>
+<h3 id="download">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.21/dsmaccess-1.1-beta.21.zip">dsmaccess-1.1-beta.21.zip</a></p>
+<h2 id="v11-beta20-build-21--2026-07-31">v1.1-beta.20 (build 21) —
+2026-07-31</h2>
+<h3 id="new-1">New</h3>
+<ul>
+<li>Updates: you now choose whether to receive beta versions, in
+Settings &gt; Updates. Until now the channel followed the version
+installed, so trying a beta once meant staying on the betas. Turning it
+off does not undo the beta already installed: the app stays on it until
+a stable version goes past it.</li>
+<li>Files: sending or downloading now shows the same banner as a copy —
+what is running, how much is done, the speed, the time left, and a
+Cancel button that really stops it. Until now a large upload showed a
+spinner in a corner, and the details lived in a window you had to think
+of opening.</li>
+<li>Users and groups: creating a group offers "Create and set
+permissions…", as creating a user already did. A new group could reach
+nothing, and nothing on screen said where to grant it anything.</li>
+</ul>
+<h3 id="fixes-2">Fixes</h3>
+<ul>
+<li>Files: dragging a folder to the Finder produces a zip archive built
+by the NAS, and downloading one does the same. That is now said, with
+the name of the archive, instead of a .zip appearing unannounced.</li>
+<li>Files: while the NAS packs a folder into an archive, nothing is
+transferred yet. That wait is now named rather than left as a progress
+bar sitting at zero with no explanation.</li>
+<li>Users and groups: creating a group with a name already taken kept
+the sheet open and says so, instead of closing and discarding what was
+typed.</li>
+</ul>
+<h3 id="download-1">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.20/dsmaccess-1.1-beta.20.zip">dsmaccess-1.1-beta.20.zip</a></p>
+<h2 id="v11-beta19-build-20--2026-07-31">v1.1-beta.19 (build 20) —
+2026-07-31</h2>
+<h3 id="fixes-3">Fixes</h3>
+<ul>
+<li>Files: sending a file to the NAS, or bringing one back, now plays
+the sound at the end. It only ever played for operations that stay on
+the NAS — copying, moving, deleting — which left out the transfers long
+enough to walk away from. The notification was missing on those
+too.</li>
+<li>Files: pasting or sending no longer opens a form first. The app
+compares the names with the destination and only asks when something
+would be replaced, naming it: "budget.xlsx already exists in this
+folder". The upload form and its three date pickers are gone; DSM does
+not ask for those either.</li>
+<li>Five spoken announcements were in French for everyone — editing a
+share link, advanced search, package details, creating an archive, and
+one more. They had slipped past the translation work.</li>
+</ul>
+<h3 id="download-2">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.19/dsmaccess-1.1-beta.19.zip">dsmaccess-1.1-beta.19.zip</a></p>
+<h2 id="v11-beta18-build-19--2026-07-30">v1.1-beta.18 (build 19) —
+2026-07-30</h2>
+<h3 id="fixes-4">Fixes</h3>
+<ul>
+<li>Files: pasting into an empty folder works. The keyboard shortcut did
+nothing there — the one place where pasting is the only thing left to
+do. The folder is still announced as empty when you arrive in it.</li>
+<li>Users and groups: creating an account no longer announces that
+adding it to its groups failed when it did not. The NAS puts every
+account in the "users" group itself and refuses any change to it, so the
+app no longer offers it as a choice; the screen says instead that every
+account belongs to it.</li>
+<li>Users and groups: when the NAS does refuse a group, the app names it
+and keeps the ones the NAS accepted. Until now the first refusal
+silently dropped every group listed after it.</li>
+</ul>
+<h3 id="download-3">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.18/dsmaccess-1.1-beta.18.zip">dsmaccess-1.1-beta.18.zip</a></p>
+<h2 id="v11-beta17-build-18--2026-07-30">v1.1-beta.17 (build 18) —
+2026-07-30</h2>
+<h3 id="highlights-7">Highlights</h3>
+<ul>
+<li>Logs and Security was rebuilt. The app was reading one log out of
+four — seven thousand entries where the NAS holds more than a hundred
+thousand — and two of its columns had always been empty.</li>
+<li>The Resource Monitor is complete: open files, the alerts the NAS
+recorded, and the thresholds that produce them.</li>
+</ul>
+<h3 id="please-tell-me-if-the-wording-looks-wrong">Please tell me if the
+wording looks wrong</h3>
+<p>Every piece of text in the app moved to a new system this week, so
+that the app can one day be translated into other languages. Nothing
+should look different — but if you come across a label that reads like
+machine code, a sentence in the wrong language, or a word that is simply
+missing, please say so. Those are mistakes on my side, not on yours, and
+they are quick to fix.</p>
+<h3 id="new-2">New</h3>
+<ul>
+<li>Logs and Security: all four logs the NAS keeps are now available,
+not just the system one. File transfers are there, with the address, the
+operation and the size, and connections have their own log.</li>
+<li>Logs and Security: a log can be exported to a file, as a spreadsheet
+or as a web page. The NAS writes the file itself, so what you get is
+exactly what it holds.</li>
+<li>Logs and Security: Security Advisor's findings about sign-ins now
+have their own tab — failed attempts, unusual sources, accounts worth a
+look.</li>
+<li>Logs and Security: two settings panes. One decides which transfers
+the NAS records; the other, how many failed sign-ins it takes before an
+address is blocked, and for how long.</li>
+<li>Logs and Security: the search field is in the toolbar, where it is
+in every other module, and older entries load as you go rather than
+stopping at the first page.</li>
+<li>Resource Monitor: an Open files tab, listing what the NAS is
+currently holding open and for whom.</li>
+<li>Resource Monitor: a History tab, showing the alerts the NAS recorded
+against its own thresholds.</li>
+<li>Resource Monitor: a Performance alarm tab. You can add, change and
+remove the thresholds the NAS watches — on the system, on a service, or
+on a volume.</li>
+<li>Resource Monitor: a connected session can be closed from the
+Connections tab.</li>
+<li>Files: a copy or a move now plays a short sound when it ends, and a
+different one if it fails. It plays when the app is in front; when it is
+not, the notification carries the result as before, never both. Settings
+has a switch to turn the sound off.</li>
+</ul>
+<h3 id="fixes-5">Fixes</h3>
+<ul>
+<li>Logs and Security: the block list came back with an error 103 for
+everyone. The app was asking the NAS for that list the wrong way. It
+works now.</li>
+<li>Logs and Security: the Time and User columns were empty in every
+log. The app was reading fields the NAS does not send.</li>
+<li>Resource Monitor: a service's processor share was shown a hundred
+times too small.</li>
+<li>Resource Monitor: a process can legitimately exceed 100 % — it means
+it is using more than one core. The screen now says so instead of
+leaving you to guess.</li>
+<li>Five labels in the Resource Monitor were showing in English to
+French users.</li>
+</ul>
+<h3 id="download-4">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.17/dsmaccess-1.1-beta.17.zip">dsmaccess-1.1-beta.17.zip</a></p>
+<h2 id="v11-beta16-build-17--2026-07-29">v1.1-beta.16 (build 17) —
+2026-07-29</h2>
+<h3 id="highlights-8">Highlights</h3>
+<ul>
+<li>Sign-in: the app reopens on the session it already had. Tick "Stay
+signed in" once and the next launch goes straight in — with no password
+to replay, and no approval to grant on your phone.</li>
+<li>A Resource Monitor of its own, with the processor, memory, network,
+disks and volumes; the services and processes running; and who is
+connected to the NAS.</li>
+</ul>
+<h3 id="new-3">New</h3>
+<ul>
+<li>Sign-in: sessions are kept between launches. Only a refusal from the
+NAS sends you back to the sign-in screen, and it says why. The saved
+session lives in the Keychain beside your password and is erased when
+you sign out.</li>
+<li>Sign-in: the menu now names Secure SignIn rather than describing it
+as "no password", and remembers which method you chose.</li>
+<li>Resource Monitor: a new entry in the sidebar, on Command Shift 5,
+with three tabs. Performance adds each disk and volume, with its own
+activity, and the load averages. Tasks lists services and the busiest
+processes. Connections shows who is connected, from where and since
+when.</li>
+<li>Resource Monitor: tasks and connections are sortable tables — click
+a column header to order by it.</li>
+<li>Files: a running copy now shows its speed and how long is left, or
+"less than a minute" when the end is near. Neither is ever spoken aloud;
+they sit in the progress banner for you to read when you want them.</li>
+<li>Files: when a long operation finishes while the app is in the
+background, a notification carries the result. macOS asks for permission
+the first time, and a switch in Settings turns it off.</li>
+</ul>
+<h3 id="fixes-6">Fixes</h3>
+<ul>
+<li>Memory was reported twice over and disagreed with itself: 17% in use
+on one line, 3.54 GB of 3.68 GB on the next. DSM sets disk cache aside,
+and this NAS was holding 2.89 GB of it.</li>
+<li>The NAS menu in the toolbar announced the name of its icon —
+"externaldrive.connected.to.line.below" — instead of what it does.</li>
+</ul>
+<h3 id="download-5">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.16/dsmaccess-1.1-beta.16.zip">dsmaccess-1.1-beta.16.zip</a></p>
+<h2 id="v11-beta15-build-16--2026-07-29">v1.1-beta.15 (build 16) —
+2026-07-29</h2>
+<h3 id="highlights-9">Highlights</h3>
+<ul>
+<li>Files: creating a share link works again. Since beta.6 it failed
+every time with "the NAS response could not be read", even though the
+NAS had created the link. If you tried during that period, those links
+are sitting in your share link list, waiting to be used or deleted.</li>
+</ul>
+<h3 id="fixes-7">Fixes</h3>
+<ul>
+<li>Files: a share link is created and handed back as before. The app
+had been demanding a piece of information that DSM only sends when
+something goes wrong, and threw the whole answer away when it was,
+correctly, absent.</li>
+<li>Files: on some NAS models the Files screen itself could refuse to
+open, for the same reason. It no longer depends on details your NAS may
+not report.</li>
+<li>Files: the task window follows a running task again. It used to show
+the progress it had when you opened it and never move, which made a long
+compression look stuck at one percent.</li>
+<li>Files: a compression that finished is no longer reported as an
+interrupted operation. The NAS drops a finished task rather than
+announcing it, and that silence was being read as a failure.</li>
+</ul>
+<h3 id="new-4">New</h3>
+<ul>
+<li>Files: pasting or moving now names the folder the items are going
+into, before you confirm. Selecting a folder in the list does not make
+it the destination — it has to be open, as in the Finder.</li>
+<li>Files: when creating an archive you can choose the encoding used for
+the names inside it, for archives meant to be opened on another
+system.</li>
+<li>When the app cannot make sense of an answer from your NAS, it now
+says so and offers to report it. Reporting opens the contact form,
+already filled in, and attaches the call that failed and the names of
+the fields your NAS sent — never their contents, so no file name, path
+or account leaves your machine.</li>
+</ul>
+<h3 id="download-6">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.15/dsmaccess-1.1-beta.15.zip">dsmaccess-1.1-beta.15.zip</a></p>
+<h2 id="v11-beta14-build-15--2026-07-28">v1.1-beta.14 (build 15) —
+2026-07-28</h2>
+<h3 id="highlights-10">Highlights</h3>
+<ul>
+<li>Sign-in: you can now open a session without typing a password at
+all, by approving the request in the Synology Secure SignIn app on your
+phone.</li>
+<li>Files: a long copy is no longer abandoned after five minutes, and
+leaving the Files screen no longer stops it.</li>
+</ul>
+<h3 id="new-5">New</h3>
+<ul>
+<li>Sign-in: an Authentication menu on the connection screen chooses
+between your password and the approval sent to your phone. With the
+second, the password field steps aside and a waiting screen tells you
+what to do, reading out the number to confirm when your NAS asks for
+one. The session opened this way has to be approved again the next time
+you open the app, which the screen says.</li>
+<li>DSM update: a new screen shows the update your NAS offers and
+installs it, with the progress announced along the way.</li>
+</ul>
+<h3 id="fixes-8">Fixes</h3>
+<ul>
+<li>Files: copying, moving, deleting, compressing or extracting used to
+be given up after exactly five minutes, reported as a failure, while the
+NAS quietly carried on. A copy of several hours is now followed to its
+end.</li>
+<li>Files: switching to another screen while a copy was running silently
+stopped it on the NAS. It now keeps going, and coming back to Files
+picks the progress up again -- even after quitting and reopening the
+app. Only the Cancel button stops a task.</li>
+<li>Files: the result of a long operation stays on screen until you
+dismiss it. A spoken announcement made while the app sits in the
+background is never heard, which left no trace of what happened.</li>
+<li>Files: a folder holding a file whose name was not stored in Unicode
+could not be opened at all -- one such name among three thousand made
+the whole folder unreachable. It now opens, that one name showing a
+replacement character, as DSM itself does.</li>
+</ul>
+<h3 id="download-7">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.14/dsmaccess-1.1-beta.14.zip">dsmaccess-1.1-beta.14.zip</a></p>
+<h2 id="v11-beta13-build-14--2026-07-28">v1.1-beta.13 (build 14) —
+2026-07-28</h2>
+<h3 id="highlights-11">Highlights</h3>
+<ul>
+<li>Users and groups: the groups an account belongs to can now be
+changed after the account exists, not only while creating it.</li>
+</ul>
+<h3 id="new-6">New</h3>
+<ul>
+<li>Users and groups: the permissions panel gains a Groups tab, next to
+shared folders and applications, listing every group on the NAS with the
+ones the account belongs to ticked. Changes are saved along with the
+rest.</li>
+</ul>
+<h3 id="download-8">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.13/dsmaccess-1.1-beta.13.zip">dsmaccess-1.1-beta.13.zip</a></p>
+<h2 id="v11-beta12-build-13--2026-07-28">v1.1-beta.12 (build 13) —
+2026-07-28</h2>
+<h3 id="highlights-12">Highlights</h3>
+<ul>
+<li>Users and groups: you can now give an account access to your shared
+folders and to the applications on your NAS, without leaving DSM Access.
+Creating someone an account and letting them actually use it is one task
+again.</li>
+</ul>
+<h3 id="new-7">New</h3>
+<ul>
+<li>Users and groups: a Permissions panel lists every shared folder with
+the access granted to the account, the access it inherits from its
+groups, and the four choices DSM offers. It reads as a table, one row
+per folder, so you can go through it with the arrow keys.</li>
+<li>Users and groups: a second tab does the same for applications.
+Whether someone may open DSM, File Station, Synology Photos or connect
+over SMB is set here. Nothing is sent to the NAS until you save, and
+only what you changed is sent.</li>
+<li>Users and groups: the same panel works on a group. Give the rights
+once to a group, add people to it, and each of them inherits without you
+repeating anything. This is the practical way to set up a
+household.</li>
+<li>Users and groups: the creation panel offers to open the permissions
+of the account it just created, so you do not have to find it again in
+the list to give it any access at all.</li>
+</ul>
+<h3 id="fixes-9">Fixes</h3>
+<ul>
+<li>Users and groups: the groups you picked when creating an account
+were silently dropped. The account was created, but it belonged to none
+of them. It now lands in the groups you chose.</li>
+</ul>
+<h3 id="accessibility">Accessibility</h3>
+<ul>
+<li>Users and groups: an application already restricted to specific
+addresses is left read-only, with an explanation, rather than being
+quietly rewritten as "from anywhere".</li>
+<li>Users and groups: when a group is denied access to a folder, the
+panel says so on the row concerned, because that denial overrides
+whatever the account itself was given.</li>
+<li>Users and groups: the panel shows a single Close button until
+something is actually modified, instead of a Cancel that suggests
+undoing work and a dimmed Save that does not say why.</li>
+</ul>
+<h3 id="download-9">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.12/dsmaccess-1.1-beta.12.zip">dsmaccess-1.1-beta.12.zip</a></p>
+<h2 id="v11-beta11-build-12--2026-07-27">v1.1-beta.11 (build 12) —
+2026-07-27</h2>
+<h3 id="highlights-13">Highlights</h3>
+<ul>
+<li>Sign-in: accounts without administrator rights can sign in again.
+Anyone you created an account for on your NAS can use DSM Access, not
+just you.</li>
+</ul>
+<h3 id="fixes-10">Fixes</h3>
+<ul>
+<li>Sign-in: an account that is not an administrator was turned away
+with "Permission denied for this account", even though that same account
+signed in to DSM in a browser without any trouble.</li>
+<li>Users and groups: creating a user failed with nothing but an error
+code when the password did not satisfy the rules your NAS enforces. The
+message now says what happened, and the form lists those rules before
+you type anything.</li>
+<li>Users and groups: a failed creation no longer closes the panel and
+discards everything you filled in. The message appears in place, and you
+can correct the password without starting over.</li>
+</ul>
+<h3 id="new-8">New</h3>
+<ul>
+<li>Sign-in: when your NAS requires a new password before letting an
+account in, DSM Access asks for it and signs you in, instead of stopping
+on an error you could do nothing about.</li>
+<li>Users and groups: a button generates a password that satisfies your
+NAS rules. It is shown in plain text so you can read it back, and a
+second button copies it, so you can pass it on to the person it is meant
+for. The characters that sound and look alike are left out, so it
+survives being read aloud or written down.</li>
+</ul>
+<h3 id="download-10">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.11/dsmaccess-1.1-beta.11.zip">dsmaccess-1.1-beta.11.zip</a></p>
+<h2 id="v11-beta10-build-11--2026-07-25">v1.1-beta.10 (build 11) —
+2026-07-25</h2>
+<h3 id="highlights-14">Highlights</h3>
+<ul>
+<li>Files: copy files in the Finder, then paste them into a folder on
+the NAS with Command-V. Whole folders come along, with everything inside
+them.</li>
+<li>Files: drag an item out of the file list and drop it in the Finder
+to download it there.</li>
+<li>Copy and paste now behave the way they do in the Finder: Command-C
+copies, Command-V pastes a copy, and Command-Option-V moves. There is no
+longer a Cut command.</li>
+</ul>
+<h3 id="new-9">New</h3>
+<ul>
+<li>Files: Command-V sends what you copied in the Finder to the folder
+you are in. Files land in that folder; a folder is recreated on the NAS
+with its entire tree, empty subfolders included. Finder's hidden
+.DS_Store files are left out, and if an item on your Mac cannot be read,
+the transfer reports itself as incomplete rather than pretending
+everything went through.</li>
+<li>Files: an item can be dragged out of the list and dropped in the
+Finder. Nothing is downloaded until you actually drop it, and a folder
+arrives as a ZIP archive, exactly as it does with Download. Download
+remains the keyboard route and has not changed.</li>
+<li>Files: sending items to the NAS now accepts folders as well as
+files, and the options that appear before a transfer say how many files
+and how many folders are on their way.</li>
+</ul>
+<h3 id="changes-4">Changes</h3>
+<ul>
+<li>Files: Cut is gone. Command-C copies, Command-V pastes a copy, and
+Command-Option-V moves what you copied — the choice happens when you
+paste, as in the Finder. The Files menu now offers Move Here next to
+Paste, and the confirmation states what a move will do. Moving files
+that come from your Mac is refused, with an explanation: it would mean
+deleting your originals.</li>
+<li>Updates: the app now looks for a new version at every launch.
+Sparkle's own schedule checks once a day at most, which left a tester a
+version behind whenever two builds went out on the same day. Nothing
+appears on screen unless an update is waiting, and the setting in the
+updates panel still decides whether the check happens at all.</li>
+<li>Updates: checking automatically is now the app's declared default
+instead of a preference written on your behalf at first launch — a
+preference you never chose, which also silenced Sparkle's own question
+about it. The updates panel remains the one place to change this.</li>
+</ul>
+<h3 id="requirements">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-11">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.10/dsmaccess-1.1-beta.10.zip">dsmaccess-1.1-beta.10.zip</a></p>
+<h2 id="v11-beta9-build-10--2026-07-23">v1.1-beta.9 (build 10) —
+2026-07-23</h2>
+<h3 id="highlights-15">Highlights</h3>
+<ul>
+<li>New USB Copy module: set up and run your USB copy tasks entirely
+from the app — the selectors in DSM's web interface are unusable with a
+screen reader, so this was until now a job for sighted help. Contributed
+by Ashley Cox.</li>
+<li>Files: sending files to the NAS works again. A DSM update had
+quietly broken every upload.</li>
+<li>DSM Access now has its own app icon, also designed by Ashley
+Cox.</li>
+</ul>
+<h3 id="new-10">New</h3>
+<ul>
+<li>USB Copy: see every task with its direction, folders, and current
+state; create import and export tasks with accessible folder choosers
+for the source and destination; choose the copy mode, version rotation,
+file filters, and schedule; run, cancel, enable, disable, or delete a
+task; read the package's log; adjust its general settings. Risky
+operations explain their consequence and ask first — a mirror task warns
+that it deletes from the destination, and deleting a task names it. The
+module appears only when the USB Copy package is installed on the
+NAS.</li>
+</ul>
+<h3 id="fixes-11">Fixes</h3>
+<ul>
+<li>Files: uploading a file ended in an error ever since the NAS moved
+to the latest DSM 7.4 update, which changed how DSM expects uploads to
+be sent. Uploads now follow the same convention as DSM's own File
+Station and work again — including the choice between replacing or
+skipping an existing file.</li>
+</ul>
+<h3 id="requirements-1">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-12">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.9/dsmaccess-1.1-beta.9.zip">dsmaccess-1.1-beta.9.zip</a></p>
+<h2 id="v11-beta8-build-9--2026-07-23">v1.1-beta.8 (build 9) —
+2026-07-23</h2>
+<h3 id="highlights-16">Highlights</h3>
+<ul>
+<li>The app now shows up in English when your Mac's language is neither
+French nor English — nothing to configure.</li>
+<li>Package Center: the switch between installed packages and the
+official catalog is now part of the screen itself, where VoiceOver finds
+it naturally.</li>
+</ul>
+<h3 id="fixes-12">Fixes</h3>
+<ul>
+<li>Package Center: the Installed / Official catalog switch lived in the
+window toolbar, an area VoiceOver treats separately without ever hinting
+that a choice exists there. The switch now sits at the top of the
+screen, in normal reading order, announced as a proper two-option
+choice.</li>
+<li>Package Center: with an account that has no administrator rights,
+the catalog tab showed a misleading "no matching packages" message. It
+now explains that DSM only provides the catalog to administrator
+accounts.</li>
+<li>Language: on a Mac set to a language the app doesn't ship
+(Hungarian, for example), the app appeared in French. It now appears in
+English, and picking a language for the app in System Settings works as
+expected.</li>
+<li>VoiceOver: the main lists now introduce themselves — "Files and
+folders", "Shared folders", "Users", "Groups", "File services",
+"Installed packages", "Pools, volumes, and disks" — instead of
+announcing an anonymous table. Rows in Shared Folders also announce
+their nature properly.</li>
+<li>VoiceOver: the Package Center switch no longer announces its name
+twice.</li>
+<li>Legibility: status and detail text across the app — package states,
+versions, disk health, log details, the summaries at the bottom of a
+screen — is now noticeably darker and meets the recommended contrast for
+small text, in both light and dark mode. A welcome change with low
+vision.</li>
+</ul>
+<h3 id="requirements-2">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-13">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.8/dsmaccess-1.1-beta.8.zip">dsmaccess-1.1-beta.8.zip</a></p>
+<h2 id="v11-beta7-build-8--2026-07-22">v1.1-beta.7 (build 8) —
+2026-07-22</h2>
+<h3 id="highlights-17">Highlights</h3>
+<ul>
+<li>Installing a package file (.spk) now works: it used to fail every
+time with a NAS error (code 101).</li>
+<li>The app now checks for its own updates at launch, and a new settings
+pane can install them automatically, with no dialog to answer.</li>
+</ul>
+<h3 id="new-11">New</h3>
+<ul>
+<li>Settings &gt; Updates: checking at launch is now on by default (you
+can turn it off), and a "Download and install automatically" option
+installs the new version when the app quits — no more answering a dialog
+for every update. The pane also shows the installed version and a
+check-now button.</li>
+</ul>
+<h3 id="fixes-13">Fixes</h3>
+<ul>
+<li>Packages: installing or updating a package from an .spk file you
+downloaded yourself now goes through, instead of failing right away with
+a NAS error (code 101). The app now talks to the Package Center exactly
+the way DSM itself does, verified on DSM 7.4.</li>
+</ul>
+<h3 id="requirements-3">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-14">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.7/dsmaccess-1.1-beta.7.zip">dsmaccess-1.1-beta.7.zip</a></p>
+<h2 id="v11-beta6-build-7--2026-07-21">v1.1-beta.6 (build 7) —
+2026-07-21</h2>
+<h3 id="highlights-18">Highlights</h3>
+<ul>
+<li>Connect with QuickConnect: enter your QuickConnect ID instead of an
+address and port, and the app finds the best route to your NAS by
+itself.</li>
+<li>The Package Center becomes a full module: browse the official
+Synology catalog and install, update, repair or uninstall packages
+without leaving the app — and package installs now work reliably on DSM
+7.4.</li>
+<li>Files gains the features that were still missing: detailed file
+information, advanced search, favorites, share link management, archive
+browsing and transfer progress.</li>
+<li>Creating users works again on DSM 7.4, and group members are counted
+correctly.</li>
+</ul>
+<h3 id="new-12">New</h3>
+<ul>
+<li>Sign in with QuickConnect: pick "QuickConnect" on the sign-in
+screen, enter your QuickConnect ID and your usual DSM account. The app
+prefers a direct, verified route to your NAS and only falls back to the
+Synology relay when needed — always over HTTPS. Note that QuickConnect
+has no official public interface, so Synology may change this service
+without notice.</li>
+<li>Packages: browse the official catalog, install a package with one
+action, or install a package file (.spk) you downloaded yourself.
+Updates, repairs and uninstalls are handled from the same list, with
+clear confirmations before anything runs.</li>
+<li>Packages: manage package sources and Package Center settings from
+the app.</li>
+<li>Files: see full details for any file or folder, search with advanced
+criteria (name, type, size, dates, owner), and manage your
+favorites.</li>
+<li>Files: create and manage share links, including passwords and expiry
+dates.</li>
+<li>Files: look inside an archive and extract only the items you
+need.</li>
+<li>Files: uploads and downloads now show their progress, and copy or
+move operations ask you before overwriting anything.</li>
+<li>A contact form in the Help menu lets you write to the developer
+directly from the app; occasional announcements may appear at
+launch.</li>
+</ul>
+<h3 id="fixes-14">Fixes</h3>
+<ul>
+<li>Accounts: creating a user on DSM 7.4 no longer fails with a
+permission error, group member counts are correct, and when something
+does go wrong the app now tells you instead of failing silently.</li>
+<li>Packages: installing or updating a package on DSM 7.4 no longer
+fails with a NAS error.</li>
+<li>VoiceOver: opening Files no longer announces "Empty folder" while
+the content is still loading — you now hear the real item count straight
+away.</li>
+<li>VoiceOver: if your session expires and the app reconnects
+automatically, a notice now explains that the operation in progress was
+interrupted, instead of returning you to the overview without a
+word.</li>
+</ul>
+<h3 id="thanks">Thanks</h3>
+<ul>
+<li>Thanks to Ashley Cox for the QuickConnect, File Station and Package
+Center work at the heart of this release.</li>
+</ul>
+<h3 id="requirements-4">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-15">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.6/dsmaccess-1.1-beta.6.zip">dsmaccess-1.1-beta.6.zip</a></p>
+<h2 id="v11-beta5-build-6--2026-07-19">v1.1-beta.5 (build 6) —
+2026-07-19</h2>
+<h3 id="highlights-19">Highlights</h3>
+<ul>
+<li>Fixes a sign-in problem introduced in beta.4: approving your NAS
+certificate now works, instead of the trust prompt coming back again and
+again.</li>
+</ul>
+<h3 id="fixes-15">Fixes</h3>
+<ul>
+<li>When macOS does not recognise your NAS certificate, approving it
+once now signs you in on the first try, and the choice is remembered for
+that server. In beta.4 the approval did not take, so the trust prompt
+kept reappearing and left you stuck on the sign-in screen.</li>
+</ul>
+<h3 id="thanks-1">Thanks</h3>
+<ul>
+<li>Thanks to Ashley Cox, who tracked this down and fixed it.</li>
+</ul>
+<h3 id="requirements-5">Requirements</h3>
+<ul>
+<li>macOS 14 (Sonoma) or later.</li>
+<li>A Synology NAS running DSM 7 on your local network.</li>
+</ul>
+<h3 id="download-16">Download</h3>
+<p><a
+href="https://github.com/math65/dsmaccess/releases/download/v1.1-beta.5/dsmaccess-1.1-beta.5.zip">dsmaccess-1.1-beta.5.zip</a></p>
+</body>
+</html>
