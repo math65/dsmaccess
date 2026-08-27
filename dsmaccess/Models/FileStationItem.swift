@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 /// Folder or file as described by File Station.
 struct FileStationItem: nonisolated Decodable, Equatable, Identifiable, Sendable {
@@ -236,18 +237,35 @@ extension FileStationItem {
         return supportedExtensions.contains((name as NSString).pathExtension.lowercased())
     }
 
-    /// Secondary line for a file: "2.3 MB · 12 Mar 2024" (nil for a folder).
-    var detailText: String? {
-        guard !isdir else { return nil }
-        var parts: [String] = []
-        if let size = additional?.size {
-            parts.append(size.formatted(.byteCount(style: .file)))
+    /// Written in a cell where no value applies, in the form the Finder uses in its own list.
+    /// It is shown and never spoken: read out on every folder row, a dash is pure noise, and an
+    /// absent size is better heard as silence.
+    static let absentValue = "--"
+
+    /// Value of the size column. A folder has no size of its own to show.
+    var sizeDescription: String {
+        guard !isdir, let size = additional?.size else { return Self.absentValue }
+        return size.formatted(.byteCount(style: .file))
+    }
+
+    /// Value of the modification date column.
+    var modificationDescription: String {
+        guard let mtime = additional?.time?.mtime else { return Self.absentValue }
+        return Date(timeIntervalSince1970: TimeInterval(mtime))
+            .formatted(date: .abbreviated, time: .shortened)
+    }
+
+    /// Value of the kind column, read from the file name rather than from DSM's `type`: that
+    /// field carries a raw identifier whose contract was never measured, where macOS names
+    /// the type in the user's own language.
+    var kindDescription: String {
+        if isdir { return String(localized: "common.value.folder") }
+        let fileExtension = (name as NSString).pathExtension
+        guard !fileExtension.isEmpty else { return String(localized: "common.value.file") }
+        guard let description = UTType(filenameExtension: fileExtension)?.localizedDescription else {
+            return fileExtension.localizedUppercase
         }
-        if let mtime = additional?.time?.mtime {
-            let date = Date(timeIntervalSince1970: TimeInterval(mtime))
-            parts.append(date.formatted(date: .abbreviated, time: .shortened))
-        }
-        return parts.isEmpty ? nil : parts.joined(separator: " · ")
+        return description.prefix(1).localizedUppercase + description.dropFirst()
     }
 
     /// Name of the file materialized on the Mac during a download or a drop into the Finder:
@@ -255,16 +273,6 @@ extension FileStationItem {
     /// `nonisolated`: read by the promise delegates outside the MainActor.
     nonisolated var promisedFileName: String {
         isdir ? "\(name).zip" : name
-    }
-
-    /// Full label read by VoiceOver: "photo, folder" or "a.jpg, file, 2.3 MB · 12 Mar 2024".
-    var accessibilityLabel: String {
-        let kind = isdir ? String(localized: "files.item.kind.folder") : String(localized: "files.item.kind.file")
-        var label = "\(name), \(kind)"
-        if let detail = detailText {
-            label += ", \(detail)"
-        }
-        return label
     }
 }
 

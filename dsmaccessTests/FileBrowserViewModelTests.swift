@@ -1,3 +1,4 @@
+import Foundation
 import Testing
 @testable import dsmaccess
 
@@ -49,6 +50,24 @@ struct FileBrowserViewModelTests {
         )
 
         #expect(existing.isEmpty)
+    }
+
+    /// The kind column sorts on the words it shows. Ordering on DSM's own `type` would file the
+    /// rows under an identifier that appears nowhere on screen, and folders stay on top whatever
+    /// the column: they are how the user moves, not data to compare.
+    @Test func sortsOnTheKindTheColumnShowsAndKeepsFoldersFirst() throws {
+        let decoder = JSONDecoder()
+        let items = try [
+            #"{"name":"archive.zzz1","path":"/a/archive.zzz1","isdir":false,"additional":{"type":"aaa"}}"#,
+            #"{"name":"notes.aaa1","path":"/a/notes.aaa1","isdir":false,"additional":{"type":"zzz"}}"#,
+            #"{"name":"photos","path":"/a/photos","isdir":true}"#,
+        ].map { try decoder.decode(FileStationItem.self, from: Data($0.utf8)) }
+
+        let ascending = FileBrowserViewModel.sorted(items, by: .kind, ascending: true)
+        let descending = FileBrowserViewModel.sorted(items, by: .kind, ascending: false)
+
+        #expect(ascending.map(\.name) == ["photos", "notes.aaa1", "archive.zzz1"])
+        #expect(descending.map(\.name) == ["photos", "archive.zzz1", "notes.aaa1"])
     }
 
     private func transfer(
