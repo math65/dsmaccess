@@ -208,25 +208,37 @@ final class FileBrowserViewModel {
     }
 
     var sortedItems: [FileStationItem] {
-        items.sorted { left, right in
-            if left.isdir != right.isdir {
-                return left.isdir && !right.isdir
+        Self.sorted(items, by: sortMode, ascending: sortAscending)
+    }
+
+    /// Folders first, then the chosen column. The kind is compared on the very text its column
+    /// shows — ordering on DSM's raw identifier would classify the rows by a word the user
+    /// never sees — and that text is computed once per item, because the system type lookup
+    /// behind it is too costly to repeat inside every comparison.
+    static func sorted(
+        _ items: [FileStationItem],
+        by mode: SortMode,
+        ascending: Bool
+    ) -> [FileStationItem] {
+        let rows = items.map { (item: $0, kind: mode == .kind ? $0.kindDescription : "") }
+        return rows.sorted { left, right in
+            if left.item.isdir != right.item.isdir {
+                return left.item.isdir
             }
             let result: ComparisonResult
-            switch sortMode {
+            switch mode {
             case .name:
-                result = left.name.localizedStandardCompare(right.name)
+                result = left.item.name.localizedStandardCompare(right.item.name)
             case .modificationDate:
-                result = compare(left.additional?.time?.mtime, right.additional?.time?.mtime)
+                result = compare(left.item.additional?.time?.mtime, right.item.additional?.time?.mtime)
             case .size:
-                result = compare(left.additional?.size, right.additional?.size)
+                result = compare(left.item.additional?.size, right.item.additional?.size)
             case .kind:
-                let leftKind = left.additional?.type ?? left.name.pathExtension
-                let rightKind = right.additional?.type ?? right.name.pathExtension
-                result = leftKind.localizedStandardCompare(rightKind)
+                result = left.kind.localizedStandardCompare(right.kind)
             }
-            return sortAscending ? result == .orderedAscending : result == .orderedDescending
+            return ascending ? result == .orderedAscending : result == .orderedDescending
         }
+        .map(\.item)
     }
 
     func loadCurrent() async {
@@ -1905,7 +1917,7 @@ final class FileBrowserViewModel {
         (error as? DSMError)?.errorDescription ?? error.localizedDescription
     }
 
-    private func compare<Value: Comparable>(_ left: Value?, _ right: Value?) -> ComparisonResult {
+    private static func compare<Value: Comparable>(_ left: Value?, _ right: Value?) -> ComparisonResult {
         switch (left, right) {
         case let (left?, right?) where left < right: .orderedAscending
         case let (left?, right?) where left > right: .orderedDescending

@@ -265,6 +265,8 @@ struct FileBrowserView: View {
             FileTableView(
                 items: vm.sortedItems,
                 selection: $selection,
+                sortMode: $vm.sortMode,
+                sortAscending: $vm.sortAscending,
                 focusRequestID: tableFocusRequestID,
                 actionAvailability: actionAvailability,
                 showsPath: vm.isShowingSearchResults,

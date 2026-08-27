@@ -89,6 +89,49 @@ struct FileStationModelsTests {
         #expect(!folder.supportsThumbnailPreview)
     }
 
+    /// The table reads these three values column by column: an absent one has to be a dash,
+    /// because an empty cell is heard as a value the row does not have.
+    @Test func describesTheColumnsOfARow() throws {
+        let decoder = JSONDecoder()
+        let file = try decoder.decode(
+            FileStationItem.self,
+            from: Data(
+                #"""
+                {
+                  "name": "rapport.pdf",
+                  "path": "/docs/rapport.pdf",
+                  "isdir": false,
+                  "additional": { "size": 4096, "time": { "mtime": 1710000000 } }
+                }
+                """#.utf8
+            )
+        )
+        let folder = try decoder.decode(
+            FileStationItem.self,
+            from: Data(#"{"name":"photos","path":"/photos","isdir":true,"additional":{"size":4096}}"#.utf8)
+        )
+        let unknown = try decoder.decode(
+            FileStationItem.self,
+            from: Data(#"{"name":"archive.zzz1","path":"/docs/archive.zzz1","isdir":false}"#.utf8)
+        )
+        let extensionless = try decoder.decode(
+            FileStationItem.self,
+            from: Data(#"{"name":"LISEZMOI","path":"/docs/LISEZMOI","isdir":false}"#.utf8)
+        )
+
+        #expect(file.sizeDescription != FileStationItem.absentValue)
+        #expect(file.modificationDescription != FileStationItem.absentValue)
+        // A folder carries the size of its own record on the volume, which is not the size of
+        // what it holds: showing it would answer a question nobody asked.
+        #expect(folder.sizeDescription == FileStationItem.absentValue)
+        #expect(folder.modificationDescription == FileStationItem.absentValue)
+        #expect(folder.kindDescription == String(localized: "common.value.folder"))
+        #expect(extensionless.kindDescription == String(localized: "common.value.file"))
+        // No system type answers for this extension: the extension itself is the only honest
+        // thing left to write.
+        #expect(unknown.kindDescription == "ZZZ1")
+    }
+
     @Test func buildsAllAdvancedSearchCriteria() throws {
         let start = Date(timeIntervalSince1970: 1_700_000_000)
         let end = Date(timeIntervalSince1970: 1_800_000_000)

@@ -87,7 +87,7 @@ struct FileInfoSheet: View {
 
                 Section("files.info.general.section") {
                     LabeledContent("common.column.name", value: item.name)
-                    LabeledContent("common.column.kind", value: kind)
+                    LabeledContent("common.column.kind", value: item.kindDescription)
                     if let size = item.additional?.size, !item.isdir {
                         LabeledContent("common.column.size") {
                             Text(size, format: .byteCount(style: .file, includesActualByteCount: true))
@@ -260,15 +260,6 @@ struct FileInfoSheet: View {
                 )
             }
         }
-    }
-
-    private var kind: String {
-        if item.isdir { return String(localized: "common.value.folder") }
-        if let type = item.additional?.type, !type.isEmpty { return type }
-        let pathExtension = (item.name as NSString).pathExtension
-        return pathExtension.isEmpty
-            ? String(localized: "common.value.file")
-            : pathExtension.uppercased()
     }
 
     private func accessList(for acl: FileStationItem.ACLInfo?) -> String? {

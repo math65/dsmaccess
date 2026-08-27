@@ -17347,38 +17347,6 @@
         }
       }
     },
-    "files.item.kind.file": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "file"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "fichier"
-          }
-        }
-      }
-    },
-    "files.item.kind.folder": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "folder"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "dossier"
-          }
-        }
-      }
-    },
     "files.menu.add_items": {
       "localizations": {
         "en": {

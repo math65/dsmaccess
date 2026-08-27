@@ -23,6 +23,8 @@ struct FileActionAvailability: Equatable {
 struct FileTableView: NSViewRepresentable {
     var items: [FileStationItem]
     @Binding var selection: Set<String>
+    @Binding var sortMode: FileBrowserViewModel.SortMode
+    @Binding var sortAscending: Bool
     var focusRequestID: Int
     var actionAvailability: FileActionAvailability
     var showsPath: Bool
@@ -41,11 +43,21 @@ struct FileTableView: NSViewRepresentable {
     var onMoveHere: () -> Void
     var makeDragProvider: (FileStationItem) -> NSFilePromiseProvider?
 
+    /// Displayed order. The kind comes right after the name so that a row read in one go still
+    /// says "photos, folder" before its measurements — the order the single-column table spoke.
+    private static let sortableColumns: [FileBrowserViewModel.SortMode] = [
+        .name, .kind, .size, .modificationDate,
+    ]
+
+    /// The location only carries information in search results, where two rows can come from
+    /// opposite ends of the NAS; elsewhere it repeats the folder the user is already in.
+    private static let pathColumnIdentifier = NSUserInterfaceItemIdentifier("path")
+
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeNSView(context: Context) -> NSScrollView {
         let table = KeyboardTableView()
-        table.headerView = nil
+        table.headerView = NSTableHeaderView()
         table.rowHeight = 28
         table.allowsMultipleSelection = true
         table.allowsEmptySelection = true
@@ -54,9 +66,36 @@ struct FileTableView: NSViewRepresentable {
         table.dataSource = context.coordinator
         table.delegate = context.coordinator
 
-        let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("name"))
-        column.resizingMask = .autoresizingMask
-        table.addTableColumn(column)
+        for mode in Self.sortableColumns {
+            let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier(mode.rawValue))
+            column.title = mode.title
+            column.sortDescriptorPrototype = NSSortDescriptor(key: mode.rawValue, ascending: true)
+            switch mode {
+            case .name:
+                column.width = 280
+                column.minWidth = 150
+                column.resizingMask = [.userResizingMask, .autoresizingMask]
+            case .kind:
+                column.width = 150
+                column.minWidth = 80
+            case .size:
+                column.width = 100
+                column.minWidth = 70
+                column.headerCell.alignment = .right
+            case .modificationDate:
+                column.width = 180
+                column.minWidth = 120
+            }
+            table.addTableColumn(column)
+        }
+
+        let pathColumn = NSTableColumn(identifier: Self.pathColumnIdentifier)
+        pathColumn.title = String(localized: "common.column.location")
+        pathColumn.width = 240
+        pathColumn.minWidth = 120
+        pathColumn.isHidden = !showsPath
+        table.addTableColumn(pathColumn)
+        context.coordinator.applySortDescriptor(to: table, mode: sortMode, ascending: sortAscending)
 
         table.onActivate = { [weak coordinator = context.coordinator] in coordinator?.activateSelection() }
         table.onGoUp = { [weak coordinator = context.coordinator] in coordinator?.parent.onGoUp() }
@@ -92,9 +131,20 @@ struct FileTableView: NSViewRepresentable {
         context.coordinator.parent = self
         guard let table = nsView.documentView as? KeyboardTableView else { return }
 
+        if let pathColumn = table.tableColumn(withIdentifier: Self.pathColumnIdentifier),
+           pathColumn.isHidden == showsPath {
+            pathColumn.isHidden = !showsPath
+        }
+        context.coordinator.applySortDescriptor(to: table, mode: sortMode, ascending: sortAscending)
+
         context.coordinator.isApplyingSelection = true
+        // The values the cells read, not the text they show: formatting every row on every
+        // update would put a byte count and a date formatter between each keystroke and the
+        // screen, for rows that are mostly off-screen.
         let currentRows = items.map {
-            "\(actionAvailability)|\(showsPath)|\($0.isdir)|\($0.path)|\($0.name)|\($0.detailText ?? "")"
+            let size = $0.additional?.size.map(String.init) ?? ""
+            let modified = $0.additional?.time?.mtime.map(String.init) ?? ""
+            return "\(actionAvailability)|\(showsPath)|\($0.isdir)|\($0.path)|\($0.name)|\(size)|\(modified)"
         }
         if context.coordinator.rowPresentationKeys != currentRows {
             table.reloadData()
@@ -126,6 +176,7 @@ struct FileTableView: NSViewRepresentable {
         var parent: FileTableView
         weak var tableView: NSTableView?
         var isApplyingSelection = false
+        var isApplyingSortDescriptor = false
         var rowPresentationKeys = [String]()
         var lastFocusRequestID = 0
 
@@ -134,12 +185,46 @@ struct FileTableView: NSViewRepresentable {
         func numberOfRows(in tableView: NSTableView) -> Int { parent.items.count }
 
         func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-            guard parent.items.indices.contains(row) else { return nil }
+            guard parent.items.indices.contains(row), let tableColumn else { return nil }
             let item = parent.items[row]
-            let identifier = NSUserInterfaceItemIdentifier("FileCell")
-            let cell = (tableView.makeView(withIdentifier: identifier, owner: self) as? FileCellView)
-                ?? FileCellView(identifier: identifier)
-            cell.configure(with: item, showsPath: parent.showsPath)
+            switch FileBrowserViewModel.SortMode(rawValue: tableColumn.identifier.rawValue) {
+            case .name:
+                let identifier = NSUserInterfaceItemIdentifier("FileNameCell")
+                let cell = (tableView.makeView(withIdentifier: identifier, owner: self) as? FileNameCellView)
+                    ?? FileNameCellView(identifier: identifier)
+                cell.configure(with: item)
+                configureActions(on: cell, for: item)
+                return cell
+            case .kind:
+                return valueCell(in: tableView, for: item, value: item.kindDescription)
+            case .size:
+                return valueCell(in: tableView, for: item, value: item.sizeDescription, alignment: .right)
+            case .modificationDate:
+                return valueCell(in: tableView, for: item, value: item.modificationDescription)
+            case nil:
+                // The path column: its end identifies the row, so it is the head that is cut.
+                return valueCell(in: tableView, for: item, value: item.path, truncatesHead: true)
+            }
+        }
+
+        private func valueCell(
+            in tableView: NSTableView,
+            for item: FileStationItem,
+            value: String,
+            alignment: NSTextAlignment = .natural,
+            truncatesHead: Bool = false
+        ) -> NSView {
+            let identifier = NSUserInterfaceItemIdentifier("FileValueCell")
+            let cell = (tableView.makeView(withIdentifier: identifier, owner: self) as? FileValueCellView)
+                ?? FileValueCellView(identifier: identifier)
+            cell.configure(value: value, alignment: alignment, truncatesHead: truncatesHead)
+            configureActions(on: cell, for: item)
+            return cell
+        }
+
+        /// Every cell of a row carries the row's actions: the VoiceOver cursor stops on the
+        /// column it was reading, and finding no action there would make them look gone.
+        private func configureActions(on cell: FileRowCellView, for item: FileStationItem) {
             cell.actionAvailability = parent.actionAvailability
             cell.canExtractSelectedItem = parent.actionAvailability.canExtract && parent.canExtract(item)
             cell.onPress = { [weak self] in self?.parent.onActivate(item) }
@@ -151,7 +236,30 @@ struct FileTableView: NSViewRepresentable {
             cell.onCompress = { [weak self] in self?.parent.onCompress([item]) }
             cell.onExtract = { [weak self] in self?.parent.onExtract(item) }
             cell.onShowInfo = { [weak self] in self?.parent.onShowInfo(item) }
-            return cell
+        }
+
+        /// Written on the table only when it differs, and behind a flag: AppKit answers a
+        /// programmatic assignment with the same delegate callback a header click sends, which
+        /// would write the sort state back while SwiftUI is drawing it.
+        func applySortDescriptor(
+            to table: NSTableView,
+            mode: FileBrowserViewModel.SortMode,
+            ascending: Bool
+        ) {
+            let current = table.sortDescriptors.first
+            guard current?.key != mode.rawValue || current?.ascending != ascending else { return }
+            isApplyingSortDescriptor = true
+            table.sortDescriptors = [NSSortDescriptor(key: mode.rawValue, ascending: ascending)]
+            isApplyingSortDescriptor = false
+        }
+
+        func tableView(_ tableView: NSTableView, sortDescriptorsDidChange oldDescriptors: [NSSortDescriptor]) {
+            guard !isApplyingSortDescriptor,
+                  let descriptor = tableView.sortDescriptors.first,
+                  let key = descriptor.key,
+                  let mode = FileBrowserViewModel.SortMode(rawValue: key) else { return }
+            if parent.sortMode != mode { parent.sortMode = mode }
+            if parent.sortAscending != descriptor.ascending { parent.sortAscending = descriptor.ascending }
         }
 
         func tableView(
@@ -419,10 +527,10 @@ final class KeyboardTableView: NSTableView {
     }
 }
 
-final class FileCellView: NSTableCellView {
-    private let iconView = NSImageView()
-    private let nameField = NSTextField(labelWithString: "")
-    private let detailField = NSTextField(labelWithString: "")
+/// Shared base for the cells of a File Station row. Each column is its own accessibility
+/// element — a row folded into one element buries the values the columns exist to expose —
+/// so the row's actions have to travel with every cell.
+class FileRowCellView: NSTableCellView {
     var onPress: (() -> Void)?
     var onDownload: (() -> Void)?
     var onRename: (() -> Void)?
@@ -442,58 +550,6 @@ final class FileCellView: NSTableCellView {
         canExtract: false
     )
     var canExtractSelectedItem = false
-
-    init(identifier: NSUserInterfaceItemIdentifier) {
-        super.init(frame: .zero)
-        self.identifier = identifier
-        setup()
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) { fatalError("init(coder:) non supporté") }
-
-    private func setup() {
-        iconView.translatesAutoresizingMaskIntoConstraints = false
-        nameField.translatesAutoresizingMaskIntoConstraints = false
-        detailField.translatesAutoresizingMaskIntoConstraints = false
-        nameField.lineBreakMode = .byTruncatingTail
-        nameField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        detailField.textColor = .secondaryLabelColor
-        detailField.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
-        detailField.alignment = .right
-        detailField.lineBreakMode = .byTruncatingHead
-        detailField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        addSubview(iconView)
-        addSubview(nameField)
-        addSubview(detailField)
-        imageView = iconView
-        textField = nameField
-
-        NSLayoutConstraint.activate([
-            iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-            iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            iconView.widthAnchor.constraint(equalToConstant: 18),
-            iconView.heightAnchor.constraint(equalToConstant: 18),
-            nameField.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 6),
-            nameField.centerYAnchor.constraint(equalTo: centerYAnchor),
-            detailField.leadingAnchor.constraint(greaterThanOrEqualTo: nameField.trailingAnchor, constant: 12),
-            detailField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
-            detailField.centerYAnchor.constraint(equalTo: centerYAnchor),
-            detailField.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, multiplier: 0.55),
-        ])
-    }
-
-    func configure(with item: FileStationItem, showsPath: Bool) {
-        iconView.image = NSImage(
-            systemSymbolName: item.isdir ? "folder" : "doc",
-            accessibilityDescription: nil
-        )
-        iconView.contentTintColor = item.isdir ? .controlAccentColor : .secondaryLabelColor
-        nameField.stringValue = item.name
-        detailField.stringValue = showsPath ? item.path : item.detailText ?? ""
-        setAccessibilityLabel(showsPath ? "\(item.accessibilityLabel), \(item.path)" : item.accessibilityLabel)
-    }
 
     override func accessibilityPerformPress() -> Bool {
         onPress?()
@@ -556,5 +612,90 @@ final class FileCellView: NSTableCellView {
             handler()
             return true
         })
+    }
+}
+
+final class FileNameCellView: FileRowCellView {
+    private let iconView = NSImageView()
+    private let nameField = NSTextField(labelWithString: "")
+
+    init(identifier: NSUserInterfaceItemIdentifier) {
+        super.init(frame: .zero)
+        self.identifier = identifier
+        setup()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) non supporté") }
+
+    private func setup() {
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        nameField.translatesAutoresizingMaskIntoConstraints = false
+        nameField.lineBreakMode = .byTruncatingTail
+        nameField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        // The icon only doubles the kind column; announcing it would repeat that word.
+        iconView.setAccessibilityElement(false)
+
+        addSubview(iconView)
+        addSubview(nameField)
+        imageView = iconView
+        textField = nameField
+
+        NSLayoutConstraint.activate([
+            iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 18),
+            iconView.heightAnchor.constraint(equalToConstant: 18),
+            nameField.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 6),
+            nameField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
+            nameField.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+    }
+
+    func configure(with item: FileStationItem) {
+        iconView.image = NSImage(
+            systemSymbolName: item.isdir ? "folder" : "doc",
+            accessibilityDescription: nil
+        )
+        iconView.contentTintColor = item.isdir ? .controlAccentColor : .secondaryLabelColor
+        nameField.stringValue = item.name
+        setAccessibilityLabel(item.name)
+    }
+}
+
+final class FileValueCellView: FileRowCellView {
+    private let valueField = NSTextField(labelWithString: "")
+
+    init(identifier: NSUserInterfaceItemIdentifier) {
+        super.init(frame: .zero)
+        self.identifier = identifier
+        setup()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) non supporté") }
+
+    private func setup() {
+        valueField.translatesAutoresizingMaskIntoConstraints = false
+        valueField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        // The cell speaks for its column; leaving the field addressable too would read the
+        // value twice, and would put the dash back on a cell meant to stay silent.
+        valueField.setAccessibilityElement(false)
+
+        addSubview(valueField)
+        textField = valueField
+
+        NSLayoutConstraint.activate([
+            valueField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            valueField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
+            valueField.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+    }
+
+    func configure(value: String, alignment: NSTextAlignment, truncatesHead: Bool) {
+        valueField.stringValue = value
+        valueField.alignment = alignment
+        valueField.lineBreakMode = truncatesHead ? .byTruncatingHead : .byTruncatingTail
+        setAccessibilityLabel(value == FileStationItem.absentValue ? "" : value)
     }
 }
