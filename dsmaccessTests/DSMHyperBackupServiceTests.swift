@@ -447,6 +447,37 @@ struct DSMHyperBackupServiceTests {
         return DSMHyperBackupService(transport: transport)
     }
 
+    /// The restore browser reads these values column by column. A missing one is nil: how an
+    /// absence looks, and whether it is spoken, belongs to the cell that draws it — a condition
+    /// column would otherwise say a dash on every healthy row.
+    @Test func describesTheColumnsOfABackupEntry() throws {
+        let decoder = JSONDecoder()
+        let file = try decoder.decode(
+            HyperBackupEntry.self,
+            from: Data(
+                #"{"name":"rapport.pdf","path":"Test/rapport.pdf","type":"File","size":4096,"mtime":1710000000}"#.utf8
+            )
+        )
+        let folder = try decoder.decode(
+            HyperBackupEntry.self,
+            from: Data(#"{"name":"Test","path":"Test","type":"Folder","size":4096,"mtime":1710000000}"#.utf8)
+        )
+        let damaged = try decoder.decode(
+            HyperBackupEntry.self,
+            from: Data(#"{"name":"casse.txt","path":"Test/casse.txt","type":"File","is_bad":true}"#.utf8)
+        )
+
+        #expect(file.sizeDescription != nil)
+        #expect(file.modificationDescription != nil)
+        #expect(file.warningDescription == nil)
+        // A folder's own record size says nothing about what it holds.
+        #expect(folder.sizeDescription == nil)
+        #expect(folder.modificationDescription != nil)
+        #expect(damaged.sizeDescription == nil)
+        #expect(damaged.modificationDescription == nil)
+        #expect(damaged.warningDescription == String(localized: "hyper_backup.restore.condition.damaged"))
+    }
+
     private func query(from request: URLRequest) throws -> [String: String] {
         let url = try #require(request.url)
         let items = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)

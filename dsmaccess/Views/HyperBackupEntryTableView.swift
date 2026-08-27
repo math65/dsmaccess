@@ -12,6 +12,8 @@ import SwiftUI
 struct HyperBackupEntryTableView: NSViewRepresentable {
     var entries: [HyperBackupEntry]
     @Binding var selection: Set<String>
+    @Binding var sortMode: HyperBackupRestoreViewModel.SortMode
+    @Binding var sortAscending: Bool
     var focusRequestID: Int
     var isRestoring: Bool
     var isDownloading: Bool
@@ -23,11 +25,59 @@ struct HyperBackupEntryTableView: NSViewRepresentable {
     var onGoUp: () -> Void
     var onGoToRoot: () -> Void
 
+    /// Displayed order. The kind comes right after the name so that a row read in one go says
+    /// "documents, folder" before its measurements. The condition closes the row: it is empty
+    /// on everything DSM reports as healthy.
+    private static let sortableColumns: [HyperBackupRestoreViewModel.SortMode] = [
+        .name, .size, .modificationDate,
+    ]
+
+    private static let kindColumnIdentifier = NSUserInterfaceItemIdentifier("kind")
+    private static let conditionColumnIdentifier = NSUserInterfaceItemIdentifier("condition")
+
+    /// The kind and the condition carry no sort: a folder always precedes a file whatever the
+    /// axis, and DSM reports a condition on a handful of rows at most.
+    private static func makeColumns() -> [NSTableColumn] {
+        var columns = [NSTableColumn]()
+        for mode in sortableColumns {
+            let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier(mode.rawValue))
+            column.title = mode.title
+            column.sortDescriptorPrototype = NSSortDescriptor(key: mode.rawValue, ascending: true)
+            switch mode {
+            case .name:
+                column.width = 280
+                column.minWidth = 150
+                column.resizingMask = [.userResizingMask, .autoresizingMask]
+            case .size:
+                column.width = 100
+                column.minWidth = 70
+                column.headerCell.alignment = .right
+            case .modificationDate:
+                column.width = 180
+                column.minWidth = 120
+            }
+            columns.append(column)
+        }
+
+        let kind = NSTableColumn(identifier: kindColumnIdentifier)
+        kind.title = String(localized: "common.column.kind")
+        kind.width = 120
+        kind.minWidth = 80
+        columns.insert(kind, at: 1)
+
+        let condition = NSTableColumn(identifier: conditionColumnIdentifier)
+        condition.title = String(localized: "common.column.state")
+        condition.width = 200
+        condition.minWidth = 100
+        columns.append(condition)
+        return columns
+    }
+
     func makeCoordinator() -> Coordinator { Coordinator(self) }
 
     func makeNSView(context: Context) -> NSScrollView {
         let table = KeyboardTableView()
-        table.headerView = nil
+        table.headerView = NSTableHeaderView()
         table.rowHeight = 28
         table.allowsMultipleSelection = true
         table.allowsEmptySelection = true
@@ -36,9 +86,10 @@ struct HyperBackupEntryTableView: NSViewRepresentable {
         table.dataSource = context.coordinator
         table.delegate = context.coordinator
 
-        let column = NSTableColumn(identifier: NSUserInterfaceItemIdentifier("name"))
-        column.resizingMask = .autoresizingMask
-        table.addTableColumn(column)
+        for column in Self.makeColumns() {
+            table.addTableColumn(column)
+        }
+        context.coordinator.applySortDescriptor(to: table, mode: sortMode, ascending: sortAscending)
 
         table.onActivate = { [weak coordinator = context.coordinator] in coordinator?.activateSelection() }
         table.onGoUp = { [weak coordinator = context.coordinator] in coordinator?.parent.onGoUp() }
@@ -65,7 +116,10 @@ struct HyperBackupEntryTableView: NSViewRepresentable {
 
         context.coordinator.isApplyingSelection = true
         let currentRows = entries.map {
-            "\(isRestoring)|\(isDownloading)|\($0.isFolder)|\($0.path)|\($0.name)|\($0.detailText ?? "")"
+            let size = $0.size.map(String.init) ?? ""
+            let modified = $0.modificationTimestamp.map(String.init) ?? ""
+            return "\(isRestoring)|\(isDownloading)|\($0.isFolder)|\($0.path)|\($0.name)"
+                + "|\(size)|\(modified)|\($0.warningDescription ?? "")"
         }
         if context.coordinator.rowPresentationKeys != currentRows {
             table.reloadData()
@@ -98,6 +152,7 @@ struct HyperBackupEntryTableView: NSViewRepresentable {
         var parent: HyperBackupEntryTableView
         weak var tableView: NSTableView?
         var isApplyingSelection = false
+        var isApplyingSortDescriptor = false
         var rowPresentationKeys = [String]()
         var lastFocusRequestID = 0
 
@@ -106,12 +161,46 @@ struct HyperBackupEntryTableView: NSViewRepresentable {
         func numberOfRows(in tableView: NSTableView) -> Int { parent.entries.count }
 
         func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-            guard parent.entries.indices.contains(row) else { return nil }
+            guard parent.entries.indices.contains(row), let tableColumn else { return nil }
             let entry = parent.entries[row]
-            let identifier = NSUserInterfaceItemIdentifier("HyperBackupEntryCell")
-            let cell = (tableView.makeView(withIdentifier: identifier, owner: self) as? HyperBackupEntryCellView)
-                ?? HyperBackupEntryCellView(identifier: identifier)
-            cell.configure(with: entry)
+            switch tableColumn.identifier {
+            case NSUserInterfaceItemIdentifier(HyperBackupRestoreViewModel.SortMode.name.rawValue):
+                let identifier = NSUserInterfaceItemIdentifier("HyperBackupNameCell")
+                let cell = (tableView.makeView(withIdentifier: identifier, owner: self) as? HyperBackupNameCellView)
+                    ?? HyperBackupNameCellView(identifier: identifier)
+                cell.configure(with: entry)
+                configureActions(on: cell, for: entry)
+                return cell
+            case NSUserInterfaceItemIdentifier(HyperBackupRestoreViewModel.SortMode.size.rawValue):
+                return valueCell(in: tableView, for: entry, value: entry.sizeDescription, alignment: .right)
+            case NSUserInterfaceItemIdentifier(HyperBackupRestoreViewModel.SortMode.modificationDate.rawValue):
+                return valueCell(in: tableView, for: entry, value: entry.modificationDescription)
+            case HyperBackupEntryTableView.kindColumnIdentifier:
+                return valueCell(in: tableView, for: entry, value: entry.kindDescription)
+            case HyperBackupEntryTableView.conditionColumnIdentifier:
+                return valueCell(in: tableView, for: entry, value: entry.warningDescription)
+            default:
+                return nil
+            }
+        }
+
+        private func valueCell(
+            in tableView: NSTableView,
+            for entry: HyperBackupEntry,
+            value: String?,
+            alignment: NSTextAlignment = .natural
+        ) -> NSView {
+            let identifier = NSUserInterfaceItemIdentifier("HyperBackupValueCell")
+            let cell = (tableView.makeView(withIdentifier: identifier, owner: self) as? HyperBackupValueCellView)
+                ?? HyperBackupValueCellView(identifier: identifier)
+            cell.configure(value: value, alignment: alignment)
+            configureActions(on: cell, for: entry)
+            return cell
+        }
+
+        /// Every cell of a row carries the row's actions: the VoiceOver cursor stops on the
+        /// column it was reading, and finding no action there would make them look gone.
+        private func configureActions(on cell: HyperBackupRowCellView, for entry: HyperBackupEntry) {
             cell.canRestore = !parent.isRestoring
             cell.canDownload = !entry.isFolder && !entry.isDamaged && !parent.isDownloading
             cell.onPress = { [weak self] in self?.activate(entry) }
@@ -119,7 +208,30 @@ struct HyperBackupEntryTableView: NSViewRepresentable {
             cell.onRestoreCopy = { [weak self] in self?.parent.onRestoreCopy([entry]) }
             cell.onRestoreInPlace = { [weak self] in self?.parent.onRestoreInPlace([entry]) }
             cell.onDownload = { [weak self] in self?.parent.onDownload(entry) }
-            return cell
+        }
+
+        /// Written on the table only when it differs, and behind a flag: AppKit answers a
+        /// programmatic assignment with the same delegate callback a header click sends, which
+        /// would write the sort state back while SwiftUI is drawing it.
+        func applySortDescriptor(
+            to table: NSTableView,
+            mode: HyperBackupRestoreViewModel.SortMode,
+            ascending: Bool
+        ) {
+            let current = table.sortDescriptors.first
+            guard current?.key != mode.rawValue || current?.ascending != ascending else { return }
+            isApplyingSortDescriptor = true
+            table.sortDescriptors = [NSSortDescriptor(key: mode.rawValue, ascending: ascending)]
+            isApplyingSortDescriptor = false
+        }
+
+        func tableView(_ tableView: NSTableView, sortDescriptorsDidChange oldDescriptors: [NSSortDescriptor]) {
+            guard !isApplyingSortDescriptor,
+                  let descriptor = tableView.sortDescriptors.first,
+                  let key = descriptor.key,
+                  let mode = HyperBackupRestoreViewModel.SortMode(rawValue: key) else { return }
+            if parent.sortMode != mode { parent.sortMode = mode }
+            if parent.sortAscending != descriptor.ascending { parent.sortAscending = descriptor.ascending }
         }
 
         func tableViewSelectionDidChange(_ notification: Notification) {
@@ -276,10 +388,9 @@ private func makeEntryContextMenu(
     return menu
 }
 
-final class HyperBackupEntryCellView: NSTableCellView {
-    private let iconView = NSImageView()
-    private let nameField = NSTextField(labelWithString: "")
-    private let detailField = NSTextField(labelWithString: "")
+/// Shared base for the cells of a backup entry. Each column is its own accessibility element,
+/// so the row's actions have to travel with every cell.
+class HyperBackupRowCellView: NSTableCellView {
     /// Same double-click gesture as the table: a folder opens, a file downloads.
     var onPress: (() -> Void)?
     /// Nil for a file, so the menu's "Open" stays disabled instead of downloading.
@@ -289,62 +400,6 @@ final class HyperBackupEntryCellView: NSTableCellView {
     var onDownload: (() -> Void)?
     var canRestore = false
     var canDownload = false
-
-    init(identifier: NSUserInterfaceItemIdentifier) {
-        super.init(frame: .zero)
-        self.identifier = identifier
-        setup()
-    }
-
-    @available(*, unavailable)
-    required init?(coder: NSCoder) { fatalError("init(coder:) non supporté") }
-
-    private func setup() {
-        iconView.translatesAutoresizingMaskIntoConstraints = false
-        nameField.translatesAutoresizingMaskIntoConstraints = false
-        detailField.translatesAutoresizingMaskIntoConstraints = false
-        nameField.lineBreakMode = .byTruncatingTail
-        nameField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-        detailField.textColor = .secondaryLabelColor
-        detailField.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
-        detailField.alignment = .right
-        detailField.lineBreakMode = .byTruncatingHead
-        detailField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
-
-        addSubview(iconView)
-        addSubview(nameField)
-        addSubview(detailField)
-        imageView = iconView
-        textField = nameField
-
-        NSLayoutConstraint.activate([
-            iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
-            iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
-            iconView.widthAnchor.constraint(equalToConstant: 18),
-            iconView.heightAnchor.constraint(equalToConstant: 18),
-            nameField.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 6),
-            nameField.centerYAnchor.constraint(equalTo: centerYAnchor),
-            detailField.leadingAnchor.constraint(greaterThanOrEqualTo: nameField.trailingAnchor, constant: 12),
-            detailField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
-            detailField.centerYAnchor.constraint(equalTo: centerYAnchor),
-            detailField.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, multiplier: 0.55),
-        ])
-    }
-
-    func configure(with entry: HyperBackupEntry) {
-        // The warning word travels in the detail text; the icon only doubles it.
-        let warns = entry.warningDescription != nil
-        iconView.image = NSImage(
-            systemSymbolName: warns ? "exclamationmark.triangle" : (entry.isFolder ? "folder" : "doc"),
-            accessibilityDescription: nil
-        )
-        iconView.contentTintColor = warns
-            ? .systemOrange
-            : (entry.isFolder ? .controlAccentColor : .secondaryLabelColor)
-        nameField.stringValue = entry.name
-        detailField.stringValue = entry.detailText ?? ""
-        setAccessibilityLabel(entry.accessibilityLabel)
-    }
 
     override func accessibilityPerformPress() -> Bool {
         onPress?()
@@ -390,5 +445,95 @@ final class HyperBackupEntryCellView: NSTableCellView {
             handler()
             return true
         })
+    }
+}
+
+final class HyperBackupNameCellView: HyperBackupRowCellView {
+    private let iconView = NSImageView()
+    private let nameField = NSTextField(labelWithString: "")
+
+    init(identifier: NSUserInterfaceItemIdentifier) {
+        super.init(frame: .zero)
+        self.identifier = identifier
+        setup()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) non supporté") }
+
+    private func setup() {
+        iconView.translatesAutoresizingMaskIntoConstraints = false
+        nameField.translatesAutoresizingMaskIntoConstraints = false
+        nameField.lineBreakMode = .byTruncatingTail
+        nameField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        // The icon only doubles the kind and condition columns; announcing it would repeat them.
+        iconView.setAccessibilityElement(false)
+
+        addSubview(iconView)
+        addSubview(nameField)
+        imageView = iconView
+        textField = nameField
+
+        NSLayoutConstraint.activate([
+            iconView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            iconView.centerYAnchor.constraint(equalTo: centerYAnchor),
+            iconView.widthAnchor.constraint(equalToConstant: 18),
+            iconView.heightAnchor.constraint(equalToConstant: 18),
+            nameField.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 6),
+            nameField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
+            nameField.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+    }
+
+    func configure(with entry: HyperBackupEntry) {
+        // The warning word is written in the condition column; the icon only doubles it.
+        let warns = entry.warningDescription != nil
+        iconView.image = NSImage(
+            systemSymbolName: warns ? "exclamationmark.triangle" : (entry.isFolder ? "folder" : "doc"),
+            accessibilityDescription: nil
+        )
+        iconView.contentTintColor = warns
+            ? .systemOrange
+            : (entry.isFolder ? .controlAccentColor : .secondaryLabelColor)
+        nameField.stringValue = entry.name
+        setAccessibilityLabel(entry.name)
+    }
+}
+
+final class HyperBackupValueCellView: HyperBackupRowCellView {
+    private let valueField = NSTextField(labelWithString: "")
+
+    init(identifier: NSUserInterfaceItemIdentifier) {
+        super.init(frame: .zero)
+        self.identifier = identifier
+        setup()
+    }
+
+    @available(*, unavailable)
+    required init?(coder: NSCoder) { fatalError("init(coder:) non supporté") }
+
+    private func setup() {
+        valueField.translatesAutoresizingMaskIntoConstraints = false
+        valueField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        // The cell speaks for its column; leaving the field addressable too would read the
+        // value twice, and would put the placeholder back on a cell meant to stay silent.
+        valueField.setAccessibilityElement(false)
+
+        addSubview(valueField)
+        textField = valueField
+
+        NSLayoutConstraint.activate([
+            valueField.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 4),
+            valueField.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -6),
+            valueField.centerYAnchor.constraint(equalTo: centerYAnchor),
+        ])
+    }
+
+    /// A nil value is written as the Finder's placeholder and left unspoken: a condition column
+    /// empty on every healthy row would otherwise say a dash on each one.
+    func configure(value: String?, alignment: NSTextAlignment) {
+        valueField.stringValue = value ?? TableValueText.absentValue
+        valueField.alignment = alignment
+        setAccessibilityLabel(value ?? "")
     }
 }

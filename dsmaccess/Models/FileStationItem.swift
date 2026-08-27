@@ -237,20 +237,16 @@ extension FileStationItem {
         return supportedExtensions.contains((name as NSString).pathExtension.lowercased())
     }
 
-    /// Written in a cell where no value applies, in the form the Finder uses in its own list.
-    /// It is shown and never spoken: read out on every folder row, a dash is pure noise, and an
-    /// absent size is better heard as silence.
-    static let absentValue = "--"
-
-    /// Value of the size column. A folder has no size of its own to show.
-    var sizeDescription: String {
-        guard !isdir, let size = additional?.size else { return Self.absentValue }
+    /// Value of the size column, nil for a folder: it has no size of its own to show. The cell
+    /// turns that absence into the Finder's placeholder, and keeps it silent.
+    var sizeDescription: String? {
+        guard !isdir, let size = additional?.size else { return nil }
         return size.formatted(.byteCount(style: .file))
     }
 
     /// Value of the modification date column.
-    var modificationDescription: String {
-        guard let mtime = additional?.time?.mtime else { return Self.absentValue }
+    var modificationDescription: String? {
+        guard let mtime = additional?.time?.mtime else { return nil }
         return Date(timeIntervalSince1970: TimeInterval(mtime))
             .formatted(date: .abbreviated, time: .shortened)
     }

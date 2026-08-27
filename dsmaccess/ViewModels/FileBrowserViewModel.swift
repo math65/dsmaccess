@@ -203,6 +203,12 @@ final class FileBrowserViewModel {
         }
     }
 
+    /// What an archive's code page starts on: the NAS's own, when it announces one this app
+    /// knows. English is the fallback rather than the language of whoever wrote the app.
+    var defaultArchiveCodepage: FileStationArchiveCodepage {
+        capabilities?.information?.archiveCodepage ?? .english
+    }
+
     func supports(_ feature: FileStationFeature) -> Bool {
         capabilities?.supports(feature) == true
     }

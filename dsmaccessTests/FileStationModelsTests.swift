@@ -89,8 +89,8 @@ struct FileStationModelsTests {
         #expect(!folder.supportsThumbnailPreview)
     }
 
-    /// The table reads these three values column by column: an absent one has to be a dash,
-    /// because an empty cell is heard as a value the row does not have.
+    /// The table reads these three values column by column. An absent one is nil here: what a
+    /// missing value looks like, and whether it is spoken, belongs to the cell that draws it.
     @Test func describesTheColumnsOfARow() throws {
         let decoder = JSONDecoder()
         let file = try decoder.decode(
@@ -119,17 +119,43 @@ struct FileStationModelsTests {
             from: Data(#"{"name":"LISEZMOI","path":"/docs/LISEZMOI","isdir":false}"#.utf8)
         )
 
-        #expect(file.sizeDescription != FileStationItem.absentValue)
-        #expect(file.modificationDescription != FileStationItem.absentValue)
+        #expect(file.sizeDescription != nil)
+        #expect(file.modificationDescription != nil)
         // A folder carries the size of its own record on the volume, which is not the size of
         // what it holds: showing it would answer a question nobody asked.
-        #expect(folder.sizeDescription == FileStationItem.absentValue)
-        #expect(folder.modificationDescription == FileStationItem.absentValue)
+        #expect(folder.sizeDescription == nil)
+        #expect(folder.modificationDescription == nil)
         #expect(folder.kindDescription == String(localized: "common.value.folder"))
         #expect(extensionless.kindDescription == String(localized: "common.value.file"))
         // No system type answers for this extension: the extension itself is the only honest
         // thing left to write.
         #expect(unknown.kindDescription == "ZZZ1")
+    }
+
+    /// Measured on DSM 7.4.1: File Station's own information call answers `system_codepage` in
+    /// the same three-letter vocabulary the archive parameter takes, so an archive can start on
+    /// the NAS's code page instead of the one the app was written in.
+    @Test func readsTheCodePageTheNASAnnounces() throws {
+        let decoder = JSONDecoder()
+        let french = try decoder.decode(
+            FileStationInfo.self,
+            from: Data(
+                #"{"hostname":"nas","is_manager":true,"support_sharing":true,"support_virtual_protocol":"cifs,nfs","system_codepage":"fre"}"#.utf8
+            )
+        )
+        let unknown = try decoder.decode(
+            FileStationInfo.self,
+            from: Data(#"{"support_virtual_protocol":"cifs","system_codepage":"zzz"}"#.utf8)
+        )
+        let silent = try decoder.decode(
+            FileStationInfo.self,
+            from: Data(#"{"support_virtual_protocol":"cifs"}"#.utf8)
+        )
+
+        #expect(french.archiveCodepage == .french)
+        // A code page DSM offers and this app does not list must not resolve to a neighbour.
+        #expect(unknown.archiveCodepage == nil)
+        #expect(silent.archiveCodepage == nil)
     }
 
     @Test func buildsAllAdvancedSearchCriteria() throws {

@@ -90,6 +90,8 @@ struct HyperBackupRestoreSheet: View {
             HyperBackupEntryTableView(
                 entries: viewModel.sortedEntries,
                 selection: $selection,
+                sortMode: $viewModel.sortMode,
+                sortAscending: $viewModel.sortAscending,
                 focusRequestID: tableFocusRequestID,
                 isRestoring: viewModel.isRestoring,
                 isDownloading: viewModel.isDownloading,
