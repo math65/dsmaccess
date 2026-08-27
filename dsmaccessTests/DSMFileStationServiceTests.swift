@@ -607,6 +607,29 @@ struct DSMFileStationServiceTests {
         #expect(try query(from: requests[5])["method"] == "clear_invalid")
     }
 
+    /// Measured on the DSM web client: a deletion is started with `accurate_progress`, which is
+    /// what makes DSM count the items first. Without it the status answers a progress of -1 for
+    /// the whole run, and a long deletion shows a bar that never moves.
+    @Test func startsADeletionWithAccurateProgress() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(#"{"success":true,"data":{"taskid":"delete-1"}}"#.utf8)),
+            .response(Data(#"{"success":true,"data":{"finished":true,"progress":1,"processed_num":2}}"#.utf8)),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.Delete": entry(maxVersion: 2)]
+        )
+
+        try await service.delete(paths: ["/home/a", "/home/b"])
+
+        let requests = await stub.requests
+        let start = try query(from: requests[0])
+        #expect(start["method"] == "start")
+        #expect(start["accurate_progress"] == "true")
+        #expect(start["recursive"] == "true")
+        #expect(try decodeStrings(start["path"]) == ["/home/a", "/home/b"])
+    }
+
     @Test func listsArchivesAndUsesAllCompressionAndExtractionOptions() async throws {
         let stub = DSMRequestStub(results: [
             .response(Data(

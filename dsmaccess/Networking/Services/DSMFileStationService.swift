@@ -301,6 +301,9 @@ final class DSMFileStationService {
             parameters: [
                 "path": try DSMParameter.json(paths),
                 "recursive": .boolean(true),
+                // Measured on the web client: without it DSM answers progress -1 for the whole
+                // deletion, so a long delete would show a bar that never moves.
+                "accurate_progress": .boolean(true),
             ],
             as: FileOperationTask.self
         )
