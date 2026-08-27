@@ -210,7 +210,7 @@ struct FileTableView: NSViewRepresentable {
         private func valueCell(
             in tableView: NSTableView,
             for item: FileStationItem,
-            value: String,
+            value: String?,
             alignment: NSTextAlignment = .natural,
             truncatesHead: Bool = false
         ) -> NSView {
@@ -692,10 +692,12 @@ final class FileValueCellView: FileRowCellView {
         ])
     }
 
-    func configure(value: String, alignment: NSTextAlignment, truncatesHead: Bool) {
-        valueField.stringValue = value
+    /// A nil value is written as the Finder's placeholder and left unspoken: an absent size
+    /// read out on every folder row is noise, and silence says it better.
+    func configure(value: String?, alignment: NSTextAlignment, truncatesHead: Bool) {
+        valueField.stringValue = value ?? TableValueText.absentValue
         valueField.alignment = alignment
         valueField.lineBreakMode = truncatesHead ? .byTruncatingHead : .byTruncatingTail
-        setAccessibilityLabel(value == FileStationItem.absentValue ? "" : value)
+        setAccessibilityLabel(value ?? "")
     }
 }

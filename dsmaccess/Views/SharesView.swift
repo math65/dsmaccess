@@ -173,10 +173,10 @@ struct SharesView: View {
                     Text(share.displayName)
                 }
                 TableColumn("common.column.volume", value: \.sortableVolume) { share in
-                    Text(share.volumeText ?? "—")
+                    TableValueText(share.volumeText)
                 }
                 TableColumn("common.column.description", value: \.sortableDescription) { share in
-                    Text(share.desc?.isEmpty == false ? share.desc! : "—")
+                    TableValueText(share.desc)
                 }
                 TableColumn("common.column.recycle_bin", value: \.sortableRecycleBin) { share in
                     Text(share.recycleBinDescription)

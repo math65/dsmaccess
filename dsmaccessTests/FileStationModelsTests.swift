@@ -89,8 +89,8 @@ struct FileStationModelsTests {
         #expect(!folder.supportsThumbnailPreview)
     }
 
-    /// The table reads these three values column by column: an absent one has to be a dash,
-    /// because an empty cell is heard as a value the row does not have.
+    /// The table reads these three values column by column. An absent one is nil here: what a
+    /// missing value looks like, and whether it is spoken, belongs to the cell that draws it.
     @Test func describesTheColumnsOfARow() throws {
         let decoder = JSONDecoder()
         let file = try decoder.decode(
@@ -119,12 +119,12 @@ struct FileStationModelsTests {
             from: Data(#"{"name":"LISEZMOI","path":"/docs/LISEZMOI","isdir":false}"#.utf8)
         )
 
-        #expect(file.sizeDescription != FileStationItem.absentValue)
-        #expect(file.modificationDescription != FileStationItem.absentValue)
+        #expect(file.sizeDescription != nil)
+        #expect(file.modificationDescription != nil)
         // A folder carries the size of its own record on the volume, which is not the size of
         // what it holds: showing it would answer a question nobody asked.
-        #expect(folder.sizeDescription == FileStationItem.absentValue)
-        #expect(folder.modificationDescription == FileStationItem.absentValue)
+        #expect(folder.sizeDescription == nil)
+        #expect(folder.modificationDescription == nil)
         #expect(folder.kindDescription == String(localized: "common.value.folder"))
         #expect(extensionless.kindDescription == String(localized: "common.value.file"))
         // No system type answers for this extension: the extension itself is the only honest
