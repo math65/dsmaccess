@@ -1,3 +1,77 @@
+## v1.3 (build 28) — 27 août 2026
+
+### En bref
+
+- Hyper Backup devient un module à part entière : vos tâches de sauvegarde,
+  ce que chacune a fait, et un explorateur qui parcourt une version de
+  sauvegarde et remet les fichiers en place.
+- Le Centre de paquets montre tout le catalogue, y compris les paquets des
+  sources que vous ajoutez, et les installe avec ce dont ils dépendent.
+- La liste de fichiers et l'explorateur de sauvegarde ont de vraies colonnes
+  — nom, type, taille, date — dont les en-têtes trient d'un clic, et chaque
+  colonne se lit séparément au lieu que la ligne défile d'un bloc.
+- Quand une opération que vous avez demandée échoue, une fenêtre le dit et
+  reste affichée jusqu'à ce que vous la fermiez, avec un bouton pour
+  signaler le problème.
+
+### Hyper Backup
+
+- Toutes vos tâches de sauvegarde, avec leur état, leur destination et leur
+  dernière exécution.
+- L'historique d'une tâche : ce qui s'est exécuté, quand, pendant combien de
+  temps, et ce qui a échoué.
+- Parcourez le contenu d'une version de sauvegarde, dossier par dossier, et
+  remettez un fichier ou un dossier en place — à côté de l'original ou
+  par-dessus.
+- Téléchargez un fichier directement depuis une version de sauvegarde, sans
+  restaurer d'abord.
+- Une tâche qui se termine en échec est annoncée, et l'échec reste affiché.
+
+### Fichiers
+
+- Le nom, le type, la taille et la date de modification forment quatre
+  colonnes. Cliquez un en-tête pour trier dessus, et lisez une ligne colonne
+  par colonne.
+- Les résultats de recherche portent une colonne d'emplacement : deux
+  fichiers de même nom se distinguent enfin par l'endroit où ils se trouvent.
+- La compression et l'extraction partent de la page de code annoncée par
+  votre NAS, au lieu de toujours proposer le français.
+- La suppression d'un gros dossier affiche une progression qui avance
+  vraiment : le NAS compte d'abord ce qu'il va retirer.
+- Une cellule sans valeur garde son tiret à l'écran, mais ne prononce plus
+  « tiret cadratin » à chaque ligne.
+
+### Dossiers partagés
+
+- Les réglages d'un dossier partagé dans l'application : la corbeille et qui
+  a le droit de la vider, le chiffrement et le verrouillage, le quota, la
+  compression des fichiers et la somme de contrôle.
+- Videz une corbeille depuis l'application.
+- Voyez quels comptes atteignent réellement un dossier, et ce qu'ils peuvent
+  y faire.
+
+### Centre de paquets
+
+- Tout le catalogue : les paquets Synology et ceux publiés par les sources
+  que vous ajoutez, avec leurs vrais noms, leur éditeur, leur taille et leur
+  catégorie.
+- L'installation d'un paquet qui en réclame d'autres fonctionne : ceux-ci
+  sont installés d'abord, et l'avancement dit lequel se télécharge.
+- La désinstallation pose les questions que le paquet lui-même déclare, au
+  lieu de vous renvoyer vers DSM.
+- Les mises à jour automatiques se règlent paquet par paquet, et l'écran des
+  réglages s'ouvre de nouveau sous DSM 7.4.
+
+### Confidentialité
+
+- Supprimer ou oublier un NAS efface tous les secrets qu'il avait
+  enregistrés.
+- Un lien contenu dans une annonce du développeur ne s'ouvre que s'il s'agit
+  d'une adresse web.
+- Un mot de passe généré puis copié est marqué comme confidentiel : il ne
+  voyage pas vers vos autres appareils et n'entre pas dans l'historique du
+  presse-papiers.
+
 ## v1.3-beta.3 (build 27) — 17 août 2026
 
 ### En bref

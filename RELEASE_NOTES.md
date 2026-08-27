@@ -1,3 +1,67 @@
+## v1.3 (build 28) — 2026-08-27
+
+### Highlights
+
+- Hyper Backup is a module of its own now: your backup tasks, what each one
+  did, and a browser that walks through a backup version and puts files
+  back.
+- Package Center shows the whole catalogue, including the packages from the
+  sources you add, and installs them together with what they depend on.
+- The file list and the backup browser have real columns — name, kind, size,
+  date — with headers that sort on a click, and each column can be read on
+  its own instead of the row running together as one line.
+- When an operation you asked for fails, a dialog says so and stays until
+  you dismiss it, with a button to send a report.
+
+### Hyper Backup
+
+- Every backup task with its state, its destination and when it last ran.
+- The history of a task: what ran, when, how long it took and what failed.
+- Walk through what a backup version holds, folder by folder, and put a file
+  or a folder back — beside the original or over it.
+- Download a file straight out of a backup version, without restoring it
+  first.
+- A task that ends in failure is announced, and the failure stays on screen.
+
+### Files
+
+- Name, kind, size and modification date are four columns now. Click a
+  header to sort on it, and read a row column by column.
+- Search results carry a location column, so two files with the same name
+  are told apart by where they live.
+- Compressing and extracting start on the code page your NAS announces
+  instead of always proposing French.
+- Deleting a large folder shows progress that actually moves: the NAS is
+  asked to count what it is about to remove.
+- A cell with no value keeps its dash on screen but no longer says "em dash"
+  out loud on every row.
+
+### Shared folders
+
+- Settings of a shared folder in the app: recycle bin and who is allowed to
+  empty it, encryption and locking, quota, file compression and checksum.
+- Empty a recycle bin from the app.
+- See which accounts actually reach a folder, and what they may do there.
+
+### Package Center
+
+- The whole catalogue, Synology's packages and the ones published through
+  the sources you add, with real names, publishers, sizes and categories.
+- Installing a package that needs other packages works: they are installed
+  first, and the progress says which one is being downloaded.
+- Uninstalling asks the questions the package itself declares, instead of
+  sending you to DSM.
+- Automatic updates can be set package by package, and the settings screen
+  opens again on DSM 7.4.
+
+### Privacy
+
+- Removing or forgetting a NAS erases every secret it had stored.
+- A link in an announcement from the developer opens only if it is a web
+  address.
+- A generated password copied to the clipboard is marked confidential, so it
+  does not travel to your other devices or land in clipboard history.
+
 ## v1.3-beta.3 (build 27) — 2026-08-17
 
 ### Highlights
