@@ -222,6 +222,9 @@ protocol DSMClientProtocol: AnyObject {
     ) async throws
     func fileServiceEnabled(_ service: FileService) async throws -> Bool?
     func setFileService(_ service: FileService, enabled: Bool) async throws
+    func smbSettings() async throws -> SMBSettings
+    func setSMBBasicSettings(_ settings: SMBBasicSettings, logsTransfers: Bool) async throws
+    func setSMBAdvancedSettings(_ settings: SMBAdvancedSettings, isEnabled: Bool) async throws
     func packageCenterCapabilities() async throws -> PackageCenterCapabilities
     func listPackages() async throws -> [PackageInfo]
     func packageCatalog(forceRefresh: Bool) async throws -> PackageCatalog
@@ -1087,6 +1090,18 @@ final class DSMClient: DSMClientProtocol {
 
     func setFileService(_ service: FileService, enabled: Bool) async throws {
         try await fileServiceSettings.set(service, enabled: enabled)
+    }
+
+    func smbSettings() async throws -> SMBSettings {
+        try await fileServiceSettings.smbSettings()
+    }
+
+    func setSMBBasicSettings(_ settings: SMBBasicSettings, logsTransfers: Bool) async throws {
+        try await fileServiceSettings.setSMBBasicSettings(settings, logsTransfers: logsTransfers)
+    }
+
+    func setSMBAdvancedSettings(_ settings: SMBAdvancedSettings, isEnabled: Bool) async throws {
+        try await fileServiceSettings.setSMBAdvancedSettings(settings, isEnabled: isEnabled)
     }
 
     func packageCenterCapabilities() async throws -> PackageCenterCapabilities {

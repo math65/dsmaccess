@@ -22,8 +22,9 @@ enum FileServiceState: Equatable {
 @MainActor
 @Observable
 final class FileServicesViewModel {
-    /// Services displayed, in order.
-    let services = FileService.allCases
+    /// Services displayed, in order. SMB is absent: it has its own tab, where every setting
+    /// is edited rather than just its on/off switch.
+    let services = FileService.allCases.filter { $0 != .smb }
     private(set) var states: [FileService: FileServiceState] = [:]
     private(set) var isLoading = false
     /// Services with a toggle in flight (button disabled for the duration of the call).

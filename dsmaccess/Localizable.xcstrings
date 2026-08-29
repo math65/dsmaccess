@@ -14035,6 +14035,22 @@
         }
       }
     },
+    "file_services.other_protocols.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other sharing protocols"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres protocoles de partage"
+          }
+        }
+      }
+    },
     "file_services.protocols.description": {
       "localizations": {
         "en": {
@@ -14239,6 +14255,38 @@
           "stringUnit": {
             "state": "translated",
             "value": "Services de fichiers : %lld activés sur %lld"
+          }
+        }
+      }
+    },
+    "file_services.tab.smb": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB"
+          }
+        }
+      }
+    },
+    "file_services.tab.other_protocols": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other protocols"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres protocoles"
           }
         }
       }
@@ -33650,6 +33698,1350 @@
           "stringUnit": {
             "state": "translated",
             "value": "Déplacer le module sélectionné vers le haut"
+          }
+        }
+      }
+    },
+    "smb.workgroup.required": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The workgroup cannot be empty"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le groupe de travail ne peut pas être vide"
+          }
+        }
+      }
+    },
+    "smb.summary.unavailable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB settings unavailable"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages SMB indisponibles"
+          }
+        }
+      }
+    },
+    "smb.summary.enabled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB service enabled"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service SMB activé"
+          }
+        }
+      }
+    },
+    "smb.summary.disabled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB service disabled"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service SMB désactivé"
+          }
+        }
+      }
+    },
+    "smb.signing.smb1_only": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disable SMB1 signing only"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactiver uniquement la signature SMB1"
+          }
+        }
+      }
+    },
+    "smb.signing.forced": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forced"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forcé"
+          }
+        }
+      }
+    },
+    "smb.signing.client_defined": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client-defined"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Défini par le client"
+          }
+        }
+      }
+    },
+    "smb.service.off.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The settings below apply once the SMB service is enabled."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les réglages ci-dessous s’appliqueront lorsque le service SMB sera activé."
+          }
+        }
+      }
+    },
+    "smb.section.sharing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sharing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Partage"
+          }
+        }
+      }
+    },
+    "smb.section.service": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Service"
+          }
+        }
+      }
+    },
+    "smb.section.protocol": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocole"
+          }
+        }
+      }
+    },
+    "smb.section.other": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Other settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autres réglages"
+          }
+        }
+      }
+    },
+    "smb.section.macos": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "macOS"
+          }
+        }
+      }
+    },
+    "smb.section.locking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File locking"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouillage des fichiers"
+          }
+        }
+      }
+    },
+    "smb.protocol.smb3": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB3"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB3"
+          }
+        }
+      }
+    },
+    "smb.protocol.smb2_large_mtu": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB2 and Large MTU"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB2 et Large MTU"
+          }
+        }
+      }
+    },
+    "smb.protocol.smb2": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB2"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB2"
+          }
+        }
+      }
+    },
+    "smb.protocol.smb1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB1"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB1"
+          }
+        }
+      }
+    },
+    "smb.locking.requires_op_lock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "File leases require opportunistic locking."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La location de fichiers demande Opportunistic Locking."
+          }
+        }
+      }
+    },
+    "smb.loading": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading the SMB settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chargement des réglages SMB"
+          }
+        }
+      }
+    },
+    "smb.load.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SMB settings could not be read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les réglages SMB n’ont pas pu être lus"
+          }
+        }
+      }
+    },
+    "smb.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages SMB"
+          }
+        }
+      }
+    },
+    "smb.field.workgroup": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Workgroup"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groupe de travail"
+          }
+        }
+      }
+    },
+    "smb.field.wins.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Address of the NetBIOS name server, if the network has one."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Adresse du serveur de noms NetBIOS, si le réseau en utilise un."
+          }
+        }
+      }
+    },
+    "smb.field.wins": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WINS server"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Serveur WINS"
+          }
+        }
+      }
+    },
+    "smb.field.wildcard_cache": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wildcard search cache"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cache de recherche avec caractères génériques"
+          }
+        }
+      }
+    },
+    "smb.field.wide_links": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow symbolic links across shared folders"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser les liens symboliques entre dossiers partagés"
+          }
+        }
+      }
+    },
+    "smb.field.unix_permissions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apply the default UNIX permissions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Appliquer les permissions UNIX par défaut"
+          }
+        }
+      }
+    },
+    "smb.field.transfer_log.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Records each file operation in the SMB log."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enregistre chaque opération de fichier dans le journal SMB."
+          }
+        }
+      }
+    },
+    "smb.field.transfer_log": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Log SMB transfers"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Journaliser les transferts SMB"
+          }
+        }
+      }
+    },
+    "smb.field.symlinks": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow symbolic links within a shared folder"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser les liens symboliques dans un dossier partagé"
+          }
+        }
+      }
+    },
+    "smb.field.subfolder_notification": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch changes in subfolders"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surveiller les modifications des sous-dossiers"
+          }
+        }
+      }
+    },
+    "smb.field.smb3_directory_leasing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB3 directory leasing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location de répertoires SMB3"
+          }
+        }
+      }
+    },
+    "smb.field.smb2_leases": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB2 file leases"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Location de fichiers SMB2"
+          }
+        }
+      }
+    },
+    "smb.field.skip_allocation": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Do not reserve disk space when creating a file"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ne pas réserver l’espace disque à la création d’un fichier"
+          }
+        }
+      }
+    },
+    "smb.field.single_connection_per_ip": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disable multiple connections from one address"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactiver les connexions multiples d’une même adresse"
+          }
+        }
+      }
+    },
+    "smb.field.signing.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signs the exchanges so tampering in transit is detected."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signe les échanges pour détecter une altération en transit."
+          }
+        }
+      }
+    },
+    "smb.field.signing": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Server signing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Signature du serveur"
+          }
+        }
+      }
+    },
+    "smb.field.performance_analysis": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Performance analysis"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Analyse des performances"
+          }
+        }
+      }
+    },
+    "smb.field.op_lock.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lets a client cache a file while it is the only one holding it open."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autorise un client à mettre un fichier en cache tant qu’il est seul à l’ouvrir."
+          }
+        }
+      }
+    },
+    "smb.field.op_lock": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opportunistic locking"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opportunistic Locking"
+          }
+        }
+      }
+    },
+    "smb.field.ntlmv1.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Needed by very old clients, at the cost of weak authentication."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nécessaire à de très anciens clients, au prix d’une authentification faible."
+          }
+        }
+      }
+    },
+    "smb.field.ntlmv1": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow NTLMv1 authentication"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Autoriser l’authentification NTLMv1"
+          }
+        }
+      }
+    },
+    "smb.field.multichannel": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB3 multichannel"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB3 multicanal"
+          }
+        }
+      }
+    },
+    "smb.field.min_protocol.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refuses clients older than this version."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refuse les clients plus anciens que cette version."
+          }
+        }
+      }
+    },
+    "smb.field.min_protocol": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Minimum SMB protocol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocole SMB minimum"
+          }
+        }
+      }
+    },
+    "smb.field.max_protocol.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caps the version the server agrees to negotiate."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Limite la version que le serveur accepte de négocier."
+          }
+        }
+      }
+    },
+    "smb.field.max_protocol": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maximum SMB protocol"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocole SMB maximum"
+          }
+        }
+      }
+    },
+    "smb.field.mac_characters.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Makes file names created on a Mac readable from Windows."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rend lisibles depuis Windows les noms de fichiers créés sur Mac."
+          }
+        }
+      }
+    },
+    "smb.field.mac_characters": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convert Mac special characters"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Convertir les caractères spéciaux du Mac"
+          }
+        }
+      }
+    },
+    "smb.field.local_master_browser": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local master browser"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Local Master Browser"
+          }
+        }
+      }
+    },
+    "smb.field.immediate_sync.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Safer if power is lost, slower to write."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Plus sûr en cas de coupure, plus lent à l’écriture."
+          }
+        }
+      }
+    },
+    "smb.field.immediate_sync": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Write to disk when the client asks"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Écrire sur le disque à la demande du client"
+          }
+        }
+      }
+    },
+    "smb.field.hide_unauthorized.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A shared folder appears only to the accounts allowed into it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Un dossier partagé n’apparaît qu’aux comptes qui y ont accès."
+          }
+        }
+      }
+    },
+    "smb.field.hide_unauthorized": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hide the folders a user cannot open"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masquer les dossiers qu’un utilisateur ne peut pas ouvrir"
+          }
+        }
+      }
+    },
+    "smb.field.encryption.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encrypts the data exchanged with SMB clients."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffre les données échangées avec les clients SMB."
+          }
+        }
+      }
+    },
+    "smb.field.encryption": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Transport encryption"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrement du transport"
+          }
+        }
+      }
+    },
+    "smb.field.enable.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Makes the shared folders reachable from Finder and Windows Explorer."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rend les dossiers partagés accessibles depuis le Finder et l’Explorateur Windows."
+          }
+        }
+      }
+    },
+    "smb.field.enable": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enable the SMB service"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Activer le service SMB"
+          }
+        }
+      }
+    },
+    "smb.field.durable_handles.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lets a client recover its open files after a network drop."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet à un client de retrouver ses fichiers ouverts après une coupure réseau."
+          }
+        }
+      }
+    },
+    "smb.field.durable_handles": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB durable handles"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Handles durables SMB"
+          }
+        }
+      }
+    },
+    "smb.field.dirsort.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sends directories to clients in alphabetical order."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoie les répertoires par ordre alphabétique aux clients."
+          }
+        }
+      }
+    },
+    "smb.field.dirsort": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sort directories before sending them"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trier les dossiers avant de les envoyer"
+          }
+        }
+      }
+    },
+    "smb.field.deny_previous_versions.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stops Windows clients from restoring a file from a snapshot."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Empêche les clients Windows de restaurer un fichier depuis un instantané."
+          }
+        }
+      }
+    },
+    "smb.field.deny_previous_versions": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deny access to previous versions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Refuser l’accès aux versions précédentes"
+          }
+        }
+      }
+    },
+    "smb.field.debug_log.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Only worth enabling to diagnose an SMB problem."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À n’activer que pour diagnostiquer un problème SMB."
+          }
+        }
+      }
+    },
+    "smb.field.debug_log": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collect debugging logs"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Collecter des journaux de débogage"
+          }
+        }
+      }
+    },
+    "smb.field.async_read": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Asynchronous read"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lecture asynchrone"
+          }
+        }
+      }
+    },
+    "smb.field.afp_cross_locking.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Has no effect while durable handles are enabled."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sans effet tant que les handles durables sont activés."
+          }
+        }
+      }
+    },
+    "smb.field.afp_cross_locking": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cross-protocol locking with AFP"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verrouillage inter-protocole avec AFP"
+          }
+        }
+      }
+    },
+    "smb.encryption.forced": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forced"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forcé"
+          }
+        }
+      }
+    },
+    "smb.encryption.disabled": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Disabled"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactivé"
+          }
+        }
+      }
+    },
+    "smb.encryption.client_defined": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Client-defined"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Défini par le client"
+          }
+        }
+      }
+    },
+    "smb.changes.pending": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unapplied changes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modifications non appliquées"
+          }
+        }
+      }
+    },
+    "smb.button.revert.help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restores the settings as the NAS returned them"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rétablit les réglages tels que le NAS les a renvoyés"
+          }
+        }
+      }
+    },
+    "smb.button.apply.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sends the changed settings to the NAS."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoie les réglages modifiés au NAS."
+          }
+        }
+      }
+    },
+    "smb.button.revert": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discard changes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Annuler les modifications"
+          }
+        }
+      }
+    },
+    "smb.button.apply.help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sends the changes to the NAS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Envoie les modifications au NAS"
+          }
+        }
+      }
+    },
+    "smb.applying": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Applying the SMB settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Application des réglages SMB"
+          }
+        }
+      }
+    },
+    "smb.apply.partial.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SMB settings were applied, but the advanced settings were refused: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les réglages SMB ont été appliqués, mais les réglages avancés ont été refusés : %@"
+          }
+        }
+      }
+    },
+    "smb.apply.nothing_to_apply": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No change to apply"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aucune modification à appliquer"
+          }
+        }
+      }
+    },
+    "smb.apply.error": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The SMB settings could not be applied: %@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les réglages SMB n’ont pas pu être appliqués : %@"
+          }
+        }
+      }
+    },
+    "smb.apply.done": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "SMB settings applied"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages SMB appliqués"
+          }
+        }
+      }
+    },
+    "smb.workgroup.required.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unavailable while the workgroup is empty."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indisponible tant que le groupe de travail est vide."
           }
         }
       }

@@ -6,28 +6,44 @@
 import SwiftUI
 
 struct FileServicesView: View {
+    /// Tabs of the screen, in DSM's own order. SMB comes first: it is the protocol Finder and
+    /// Windows Explorer use. The other protocols share one tab until each gets its own,
+    /// measured contract.
+    private enum Tab: Hashable {
+        case smb
+        case otherProtocols
+    }
+
     @State private var vm: FileServicesViewModel
+    @State private var smb: SMBSettingsViewModel
+    @State private var tab: Tab = .smb
     @State private var pendingDisable: FileService?
     @AccessibilityFocusState private var focusContent: Bool
 
     init(session: SessionStore) {
         _vm = State(initialValue: FileServicesViewModel(session: session))
+        _smb = State(initialValue: SMBSettingsViewModel(session: session))
     }
 
     var body: some View {
-        content
+        TabView(selection: $tab) {
+            SMBSettingsPane(vm: smb)
+                .tabItem { Text("file_services.tab.smb") }
+                .tag(Tab.smb)
+            content
+                .tabItem { Text("file_services.tab.other_protocols") }
+                .tag(Tab.otherProtocols)
+                .task { await load(restoresInitialFocus: true) }
+        }
         .toolbar {
             ToolbarItem {
                 Button {
-                    reloadAll()
+                    refreshVisibleTab()
                 } label: {
                     Label("common.button.refresh", systemImage: "arrow.clockwise")
                 }
                 .help("file_services.refresh.label")
             }
-        }
-        .task {
-            await load(restoresInitialFocus: true)
         }
         .confirmationDialog(
             "file_services.disable.confirm",
@@ -65,7 +81,7 @@ struct FileServicesView: View {
                     }
                 }
             }
-            .accessibilityLabel("common.module.file_services")
+            .accessibilityLabel("file_services.other_protocols.label")
             .accessibilityFocused($focusContent)
         }
     }
@@ -143,6 +159,29 @@ struct FileServicesView: View {
 
     private func reloadAll() {
         Task { await load() }
+    }
+
+    /// The toolbar button reloads what is on screen, not both tabs: the two read different
+    /// APIs, and refreshing a tab the user cannot see would announce a result about it.
+    private func refreshVisibleTab() {
+        switch tab {
+        case .smb:
+            Task {
+                VoiceOver.announce(
+                    String(localized: "smb.loading"),
+                    category: .progress,
+                    priority: .low
+                )
+                await smb.load()
+                guard !Task.isCancelled else { return }
+                VoiceOver.announce(
+                    smb.summary,
+                    category: smb.loadError == nil ? .result : .error
+                )
+            }
+        case .otherProtocols:
+            reloadAll()
+        }
     }
 
     private func load(restoresInitialFocus: Bool = false) async {
