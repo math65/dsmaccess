@@ -62,13 +62,17 @@ struct HyperBackupVersionsSheet: View {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
                 .accessibilityFocused($focusContent)
         } else if let details {
-            TabView {
-                versionsTab(details)
-                    .tabItem { Text("hyper_backup.versions.tab") }
-                destinationTab(details)
-                    .tabItem { Text("hyper_backup.destination.tab") }
+            // Wrapped in a VStack so the tabs stay in the content: at the root of the
+            // navigation stack macOS lifts them into the sheet toolbar, next to its buttons.
+            VStack(spacing: 0) {
+                TabView {
+                    versionsTab(details)
+                        .tabItem { Text("hyper_backup.versions.tab") }
+                    destinationTab(details)
+                        .tabItem { Text("hyper_backup.destination.tab") }
+                }
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
         }
     }
 

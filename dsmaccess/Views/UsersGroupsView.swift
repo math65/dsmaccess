@@ -103,15 +103,20 @@ struct UsersGroupsView: View {
             ModuleErrorView(message: errorMessage) { Task { await load() } }
                 .accessibilityFocused($contentFocused)
         } else {
-            TabView(selection: $selectedTab) {
-                usersList
-                    .tabItem { Label("users.section.users.title", systemImage: "person.2") }
-                    .tag(Tab.users)
-                groupsList
-                    .tabItem { Label("common.label.groups", systemImage: "person.3") }
-                    .tag(Tab.groups)
+            // Wrapped in a VStack so the tabs stay in the content, as in the resource monitor:
+            // at the root of the pane macOS lifts them into the toolbar, where they read as a
+            // radio group beside its buttons instead of as the tabs of the module.
+            VStack(spacing: 0) {
+                TabView(selection: $selectedTab) {
+                    usersList
+                        .tabItem { Label("users.section.users.title", systemImage: "person.2") }
+                        .tag(Tab.users)
+                    groupsList
+                        .tabItem { Label("common.label.groups", systemImage: "person.3") }
+                        .tag(Tab.groups)
+                }
+                .accessibilityFocused($contentFocused)
             }
-            .accessibilityFocused($contentFocused)
         }
     }
 

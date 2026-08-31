@@ -26,14 +26,19 @@ struct FileServicesView: View {
     }
 
     var body: some View {
-        TabView(selection: $tab) {
-            SMBSettingsPane(vm: smb)
-                .tabItem { Text("file_services.tab.smb") }
-                .tag(Tab.smb)
-            content
-                .tabItem { Text("file_services.tab.other_protocols") }
-                .tag(Tab.otherProtocols)
-                .task { await load(restoresInitialFocus: true) }
+        // Wrapped in a VStack for the same reason as the resource monitor: at the root of the
+        // pane, macOS lifts the tabs into the toolbar, where VoiceOver reads them as a radio
+        // group sitting between the sidebar and refresh buttons rather than as tabs.
+        VStack(spacing: 0) {
+            TabView(selection: $tab) {
+                SMBSettingsPane(vm: smb)
+                    .tabItem { Text("file_services.tab.smb") }
+                    .tag(Tab.smb)
+                content
+                    .tabItem { Text("file_services.tab.other_protocols") }
+                    .tag(Tab.otherProtocols)
+                    .task { await load(restoresInitialFocus: true) }
+            }
         }
         .toolbar {
             ToolbarItem {
