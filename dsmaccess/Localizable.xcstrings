@@ -33702,6 +33702,438 @@
         }
       }
     },
+    "smb.field.wildcard_cache.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speeds up searches when clients repeat the same wildcard search."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accélère les recherches lorsqu’un client répète la même recherche avec caractères génériques."
+          }
+        }
+      }
+    },
+    "smb.field.unix_permissions.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Creates files as 744 and folders as 755 instead of 777."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Crée les fichiers en 744 et les dossiers en 755 au lieu de 777."
+          }
+        }
+      }
+    },
+    "smb.field.performance_analysis.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lets Resource Monitor collect SMB performance data, at some cost to SMB speed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet au Moniteur de ressources de collecter les performances SMB, au prix d’un ralentissement."
+          }
+        }
+      }
+    },
+    "smb.section.performance": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Performance"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Performances"
+          }
+        }
+      }
+    },
+    "smb.section.links": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Links and permissions"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liens et permissions"
+          }
+        }
+      }
+    },
+    "smb.section.discovery": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Discovery and browsing"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Découverte et navigation"
+          }
+        }
+      }
+    },
+    "smb.section.compatibility": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compatibility and diagnostics"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compatibilité et diagnostic"
+          }
+        }
+      }
+    },
+    "smb.field.wide_links.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allows a symbolic link to point outside its shared folder, which can expose the target folder to users without permission on it."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet à un lien symbolique de pointer hors de son dossier partagé, ce qui peut exposer le dossier visé à des utilisateurs qui n’y ont pas droit."
+          }
+        }
+      }
+    },
+    "smb.field.symlinks.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allows a symbolic link to be followed inside a shared folder."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Permet de suivre un lien symbolique à l’intérieur d’un dossier partagé."
+          }
+        }
+      }
+    },
+    "smb.field.subfolder_notification.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tells clients about changes made inside subfolders."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prévient les clients des modifications faites dans les sous-dossiers."
+          }
+        }
+      }
+    },
+    "smb.field.smb3_directory_leasing.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extends the same caching to directory contents."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Étend la même mise en cache au contenu des répertoires."
+          }
+        }
+      }
+    },
+    "smb.field.smb2_leases.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extends caching of a file beyond what opportunistic locking allows."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prolonge la mise en cache d’un fichier au-delà du verrouillage opportuniste."
+          }
+        }
+      }
+    },
+    "smb.field.skip_allocation.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Speeds up creating a large file by not reserving its size in advance."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Accélère la création d’un gros fichier en ne réservant pas sa taille à l’avance."
+          }
+        }
+      }
+    },
+    "smb.field.single_connection_per_ip.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closes earlier connections when the same address reconnects."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferme les connexions précédentes lorsqu’une même adresse se reconnecte."
+          }
+        }
+      }
+    },
+    "smb.field.multichannel.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Spreads a transfer over several network connections."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Répartit un transfert sur plusieurs connexions réseau."
+          }
+        }
+      }
+    },
+    "smb.field.local_master_browser.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Makes the NAS the master browser of the local Windows network. Also disables drive hibernation and activates the guest account without a password."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fait du NAS l’explorateur maître du réseau Windows local. Désactive aussi l’hibernation des disques et active le compte invité sans mot de passe."
+          }
+        }
+      }
+    },
+    "smb.field.async_read.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Improves random read and 10GbE performance, at the cost of more CPU."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Améliore les lectures aléatoires et les réseaux 10 GbE, au prix de plus de processeur."
+          }
+        }
+      }
+    },
+    "smb.advanced.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paramètres avancés"
+          }
+        }
+      }
+    },
+    "smb.advanced.save.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keeps these settings; the Apply button sends them to the NAS."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conserve ces réglages ; ils seront envoyés au NAS par le bouton Appliquer."
+          }
+        }
+      }
+    },
+    "smb.advanced.save.help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keeps these settings without sending them to the NAS"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Conserve ces réglages sans les envoyer au NAS"
+          }
+        }
+      }
+    },
+    "smb.advanced.form.label": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocol, locking and compatibility"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocole, verrouillage et compatibilité"
+          }
+        }
+      }
+    },
+    "smb.advanced.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Protocol versions, encryption, file locking and compatibility with older clients."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Versions du protocole, chiffrement, verrouillage des fichiers et compatibilité avec les anciens clients."
+          }
+        }
+      }
+    },
+    "smb.advanced.changed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced settings changed"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Réglages avancés modifiés"
+          }
+        }
+      }
+    },
+    "smb.advanced.cancel.help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Closes without keeping the changes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ferme sans conserver les modifications"
+          }
+        }
+      }
+    },
+    "smb.advanced.button.hint": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the settings DSM keeps in its advanced parameters."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre les réglages que DSM range dans ses paramètres avancés."
+          }
+        }
+      }
+    },
+    "smb.advanced.button.help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opens the advanced SMB settings"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ouvre les réglages avancés du protocole SMB"
+          }
+        }
+      }
+    },
+    "smb.advanced.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced Settings…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paramètres avancés…"
+          }
+        }
+      }
+    },
     "smb.workgroup.required": {
       "localizations": {
         "en": {
@@ -33874,22 +34306,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Protocole"
-          }
-        }
-      }
-    },
-    "smb.section.other": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Other settings"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Autres réglages"
           }
         }
       }

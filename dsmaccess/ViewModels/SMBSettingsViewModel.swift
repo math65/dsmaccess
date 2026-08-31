@@ -47,7 +47,9 @@ final class SMBSettingsViewModel {
         return draft.basic != applied.basic || draftLogsTransfers != appliedLogsTransfers
     }
 
-    private var advancedChanged: Bool {
+    /// Read by the screen too: the advanced settings live in a sheet, so nothing on the
+    /// screen itself would show that they were touched.
+    var hasAdvancedChanges: Bool {
         guard let applied, let draft else { return false }
         return draft.advanced != applied.advanced
     }
@@ -86,7 +88,7 @@ final class SMBSettingsViewModel {
         defer { isApplying = false }
 
         let sendsBasic = basicChanged
-        let sendsAdvanced = advancedChanged
+        let sendsAdvanced = hasAdvancedChanges
         var basicApplied = false
 
         do {
