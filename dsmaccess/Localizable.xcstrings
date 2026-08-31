@@ -33702,6 +33702,86 @@
         }
       }
     },
+    "smb.encryption.force.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Turn off opportunistic locking?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Désactiver le verrouillage opportuniste ?"
+          }
+        }
+      }
+    },
+    "smb.encryption.force.confirm.message": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forcing transport encryption turns off Opportunistic Locking, which DSM does to keep applications from timing out. Clients that do not support encryption will no longer be able to use SMB."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forcer le chiffrement du transport désactive Opportunistic Locking, ce que DSM fait pour éviter que les applications n’expirent. Les clients qui ne gèrent pas le chiffrement ne pourront plus utiliser SMB."
+          }
+        }
+      }
+    },
+    "smb.encryption.force.confirm.button.help": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forces transport encryption and turns opportunistic locking off"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Force le chiffrement du transport et désactive le verrouillage opportuniste"
+          }
+        }
+      }
+    },
+    "smb.encryption.force.confirm.button": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Force encryption"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Forcer le chiffrement"
+          }
+        }
+      }
+    },
+    "smb.encryption.force.applied": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Encryption forced, opportunistic locking turned off"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Chiffrement forcé, verrouillage opportuniste désactivé"
+          }
+        }
+      }
+    },
     "smb.field.wildcard_cache.hint": {
       "localizations": {
         "en": {

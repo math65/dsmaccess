@@ -219,6 +219,8 @@ private struct SMBSettingsForm: View {
 /// them back into the pending draft — the NAS is written by the screen's Apply button.
 private struct SMBAdvancedSettingsSheet: View {
     @State private var settings: SMBAdvancedSettings
+    /// Set while the user is being asked to confirm forcing transport encryption.
+    @State private var encryptionAwaitingConfirmation: SMBTransportEncryption?
     let onSave: (SMBAdvancedSettings) -> Void
 
     @AccessibilityFocusState private var focusTitle: Bool
@@ -260,6 +262,43 @@ private struct SMBAdvancedSettingsSheet: View {
         }
         .frame(width: 620, height: 620)
         .task { focusTitle = true }
+        // Measured in DSM: choosing Force pops this same question, and answering no leaves
+        // the encryption mode where it was.
+        .alert(
+            "smb.encryption.force.confirm.title",
+            isPresented: Binding(
+                get: { encryptionAwaitingConfirmation != nil },
+                set: { if !$0 { encryptionAwaitingConfirmation = nil } }
+            ),
+            presenting: encryptionAwaitingConfirmation
+        ) { mode in
+            Button("smb.encryption.force.confirm.button") {
+                settings.transportEncryption = mode
+                settings.opportunisticLocking = false
+                // The switch being turned off is further down the sheet, out of sight of
+                // whoever just answered the question.
+                VoiceOver.announce(String(localized: "smb.encryption.force.applied"))
+            }
+            .help("smb.encryption.force.confirm.button.help")
+            Button("common.button.cancel", role: .cancel) { }
+        } message: { _ in
+            Text("smb.encryption.force.confirm.message")
+        }
+    }
+
+    /// DSM turns opportunistic locking off when transport encryption is forced, and asks
+    /// first. Only Force does this: "Client defined" leaves the setting alone.
+    private var encryptionSelection: Binding<SMBTransportEncryption> {
+        Binding(
+            get: { settings.transportEncryption },
+            set: { mode in
+                if mode == .forced && settings.opportunisticLocking {
+                    encryptionAwaitingConfirmation = mode
+                } else {
+                    settings.transportEncryption = mode
+                }
+            }
+        )
     }
 
     private var form: some View {
@@ -277,7 +316,7 @@ private struct SMBAdvancedSettingsSheet: View {
                     }
                 }
                 .accessibilityHint("smb.field.max_protocol.hint")
-                Picker("smb.field.encryption", selection: $settings.transportEncryption) {
+                Picker("smb.field.encryption", selection: encryptionSelection) {
                     ForEach(SMBTransportEncryption.allCases) { mode in
                         Text(mode.displayName).tag(mode)
                     }
