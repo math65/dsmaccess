@@ -131,7 +131,7 @@ final class UsersGroupsViewModel {
         if case DSMError.weakPassword = error {
             return String(localized: "users.create.password_rejected.error")
         }
-        if case let DSMError.apiError(code) = error {
+        if case let DSMError.apiError(code, _) = error {
             switch code {
             case 400: return String(localized: "users.create.name_invalid.error")
             case 402: return String(localized: "common.error.permission_denied")

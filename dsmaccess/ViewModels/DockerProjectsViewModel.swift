@@ -164,7 +164,7 @@ final class DockerProjectsViewModel {
     /// DSM's own wizard rejects these three before sending anything; the app says the same
     /// thing when the server is the one to catch them.
     private func creationFailure(_ error: Error, name: String) -> String {
-        if case .apiError(let code) = error as? DSMError {
+        if case .apiError(let code, _) = error as? DSMError {
             switch code {
             case 2102:
                 return String(

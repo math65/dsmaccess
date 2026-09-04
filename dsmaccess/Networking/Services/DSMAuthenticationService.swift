@@ -220,7 +220,7 @@ final class DSMAuthenticationService {
         case 404: .badOTP
         case 406: .otpEnforced
         case 410: .passwordMustChange
-        case let code?: .apiError(code: code)
+        case let code?: .apiError(code: code, message: nil)
         case nil: .invalidResponse
         }
     }

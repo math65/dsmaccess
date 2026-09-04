@@ -142,7 +142,7 @@ final class PerformanceAlarmViewModel {
             guard !DSMError.isCancellation(error) else { return .cancelled }
             // The NAS identifies a rule by its kind, target, resource and severity: two rules
             // that share them collide, whatever their thresholds are.
-            if case .apiError(Self.ruleAlreadyExistsCode)? = error as? DSMError {
+            if case .apiError(Self.ruleAlreadyExistsCode, _)? = error as? DSMError {
                 return .failure(
                     String(localized: "alarm.rule.error.duplicate")
                 )

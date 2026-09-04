@@ -228,7 +228,7 @@ final class USBCopyViewModel {
     }
 
     private func reason(for error: Error) -> String {
-        if case let DSMError.apiError(code) = error {
+        if case let DSMError.apiError(code, _) = error {
             switch code {
             case 401: return String(localized: "usb_copy.error.internal")
             case 402: return String(localized: "usb_copy.error.invalid_setting")

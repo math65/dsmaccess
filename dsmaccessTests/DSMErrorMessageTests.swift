@@ -24,6 +24,20 @@ struct DSMErrorMessageTests {
         #expect(message.components(separatedBy: "2002").count == 2)
     }
 
+    /// When DSM explains a code, its own words are what the user needs; the code alone is
+    /// what the Package Center report was reduced to.
+    @Test func showsTheExplanationBesideTheCode() throws {
+        let explained = try #require(
+            DSMError.apiError(code: 4580, message: "Failed to run the package service.")
+                .errorDescription
+        )
+        #expect(explained.contains("4580"))
+        #expect(explained.contains("Failed to run the package service."))
+
+        let bare = try #require(DSMError.apiError(code: 4562, message: nil).errorDescription)
+        #expect(bare.contains("4562"))
+    }
+
     /// Two genuinely different codes both carry information and are both kept.
     @Test func keepsBothCodesWhenTheyDiffer() throws {
         let error = DSMError.itemOperationFailed(

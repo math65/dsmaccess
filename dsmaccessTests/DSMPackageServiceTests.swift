@@ -214,7 +214,7 @@ struct DSMPackageServiceTests {
         ])
         let service = makeService(stub: stub, includesDirectMutations: true)
 
-        await #expect(throws: DSMError.apiError(code: 4562)) {
+        await #expect(throws: DSMError.apiError(code: 4562, message: nil)) {
             try await service.uninstall(packageID: "UniversalViewer", dsmApps: "")
         }
     }

@@ -210,6 +210,35 @@ struct DSMCapabilitiesTests {
             endpoint: DSMEndpoint(useHTTPS: true, host: "nas.local", port: 5001),
             session: .shared
         )
-        #expect(transport.error(from: body) == .apiError(code: 120))
+        #expect(transport.error(from: body) == .apiError(code: 120, message: nil))
+    }
+
+    /// Measured on Package Center: a refusal carries `message` beside the code, and DSM
+    /// displays it under the code rather than dropping it. An empty one is the common case
+    /// and must not turn into an empty explanation.
+    @Test func carriesTheExplanationDSMAttachesToACode() async throws {
+        let transport = DSMTransport(
+            endpoint: DSMEndpoint(useHTTPS: true, host: "nas.local", port: 5001),
+            session: .shared
+        )
+
+        let explained = Data(
+            #"{"success":false,"error":{"code":4580,"errors":{"message":"Failed to run the package service."}}}"#.utf8
+        )
+        let explainedBody = try #require(
+            try await DSMTransport.decodeResponse(EmptyData.self, from: explained).error
+        )
+        #expect(
+            transport.error(from: explainedBody)
+                == .apiError(code: 4580, message: "Failed to run the package service.")
+        )
+
+        let silent = Data(
+            #"{"success":false,"error":{"code":4580,"errors":{"message":"","worker_message":[]}}}"#.utf8
+        )
+        let silentBody = try #require(
+            try await DSMTransport.decodeResponse(EmptyData.self, from: silent).error
+        )
+        #expect(transport.error(from: silentBody) == .apiError(code: 4580, message: nil))
     }
 }

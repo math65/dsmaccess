@@ -1091,7 +1091,7 @@ final class DSMFileStationService {
     /// client does — the operation is finished, not lost — otherwise the app announces an
     /// interruption for a successful compression.
     private func isRetiredTaskFailure(_ error: Error) -> Bool {
-        guard case .apiError(Self.unknownTaskErrorCode) = error as? DSMError else { return false }
+        guard case .apiError(Self.unknownTaskErrorCode, _) = error as? DSMError else { return false }
         return true
     }
 

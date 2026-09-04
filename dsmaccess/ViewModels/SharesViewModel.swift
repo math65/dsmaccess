@@ -239,7 +239,7 @@ final class SharesViewModel {
 
     /// Error message, with friendly cases for the known SYNO.Core.Share codes.
     private func reason(for error: Error) -> String {
-        if case let DSMError.apiError(code) = error {
+        if case let DSMError.apiError(code, _) = error {
             switch code {
             case 3301: return String(localized: "shares.create.error.name_taken")
             case 3308: return String(localized: "shares.encryption.error.wrong_key")

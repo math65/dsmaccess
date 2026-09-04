@@ -238,7 +238,7 @@ final class DockerRegistriesViewModel {
     /// DSM error.
     private func searchFailureMessage(_ error: Error) -> String {
         let registryName = activeRegistryName ?? ""
-        if case .apiError(let code) = error as? DSMError, code == 1052 || code == 1053 {
+        if case .apiError(let code, _) = error as? DSMError, code == 1052 || code == 1053 {
             return String(
                 localized: "containers.registry.search.unsupported",
                 defaultValue: "\(registryName) does not offer an image search. Enter the image name in the Images tab to download from it."

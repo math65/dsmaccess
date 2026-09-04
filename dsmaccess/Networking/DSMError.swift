@@ -53,8 +53,10 @@ enum DSMError: Error, LocalizedError, Equatable {
     case membershipsRefused(groups: [String])
     /// A group by that name already exists on the NAS.
     case groupNameTaken(name: String)
-    /// Any other API error returned by DSM.
-    case apiError(code: Int)
+    /// Any other API error returned by DSM. `message` carries the explanation DSM attached to
+    /// the code, when it attached one: the NAS sends it already localized where it has a
+    /// translation, and the web client displays it as it arrives.
+    case apiError(code: Int, message: String?)
     /// Package Center requires a decision or a wizard that the app must not guess.
     case packageCenter(String)
     /// Failure of a batch operation, with the detail of the first item DSM rejected.
@@ -116,7 +118,9 @@ enum DSMError: Error, LocalizedError, Equatable {
             return String(localized: "error.user.memberships_refused", defaultValue: "The NAS refused these groups: \(list). The other changes were applied.")
         case .groupNameTaken(let name):
             return String(localized: "error.group.name_taken", defaultValue: "A group named \(name) already exists. Choose another name.")
-        case .apiError(let code):
+        case .apiError(let code, let message?):
+            return String(localized: "error.nas.code_explained", defaultValue: "NAS error (code \(code.errorCodeText)): \(message)")
+        case .apiError(let code, _):
             return String(localized: "error.nas.code", defaultValue: "NAS error (code \(code.errorCodeText)).")
         case .packageCenter(let message):
             return message

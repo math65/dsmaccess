@@ -12227,6 +12227,22 @@
         }
       }
     },
+    "error.nas.code_explained": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "NAS error (code %1$@): %2$@"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Erreur du NAS (code %@) : %@"
+          }
+        }
+      }
+    },
     "error.network.unreachable": {
       "localizations": {
         "en": {
