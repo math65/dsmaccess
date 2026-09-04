@@ -72,7 +72,7 @@ final class DockerNetworksViewModel {
 
     /// The three refusals measured on the NAS. Anything else keeps DSM's own wording.
     private func creationFailure(_ error: Error, name: String) -> String {
-        if case .apiError(let code) = error as? DSMError {
+        if case .apiError(let code, _) = error as? DSMError {
             switch code {
             case 1800:
                 return String(

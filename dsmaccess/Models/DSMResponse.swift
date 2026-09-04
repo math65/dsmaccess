@@ -53,6 +53,20 @@ struct DSMErrorDetail: nonisolated Decodable, Equatable, Sendable {
     let name: String?
     let id: String?
     let reason: String?
+    /// The explanation DSM attaches to a refusal. Measured on Package Center: the field is
+    /// there on a real failure, and empty far more often than not.
+    let message: String?
+
+    /// The explanation, or nil when DSM sent the field without filling it. Line breaks are
+    /// folded the way the web client folds them before displaying the text.
+    nonisolated var explanation: String? {
+        guard let message else { return nil }
+        let text = message
+            .components(separatedBy: .newlines)
+            .joined(separator: " ")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return text.isEmpty ? nil : text
+    }
 }
 
 /// Empty payload, for calls whose `data` content is ignored (e.g. logout).

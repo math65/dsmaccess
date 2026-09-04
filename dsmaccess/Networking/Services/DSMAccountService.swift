@@ -81,7 +81,7 @@ final class DSMAccountService {
         ]
         do {
             try await transport.perform(api: Self.userAPI, method: "create", parameters: parameters)
-        } catch DSMError.apiError(Self.weakPasswordCode) {
+        } catch DSMError.apiError(Self.weakPasswordCode, _) {
             throw DSMError.weakPassword
         }
 
@@ -172,7 +172,7 @@ final class DSMAccountService {
                     "description": .string(draft.description),
                 ]
             )
-        } catch DSMError.apiError(Self.groupNameTakenCode) {
+        } catch DSMError.apiError(Self.groupNameTakenCode, _) {
             throw DSMError.groupNameTaken(name: draft.name)
         }
     }

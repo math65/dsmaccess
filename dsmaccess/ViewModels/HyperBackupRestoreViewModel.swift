@@ -343,7 +343,7 @@ final class HyperBackupRestoreViewModel {
         for error: Error,
         destination: String
     ) -> String {
-        if case .apiError(let code) = error as? DSMError, code == 4462 {
+        if case .apiError(let code, _) = error as? DSMError, code == 4462 {
             return String(localized: "hyper_backup.restore.error.nothing_copied", defaultValue: "Nothing was restored: \(destination) already holds these items, and replacing them was declined")
         }
         return String(localized: "hyper_backup.restore.error.failed", defaultValue: "Restore to \(destination) failed: \(reason(for: error))")

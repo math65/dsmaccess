@@ -566,8 +566,11 @@ final class DSMTransport {
     }
 
     func error(from body: DSMErrorBody?) -> DSMError {
+        // DSM sends at most one detail that matters: the web client reads the first and
+        // ignores the rest.
+        let detail = body?.errors?.first
         if let body,
-           let detail = body.errors?.first,
+           let detail,
            let detailCode = detail.code {
             let item = detail.path ?? detail.name ?? detail.id
             // A detail that names no item and only repeats the envelope's code carries
@@ -580,7 +583,7 @@ final class DSMTransport {
         return switch body?.code {
         case 105: .permissionDenied
         case 106, 107, 119: .sessionExpired
-        case let code?: .apiError(code: code)
+        case let code?: .apiError(code: code, message: detail?.explanation)
         case nil: .invalidResponse
         }
     }

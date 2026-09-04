@@ -13,7 +13,7 @@ struct StoredSessionTests {
         #expect(DSMError.permissionDenied.provesSessionIsAlive)
         #expect(DSMError.unsupportedAPI("SYNO.Core.System").provesSessionIsAlive)
         #expect(DSMError.unsupportedAPIVersion("SYNO.Core.System").provesSessionIsAlive)
-        #expect(DSMError.apiError(code: 105).provesSessionIsAlive)
+        #expect(DSMError.apiError(code: 105, message: nil).provesSessionIsAlive)
 
         // Nothing reached the NAS, or it answered something else: nothing is proven.
         #expect(!DSMError.sessionExpired.provesSessionIsAlive)
