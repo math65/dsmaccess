@@ -3,6 +3,17 @@
     <channel>
         <title>dsmaccess</title>
         <item>
+            <title>1.4</title>
+            <pubDate>Fri, 04 Sep 2026 14:06:26 +0200</pubDate>
+            <link>https://github.com/math65/dsmaccess/releases/tag/v1.4</link>
+            <sparkle:version>29</sparkle:version>
+            <sparkle:shortVersionString>1.4</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <sparkle:releaseNotesLink>https://math65.github.io/dsmaccess/dsmaccess-1.4.html</sparkle:releaseNotesLink>
+            <sparkle:releaseNotesLink xml:lang="fr">https://math65.github.io/dsmaccess/dsmaccess-1.4.fr.html</sparkle:releaseNotesLink>
+            <enclosure url="https://github.com/math65/dsmaccess/releases/download/v1.4/dsmaccess-1.4.zip" length="11349468" type="application/octet-stream" sparkle:edSignature="H+5m+Yq501ED48i8c784XVygSfIQmH8veeYg0XFlAulEU4MsYyml3Iqprd9i5oyzIBXHevm9ifeXNcmz8FIIDQ=="/>
+        </item>
+        <item>
             <title>1.3</title>
             <pubDate>Thu, 27 Aug 2026 20:24:55 +0200</pubDate>
             <link>https://github.com/math65/dsmaccess/releases/tag/v1.3</link>
@@ -35,17 +46,6 @@
             <sparkle:releaseNotesLink>https://math65.github.io/dsmaccess/dsmaccess-1.2.html</sparkle:releaseNotesLink>
             <sparkle:releaseNotesLink xml:lang="fr">https://math65.github.io/dsmaccess/dsmaccess-1.2.fr.html</sparkle:releaseNotesLink>
             <enclosure url="https://github.com/math65/dsmaccess/releases/download/v1.2/dsmaccess-1.2.zip" length="10299723" type="application/octet-stream" sparkle:edSignature="+V6IwENKADpky/2ZTRlLElxoreG+iPgwnBHq3nOjeMnJX0wi0++gh7e0XFso8B/MmAoVg+ci2tyUE3s6xm34Bw=="/>
-        </item>
-        <item>
-            <title>1.1</title>
-            <pubDate>Mon, 03 Aug 2026 17:25:12 +0200</pubDate>
-            <link>https://github.com/math65/dsmaccess/releases/tag/v1.1</link>
-            <sparkle:version>23</sparkle:version>
-            <sparkle:shortVersionString>1.1</sparkle:shortVersionString>
-            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
-            <sparkle:releaseNotesLink>https://math65.github.io/dsmaccess/dsmaccess-1.1.html</sparkle:releaseNotesLink>
-            <sparkle:releaseNotesLink xml:lang="fr">https://math65.github.io/dsmaccess/dsmaccess-1.1.fr.html</sparkle:releaseNotesLink>
-            <enclosure url="https://github.com/math65/dsmaccess/releases/download/v1.1/dsmaccess-1.1.zip" length="10167369" type="application/octet-stream" sparkle:edSignature="3/z7g+zpF79eETwShSxZexmx9npU70COTS/97Aw2FVjm83QhRU93L+iD/FRT5k/2/FuyJZdIxZMMNxfgsxBPDw=="/>
         </item>
     </channel>
 </rss>
