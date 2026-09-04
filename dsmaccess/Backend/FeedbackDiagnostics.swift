@@ -4,8 +4,9 @@
 //
 //  Diagnostic snapshot attached to problem reports. The labels are literal French
 //  (and not localized): they make up the email the developer receives, not the
-//  interface. No NAS data appears in it: no address, no account, no profile name,
-//  no session identifier.
+//  interface. The NAS is described by its model and DSM version only, because a
+//  reported DSM error code cannot be read without them: no address, no account, no
+//  profile name, no serial number, no session identifier.
 //
 
 import AppKit
@@ -13,6 +14,8 @@ import AppKit
 enum FeedbackDiagnostics {
     static func sections(
         sessionConnected: Bool,
+        nasModel: String?,
+        dsmVersion: String?,
         profileCount: Int,
         settings: AppSettings,
         incident: DSMResponseIncident? = nil
@@ -37,6 +40,8 @@ enum FeedbackDiagnostics {
             ]),
             AppBackendClient.ReportSection(title: "NAS", rows: [
                 .init(label: "Session connectée", value: sessionConnected ? "oui" : "non"),
+                .init(label: "Modèle", value: nasModel ?? "inconnu"),
+                .init(label: "Version de DSM", value: dsmVersion ?? "inconnue"),
                 .init(label: "Profils enregistrés", value: String(profileCount)),
             ]),
             AppBackendClient.ReportSection(title: "Réglages", rows: [

@@ -92,7 +92,7 @@ struct FeedbackView: View {
                     .keyboardShortcut(.cancelAction)
                 Button("common.button.upload") {
                     Task {
-                        await model.send(sessionConnected: session.isLoggedIn, settings: settings)
+                        await model.send(session: session, settings: settings)
                     }
                 }
                 .keyboardShortcut(.defaultAction)
