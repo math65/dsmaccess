@@ -304,11 +304,21 @@ struct FeedbackDiagnosticsTests {
         Preferences.lastHost = "nas-sentinelle.example"
         Preferences.lastAccount = "compte-sentinelle"
 
-        let sections = FeedbackDiagnostics.sections(sessionConnected: true, profileCount: 2, settings: AppSettings())
+        let sections = FeedbackDiagnostics.sections(
+            sessionConnected: true,
+            nasModel: "DS920+",
+            dsmVersion: "DSM 7.4-12345",
+            profileCount: 2,
+            settings: AppSettings()
+        )
         let json = try #require(String(data: try JSONEncoder().encode(sections), encoding: .utf8))
 
         #expect(!json.contains("nas-sentinelle.example"))
         #expect(!json.contains("compte-sentinelle"))
+        // The model and the DSM version are the only NAS values the report carries: a code
+        // reported without them cannot be read against the version that produced it.
+        #expect(json.contains("DS920+"))
+        #expect(json.contains("DSM 7.4-12345"))
         #expect(sections.map(\.title) == ["Application", "Système", "NAS", "Réglages"])
     }
 }

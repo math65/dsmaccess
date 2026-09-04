@@ -73,7 +73,7 @@ final class FeedbackViewModel {
         }
     }
 
-    func send(sessionConnected: Bool, settings: AppSettings) async {
+    func send(session: SessionStore, settings: AppSettings) async {
         guard canSend else { return }
         isSending = true
         errorMessage = nil
@@ -82,7 +82,9 @@ final class FeedbackViewModel {
         do {
             if contactType == .bug {
                 let sections = FeedbackDiagnostics.sections(
-                    sessionConnected: sessionConnected,
+                    sessionConnected: session.isLoggedIn,
+                    nasModel: session.nasModel,
+                    dsmVersion: session.dsmVersion,
                     profileCount: Preferences.nasProfiles.count,
                     settings: settings,
                     incident: incident

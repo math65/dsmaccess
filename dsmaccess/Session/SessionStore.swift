@@ -21,6 +21,11 @@ final class SessionStore {
     private var generation = 0
     /// APIs actually exposed by DSM and its installed packages.
     private(set) var capabilities = DSMCapabilities()
+    /// What the NAS says about itself, kept for the diagnostic report: without it a reported
+    /// DSM error code cannot be read against the version that produced it. The same payload
+    /// carries the serial number, which is deliberately not kept.
+    private(set) var nasModel: String?
+    private(set) var dsmVersion: String?
     /// Saved NAS devices. Passwords stay exclusively in the Keychain.
     private(set) var profiles: [NASProfile]
     private(set) var activeProfileID: UUID?
@@ -81,6 +86,8 @@ final class SessionStore {
         self.endpoint = endpoint
         self.client = client
         self.capabilities = capabilities
+        nasModel = nil
+        dsmVersion = nil
         generation += 1
         disconnectionMessage = nil
         registerProfile(
@@ -88,6 +95,13 @@ final class SessionStore {
             account: account,
             remembersPassword: remembersPassword
         )
+    }
+
+    /// Remembers what the NAS answered about itself. Called wherever the app already reads
+    /// the system information, so a report usually costs no request of its own.
+    func noteSystemInfo(_ info: SystemInfo) {
+        nasModel = info.model
+        dsmVersion = info.versionString
     }
 
     /// Runs any operation with the session's client and invalidates the whole state if DSM
@@ -241,6 +255,8 @@ final class SessionStore {
         self.endpoint = nil
         self.client = nil
         capabilities = DSMCapabilities()
+        nasModel = nil
+        dsmVersion = nil
         activeProfileID = nil
         reconnectionNotice = nil
     }

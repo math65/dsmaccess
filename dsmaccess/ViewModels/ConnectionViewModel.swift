@@ -353,7 +353,7 @@ final class ConnectionViewModel {
             pendingTarget = target
             activeClient.adoptSession(stored)
             let capabilities = try await activeClient.discoverCapabilities()
-            _ = try await activeClient.systemInfo()
+            let systemInfo = try await activeClient.systemInfo()
             enterSession(
                 account: account,
                 target: target,
@@ -364,6 +364,9 @@ final class ConnectionViewModel {
                     target: target
                 ) != nil
             )
+            // The probe that proved the session is alive already answered what the NAS is:
+            // keeping it spares the report a request of its own.
+            session.noteSystemInfo(systemInfo)
             return true
         } catch DSMError.sessionExpired {
             // The only case where the session really is at fault: do not retry it at the
@@ -749,6 +752,13 @@ final class ConnectionViewModel {
             capabilities: capabilities,
             remembersPassword: remembersPassword
         )
+        // A problem report has to name the NAS and its DSM version; the resumed-session path
+        // learns them from the probe it already sends. Asking here keeps the two paths even,
+        // after the interface has switched, and a NAS that stops answering leaves them
+        // unknown rather than failing a connection that otherwise worked.
+        if let info = try? await client.systemInfo() {
+            session.noteSystemInfo(info)
+        }
     }
 
     /// Final step shared by login and by resuming a remembered session.

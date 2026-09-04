@@ -22,6 +22,32 @@ struct SessionStoreTests {
         #expect(session.reconnectionNotice == nil)
     }
 
+    /// The report needs the model and the DSM version. The same payload carries the serial
+    /// number, which must never leave the machine.
+    @Test func keepsWhatTheNASSaysAboutItselfExceptItsSerialNumber() {
+        let session = SessionStore()
+        #expect(session.nasModel == nil)
+        #expect(session.dsmVersion == nil)
+
+        session.noteSystemInfo(
+            SystemInfo(
+                model: "DS920+",
+                serial: "serie-sentinelle",
+                ram: 4096,
+                versionString: "DSM 7.4-12345",
+                uptime: 1000,
+                temperature: 40,
+                temperatureWarn: false
+            )
+        )
+        #expect(session.nasModel == "DS920+")
+        #expect(session.dsmVersion == "DSM 7.4-12345")
+
+        session.clear()
+        #expect(session.nasModel == nil)
+        #expect(session.dsmVersion == nil)
+    }
+
     @Test func withClientRejectsWorkAfterLogoutWithoutFakingAnExpiry() async {
         let session = SessionStore()
         do {

@@ -32,6 +32,7 @@ final class SystemInfoViewModel {
             let result = try await session.withClient { try await $0.systemInfo() }
             guard generation == loadGeneration else { return }
             info = result
+            session.noteSystemInfo(result)
         } catch {
             guard generation == loadGeneration, !DSMError.isCancellation(error) else { return }
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription

@@ -100,6 +100,7 @@ final class DSMUpdateViewModel {
             let info = try await session.withClient { try await $0.systemInfo() }
             currentVersion = info.versionString
             modelName = info.model
+            session.noteSystemInfo(info)
         } catch {
             guard !DSMError.isCancellation(error) else { return }
             errorMessage = (error as? DSMError)?.errorDescription ?? error.localizedDescription
