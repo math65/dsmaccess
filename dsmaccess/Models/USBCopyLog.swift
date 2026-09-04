@@ -149,7 +149,7 @@ struct USBCopyLogEntry: nonisolated Decodable, Identifiable, Sendable {
         case -21: String(localized: "usb_copy.log.reason.destination_parent_missing")
         case -22: String(localized: "usb_copy.log.reason.source_root_missing")
         case -24: String(localized: "usb_copy.log.reason.version_folder_conflict")
-        default: String(localized: "usb_copy.log.reason.error_code", defaultValue: "error code \(code)")
+        default: String(localized: "usb_copy.log.reason.error_code", defaultValue: "error code \(code.errorCodeText)")
         }
     }
 
