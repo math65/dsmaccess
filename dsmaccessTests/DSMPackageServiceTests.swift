@@ -202,6 +202,38 @@ struct DSMPackageServiceTests {
         #expect(decoded == ["wizard_keep_data": true, "wizard_delete_data": false])
     }
 
+    /// Reported from a failed uninstall of Universal Viewer: DSM repeated the same code in
+    /// the envelope and in its single error detail, which named nothing. Such a detail adds
+    /// nothing to the code it repeats, and the app used to build “codes 4562 and 4562” out
+    /// of it.
+    @Test func readsARepeatedAnonymousErrorDetailAsThePlainCode() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":false,"error":{"code":4562,"errors":[{"code":4562}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub, includesDirectMutations: true)
+
+        await #expect(throws: DSMError.apiError(code: 4562)) {
+            try await service.uninstall(packageID: "UniversalViewer", dsmApps: "")
+        }
+    }
+
+    /// The same shape carrying a code this mapping knows: an anonymous repeat must not bury
+    /// it behind an item failure the user can do nothing with.
+    @Test func stillMapsAKnownCodeRepeatedByAnAnonymousDetail() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":false,"error":{"code":105,"errors":[{"code":105}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(stub: stub, includesDirectMutations: true)
+
+        await #expect(throws: DSMError.permissionDenied) {
+            try await service.uninstall(packageID: "UniversalViewer", dsmApps: "")
+        }
+    }
+
     /// Measured on ffmpeg8, which pulls two dependencies: `get_queue` answers with DSM's own
     /// installation plan, dependencies first. The app used to refuse the whole operation as
     /// soon as the queue held anything besides the requested package.

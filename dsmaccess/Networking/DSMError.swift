@@ -117,13 +117,17 @@ enum DSMError: Error, LocalizedError, Equatable {
         case .groupNameTaken(let name):
             return String(localized: "error.group.name_taken", defaultValue: "A group named \(name) already exists. Choose another name.")
         case .apiError(let code):
-            return String(localized: "error.nas.code", defaultValue: "NAS error (code \(code)).")
+            return String(localized: "error.nas.code", defaultValue: "NAS error (code \(code.errorCodeText)).")
         case .packageCenter(let message):
             return message
+        case .itemOperationFailed(let code, let item?, let itemCode) where code == itemCode:
+            return String(localized: "error.operation.named_failed_one_code", defaultValue: "The operation on “\(item)” failed (code \(code.errorCodeText)).")
         case .itemOperationFailed(let code, let item?, let itemCode):
-            return String(localized: "error.operation.named_failed", defaultValue: "The operation on “\(item)” failed (codes \(code) and \(itemCode)).")
+            return String(localized: "error.operation.named_failed", defaultValue: "The operation on “\(item)” failed (codes \(code.errorCodeText) and \(itemCode.errorCodeText)).")
+        case .itemOperationFailed(let code, nil, let itemCode) where code == itemCode:
+            return String(localized: "error.operation.failed_one_code", defaultValue: "The operation failed (code \(code.errorCodeText)).")
         case .itemOperationFailed(let code, nil, let itemCode):
-            return String(localized: "error.operation.item_failed", defaultValue: "An item operation failed (codes \(code) and \(itemCode)).")
+            return String(localized: "error.operation.item_failed", defaultValue: "The operation failed (codes \(code.errorCodeText) and \(itemCode.errorCodeText)).")
         }
     }
 
@@ -146,4 +150,12 @@ enum DSMError: Error, LocalizedError, Equatable {
         if case DSMError.cancelled = error { return true }
         return false
     }
+}
+
+extension Int {
+    /// A DSM code identifies a failure; it is not a quantity. Interpolated as an integer into
+    /// a localized string it picks up the locale's grouping separator — 4562 is displayed as
+    /// “4 562”, VoiceOver reads it as a number, and it no longer matches the code DSM itself
+    /// documents.
+    nonisolated var errorCodeText: String { formatted(.number.grouping(.never)) }
 }

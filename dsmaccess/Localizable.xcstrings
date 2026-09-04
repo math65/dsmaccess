@@ -12216,13 +12216,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "NAS error (code %lld)."
+            "value": "NAS error (code %@)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Erreur du NAS (code %lld)."
+            "value": "Erreur du NAS (code %@)."
           }
         }
       }
@@ -12243,18 +12243,34 @@
         }
       }
     },
-    "error.operation.item_failed": {
+    "error.operation.failed_one_code": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "An item operation failed (codes %1$lld and %2$lld)."
+            "value": "The operation failed (code %@)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de l’opération sur un élément (codes %lld et %lld)."
+            "value": "L’opération a échoué (code %@)."
+          }
+        }
+      }
+    },
+    "error.operation.item_failed": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The operation failed (codes %1$@ and %2$@)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’opération a échoué (codes %@ et %@)."
           }
         }
       }
@@ -12264,13 +12280,29 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "The operation on “%1$@” failed (codes %2$lld and %3$lld)."
+            "value": "The operation on “%1$@” failed (codes %2$@ and %3$@)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Échec de l’opération sur « %@ » (codes %lld et %lld)."
+            "value": "Échec de l’opération sur « %@ » (codes %@ et %@)."
+          }
+        }
+      }
+    },
+    "error.operation.named_failed_one_code": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The operation on “%1$@” failed (code %2$@)."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Échec de l’opération sur « %@ » (code %@)."
           }
         }
       }
@@ -29883,13 +29915,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "QuickConnect refused the connection (code %lld)."
+            "value": "QuickConnect refused the connection (code %@)."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "QuickConnect a refusé la connexion (code %lld)."
+            "value": "QuickConnect a refusé la connexion (code %@)."
           }
         }
       }
@@ -39867,13 +39899,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "error code %lld"
+            "value": "error code %@"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "code d’erreur %lld"
+            "value": "code d’erreur %@"
           }
         }
       }

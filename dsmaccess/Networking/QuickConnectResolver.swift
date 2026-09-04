@@ -46,7 +46,7 @@ nonisolated enum QuickConnectError: Error, LocalizedError, Equatable {
         case .invalidResponse:
             String(localized: "quickconnect.error.unverified_response")
         case .server(let code):
-            String(localized: "quickconnect.error.refused", defaultValue: "QuickConnect refused the connection (code \(code)).")
+            String(localized: "quickconnect.error.refused", defaultValue: "QuickConnect refused the connection (code \(code.errorCodeText)).")
         case .network(let detail):
             String(localized: "quickconnect.error.unreachable", defaultValue: "Could not reach QuickConnect: \(detail)")
         }

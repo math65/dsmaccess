@@ -569,11 +569,13 @@ final class DSMTransport {
         if let body,
            let detail = body.errors?.first,
            let detailCode = detail.code {
-            return .itemOperationFailed(
-                code: body.code,
-                item: detail.path ?? detail.name ?? detail.id,
-                itemCode: detailCode
-            )
+            let item = detail.path ?? detail.name ?? detail.id
+            // A detail that names no item and only repeats the envelope's code carries
+            // nothing the code alone does not: keeping it would hide a code this mapping
+            // knows how to translate behind an anonymous item failure.
+            if item != nil || detailCode != body.code {
+                return .itemOperationFailed(code: body.code, item: item, itemCode: detailCode)
+            }
         }
         return switch body?.code {
         case 105: .permissionDenied
