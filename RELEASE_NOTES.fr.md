@@ -1,3 +1,52 @@
+## v1.4 (build 29) — 4 septembre 2026
+
+### En bref
+
+- SMB a son propre onglet, avec tous les réglages que DSM propose, là où il
+  n'y avait qu'un interrupteur disant s'il était actif.
+- Les onglets d'un module sont de nouveau annoncés comme des onglets, et ne
+  prennent plus la place du titre du module.
+- Quand le NAS refuse quelque chose, le code d'erreur est lisible, et
+  l'explication que DSM y joint s'affiche au lieu d'être perdue.
+
+### Services de fichiers
+
+- SMB a désormais son onglet, avec les réglages que DSM garde sur son écran
+  et un bouton vers les réglages avancés.
+- Les réglages avancés s'ouvrent dans leur propre fenêtre, en quatre
+  sections nommées plutôt qu'en une longue liste, et treize réglages qui
+  n'avaient aucune explication en ont une — dont le fait que désigner la
+  machine comme explorateur maître local active aussi le compte invité, sans
+  mot de passe.
+- Les réglages se modifient puis s'appliquent d'un bloc. Le NAS redémarre le
+  partage de fichiers à chaque écriture : les appliquer un par un couperait
+  vos partages autant de fois qu'il y a d'interrupteurs.
+- Forcer le chiffrement du transport désactive aussi le verrouillage
+  opportuniste. L'application pose la question avant, comme DSM, et vous
+  signale ce second changement, qui se trouve plus bas dans la fenêtre.
+- Quelques réglages restent volontairement intacts : les motifs de veto, la
+  portée du leasing SMB3, le portail d'agrégation et la fenêtre Kerberos.
+  Ils sont conservés tels quels plutôt qu'écrits au jugé.
+
+### VoiceOver
+
+- Les onglets des services de fichiers, des comptes et d'une version Hyper
+  Backup se lisent à nouveau comme des onglets. macOS les déplaçait dans la
+  barre d'outils de la fenêtre, où ils remplaçaient le nom du module et
+  sonnaient comme un groupe de boutons radio.
+
+### Erreurs et signalements
+
+- Un code d'erreur du NAS s'écrit comme un code — 4562, et non « 4 562 » lu
+  comme une quantité — et il n'est plus énoncé deux fois dans le même
+  message.
+- Quand DSM joint une explication à un refus, cette explication s'affiche à
+  côté du code. L'application la jetait jusqu'ici.
+- Un signalement indique le modèle de votre NAS et sa version de DSM, sans
+  lesquels un code d'erreur DSM ne veut rien dire. Votre adresse, votre
+  compte, le nom de vos profils et le numéro de série du NAS n'y figurent
+  toujours pas.
+
 ## v1.3 (build 28) — 27 août 2026
 
 ### En bref

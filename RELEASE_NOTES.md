@@ -1,3 +1,48 @@
+## v1.4 (build 29) — 2026-09-04
+
+### Highlights
+
+- SMB has a tab of its own, with every setting DSM offers instead of a
+  single switch that only said whether it was on.
+- The tabs inside a module are announced as tabs again, and no longer take
+  the place of the module title.
+- When the NAS refuses something, the error code is readable, and the
+  explanation DSM attaches to it is shown instead of being dropped.
+
+### File services
+
+- SMB now has its own tab, holding the settings DSM keeps on its screen and
+  a button to the advanced ones.
+- The advanced settings open in a window of their own, in four named
+  sections instead of one long list, and thirteen settings that came with no
+  explanation now carry one — including that making the machine the local
+  master browser also enables the guest account, without a password.
+- Settings are edited and applied together. The NAS restarts file sharing on
+  every write, so applying one switch at a time would cut your shares once
+  per switch.
+- Forcing transport encryption also turns opportunistic locking off. The app
+  asks before doing it, as DSM does, and tells you about the second change,
+  which sits further down the window.
+- A few settings are deliberately left untouched: the veto patterns, the
+  SMB3 leasing scope, the aggregation portal and the Kerberos dialog. They
+  are kept as they are rather than written on a guess.
+
+### VoiceOver
+
+- The tabs in file services, accounts and a Hyper Backup version are read as
+  tabs again. macOS was moving them into the window toolbar, where they
+  replaced the name of the module and sounded like a group of radio buttons.
+
+### Errors and reports
+
+- An error code from the NAS is written as a code — 4562, not "4 562" read
+  aloud as a quantity — and it is no longer stated twice in the same message.
+- When DSM attaches an explanation to a refusal, that explanation is shown
+  beside the code. The app used to discard it.
+- A problem report names your NAS model and its DSM version, without which a
+  DSM error code cannot be made sense of. Your address, your account, your
+  profile names and the serial number of the NAS are still never included.
+
 ## v1.3 (build 28) — 2026-08-27
 
 ### Highlights
