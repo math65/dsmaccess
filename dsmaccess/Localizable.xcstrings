@@ -15827,6 +15827,22 @@
         }
       }
     },
+    "files.download.unnamed_file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Untitled file"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier sans nom"
+          }
+        }
+      }
+    },
     "files.download_destination.description": {
       "localizations": {
         "en": {
