@@ -11,8 +11,9 @@ import Foundation
 import Security
 
 /// Valid certificates follow the system policy. An invalid certificate is accepted only
-/// if its SHA-256 fingerprint matches the one approved earlier.
-final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendable {
+/// if its SHA-256 fingerprint matches the one approved earlier. Redirects are held to the
+/// same NAS, under `DSMEndpoint.acceptsRedirect(to:)`.
+final class ServerTrustDelegate: NSObject, URLSessionTaskDelegate, @unchecked Sendable {
     private let endpoint: DSMEndpoint
     private let persistApprovedFingerprint: @Sendable (String) -> Bool
     private let lock = NSLock()
@@ -106,6 +107,22 @@ final class ServerTrustDelegate: NSObject, URLSessionDelegate, @unchecked Sendab
             lock.unlock()
             completionHandler(.cancelAuthenticationChallenge, nil)
         }
+    }
+
+    /// A refused redirect completes the task with the redirect response itself, which the
+    /// transport reports as an invalid response.
+    nonisolated func urlSession(
+        _ session: URLSession,
+        task: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse,
+        newRequest request: URLRequest,
+        completionHandler: @escaping @Sendable (URLRequest?) -> Void
+    ) {
+        guard let url = request.url, endpoint.acceptsRedirect(to: url) else {
+            completionHandler(nil)
+            return
+        }
+        completionHandler(request)
     }
 
     private static func leafFingerprint(for trust: SecTrust) -> String? {

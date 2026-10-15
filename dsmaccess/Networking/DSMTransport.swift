@@ -32,7 +32,8 @@ final class DSMTransport {
 
     init(endpoint: DSMEndpoint) {
         self.endpoint = endpoint
-        let delegate = endpoint.useHTTPS ? ServerTrustDelegate(endpoint: endpoint) : nil
+        // Also kept over HTTP: the delegate is what holds redirects to the same NAS.
+        let delegate = ServerTrustDelegate(endpoint: endpoint)
         trustDelegate = delegate
 
         let configuration = URLSessionConfiguration.ephemeral
