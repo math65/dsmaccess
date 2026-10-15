@@ -73,6 +73,28 @@ struct DSMAuthenticationServiceTests {
         #expect(parameters["session"] == nil)
     }
 
+    @Test func doesNotReplayALoginThatTimedOut() async throws {
+        // The NAS may have opened the session before the reply was lost: a replay would
+        // open a second one and send the one-time code twice.
+        let stub = DSMRequestStub(results: [
+            .timeout,
+            .response(Data(#"{"success":true,"data":{"sid":"session-id"}}"#.utf8)),
+        ])
+        let service = makeService(stub: stub, maxVersion: 7)
+
+        await #expect(throws: DSMError.self) {
+            _ = try await service.login(
+                account: "martine",
+                password: "secret",
+                otpCode: "123456",
+                deviceID: nil,
+                rememberDevice: false
+            )
+        }
+
+        #expect(await stub.requestCount == 1)
+    }
+
     @Test func reportsThatThePasswordMustBeChanged() async throws {
         // 410: DSM requires a new password after an administrator reset.
         let stub = DSMRequestStub(results: [

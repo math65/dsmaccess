@@ -54,12 +54,13 @@ final class DSMAuthenticationService {
             parameters["device_name"] = .string("DSM Access (Mac)")
         }
 
+        // A single attempt: a login that timed out may still have opened a session on the
+        // NAS, and replaying it would open a second one and resend the one-time code.
         let response = try await transport.response(
             api: Self.api,
             method: "login",
             parameters: parameters,
             authenticated: false,
-            requestPolicy: .idempotent,
             as: LoginResult.self
         )
         guard response.success, let result = response.data else {
