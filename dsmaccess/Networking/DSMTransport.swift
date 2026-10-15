@@ -255,7 +255,7 @@ final class DSMTransport {
         components.port = endpoint.port
         components.path = "/webapi/\(path)"
         if !parameters.isEmpty {
-            components.queryItems = parameters.map { URLQueryItem(name: $0.key, value: $0.value) }
+            components.percentEncodedQuery = Self.formEncoded(parameters)
         }
         guard let url = components.url else {
             throw DSMError.invalidEndpoint
@@ -483,11 +483,7 @@ final class DSMTransport {
         case .post:
             var request = URLRequest(url: try makeURL(path: path, parameters: [:]))
             if let timeoutInterval { request.timeoutInterval = timeoutInterval }
-            var body = URLComponents()
-            body.queryItems = parameters
-                .sorted { $0.key < $1.key }
-                .map { URLQueryItem(name: $0.key, value: $0.value) }
-            guard let encodedBody = body.percentEncodedQuery?.data(using: .utf8) else {
+            guard let encodedBody = Self.formEncoded(parameters)?.data(using: .utf8) else {
                 throw DSMError.invalidResponse
             }
             request.httpMethod = httpMethod.rawValue
@@ -498,6 +494,18 @@ final class DSMTransport {
             )
             return request
         }
+    }
+
+    /// Encodes parameters for a query string or a form body, in a stable key order.
+    /// `URLComponents` leaves "+" as it is, and DSM reads a bare "+" as a space (measured on
+    /// DSM 7.4.1, in the URL and in a form body alike): a password or a path containing one
+    /// would reach the NAS altered.
+    nonisolated static func formEncoded(_ parameters: [String: String]) -> String? {
+        var components = URLComponents()
+        components.queryItems = parameters
+            .sorted { $0.key < $1.key }
+            .map { URLQueryItem(name: $0.key, value: $0.value) }
+        return components.percentEncodedQuery?.replacingOccurrences(of: "+", with: "%2B")
     }
 
     private func sendOnce<Value: Decodable & Sendable>(
