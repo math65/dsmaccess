@@ -268,7 +268,20 @@ extension FileStationItem {
     /// DSM delivers a folder as a ZIP archive.
     /// `nonisolated`: read by the promise delegates outside the MainActor.
     nonisolated var promisedFileName: String {
-        isdir ? "\(name).zip" : name
+        Self.localFileName(isdir ? "\(name).zip" : name)
+    }
+
+    /// A name DSM returns is external input, written as is on the Mac: a "/" would reach into
+    /// another folder and "." or ".." would name the folder itself or its parent. Those are
+    /// replaced, the rest of the name is kept.
+    nonisolated static func localFileName(_ name: String) -> String {
+        let cleaned = name
+            .replacingOccurrences(of: "/", with: "-")
+            .replacingOccurrences(of: "\0", with: "")
+        guard !cleaned.isEmpty, cleaned != ".", cleaned != ".." else {
+            return String(localized: "files.download.unnamed_file")
+        }
+        return cleaned
     }
 }
 

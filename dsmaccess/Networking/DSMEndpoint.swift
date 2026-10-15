@@ -24,6 +24,19 @@ nonisolated struct DSMEndpoint: Equatable, Sendable {
     /// Default DSM port for the scheme (5000 over HTTP, 5001 over HTTPS).
     static func defaultPort(useHTTPS: Bool) -> Int { useHTTPS ? 5001 : 5000 }
 
+    /// Whether a redirect answered by this NAS may be followed. Requests carry the session
+    /// and, on some calls, a password: they may move to another port of the same host or up
+    /// to HTTPS (DSM's own HTTP-to-HTTPS redirect), never to another host nor down to HTTP.
+    func acceptsRedirect(to url: URL) -> Bool {
+        guard let redirectHost = url.host(percentEncoded: false),
+              redirectHost.caseInsensitiveCompare(host) == .orderedSame else { return false }
+        switch url.scheme?.lowercased() {
+        case "https": return true
+        case "http": return !useHTTPS
+        default: return false
+        }
+    }
+
     /// The same NAS without the address part QuickConnect adds for a local route.
     ///
     /// QuickConnect names its LAN route by encoding the address into the host —

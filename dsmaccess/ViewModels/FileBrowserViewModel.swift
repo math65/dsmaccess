@@ -526,6 +526,27 @@ final class FileBrowserViewModel {
         item.promisedFileName
     }
 
+    /// Several downloads into one folder must neither overwrite a file already there nor each
+    /// other (two results of a search can share a name): a taken name gets a number, as the
+    /// Finder does. The comparison ignores case, as the Mac's file system does by default.
+    nonisolated static func availableDestination(
+        for fileName: String,
+        in directory: URL,
+        excluding planned: Set<String>,
+        fileExists: (URL) -> Bool = { FileManager.default.fileExists(atPath: $0.path) }
+    ) -> URL {
+        let base = (fileName as NSString).deletingPathExtension
+        let pathExtension = (fileName as NSString).pathExtension
+        var candidate = fileName
+        var number = 2
+        while planned.contains(candidate.lowercased())
+                || fileExists(directory.appendingPathComponent(candidate)) {
+            candidate = pathExtension.isEmpty ? "\(base) \(number)" : "\(base) \(number).\(pathExtension)"
+            number += 1
+        }
+        return directory.appendingPathComponent(candidate)
+    }
+
     func download(_ item: FileStationItem, to destination: URL) async -> DSMOperationOutcome {
         guard canDownload else { return unavailableOutcome(for: .download) }
         defer { destination.stopAccessingSecurityScopedResource() }
@@ -607,8 +628,14 @@ final class FileBrowserViewModel {
         defer { activeDownloadCount -= 1 }
         var completed = 0
         var firstError: String?
+        var plannedNames: Set<String> = []
         let queuedTransfers = selectedItems.map { item in
-            let destination = directory.appendingPathComponent(suggestedFilename(for: item))
+            let destination = Self.availableDestination(
+                for: suggestedFilename(for: item),
+                in: directory,
+                excluding: plannedNames
+            )
+            plannedNames.insert(destination.lastPathComponent.lowercased())
             return (
                 item,
                 destination,

@@ -12,6 +12,8 @@ struct FileStationTasksView: View {
 
     @State private var automaticFollowStopped = false
     @State private var selection = Set<FileStationBackgroundTask.ID>()
+    @State private var pendingStop: FileStationBackgroundTask?
+    @State private var stoppingTaskID: FileStationBackgroundTask.ID?
     @State private var order = [
         KeyPathComparator(\FileStationBackgroundTask.sortableCreationDate, order: .reverse)
     ]
@@ -115,13 +117,44 @@ struct FileStationTasksView: View {
             }
             .accessibilityLabel("file_tasks.table.label")
             .contextMenu(forSelectionType: FileStationBackgroundTask.ID.self) { ids in
-                if let task = vm.backgroundTasks.first(where: { ids.contains($0.id) && $0.canStop }) {
-                    Button("common.button.stop", role: .destructive) {
-                        Task { await stop(task) }
-                    }
+                // Stop acts on one task, the one the menu was opened on: with several rows,
+                // which of them would stop is not something the user can tell.
+                let target = ids.count == 1 ? vm.backgroundTasks.first { ids.contains($0.id) } : nil
+                Button("common.button.stop", role: .destructive) {
+                    pendingStop = target
                 }
+                .disabled(target?.canStop != true || stoppingTaskID != nil)
+            }
+            .confirmationDialog(
+                "file_tasks.stop.confirm.title",
+                isPresented: Binding(
+                    get: { pendingStop != nil },
+                    set: { if !$0 { pendingStop = nil } }
+                ),
+                presenting: pendingStop
+            ) { task in
+                Button("common.button.stop", role: .destructive) {
+                    Task { await stop(task) }
+                }
+                Button("common.button.cancel", role: .cancel) { }
+            } message: { task in
+                Text(stopConsequence(of: task))
             }
         }
+    }
+
+    /// A stop is final: the operation cannot be resumed, so the message names which one.
+    private func stopConsequence(of task: FileStationBackgroundTask) -> String {
+        if let location = task.location {
+            return String(
+                localized: "file_tasks.stop.confirm.description",
+                defaultValue: "\(task.operationLabel) on “\(location)” will stop where it is. It cannot be resumed."
+            )
+        }
+        return String(
+            localized: "file_tasks.stop.confirm.description_without_location",
+            defaultValue: "\(task.operationLabel) will stop where it is. It cannot be resumed."
+        )
     }
 
     /// The NAS reports nothing on its own: without re-reading, the window keeps progress
@@ -183,6 +216,8 @@ struct FileStationTasksView: View {
     }
 
     private func stop(_ task: FileStationBackgroundTask) async {
+        stoppingTaskID = task.id
+        defer { stoppingTaskID = nil }
         OperationFailures.shared.present(await vm.stopBackgroundTask(task), from: .files)
     }
 

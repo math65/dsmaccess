@@ -14499,6 +14499,54 @@
         }
       }
     },
+    "file_tasks.stop.confirm.description": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%1$@ on “%2$@” will stop where it is. It cannot be resumed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’opération « %1$@ » sur « %2$@ » s’arrêtera là où elle en est. Elle ne pourra pas reprendre."
+          }
+        }
+      }
+    },
+    "file_tasks.stop.confirm.description_without_location": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ will stop where it is. It cannot be resumed."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "L’opération « %@ » s’arrêtera là où elle en est. Elle ne pourra pas reprendre."
+          }
+        }
+      }
+    },
+    "file_tasks.stop.confirm.title": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop this task?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Arrêter cette tâche ?"
+          }
+        }
+      }
+    },
     "file_tasks.table.label": {
       "localizations": {
         "en": {
@@ -15823,6 +15871,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "Téléchargement terminé : %@"
+          }
+        }
+      }
+    },
+    "files.download.unnamed_file": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Untitled file"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fichier sans nom"
           }
         }
       }

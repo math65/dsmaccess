@@ -30,7 +30,10 @@ TEAM_ID="633EG76YX5"
 NOTARY_PROFILE="ttaccessible-notary"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DERIVED_DATA="/tmp/${APP_NAME}-build"       # chemin fixe → outils Sparkle localisables
+# Fixed path, so the Sparkle tools can be found, but inside the user's own Library: a fixed
+# folder under /tmp can be created first by another account, which would then supply the
+# generate_appcast run with the Sparkle signing key.
+DERIVED_DATA="$HOME/Library/Caches/${APP_NAME}-build"
 OUTPUT_DIR="$SCRIPT_DIR/BuildArtifacts"
 DOCS_DIR="$SCRIPT_DIR/docs"
 ARCHIVE_PATH="$DERIVED_DATA/${APP_NAME}.xcarchive"

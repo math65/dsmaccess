@@ -29,12 +29,18 @@ enum KeychainStore {
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
         ]
-        // Delete any existing entry, then re-insert (simple upsert).
-        SecItemDelete(base as CFDictionary)
-        var attributes = base
-        attributes[kSecValueData as String] = data
-        attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
-        return SecItemAdd(attributes as CFDictionary, nil) == errSecSuccess
+        let attributes: [String: Any] = [
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlock,
+        ]
+        // Updated in place rather than deleted then added: a failure between the two would
+        // lose the stored secret, and with it the session or the approved certificate.
+        let updateStatus = SecItemUpdate(base as CFDictionary, attributes as CFDictionary)
+        guard updateStatus == errSecItemNotFound else {
+            return updateStatus == errSecSuccess
+        }
+        let newItem = base.merging(attributes) { current, _ in current }
+        return SecItemAdd(newItem as CFDictionary, nil) == errSecSuccess
     }
 
     /// Reads a value for a service/account pair, or nil if absent.
