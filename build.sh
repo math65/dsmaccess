@@ -10,7 +10,8 @@
 # Prérequis (tous déjà en place au 2026-07-10) :
 #   - Identité « Developer ID Application: Mathieu Martin (633EG76YX5) » dans le trousseau.
 #   - Clé privée EdDSA Sparkle dans le trousseau (clé publique = SUPublicEDKey de Info.plist).
-#   - Profil notarytool $NOTARY_PROFILE enregistré (vérif : xcrun notarytool history --keychain-profile "$NOTARY_PROFILE").
+#   - Profil notarytool $NOTARY_PROFILE enregistré à partir de la clé API App Store Connect
+#     (vérif : xcrun notarytool history --keychain-profile "$NOTARY_PROFILE").
 #   - GitHub Pages activé (source main /docs) sert https://math65.github.io/dsmaccess/appcast.xml.
 #
 # Chaque release publique : bumper MARKETING_VERSION + CURRENT_PROJECT_VERSION dans le
@@ -25,9 +26,10 @@ APP_NAME="dsmaccess"
 REPO="math65/dsmaccess"
 SIGN_IDENTITY="Developer ID Application: Mathieu Martin (633EG76YX5)"
 TEAM_ID="633EG76YX5"
-# Les profils notarytool ne sont PAS liés à une app : on réutilise celui de ttaccessible
-# (identifiant Apple partagé). Voir mémoire sparkle-distribution.
-NOTARY_PROFILE="ttaccessible-notary"
+# Notarization authenticates with the team's App Store Connect API key rather than an Apple ID
+# and app-specific password. The profile holds the key in the login Keychain, so nothing about
+# it lives in this public repository; it is not tied to an app and serves the team's other apps.
+NOTARY_PROFILE="appstoreconnect-notary"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Fixed path, so the Sparkle tools can be found, but inside the user's own Library: a fixed
