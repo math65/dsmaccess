@@ -166,7 +166,7 @@ struct ArchiveBrowserSheet: View {
                     Text(item.packedSize, format: .byteCount(style: .file))
                 }
                 TableColumn("common.column.date_modified") { item in
-                    Text(item.modificationTime)
+                    Text(item.modificationTime ?? String(localized: "common.value.not_available"))
                 }
             }
             .accessibilityLabel("files.archive.title")
