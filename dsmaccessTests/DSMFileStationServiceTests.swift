@@ -701,6 +701,25 @@ struct DSMFileStationServiceTests {
         #expect(try JSONDecoder().decode([Int].self, from: Data(itemIDs.utf8)) == [7])
     }
 
+    /// Reply captured on DSM 7.4 for a zip holding `dossier/un.txt` but no `dossier/` entry:
+    /// DSM lists the folder it rebuilt with an empty date, and rejecting it lost the whole list.
+    @Test func listsArchiveEntriesThatHaveNoModificationDate() async throws {
+        let stub = DSMRequestStub(results: [
+            .response(Data(
+                #"{"success":true,"data":{"total":2,"items":[{"is_dir":true,"item_id":4,"mtime":"","name":"dossier","pack_size":0,"path":"dossier","size":0},{"is_dir":false,"item_id":0,"mtime":"2026-11-09 12:21:37","name":"racine.txt","pack_size":7,"path":"racine.txt","size":7}]}}"#.utf8
+            )),
+        ])
+        let service = makeService(
+            stub: stub,
+            entries: ["SYNO.FileStation.Extract": entry(maxVersion: 2)]
+        )
+
+        let archive = try await service.archiveItems(archivePath: "/home/archive.zip")
+
+        #expect(archive.elements.map(\.name) == ["dossier", "racine.txt"])
+        #expect(archive.elements.map(\.modificationTime) == [nil, "2026-11-09 12:21:37"])
+    }
+
     @Test func returnsBinaryThumbnailData() async throws {
         let imageData = Data([0x89, 0x50, 0x4E, 0x47])
         let stub = DSMRequestStub(results: [

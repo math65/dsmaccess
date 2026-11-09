@@ -451,7 +451,9 @@ struct FileStationArchiveItem: nonisolated Decodable, Equatable, Identifiable, S
     let name: String
     let size: Int64
     let packedSize: Int64
-    let modificationTime: String
+    /// DSM sends `""` when it has no date: for a folder it rebuilt from file paths because the
+    /// archive holds no entry for it, and for an entry whose stored date is zero.
+    let modificationTime: String?
     let path: String
     let isDirectory: Bool
 
@@ -481,7 +483,7 @@ struct FileStationArchiveItem: nonisolated Decodable, Equatable, Identifiable, S
         name = try container.requiredFlexString(.name)
         self.size = size
         self.packedSize = packedSize
-        modificationTime = try container.requiredFlexString(.modificationTime)
+        modificationTime = container.flexString(.modificationTime).flatMap { $0.isEmpty ? nil : $0 }
         path = try container.requiredFlexString(.path)
         isDirectory = try container.requiredFlexBool(.isDirectory)
     }
