@@ -1,5 +1,15 @@
 # DSM Access
 
+> **FR** — **Projet en pause.** Depuis DSM 7.4.1, une session ouverte par une application tierce
+> depuis l'extérieur du réseau local n'obtient plus tous les droits d'administrateur : créer un
+> utilisateur ou compresser des fichiers est refusé. La version 1.4 reste téléchargeable et
+> fonctionne pour presque tout le reste. Le développement reprendra peut-être avec DSM 8.
+>
+> **EN** — **This project is on pause.** Since DSM 7.4.1, a session opened by a third-party app
+> from outside the local network no longer gets full administrator rights: creating a user or
+> compressing files is refused. Version 1.4 remains available and still works for almost
+> everything else. Development may resume with DSM 8.
+
 **FR** — Un client macOS natif et **accessible** pour administrer un NAS Synology, pensé
 en priorité pour les utilisateurs de **VoiceOver**. Il remplace l'interface web DSM,
 difficilement utilisable au lecteur d'écran, par une application SwiftUI où chaque écran
